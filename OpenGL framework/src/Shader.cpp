@@ -102,6 +102,7 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 
 void Shader::SetUniformMat4f(const char* name, const glm::mat4& mat)
 {
+	
 	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &mat[0][0]));
 }
 

@@ -9,6 +9,7 @@ class GameObject
 public:
 	GameObject(const std::string& name);
 	~GameObject();
+	void SetUniformMat4f(const std::string& str, glm::mat4&  mat);
 
 	//	float  m_MeshVertices[ ];
    //	float m_UVs[ ];
@@ -28,8 +29,7 @@ public:
 	std::string  m_name;
 	Shader* m_shader;
 	Texture* m_texture;
-	static GameObject CreateCube();
-	std::string* Name() { return  &m_name; }
+ 	std::string* Name() { return  &m_name; }
 
 	VertexArray* GetVertexArray() const { return m_va; }
 	void Rename(const std::string& rename)

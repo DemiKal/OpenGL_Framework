@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cube.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\obj_loader.cpp" />
@@ -267,6 +268,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\obj_loader.h" />

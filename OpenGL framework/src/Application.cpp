@@ -15,6 +15,7 @@
 #include "imgui/imgui_impl_glfw_gl3.h"
 #include "tests/TestClearColor.h"
 #include "../GameObject.h"
+#include "../Cube.h"
 
 static const int SCREENWIDTH = 1280;
 static const int SCREENHEIGHT = 720;
@@ -44,67 +45,14 @@ int main(void)
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	//glFrontFace(GL_CW);
-	{
-		/*float positions[] = {
-			-1,	-1,  0, 0.0f, 0.0f,
-			 1,	-1,  0,	1.0f, 0.0f,
-			 1,  1,	 0,	1.0f, 1.0f,
-			-1,	 1,	 0, 0.0f, 1.0f
-		};*/
-
+	{ 
 		//GLCall(glEnable(GL_BLEND));
 		//GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-		float positions[] = {
-			-1,	-1,  1,		0.0f, 0.0f,
-			1,	-1,  1,		1.0f, 0.0f,
-			1,  1,	 1,		1.0f, 1.0f,
-			-1,	 1,	 1,		0.0f, 1.0f,
-
-			1,	-1,  1,		0.0f, 0.0f,
-			1,	-1,  -1,	1.0f, 0.0f,
-			1,  1 ,	 -1,	1.0f, 1.0f,
-			1,	 1,	 1,		0.0f, 1.0f,
-
-			1,	-1,  -1,	0.0f, 0.0f,
-			-1,	-1,  -1,	1.0f, 0.0f,
-			-1,	 1,	 -1,	1.0f, 1.0f,
-			1,  1,	 -1,	0.0f, 1.0f,
-
-			-1,	-1,  -1,	0.0f, 0.0f,
-			-1,	-1,   1,	1.0f, 0.0f,
-			-1,	 1,	  1,	1.0f, 1.0f,
-			-1,  1 , -1,	0.0f, 1.0f,
-		};
-
-		unsigned int indices[]{
-			0, 1, 2, 2, 3, 0,
-			4, 5, 6, 6, 7, 4,
-			8, 9, 10, 10, 11, 8,
-			12, 13, 14, 14, 15, 12
-		};
-
-		Renderer renderer;
-
-		GameObject cube("cube");
-		cube.Rename("John");
-		
-		VertexArray va;
-		cube.m_va = &va;
-
-		VertexBuffer vb(positions, 4 * 5 * 4 * sizeof(float));
-		cube.m_vb = &vb;
-
-		VertexBufferLayout layout;
-		cube.m_layout = &layout;
-
-		layout.Push<float>(3);
-		layout.Push<float>(2);
-		va.AddBuffer(vb, layout);
-
-		IndexBuffer ib(indices, 4 * 6);
-		cube.m_ib = &ib;
-
+ 
+		Renderer renderer; 
+		Cube cube("myCube");
+		cube.renderer = &renderer;
+		 
 		//const glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -10.0f, 100.0f);
 		// Camera camera(glm::vec3(0.0f, 0.0f, -5.0f), 70.0f, (float)DISPLAY_WIDTH / (float)DISPLAY_HEIGHT, 0.1f, 100.0f);
 		float aspect = (float)SCREENWIDTH / (float)(SCREENHEIGHT);
@@ -122,24 +70,7 @@ int main(void)
 			camPos + forward,
 			up
 		);
-
-		Shader shader("res/shaders/basic.shader");
-		cube.m_shader = &shader;
-		shader.Bind();
-		shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
-
-		Texture texture("res/textures/mario.png");
-		cube.m_texture = &texture;
-
-
-		texture.Bind();
-		shader.SetUniform1i("u_Texture", 0);
-
-		va.Unbind();
-		vb.UnBind();
-		ib.UnBind();
-		shader.Unbind();
-
+		 
 		ImGui::CreateContext();
 		ImGui_ImplGlfwGL3_Init(window, true);
 		ImGui::StyleColorsDark();
@@ -210,8 +141,8 @@ int main(void)
 
 				//glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
 				glm::mat4 mvp = proj * view * model;
-				shader.Bind();
-				shader.SetUniformMat4f("u_MVP", mvp);
+				//cube.m_shader.Bind();
+				cube.m_shader->SetUniformMat4f("u_MVP", mvp);
 				cube.Draw();
 			}
  

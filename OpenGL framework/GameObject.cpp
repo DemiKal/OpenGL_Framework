@@ -1,5 +1,5 @@
 #include "GameObject.h"
-
+#include "VertexBufferLayout.h"
 
 
 GameObject::GameObject(const std::string& name)
@@ -17,10 +17,5 @@ GameObject::~GameObject()
 {
 }
 
-GameObject GameObject::CreateCube()
-{
-	GameObject cube("Cube");
+ 
 
-
-
-}
