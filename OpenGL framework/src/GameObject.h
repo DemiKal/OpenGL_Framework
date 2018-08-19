@@ -3,6 +3,8 @@
 #include "IndexBuffer.h"
 #include <string>
 #include "Texture.h"
+#include "VertexBufferLayout.h"
+#include <Transform.h>
 
 class GameObject
 {
@@ -11,43 +13,29 @@ public:
 	~GameObject();
 	void SetUniformMat4f(const std::string& str, glm::mat4&  mat);
 
-	//	float  m_MeshVertices[ ];
-   //	float m_UVs[ ];
-
 private:
 	glm::vec3 position;
 	glm::vec3 scale;
 	glm::vec3 rotation;
-
+	std::string  m_name;
+	bool enabled = true;
 public:
-	
 	Renderer* renderer;
 	VertexArray* m_va;
 	VertexBuffer* m_vb;
 	VertexBufferLayout* m_layout;
 	IndexBuffer* m_ib;
-	std::string  m_name;
 	Shader* m_shader;
 	Texture* m_texture;
- 	std::string* Name() { return  &m_name; }
+	Transform* m_transform;
 
-	VertexArray* GetVertexArray() const { return m_va; }
+	std::string* Name() { return  &m_name; }
+	//VertexArray* GetVertexArray() { return &m_va; }
+
 	void Rename(const std::string& rename)
 	{
-		auto n = Name();
-		*n = rename;
-
+		m_name = rename;
 	}
 
-	void SetShader(const std::string filepath)
-	{
-		
-	}
-
-	void Draw()
-	{
-		renderer->Draw(*m_va, *m_ib, *m_shader);
-	}
-
+	void Draw() { if(enabled) renderer->Draw(*m_va, *m_ib, *m_shader); }
 };
-

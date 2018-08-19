@@ -16,6 +16,7 @@
 #include "tests/TestClearColor.h"
 #include "../GameObject.h"
 #include "../Cube.h"
+#include "Camera.h"
 
 static const int SCREENWIDTH = 1280;
 static const int SCREENHEIGHT = 720;
@@ -40,45 +41,21 @@ int main(void)
 		return -1;
 	}
 
-
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 	std::cout << glGetString(GL_VERSION) << std::endl;
-	//glFrontFace(GL_CW);
-	{ 
-		//GLCall(glEnable(GL_BLEND));
-		//GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
- 
-		Renderer renderer; 
+
+	{
+		Renderer renderer;
 		Cube cube("myCube");
 		cube.renderer = &renderer;
-		 
-		//const glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -10.0f, 100.0f);
-		// Camera camera(glm::vec3(0.0f, 0.0f, -5.0f), 70.0f, (float)DISPLAY_WIDTH / (float)DISPLAY_HEIGHT, 0.1f, 100.0f);
+
 		float aspect = (float)SCREENWIDTH / (float)(SCREENHEIGHT);
 
-		const glm::mat4 proj = glm::perspective(70.0f, aspect, 0.1f, 200.0f);
-
-		//glm::mat4 view = translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-
-		glm::vec3 camPos(0, 0, 5);
-		glm::vec3 forward(0, 0, -1);
-		glm::vec3 up(0, 1, 0);
-
-		glm::mat4 view = lookAt(
-			camPos,
-			camPos + forward,
-			up
-		);
-		 
+		Camera camera(glm::vec3(0, 0, 5), 70, aspect, 0.1f, 200.0f);
 		ImGui::CreateContext();
 		ImGui_ImplGlfwGL3_Init(window, true);
 		ImGui::StyleColorsDark();
-		bool show_demo_window = true;
-		bool show_another_window = false;
-		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-		glm::vec3 translationA(0, 0, 0);
-		glm::vec3 translationB(-1, -1, 0);
 
 		test::Test* currentTest = nullptr;
 		test::TestMenu* testMenu = new test::TestMenu(currentTest);
@@ -86,35 +63,47 @@ int main(void)
 
 		testMenu->RegisterTest<test::TestClearColor>("Clear color");
 		float rot = 0;
+
 		//game loop
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glEnable(GL_DEPTH_TEST);
 
+		//auto forward = glm::vec3(0, 0, -1);
+		//auto up = glm::vec3(0, 1, 0);
+
+		//auto l = glm::cross(forward, glm::vec3(1, 0, 0));
+		double mouseXold = 0, mouseYold = 0;
+		double mouseXnew = 0, mouseYnew = 0;
 		while (!glfwWindowShouldClose(window))
 		{
 			rot += 0.005;
+			glfwGetCursorPos(window, &mouseXnew, &mouseYnew);
+			float signX = glm::sign(mouseXnew - mouseXold);
+			float signY = glm::sign(mouseYold - mouseYnew);
+			glm::vec2 mDiff = glm::vec2(signX, signY);
+			
+
 			renderer.Clear();
-			//ImGui_ImplGlfwGL3_NewFrame();
 			ImGui_ImplGlfwGL3_NewFrame();
 
-			float cameraSpeed = 0.05f;
+			float camSpeed = 0.05f;
+			glm::vec3 camMovement = glm::vec3();
+			const glm::vec3 forward = camera.GetForward();
+			const glm::vec3 up = camera.GetUp();
 
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-				camPos += cameraSpeed * forward;
-			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-				camPos -= cameraSpeed * forward;
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camMovement += camSpeed * forward;
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camMovement -= camSpeed * forward;
+			if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) camMovement += camSpeed * up;
 			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-				camPos -= glm::normalize(glm::cross(forward, up)) * cameraSpeed;
+				camMovement -= glm::normalize(glm::cross(forward, up)) * camSpeed;
 			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-				camPos += glm::normalize(glm::cross(forward, up)) * cameraSpeed;
+				camMovement += glm::normalize(glm::cross(forward, up)) * camSpeed;
 
+			//	camMovement += mDiff * camSpeed;
 
-			view = lookAt(
-				camPos,
-				camPos + forward,
-				up
-			);
+			*camera.Position() += camMovement;
+			double currentTime = glfwGetTime();
 
 			if (currentTest)
 			{
@@ -130,23 +119,19 @@ int main(void)
 				currentTest->OnImGuiRender();
 				ImGui::End();
 			}
-
-
-
 			{
-				auto r = glm::rotate(glm::mat4(1), rot, glm::vec3(0, 1, 0));
+				cube.m_shader->Bind();
 
-				glm::mat4 model = r;//translate(glm::mat4(1.0f), translationA); //* glm::rotate(glm::mat4(1.0f), 0,glm::vec3(0, 1, 0));
- 
+				if (glm::abs(mDiff.x) < 10 || glm::abs(mDiff.y) < 10)
+				{
+					camera.RotateY(-mDiff.x*camSpeed/2 );
+					camera.Pitch(-mDiff.y*camSpeed / 2);
+				}
 
-				//glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
-				glm::mat4 mvp = proj * view * model;
-				//cube.m_shader.Bind();
+				glm::mat4 mvp = cube.m_transform->GetMVP(camera);
 				cube.m_shader->SetUniformMat4f("u_MVP", mvp);
 				cube.Draw();
 			}
- 
-		 
 
 			//{
 			//	static float f = 0.0f;
@@ -160,7 +145,8 @@ int main(void)
 			//		counter++;
 			//	ImGui::SameLine();
 			//	ImGui::Text("counter = %d", counter);
-			//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+				//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
 			//}
 
 			ImGui::Render();
@@ -168,6 +154,9 @@ int main(void)
 
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
+
+			mouseXold = mouseXnew;
+			mouseYold = mouseYnew;
 		}
 
 		delete currentTest;

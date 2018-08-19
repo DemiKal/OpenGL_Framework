@@ -11,7 +11,8 @@ struct ShaderProgramSource
 
 class Shader
 {
-private:
+public:
+
 	std::string m_FilePath;
 	unsigned int m_RendererID;
 	std::unordered_map<std::string, int> m_UniformLocationCache;
@@ -20,7 +21,7 @@ private:
 	ShaderProgramSource parseShader(const std::string& path) const;
 
 
-public:
+	//Shader();
 	Shader(const std::string& filepath);
 	~Shader();
 
@@ -31,5 +32,6 @@ public:
 	unsigned int CompileShader(unsigned type, const std::string& source);
 	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
 	void SetUniformMat4f(const char* name, const glm::mat4& mat);
+	Shader& operator=(Shader* shader);
 };
 

@@ -7,6 +7,7 @@
 #include "Renderer.h"
 #include <functional>
 
+//Shader::Shader (){}
 Shader::Shader(const std::string& filepath)
 	: m_FilePath(filepath),
 	m_RendererID(0)
@@ -102,10 +103,16 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 
 void Shader::SetUniformMat4f(const char* name, const glm::mat4& mat)
 {
-	
-	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &mat[0][0]));
+	int location = GetUniformLocation(name);
+	GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]));
 }
 
+//Shader & Shader::operator=(Shader * shader)
+//{
+//	return *shader;
+//}
+
+ 
 ShaderProgramSource Shader::parseShader(const std::string& path) const
 {
 	std::ifstream stream(path);
