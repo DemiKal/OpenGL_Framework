@@ -45,7 +45,7 @@ public:
 	{
 		m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
 		m_Stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
-	}
+ 	}
 
 	template<>
 	void Push<unsigned int>(unsigned int count)
@@ -64,7 +64,3 @@ public:
 	inline unsigned int GetStride() const { return m_Stride; }
 	inline const std::vector<VertexBufferElement> GetElements() const& { return m_Elements; }
 };
-
-inline VertexBufferLayout::~VertexBufferLayout()
-{
-}
