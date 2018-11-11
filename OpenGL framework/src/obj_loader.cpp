@@ -1,7 +1,5 @@
 #include "precomp.h"
 
-
-
 static bool CompareOBJIndexPtr(const OBJIndex* a, const OBJIndex* b);
 static inline unsigned int FindNextChar(unsigned int start, const char* str, unsigned int length, char token);
 static inline unsigned int ParseOBJIndexValue(const std::string& token, unsigned int start, unsigned int end);
@@ -22,7 +20,7 @@ OBJModel::OBJModel(const std::string& fileName)
 		{
 			getline(file, line);
 
-			unsigned int lineLength = line.length();
+			const unsigned int lineLength = line.length();
 
 			if (lineLength < 2)
 				continue;

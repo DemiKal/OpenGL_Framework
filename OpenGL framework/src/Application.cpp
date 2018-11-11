@@ -1,10 +1,6 @@
 #include "precomp.h"
 
 
-
-
-static const int SCREENWIDTH = 1280;
-static const int SCREENHEIGHT = 720;
 //struct Cuban;
 int main(void)
 {

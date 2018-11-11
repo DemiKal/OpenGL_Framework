@@ -1,6 +1,9 @@
 #define GLM_ENABLE_EXPERIMENTAL 
 #define GLEW_STATIC
 
+const int SCREENWIDTH = 1280;
+const int SCREENHEIGHT = 720;
+
 #include <ctime>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -35,8 +38,9 @@
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
 
-
 #include "util.h"
+
+
 
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"

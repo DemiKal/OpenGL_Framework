@@ -28,6 +28,7 @@ class Cube : public GameObject
 				v2 = v2_;
 				v3 = v3_;
 			}
+
 			Triangle operator*(const glm::mat4& mat)  const
 			{
 				auto v1_ = glm::vec3(mat * glm::vec4(v1, 1));
@@ -50,6 +51,7 @@ class Cube : public GameObject
 
 			};
 	};
+
 public:
 	static Cuban createCuban(const std::string& name)
 	{

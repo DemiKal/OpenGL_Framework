@@ -1,11 +1,5 @@
 #include "precomp.h"
 
-
-//TODO: set this in a class globally accessible
-static const int SCREENWIDTH = 1280;
-static const int SCREENHEIGHT = 720;
-
-
 Camera::Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar)
 {
 	this->pos = pos;
@@ -66,7 +60,7 @@ void Camera::CheckMouseHover(double mX, double mY, Cube& cube)
 {
 	auto tris = cube.GetMeshTriangles();
 	glm::vec3 const campos = *Position();
-	auto  dir = RayFromMouse(mX, mY);
+	const auto  dir = RayFromMouse(mX, mY);
 
 	bool cubeIntersect = false;
 	for (const auto tri : tris)
@@ -96,9 +90,8 @@ void Camera::SetPerspective(const glm::vec3& pos, float fov, float aspect, float
 {
 	this->projection = glm::perspective(fov, aspect, zNear, zFar);
 }
-Camera::~Camera()
-{
-}
+Camera::~Camera() = default;
+
 
 glm::vec3 Camera::GetForward() const
 {
