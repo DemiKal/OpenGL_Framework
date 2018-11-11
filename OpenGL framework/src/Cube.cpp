@@ -1,6 +1,7 @@
 #include "Cube.h"
 #include "VertexBufferLayout.h"
 
+
 Cube::Cube(const std::string& name) : GameObject(name)
 {
 	float meshverts[] = {

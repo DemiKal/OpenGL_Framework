@@ -14,7 +14,6 @@ Mesh::Mesh(const std::string& fileName)
 
 void Mesh::InitMesh(const IndexedModel& model)
 {
-
 	m_numIndices = model.indices.size();
 
 	glGenVertexArrays(1, &m_vertexArrayObject);

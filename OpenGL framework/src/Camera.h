@@ -1,17 +1,29 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "glm/gtc/matrix_transform.hpp"
-//
+#include "glm/gtx/intersect.inl"
+#include "imgui/imgui.h"
+#include <iostream>
+
+class Cube;
+
 struct Camera
 {
 public:
 	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
+	void MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mvelo);
+	glm::vec3 RayFromMouse(float mouseX, float mouseY) const;
 	void SetOrthographic();
 
 	inline glm::mat4 GetViewProjectionMatrix() const
 	{
 		return projection * glm::lookAt(pos, pos + forward, up);
 	}
+
+	void meme(Cube& cyb);
+
+	void CheckMouseHover(double mX, double mY, Cube & cube);
+	
 
 	inline glm::mat4 GetViewMatrix() const
 	{
@@ -56,12 +68,12 @@ public:
 	//rotate around the y axis, its own up vector
 	void RotateYlocal (float angle)
 	{
-		//static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
+		static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
 
 		glm::mat4 rotation = glm::rotate(glm::mat4(1), angle, up);
 		forward = glm::vec3(glm::normalize(rotation * glm::vec4(forward, 0.0)));
 		
-		//up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
+		up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
 	}
 
 	glm::vec3 GetUp() const;

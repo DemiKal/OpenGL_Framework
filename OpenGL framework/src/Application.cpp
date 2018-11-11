@@ -1,4 +1,5 @@
 #define GLM_ENABLE_EXPERIMENTAL 
+#define GLEW_STATIC
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -17,90 +18,14 @@
 #include "imgui/imgui_impl_glfw_gl3.h"
 #include "tests/TestClearColor.h"
 #include "../GameObject.h"
-#include "../Cube.h"
+#include "Cube.h"
 #include "Camera.h"
 #include "mesh.h"
-#include "glm/gtx/intersect.hpp";
-//#include "glm/gtx/string_cast.inl"
 
 
 static const int SCREENWIDTH = 1280;
 static const int SCREENHEIGHT = 720;
-
-glm::vec3 RayFromMouse(Camera& cam, float mouseX, float mouseY)
-{
-	float x = (2.0f * mouseX) / SCREENWIDTH - 1.0f;
-	float y = 1.0f - (2.0f * mouseY) / SCREENHEIGHT;
-	float z = 1.0f;
-	glm::mat4 proj_mat = cam.GetProjectionMatrix();
-	glm::mat4 view_matrix = cam.GetViewMatrix();
-
-	//normalized device coordinates [-1:1, -1:1, -1:1]
-	glm::vec3 ray_nds = glm::vec3(x, y, z);
-
-	// clip space (4d homogenized) [-1:1, -1:1, -1:1, -1:1]
-	glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
-
-	// eye space [-x:x, -y:y, -z:z, -w:w]
-	glm::vec4 ray_eye = glm::inverse(proj_mat) * ray_clip;
-	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
-
-	// world space [-x:x, -y:y, -z:z, -w:w]
-	glm::vec3 ray_world = glm::vec3(glm::inverse(view_matrix) * ray_eye);
-	ray_world = glm::normalize(ray_world);
-	//auto campos = glm::vec3(view_matrix[3]);
-	//ImGui::Text("Cursor ray: %.2f %.2f %.2f", ray_world.x, ray_world.y, ray_world.z);
-	//ImGui::Text("viewMat: %.2d %.2d %.2d", campos.x, campos.y, campos.z);
-
-	return ray_world;
-}
-
-void CheckMouseHover(double mX, double mY, Camera& cam, Cube& cube)
-{
-	auto tris = cube.GetMeshTriangles();
-	glm::vec3 const campos = *cam.Position();
-	auto  dir = RayFromMouse(cam, mX, mY);
-
-	// screen space (viewport coordinates)
-
-
-
-
-	bool cubeIntersect = false;
-	for (const auto tri : tris)
-	{
-		glm::vec2 baryCoords{ 0,0 };
-		float t;
-
-		const bool intersect = glm::intersectRayTriangle(campos,
-			dir, (&tri)->v1, (&tri)->v2, (&tri)->v3, baryCoords, t);
-
-		if (intersect)
-		{
-			cubeIntersect = true;
-			break;
-		}
-	}
-
-
-	std::string name = "none";
-
-	name = cubeIntersect ? cube.Name()->c_str() : "none";
-
-	ImGui::Text("Hovered obj: %s", name.c_str());
-}
-
-void MoveCameraMouse(Camera& camera, glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo)
-{
-	mDiff = glm::normalize(mDiff);
-	if (glm::abs(mDiff.x) < 10 || glm::abs(mDiff.y) < 10)
-	{
-		camera.RotateYlocal(-mDiff.x * camSpeed/2 * mvelo.length());
-		camera.RotateXlocal(-mDiff.y * camSpeed/2 * mvelo.length() );
-	}
-	
-}
-
+//struct Cuban;
 int main(void)
 {
 	GLFWwindow* window;
@@ -126,12 +51,17 @@ int main(void)
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	{
+		{
+			//auto sss = Cube::createCuban("billy");
+			auto sss = new Cube("naabab");
+		}
+
 		Renderer renderer;
 		renderer.SetAlphaBlending(false);
 		Cube cube("myCube");
-		//Mesh mesh("res/mesh objects/weird2.obj");
+		//Mesh mesh("res/mesh objects/Bunny2.obj");
 
-		cube.renderer = &renderer;
+		//cube.renderer = &renderer;
 		float aspect = (float)SCREENWIDTH / (float)(SCREENHEIGHT);
 
 		Camera camera(glm::vec3(0, 0, 5), 70, aspect, 0.1f, 200.0f);
@@ -208,23 +138,22 @@ int main(void)
 			}
 			{
 				cube.m_shader->Bind();
-
-				MoveCameraMouse(camera, mDiff, camSpeed, mouseVelocity);
+				
+				//camera.MoveCameraMouse(mDiff, camSpeed, mouseVelocity);
 
 				//*cube.m_transform->GetPos() += glm::vec3(0.01f, 0, 0);
-				*cube.m_transform->GetRot() += glm::vec3(0.01f);
+				//*cube.m_transform->GetRot() += glm::vec3(0.01f);
 
 				//cubepos += glm::vec3(0.001f, 0, 0);
 
 				glm::mat4 mvp = cube.m_transform->GetMVP(camera);
 				cube.m_shader->SetUniformMat4f("u_MVP", mvp);
 				cube.Draw();
+
 				//mesh.Draw();
 
-				CheckMouseHover(mouseXnew, mouseYnew, camera, cube);
-
-
-
+				camera.CheckMouseHover(mouseXnew, mouseYnew, cube);
+				camera.meme(cube);
 			}
 
 

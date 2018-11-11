@@ -3,8 +3,21 @@
 #include <array>
 
 
+
+
 class Cube : public GameObject
 {
+	struct Cuban
+	{
+		int x;
+		int y;
+		std::string name;
+		Cuban(int _x, int _y, const std::string& name1) {
+			x = _x; y = _y; name = name1;
+		};
+	};
+
+	
 
 	class Triangle
 	{
@@ -24,12 +37,12 @@ class Cube : public GameObject
 				auto v1_ = glm::vec3(mat * glm::vec4(v1, 1));
 				auto v2_ = glm::vec3(mat * glm::vec4(v2, 1));
 				auto v3_ = glm::vec3(mat * glm::vec4(v3, 1));
-				
+
 				return { v1_, v2_, v3_ };
 			}
-			
-		
-		void ApplyTransform(glm::mat4& mat)
+
+
+			void ApplyTransform(glm::mat4& mat)
 			{
 				auto v1_ = mat * glm::vec4(v1, 1);
 				auto v2_ = mat * glm::vec4(v2, 1);
@@ -42,6 +55,10 @@ class Cube : public GameObject
 			};
 	};
 public:
+	static Cuban createCuban(const std::string& name)
+	{
+		return Cuban(1, 1, name);
+	}
 	Cube(const std::string& name);
 	~Cube();
 
@@ -61,7 +78,7 @@ public:
 
 		});*/
 
-		for(Triangle t : mesh_triangles)
+		for (Triangle t : mesh_triangles)
 		{
 			Triangle t2 = t * model_matrix;
 			world_space_triangles.emplace_back(t2);
