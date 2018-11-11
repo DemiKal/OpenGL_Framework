@@ -38,34 +38,34 @@ const int SCREENHEIGHT = 720;
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
 
-#include "util.h"
+#include "misc/util.h"
 
 
 
-#include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
-#include "VertexArray.h"
+#include "GameObject/Components/VertexBuffer.h"
+#include "GameObject/Components/VertexBufferLayout.h"
+#include "GameObject/Components/VertexArray.h"
 
-#include "IndexBuffer.h"
+#include "GameObject/Components/IndexBuffer.h"
 
 #include "tests/Test.h"
 #include "tests/TestClearColor.h"
 
-#include "Shader.h"
+#include "Rendering/Shader.h"
 
-#include "Renderer.h"
-#include "Texture.h"
-#include "Camera.h"
+#include "Rendering/Renderer.h"
+#include "Rendering/Texture.h"
+#include "GameObject/Camera.h"
 
-#include "Transform.h"
+#include "GameObject/Components/Transform.h"
 
-#include "GameObject.h"
-#include "Cube.h"
+#include "GameObject/GameObject.h"
+#include "GameObject/Cube.h"
 
 
 
-#include "obj_loader.h"
+#include "misc/obj_loader.h"
 
-#include "mesh.h"
+#include "GameObject/Components/Mesh.h"
 
 

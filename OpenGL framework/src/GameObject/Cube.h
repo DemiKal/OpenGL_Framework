@@ -2,19 +2,7 @@
   
  
 class Cube : public GameObject
-{
-	struct Cuban
-	{
-		int x;
-		int y;
-		std::string name;
-		Cuban(int _x, int _y, const std::string& name1) {
-			x = _x; y = _y; name = name1;
-		};
-	};
-
-	
-
+{  
 	class Triangle
 	{
 	public: glm::vec3  v1{};
@@ -53,10 +41,7 @@ class Cube : public GameObject
 	};
 
 public:
-	static Cuban createCuban(const std::string& name)
-	{
-		return Cuban(1, 1, name);
-	}
+	
 	Cube(const std::string& name);
 	~Cube();
 

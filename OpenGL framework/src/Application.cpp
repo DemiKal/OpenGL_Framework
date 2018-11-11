@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-
+ 
 //struct Cuban;
 int main(void)
 {
@@ -27,11 +27,15 @@ int main(void)
 
 		Renderer renderer;
 		renderer.SetAlphaBlending(false);
+
 		Cube cube("myCube");
+		//GameObject cube("Bunny");
+		
+
 		//Mesh mesh("res/mesh objects/Bunny2.obj");
 
 		//cube.renderer = &renderer;
-		float aspect = (float)SCREENWIDTH / (float)(SCREENHEIGHT);
+		const float aspect = (float)SCREENWIDTH / (float) SCREENHEIGHT ;
 
 		Camera camera(glm::vec3(0, 0, 5), 70, aspect, 0.1f, 200.0f);
 		ImGui::CreateContext();
