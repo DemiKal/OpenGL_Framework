@@ -1,6 +1,5 @@
-#include "IndexBuffer.h"
-#include "Renderer.h"
-#include <GL/glew.h>
+#include "precomp.h"
+
 
 IndexBuffer::IndexBuffer(): m_rendererID(-1)
 {

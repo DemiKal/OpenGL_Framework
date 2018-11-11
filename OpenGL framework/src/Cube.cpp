@@ -1,5 +1,6 @@
-#include "Cube.h"
-#include "VertexBufferLayout.h"
+#include "precomp.h"
+//#include "Cube.h"
+//#include "VertexBufferLayout.h"
 
 
 Cube::Cube(const std::string& name) : GameObject(name)

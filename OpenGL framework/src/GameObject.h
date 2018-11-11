@@ -1,10 +1,5 @@
 #pragma once
-#include "VertexArray.h"
-#include "IndexBuffer.h"
-#include <string>
-#include "Texture.h"
-#include "VertexBufferLayout.h"
-#include <Transform.h>
+
 
 class GameObject
 {

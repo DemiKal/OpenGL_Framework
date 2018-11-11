@@ -1,4 +1,4 @@
-//#include <iostream>
+#include "precomp.h"
 //
 //// GLEW
 //#define GLEW_STATIC
@@ -154,3 +154,4 @@
 //	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 //		glfwSetWindowShouldClose(window, GL_TRUE);
 //}
+//

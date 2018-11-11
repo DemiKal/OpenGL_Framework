@@ -1,9 +1,4 @@
 #pragma once
-#include <glm/glm.hpp>
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/intersect.inl"
-#include "imgui/imgui.h"
-#include <iostream>
 
 class Cube;
 

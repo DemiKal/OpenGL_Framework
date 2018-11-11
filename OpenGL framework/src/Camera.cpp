@@ -1,5 +1,5 @@
-#include "Camera.h"
-#include "Cube.h"
+#include "precomp.h"
+
 
 //TODO: set this in a class globally accessible
 static const int SCREENWIDTH = 1280;

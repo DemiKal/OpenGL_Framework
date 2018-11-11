@@ -1,11 +1,4 @@
-#include "mesh.h"
-#include "util.h"
-//#include "debugTimer.h"
-#include <map>
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <stdlib.h>
+#include "precomp.h"
 
 Mesh::Mesh(const std::string& fileName)
 {

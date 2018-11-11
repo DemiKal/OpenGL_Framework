@@ -1,7 +1,4 @@
-#include "Renderer.h"
-#include <ostream>
-#include <GL/glew.h>
-#include <iostream>
+#include "precomp.h"
 
 
 void GLClearError()

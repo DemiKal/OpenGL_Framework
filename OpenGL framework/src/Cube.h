@@ -1,10 +1,6 @@
 #pragma once
-#include "GameObject.h"
-#include <array>
-
-
-
-
+  
+ 
 class Cube : public GameObject
 {
 	struct Cuban

@@ -1,5 +1,4 @@
-#include "Test.h"
-#include "imgui/imgui.h"
+#include "precomp.h"
 
 namespace test {
 	Test::Test()

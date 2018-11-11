@@ -1,11 +1,4 @@
-#include "Shader.h"
-#include <string>
-#include <GL/glew.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include "Renderer.h"
-#include <functional>
+#include "precomp.h"
 
 //Shader::Shader (){}
 Shader::Shader(const std::string& filepath)

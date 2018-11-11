@@ -2,13 +2,10 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-#include <vector>
-#include <sstream>
-//#include "debugTimer.h"
-
+ 
 namespace Util
 {
-	std::vector<std::string> Split(const std::string &s, char delim)
+	inline std::vector<std::string> split_str(const std::string &s, char delim)
 	{
 		std::vector<std::string> elems;
 
