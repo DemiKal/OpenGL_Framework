@@ -1,6 +1,6 @@
 #include "precomp.h"
 
- 
+
 //struct Cuban;
 int main(void)
 {
@@ -29,13 +29,14 @@ int main(void)
 		renderer.SetAlphaBlending(false);
 
 		Cube cube("myCube");
-		//GameObject cube("Bunny");
-		
+		GameObject bunny("Bunny");
+		bunny.renderer = &renderer;
+		bunny.LoadMesh("res/mesh objects/Bunny.obj");
 
 		//Mesh mesh("res/mesh objects/Bunny2.obj");
 
 		//cube.renderer = &renderer;
-		const float aspect = (float)SCREENWIDTH / (float) SCREENHEIGHT ;
+		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
 		Camera camera(glm::vec3(0, 0, 5), 70, aspect, 0.1f, 200.0f);
 		ImGui::CreateContext();
@@ -119,7 +120,7 @@ int main(void)
 				ImGui::End();
 			}*/
 			{
-				cube.m_shader->Bind();
+				 cube.m_shader->Bind();
 
 				//camera.MoveCameraMouse(mDiff, camSpeed, mouseVelocity);
 
@@ -128,9 +129,9 @@ int main(void)
 
 				//cubepos += glm::vec3(0.001f, 0, 0);
 
-				glm::mat4 mvp = cube.m_transform->GetMVP(camera);
-				cube.m_shader->SetUniformMat4f("u_MVP", mvp);
-				cube.Draw();
+				 glm::mat4 mvp = cube.m_transform->GetMVP(camera);
+				 cube.m_shader->SetUniformMat4f("u_MVP", mvp);
+				cube.Draw ();
 
 				//mesh.Draw();
 
@@ -164,9 +165,9 @@ int main(void)
 
 
 			const float average = std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
-			const float avgfps = 1000*float(1.0 / average);
+			const float avgfps = 1000 * float(1.0 / average);
 
-			 ImGui::Text("ms %f", avgfps);
+			ImGui::Text("ms %f", avgfps);
 
 			if (frametimes.size() >= 30)
 			{
@@ -178,7 +179,7 @@ int main(void)
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 
-			
+
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currenttime);
 			frametimes.push_back(diffms);

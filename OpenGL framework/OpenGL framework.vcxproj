@@ -85,7 +85,7 @@
     <ClCompile Include="src\misc\obj_loader.cpp" />
     <ClCompile Include="src\Rendering\Shader.cpp" />
     <ClCompile Include="src\Application.cpp" />
-    <ClCompile Include="src\GameObject\Components\IndexBuffer.cpp" />
+    <ClCompile Include="src\Rendering\Buffer\IndexBuffer.cpp" />
     <ClCompile Include="src\Rendering\Renderer.cpp" />
     <ClCompile Include="src\misc\util.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp">
@@ -112,14 +112,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\GameObject\Components\VertexArray.cpp" />
-    <ClCompile Include="src\GameObject\Components\VertexBuffer.cpp" />
-    <ClCompile Include="src\GameObject\Components\VertexBufferLayout.cpp" />
+    <ClCompile Include="src\Rendering\Buffer\VertexArray.cpp" />
+    <ClCompile Include="src\Rendering\Buffer\VertexBuffer.cpp" />
+    <ClCompile Include="src\Rendering\Buffer\VertexBufferLayout.cpp" />
     <ClCompile Include="src\Working tut.cpp" />
     <ClCompile Include="src\Rendering\Texture.cpp" />
     <ClCompile Include="src\tests\Test.cpp" />
     <ClCompile Include="src\tests\TestClearColor.cpp" />
     <ClCompile Include="src\GameObject\Components\Transform.cpp" />
+    <ClCompile Include="src\Rendering\Buffer\VertexArraySub.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.shader" />
@@ -249,7 +250,7 @@
     <ClInclude Include="src\misc\obj_loader.h" />
     <ClInclude Include="src\precomp.h" />
     <ClInclude Include="src\Rendering\Shader.h" />
-    <ClInclude Include="src\GameObject\Components\IndexBuffer.h" />
+    <ClInclude Include="src\Rendering\Buffer\IndexBuffer.h" />
     <ClInclude Include="src\Rendering\Renderer.h" />
     <ClInclude Include="src\GameObject\Components\Transform.h" />
     <ClInclude Include="src\misc\util.h" />
@@ -406,12 +407,13 @@
     <ClInclude Include="src\vendor\imgui\stb_textedit.h" />
     <ClInclude Include="src\vendor\imgui\stb_truetype.h" />
     <ClInclude Include="src\vendor\stb_image\stb_image.h" />
-    <ClInclude Include="src\GameObject\Components\VertexArray.h" />
-    <ClInclude Include="src\GameObject\Components\VertexBuffer.h" />
-    <ClInclude Include="src\GameObject\Components\VertexBufferLayout.h" />
+    <ClInclude Include="src\Rendering\Buffer\VertexArray.h" />
+    <ClInclude Include="src\Rendering\Buffer\VertexBuffer.h" />
+    <ClInclude Include="src\Rendering\Buffer\VertexBufferLayout.h" />
     <ClInclude Include="src\Rendering\Texture.h" />
     <ClInclude Include="src\tests\Test.h" />
     <ClInclude Include="src\tests\TestClearColor.h" />
+    <ClInclude Include="src\Rendering\Buffer\VertexArraySub.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\ChernoLogo.png" />

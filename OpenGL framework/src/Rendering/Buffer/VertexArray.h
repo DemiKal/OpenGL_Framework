@@ -1,6 +1,6 @@
 #pragma once
  
-class VertexArray
+  class VertexArray
 {
 private:
 	unsigned int m_RendererID;
@@ -12,5 +12,5 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
-	void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
+	virtual  void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
 };

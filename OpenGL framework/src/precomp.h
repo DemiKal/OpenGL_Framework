@@ -40,13 +40,15 @@ bool GLLogCall(const char* function, const char* file, int line);
 
 #include "misc/util.h"
 
+#include "misc/obj_loader.h"
 
 
-#include "GameObject/Components/VertexBuffer.h"
-#include "GameObject/Components/VertexBufferLayout.h"
-#include "GameObject/Components/VertexArray.h"
+#include "Rendering/Buffer/VertexBuffer.h"
+#include "Rendering/Buffer/VertexBufferLayout.h"
+#include "Rendering/Buffer/VertexArray.h"
+#include "Rendering/Buffer/VertexArraySub.h"
 
-#include "GameObject/Components/IndexBuffer.h"
+#include "Rendering/Buffer//IndexBuffer.h"
 
 #include "tests/Test.h"
 #include "tests/TestClearColor.h"
@@ -64,7 +66,6 @@ bool GLLogCall(const char* function, const char* file, int line);
 
 
 
-#include "misc/obj_loader.h"
 
 #include "GameObject/Components/Mesh.h"
 
