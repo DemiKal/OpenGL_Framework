@@ -9,10 +9,9 @@
 
 //Shader::Shader (){}
 Shader::Shader(const std::string& filepath)
-	: m_FilePath(filepath),
-	m_RendererID(0)
+	: m_FilePath(filepath),	m_RendererID(0)
 {
-	ShaderProgramSource sps = parseShader(filepath);
+	const ShaderProgramSource sps = parseShader(filepath);
 	m_RendererID = CreateShader(sps.VertexSource, sps.FragmentSource);
 }
 

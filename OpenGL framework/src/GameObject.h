@@ -29,7 +29,7 @@ public:
 	Texture* m_texture;
 	Transform* m_transform;
 
-	std::string* Name() { return  &m_name; }
+	std::string Name() const { return  m_name; }
 	//VertexArray* GetVertexArray() { return &m_va; }
 
 	void Rename(const std::string& rename)

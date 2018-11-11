@@ -59,14 +59,14 @@ void Camera::SetOrthographic()
 
 void Camera::meme(Cube& cyb)
 {
-	std::string s = *cyb.Name();
+	std::string s = cyb.Name();
 }
 
 void Camera::CheckMouseHover(double mX, double mY, Cube& cube)
 {
 	auto tris = cube.GetMeshTriangles();
-	glm::vec3 const campos = * Position();
-	auto  dir  = RayFromMouse(mX, mY);
+	glm::vec3 const campos = *Position();
+	auto  dir = RayFromMouse(mX, mY);
 
 	bool cubeIntersect = false;
 	for (const auto tri : tris)
@@ -87,7 +87,7 @@ void Camera::CheckMouseHover(double mX, double mY, Cube& cube)
 
 	std::string name = "none";
 
-	name = cubeIntersect ? cube.Name()->c_str() : "none";
+	name = cubeIntersect ? cube.Name().c_str() : "none";
 
 	ImGui::Text("Hovered obj: %s", name.c_str());
 }
