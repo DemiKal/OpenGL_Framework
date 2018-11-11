@@ -190,7 +190,7 @@ int main(void)
 
 			 ImGui::Text("ms %f", avgfps);
 
-			if (frametimes.size() >= 600)
+			if (frametimes.size() >= 30)
 			{
 				frametimes.clear();
 			}
