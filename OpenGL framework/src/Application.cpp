@@ -1,5 +1,6 @@
 #define GLM_ENABLE_EXPERIMENTAL 
 #define GLEW_STATIC
+#include <ctime>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -21,6 +22,7 @@
 #include "Cube.h"
 #include "Camera.h"
 #include "mesh.h"
+#include <numeric>
 
 
 static const int SCREENWIDTH = 1280;
@@ -28,8 +30,6 @@ static const int SCREENHEIGHT = 720;
 //struct Cuban;
 int main(void)
 {
-	GLFWwindow* window;
-
 	if (!glfwInit()) return -1;
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -39,7 +39,7 @@ int main(void)
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
+	GLFWwindow * window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -49,12 +49,7 @@ int main(void)
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 	std::cout << glGetString(GL_VERSION) << std::endl;
-
 	{
-		{
-			//auto sss = Cube::createCuban("billy");
-			auto sss = new Cube("naabab");
-		}
 
 		Renderer renderer;
 		renderer.SetAlphaBlending(false);
@@ -83,14 +78,24 @@ int main(void)
 
 		double mouseXold = 0, mouseYold = 0;
 		double mouseXnew = 0, mouseYnew = 0;
+		std::clock_t start;
+		double duration;
+
+
+		int i = 0;
+		std::vector<float>  frametimes;
 		while (!glfwWindowShouldClose(window))
 		{
+			i++;
+			double currenttime = glfwGetTime();
+
 			rot += 0.005;
 			glfwGetCursorPos(window, &mouseXnew, &mouseYnew);
 			float signX = glm::sign(mouseXnew - mouseXold);
 			float signY = glm::sign(mouseYold - mouseYnew);
 			glm::vec2 mDiff = glm::vec2(signX, signY);
 			glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
+
 
 			renderer.Clear();
 			ImGui_ImplGlfwGL3_NewFrame();
@@ -120,9 +125,8 @@ int main(void)
 				camera.RotateXlocal(-.01f);
 
 			*camera.Position() += camMovement;
-			double currentTime = glfwGetTime();
 
-			if (currentTest)
+			/*if (currentTest)
 			{
 				currentTest->OnUpdate(0.0f);
 				currentTest->OnRender();
@@ -135,10 +139,10 @@ int main(void)
 
 				currentTest->OnImGuiRender();
 				ImGui::End();
-			}
+			}*/
 			{
 				cube.m_shader->Bind();
-				
+
 				//camera.MoveCameraMouse(mDiff, camSpeed, mouseVelocity);
 
 				//*cube.m_transform->GetPos() += glm::vec3(0.01f, 0, 0);
@@ -173,14 +177,34 @@ int main(void)
 			ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
 			//}
 
-			ImGui::Render();
-			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
-			GLCall(glfwSwapBuffers(window));
-			GLCall(glfwPollEvents());
 
 			mouseXold = mouseXnew;
 			mouseYold = mouseYnew;
+
+
+
+
+			const float average = std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
+			const float avgfps = 1000*float(1.0 / average);
+
+			 ImGui::Text("ms %f", avgfps);
+
+			if (frametimes.size() >= 600)
+			{
+				frametimes.clear();
+			}
+
+			ImGui::Render();
+			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			GLCall(glfwSwapBuffers(window));
+			GLCall(glfwPollEvents());
+
+			
+			const double endtime = glfwGetTime();
+			const double diffms = 1000 * (endtime - currenttime);
+			frametimes.push_back(diffms);
+
 		}
 
 		delete currentTest;
