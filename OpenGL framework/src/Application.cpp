@@ -28,10 +28,12 @@ int main(void)
 		Renderer renderer;
 		renderer.SetAlphaBlending(false);
 
-		Cube cube("myCube");
+		//Cube cube("myCube");
+
+
 		GameObject bunny("Bunny");
 		bunny.renderer = &renderer;
-		bunny.LoadMesh("res/mesh objects/Bunny.obj");
+		bunny.LoadMesh("res/mesh objects/Monkey.obj");
 
 		//Mesh mesh("res/mesh objects/Bunny2.obj");
 
@@ -120,23 +122,29 @@ int main(void)
 				ImGui::End();
 			}*/
 			{
-				 cube.m_shader->Bind();
-
+				// cube.m_shader->Bind();
 				//camera.MoveCameraMouse(mDiff, camSpeed, mouseVelocity);
+				bunny.m_shader->Bind();
 
-				//*cube.m_transform->GetPos() += glm::vec3(0.01f, 0, 0);
 				//*cube.m_transform->GetRot() += glm::vec3(0.01f);
 
 				//cubepos += glm::vec3(0.001f, 0, 0);
 
-				 glm::mat4 mvp = cube.m_transform->GetMVP(camera);
-				 cube.m_shader->SetUniformMat4f("u_MVP", mvp);
-				cube.Draw ();
+				// glm::mat4 mvp = cube.m_transform->GetMVP(camera);
+				// cube.m_shader->SetUniformMat4f("u_MVP", mvp);
+
+				const glm::mat4 mvp = bunny.m_transform->GetMVP(camera);
+				bunny.m_shader->SetUniformMat4f("u_MVP", mvp);
+
+				//cube.Draw ();
+				bunny.Draw();
 
 				//mesh.Draw();
 
-				camera.CheckMouseHover(mouseXnew, mouseYnew, cube);
-				camera.meme(cube);
+				//camera.CheckMouseHover(mouseXnew, mouseYnew, cube);
+
+				// camera.meme(cube);
+
 			}
 
 

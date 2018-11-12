@@ -7,7 +7,7 @@ private:
 
 public:
 	VertexBuffer(const void* data, unsigned int size);
-	void BufferSubData(std::vector<float> position, std::vector<float> uvs);
+	void BufferSubData(const std::vector<float>& position, const std::vector<float>& uvs) const;
 	VertexBuffer();
 	~VertexBuffer();
 

@@ -94,15 +94,7 @@ public:
 	}
 
 	void Draw() {
-
 		if (enabled)
 			renderer->Draw(*m_va, *m_ib, *m_shader);
-
-
-
-
-
-
-
 	}
 };

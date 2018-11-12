@@ -12,14 +12,20 @@ void  VertexArraySub::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout
 	vb.Bind();
 
 	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glEnableVertexAttribArray(1));
+	auto elems = layout.GetElements();
+	const auto first = elems[0];
+	const int startingPosUV = first.count * VertexBufferElement::GetSizeOfType(first.type);
 
 	//0 = vertex pos
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)(0)));
 
 	//7b. Link buffer data to ub attribute location  
-	GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)(72*4)));
+	if (elems.size() > 1)
+	{
+		GLCall(glEnableVertexAttribArray(1));
 
+		GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)(startingPosUV)));
+	}
  
 
 	/*const auto& elements = layout.GetElements();

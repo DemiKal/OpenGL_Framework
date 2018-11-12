@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-GameObject::GameObject(const std::string& name)	: m_name(name)
+GameObject::GameObject(const std::string& name) : m_name(name)
 {
 }
 
@@ -9,46 +9,86 @@ GameObject::~GameObject()
 {
 }
 
+
 void GameObject::LoadMesh(const std::string& filename)
 {
-	//OBJModel obj(filename);
-	//auto idxmdl = obj.ToIndexedModel();
-	//mesh_indices =  idxmdl.indices;
-	//
-	//CalcMeshTriangles();
-	//mesh_vertices = std::vector<float>(std::begin(idxmdl.positions),
-	//	std::end(idxmdl.positions));
+	OBJModel obj(filename);
+	//IndexedModel idxmdl = obj.ToIndexedModel();
+	//mesh_indices = idxmdl.indices;
 
-	////nr verts (3) * nr uvs (5)
-	//const int pos_uv_size = idxmdl.texCoords.size() * sizeof(float) ;
-	//m_vb = new VertexBuffer(positions, 6 * 5 * 4 * sizeof(float));;
-	//m_layout = new VertexBufferLayout();
+	std::vector<float> vertices_vec;
 
-	//m_layout->Push<float>(3);
-	//m_layout->Push<float>(2);
+	for (const auto v : obj.vertices)
+	{
+		vertices_vec.push_back(v.x);
+		vertices_vec.push_back(v.y);
+		vertices_vec.push_back(v.z);
+	}
 
-	//m_va = new VertexArray();
-	//m_va->AddBuffer(*m_vb, *m_layout);
+	mesh_vertices = vertices_vec;
 
-	//m_ib = new IndexBuffer(indices, 6 * 6);
-	//m_shader = new Shader("res/shaders/basic.shader");
-	//m_shader->Bind();
-	//m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
+	std::vector<unsigned int> _indices;
 
-	//m_texture = new Texture("res/textures/mario.png");
-	//m_transform = new Transform;
+	for (auto obji : obj.OBJIndices)
+	{
+		_indices.push_back(obji.vertexIndex);
+	}
 
-	//m_texture->Bind();
-	//m_shader->SetUniform1i("u_Texture", 0);
+	mesh_indices = _indices;
+	//std::vector<float>(std::begin(idxmdl.positions),
+	//std::end(idxmdl.positions));
 
-	//m_va->Unbind();
-	//m_vb->UnBind();
-	//m_ib->UnBind();
-	//m_shader->Unbind(); 
+	CalcMeshTriangles();
+
+	std::vector<float> UVs_vec;
+
+	for (const auto v : obj.uvs)
+	{
+		UVs_vec.push_back(v.x);
+		UVs_vec.push_back(v.y);
+	}
+
+	std::vector<float> pos_uv;
+
+	pos_uv.reserve(mesh_vertices.size() + UVs_vec.size());
+	pos_uv.insert(pos_uv.end(), mesh_vertices.begin(), mesh_vertices.end());
+	pos_uv.insert(pos_uv.end(), UVs_vec.begin(), UVs_vec.end());
+
+
+	m_vb = new VertexBuffer(&pos_uv[0], pos_uv.size() * sizeof(float));
+
+	if (!UVs_vec.empty())
+		m_vb->BufferSubData(mesh_vertices, UVs_vec);
+
+	m_layout = new VertexBufferLayout();
+
+	m_layout->Push<float>(mesh_vertices.size());
+
+	if (!UVs_vec.empty())
+		m_layout->Push<float>(UVs_vec.size());
+
+	m_va = new VertexArraySub();
+	m_va->AddBuffer(*m_vb, *m_layout);
+
+	m_ib = new IndexBuffer(&mesh_indices[0], mesh_indices.size());
+	m_shader = new Shader("res/shaders/basic.shader");
+	m_shader->Bind();
+	m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
+
+	m_texture = new Texture("res/textures/mario.png");
+	m_transform = new Transform;
+
+	m_texture->Bind();
+	m_shader->SetUniform1i("u_Texture", 0);
+
+	m_va->Unbind();
+	m_vb->UnBind();
+	m_ib->UnBind();
+	m_shader->Unbind();
 
 }
 
- 
+
 
 void GameObject::CalcMeshTriangles()
 {
@@ -83,5 +123,5 @@ void GameObject::CalcMeshTriangles()
 	}
 }
 
- 
+
 
