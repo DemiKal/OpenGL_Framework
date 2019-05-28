@@ -24,19 +24,33 @@ int main(void)
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	{
-
 		Renderer renderer;
 		renderer.SetAlphaBlending(false);
 
 		//Cube cube("myCube");
 
-
-		GameObject bunny("Bunny");
+		GameObject bunny("Spyro");
 		bunny.renderer = &renderer;
-		bunny.LoadMesh("res/mesh objects/Monkey.obj");
+		bunny.LoadMesh("res/meshes/plane.obj");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		//Mesh mesh("res/mesh objects/Bunny2.obj");
-
 		//cube.renderer = &renderer;
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
@@ -53,8 +67,8 @@ int main(void)
 		float rot = 0;
 
 		//game loop
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_BACK);
 		glEnable(GL_DEPTH_TEST);
 
 		double mouseXold = 0, mouseYold = 0;
@@ -67,6 +81,8 @@ int main(void)
 		std::vector<float>  frametimes;
 		while (!glfwWindowShouldClose(window))
 		{
+			ImGui_ImplGlfwGL3_NewFrame();
+
 			i++;
 			double currenttime = glfwGetTime();
 
@@ -79,7 +95,6 @@ int main(void)
 
 
 			renderer.Clear();
-			ImGui_ImplGlfwGL3_NewFrame();
 
 			float camSpeed = 0.05f;
 			glm::vec3 camMovement = glm::vec3();
@@ -128,7 +143,7 @@ int main(void)
 
 				//*cube.m_transform->GetRot() += glm::vec3(0.01f);
 
-				//cubepos += glm::vec3(0.001f, 0, 0);
+				//*bunny.m_transform->GetPos() += glm::vec3(0, 0, -0.01f);
 
 				// glm::mat4 mvp = cube.m_transform->GetMVP(camera);
 				// cube.m_shader->SetUniformMat4f("u_MVP", mvp);
@@ -183,7 +198,7 @@ int main(void)
 			}
 
 			ImGui::Render();
-			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			  ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 

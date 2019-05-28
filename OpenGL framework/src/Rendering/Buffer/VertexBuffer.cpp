@@ -18,7 +18,7 @@ void VertexBuffer::BufferSubData(const std::vector<float>& position,
 
 	if (!uvs.empty())
 	{
-		GLCall(glBufferSubData(GL_ARRAY_BUFFER, posSize, uvs.size() * sizeof(float), &uvs[0]));
+	 	GLCall(glBufferSubData(GL_ARRAY_BUFFER, posSize, 0*uvs.size() * sizeof(float), &uvs[0]));
 	}
 }
 VertexBuffer::VertexBuffer() : m_rendererID(0)

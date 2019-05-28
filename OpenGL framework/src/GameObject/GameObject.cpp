@@ -41,24 +41,43 @@ void GameObject::LoadMesh(const std::string& filename)
 	CalcMeshTriangles();
 
 	std::vector<float> UVs_vec;
+	std::vector<glm::vec2> uvReorder{ obj.uvs };
 
-	for (const auto v : obj.uvs)
+	//for (int i = 0; i < mesh_indices.size(); i++)
+	//{
+	//	unsigned int idx = mesh_indices[i];
+	//	auto uv = obj.uvs[idx];
+	//	UVs_vec.push_back(uv.x);
+	//	UVs_vec.push_back(1.f- uv.y);
+	//}
+	int i = 0;
+	for (const auto& v : obj.OBJIndices)
 	{
-		UVs_vec.push_back(v.x);
-		UVs_vec.push_back(v.y);
+		//size_t idx = mesh_indices[i];
+		unsigned int idx = v.uvIndex;;
+		 
+		UVs_vec.push_back(obj.uvs[idx].x);  
+		UVs_vec.push_back(  obj.uvs[idx].y);
+		i++;
 	}
 
 	std::vector<float> pos_uv;
+
+	//pos_uv.reserve(mesh_vertices.size() + UVs_vec.size());
+	//pos_uv.insert(pos_uv.end(), mesh_vertices.begin(), mesh_vertices.end());
+	//pos_uv.insert(pos_uv.end(), UVs_vec.begin(), UVs_vec.end());
+	//std::reverse(pos_uv.begin() + mesh_vertices.size(), pos_uv.end());
 
 	pos_uv.reserve(mesh_vertices.size() + UVs_vec.size());
 	pos_uv.insert(pos_uv.end(), mesh_vertices.begin(), mesh_vertices.end());
 	pos_uv.insert(pos_uv.end(), UVs_vec.begin(), UVs_vec.end());
 
 
+
 	m_vb = new VertexBuffer(&pos_uv[0], pos_uv.size() * sizeof(float));
 
-	if (!UVs_vec.empty())
-		m_vb->BufferSubData(mesh_vertices, UVs_vec);
+	 if (!UVs_vec.empty())
+	 	m_vb->BufferSubData(mesh_vertices, UVs_vec);
 
 	m_layout = new VertexBufferLayout();
 
@@ -71,11 +90,16 @@ void GameObject::LoadMesh(const std::string& filename)
 	m_va->AddBuffer(*m_vb, *m_layout);
 
 	m_ib = new IndexBuffer(&mesh_indices[0], mesh_indices.size());
+
+
+
 	m_shader = new Shader("res/shaders/basic.shader");
 	m_shader->Bind();
 	m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 
-	m_texture = new Texture("res/textures/mario.png");
+	//m_texture = new Texture("res/mesh objects/spyro_texture.png");
+	m_texture = new Texture("res/textures/uvtest.png");
+
 	m_transform = new Transform;
 
 	m_texture->Bind();

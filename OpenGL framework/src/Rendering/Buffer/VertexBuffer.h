@@ -14,3 +14,12 @@ public:
 	void Bind() const;
 	void UnBind() const;
 };
+
+
+class InterleavedVB : VertexBuffer
+{
+	InterleavedVB() {}
+
+	 
+
+};

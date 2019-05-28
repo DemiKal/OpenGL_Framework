@@ -343,7 +343,7 @@ glm::vec2 OBJModel::ParseOBJVec2(const std::string& line)
 
 	float y = ParseOBJFloatValue(line, vertIndexStart, vertIndexEnd);
 
-	return glm::vec2(x, y);
+	return glm::vec2(x , y);
 }
 
 static bool CompareOBJIndexPtr(const OBJIndex* a, const OBJIndex* b)
