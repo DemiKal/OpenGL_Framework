@@ -5,9 +5,9 @@ class GameObject
 {
 protected: class Triangle
 {
-public: glm::vec3  v1{};
-		glm::vec3  v2{};
-		glm::vec3  v3{};
+public: glm::vec3  v1 ;
+		glm::vec3  v2 ;
+		glm::vec3  v3 ;
 
 		Triangle() = default;
 		Triangle(glm::vec3& v1_, glm::vec3& v2_, glm::vec3& v3_)
@@ -56,7 +56,7 @@ protected:
 	std::vector<unsigned int> mesh_indices;
 	std::vector<Triangle> mesh_triangles;
 public:
-	Renderer* renderer;
+	Renderer renderer;
 	VertexArray* m_va;
 	VertexBuffer* m_vb;
 	VertexBufferLayout* m_layout;
@@ -95,6 +95,6 @@ public:
 
 	void Draw() {
 		if (enabled)
-			renderer->Draw(*m_va, *m_ib, *m_shader);
+			renderer.Draw(*m_va, *m_ib, *m_shader);
 	}
 };

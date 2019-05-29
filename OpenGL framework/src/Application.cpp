@@ -30,7 +30,7 @@ int main(void)
 		//Cube cube("myCube");
 
 		GameObject bunny("Spyro");
-		bunny.renderer = &renderer;
+		bunny.renderer = renderer;
 		bunny.LoadMesh("res/meshes/cube.obj");
 
 
