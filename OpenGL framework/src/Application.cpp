@@ -31,7 +31,7 @@ int main(void)
 
 		GameObject bunny("Spyro");
 		bunny.renderer = &renderer;
-		bunny.LoadMesh("res/meshes/Spyro/spyro.obj");
+		bunny.LoadMesh("res/meshes/cube.obj");
 
 
 
@@ -67,8 +67,8 @@ int main(void)
 		float rot = 0;
 
 		//game loop
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		glEnable(GL_DEPTH_TEST);
 
 		double mouseXold = 0, mouseYold = 0;

@@ -33,7 +33,7 @@ uniform sampler2D u_Texture;
 void main()
 { 
 	vec3 lightColor = vec3(1.f, 1.f, 1.f);
- 	vec4 texColor = texture(u_Texture,  v_TexCoord );
+ 	vec4 texColor = texture(u_Texture, v_TexCoord  );
 	vec3 lightPos = vec3(  1.0f,2.0f, 2.0f);
 	vec3 lightDir   = normalize(lightPos - v_pos);
  
@@ -44,7 +44,7 @@ void main()
 	
 	vec3 result =    diffuse  * texColor.xyz;
 	color = vec4(result, 1.0f);
-
+	//color = texColor;
 	// color = texColor;
 
 };

@@ -34,8 +34,8 @@ void GameObject::LoadMesh(const std::string& filename)
 		_indices.push_back(obji.vertexIndex);
 	}
 
+	// mesh_indices = _indices;
 	mesh_indices = idxmdl.indices;
-	//mesh_indices = idxmdl.indices;
 	//std::vector<float>(std::begin(idxmdl.positions),
 	//std::end(idxmdl.positions));
 
@@ -75,15 +75,13 @@ void GameObject::LoadMesh(const std::string& filename)
 
 	//for (unsigned int i = 0; i  < idxmdl.indices.size(); i++)
 	int k = 0;
-	for (auto& Vi : obj.OBJIndices)
+	for (int i = 0 ; i < idxmdl.positions.size(); i++)
 	{
-		unsigned int pi = Vi.vertexIndex;
-		unsigned int uvi = Vi.uvIndex;
-		unsigned int ni = Vi.normalIndex;
+		 
 
-		const glm::vec3 p = obj.vertices[pi];
-		const glm::vec2 uv = obj.uvs[uvi];
-		const glm::vec3 n = obj.normals[ni];
+		const glm::vec3 p = idxmdl.positions[i];	//obj.vertices[pi];
+		const glm::vec2 uv = idxmdl.texCoords[i];	//obj.uvs[uvi];
+		const glm::vec3 n = idxmdl.normals[i];	//obj.normals[ni];
 
 		//pos
 		pos_uv_interl.push_back(p.x);
@@ -138,7 +136,7 @@ void GameObject::LoadMesh(const std::string& filename)
 	m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 
 	//m_texture = new Texture("res/mesh objects/spyro_texture.png");
-	m_texture = new Texture("res/meshes/Spyro/spyro_tex.png");
+	m_texture = new Texture("res/textures/uvtest.png");
 
 	m_transform = new Transform;
 
