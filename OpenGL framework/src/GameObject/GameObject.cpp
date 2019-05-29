@@ -136,7 +136,7 @@ void GameObject::LoadMesh(const std::string& filename)
 	m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 
 	//m_texture = new Texture("res/mesh objects/spyro_texture.png");
-	m_texture = new Texture("res/textures/uvtest.png");
+	m_texture = new Texture("res/textures/uvtest.png", Texture::DIFFUSE);
 
 	m_transform = new Transform;
 

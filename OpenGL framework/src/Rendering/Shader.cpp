@@ -95,8 +95,14 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 
 void Shader::SetUniformMat4f(const char* name, const glm::mat4& mat)
 {
-	int location = GetUniformLocation(name);
+	const int location = GetUniformLocation(name);
 	GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]));
+}
+
+void Shader::SetFloat(const std::string &name, float value)  
+{
+	const int location = GetUniformLocation(name);
+	GLCall(glUniform1f(glGetUniformLocation(location, name.c_str()), value));
 }
 
 //Shader & Shader::operator=(Shader * shader)

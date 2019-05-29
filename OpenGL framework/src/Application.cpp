@@ -29,9 +29,9 @@ int main(void)
 
 		//Cube cube("myCube");
 
-		GameObject bunny("Spyro");
-		bunny.renderer = renderer;
-		bunny.LoadMesh("res/meshes/cube.obj");
+		//GameObject bunny("Spyro");
+		//bunny.renderer = renderer;
+		//bunny.LoadMesh("res/meshes/cube.obj");
 
 
 
@@ -139,7 +139,7 @@ int main(void)
 			{
 				// cube.m_shader->Bind();
 				//camera.MoveCameraMouse(mDiff, camSpeed, mouseVelocity);
-				bunny.m_shader->Bind();
+				///bunny.m_shader->Bind();
 
 				//*cube.m_transform->GetRot() += glm::vec3(0.01f);
 
@@ -148,11 +148,11 @@ int main(void)
 				// glm::mat4 mvp = cube.m_transform->GetMVP(camera);
 				// cube.m_shader->SetUniformMat4f("u_MVP", mvp);
 
-				const glm::mat4 mvp = bunny.m_transform->GetMVP(camera);
-				bunny.m_shader->SetUniformMat4f("u_MVP", mvp);
+				///const glm::mat4 mvp = bunny.m_transform->GetMVP(camera);
+				///bunny.m_shader->SetUniformMat4f("u_MVP", mvp);
 
 				//cube.Draw ();
-				bunny.Draw();
+				///bunny.Draw();
 
 				//mesh.Draw();
 

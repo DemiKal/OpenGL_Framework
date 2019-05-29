@@ -10,13 +10,20 @@ out vec3 v_pos;
 
 uniform mat4 u_MVP;
 
-
 void main() {
 	gl_Position = u_MVP * position;
 	v_TexCoord = texCoord;
 	v_normal = normal;
 	v_pos = position.xyz;
 };
+
+
+///#########################\\\
+///							\\\
+///		FRAGMENT SHADER		\\\
+///							\\\
+///#########################\\\
+
 
 #shader fragment
 #version 330 core
@@ -28,7 +35,7 @@ in vec3 v_normal;
 in vec3 v_pos;
 
 uniform vec4 u_Color;
-uniform sampler2D u_Texture;
+uniform sampler2D texture_diffuse1;
 
 void main()
 { 

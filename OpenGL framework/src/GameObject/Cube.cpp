@@ -172,7 +172,7 @@ Cube::Cube(const std::string& name) : GameObject(name)
 	m_shader->Bind();
 	m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 
-	m_texture = new Texture("res/textures/mario.png");
+	m_texture = new Texture("res/textures/mario.png", Texture::DIFFUSE);
 	m_transform = new Transform;
 
 	m_texture->Bind();
