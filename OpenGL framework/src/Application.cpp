@@ -25,13 +25,13 @@ int main(void)
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	{
 		Renderer renderer;
-		renderer.SetAlphaBlending(false);
+		renderer.SetAlphaBlending(true);
 
 		//Cube cube("myCube");
 
 		GameObject bunny("Spyro");
 		bunny.renderer = &renderer;
-		bunny.LoadMesh("res/meshes/plane.obj");
+		bunny.LoadMesh("res/meshes/Spyro/spyro.obj");
 
 
 

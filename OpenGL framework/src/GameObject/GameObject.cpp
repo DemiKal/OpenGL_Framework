@@ -13,7 +13,7 @@ GameObject::~GameObject()
 void GameObject::LoadMesh(const std::string& filename)
 {
 	OBJModel obj(filename);
-	//IndexedModel idxmdl = obj.ToIndexedModel();
+	IndexedModel idxmdl = obj.ToIndexedModel();
 	//mesh_indices = idxmdl.indices;
 
 	std::vector<float> vertices_vec;
@@ -34,11 +34,12 @@ void GameObject::LoadMesh(const std::string& filename)
 		_indices.push_back(obji.vertexIndex);
 	}
 
-	mesh_indices = _indices;
+	mesh_indices = idxmdl.indices;
+	//mesh_indices = idxmdl.indices;
 	//std::vector<float>(std::begin(idxmdl.positions),
 	//std::end(idxmdl.positions));
 
-	CalcMeshTriangles();
+	//CalcMeshTriangles();
 
 	std::vector<float> UVs_vec;
 	std::vector<glm::vec2> uvReorder{ obj.uvs };
@@ -50,41 +51,80 @@ void GameObject::LoadMesh(const std::string& filename)
 	//	UVs_vec.push_back(uv.x);
 	//	UVs_vec.push_back(1.f- uv.y);
 	//}
-	int i = 0;
-	for (const auto& v : obj.OBJIndices)
-	{
-		//size_t idx = mesh_indices[i];
-		unsigned int idx = v.uvIndex;;
-		 
-		UVs_vec.push_back(obj.uvs[idx].x);  
-		UVs_vec.push_back(  obj.uvs[idx].y);
-		i++;
-	}
+	//for (const auto& v : obj.OBJIndices)
+	//{
+	//	////size_t idx = mesh_indices[i];
+	//	//unsigned int idx = v.uvIndex;;
+	//	//
+	//	//UVs_vec.push_back(obj.uvs[idx].x);
+	//	//UVs_vec.push_back(obj.uvs[idx].y);
+	//}
 
-	std::vector<float> pos_uv;
+	//std::vector<float> pos_uv;
 
 	//pos_uv.reserve(mesh_vertices.size() + UVs_vec.size());
 	//pos_uv.insert(pos_uv.end(), mesh_vertices.begin(), mesh_vertices.end());
 	//pos_uv.insert(pos_uv.end(), UVs_vec.begin(), UVs_vec.end());
 	//std::reverse(pos_uv.begin() + mesh_vertices.size(), pos_uv.end());
 
-	pos_uv.reserve(mesh_vertices.size() + UVs_vec.size());
-	pos_uv.insert(pos_uv.end(), mesh_vertices.begin(), mesh_vertices.end());
-	pos_uv.insert(pos_uv.end(), UVs_vec.begin(), UVs_vec.end());
+	//pos_uv.reserve(mesh_vertices.size() + UVs_vec.size());
+	//pos_uv.insert(pos_uv.end(), mesh_vertices.begin(), mesh_vertices.end());
+	//pos_uv.insert(pos_uv.end(), UVs_vec.begin(), UVs_vec.end());
+
+	std::vector<float> pos_uv_interl;
+
+	//for (unsigned int i = 0; i  < idxmdl.indices.size(); i++)
+	int k = 0;
+	for (auto& Vi : obj.OBJIndices)
+	{
+		unsigned int pi = Vi.vertexIndex;
+		unsigned int uvi = Vi.uvIndex;
+		unsigned int ni = Vi.normalIndex;
+
+		const glm::vec3 p = obj.vertices[pi];
+		const glm::vec2 uv = obj.uvs[uvi];
+		const glm::vec3 n = obj.normals[ni];
+
+		//pos
+		pos_uv_interl.push_back(p.x);
+		pos_uv_interl.push_back(p.y);
+		pos_uv_interl.push_back(p.z);
+		
+		//uv
+		pos_uv_interl.push_back(uv.x);
+		pos_uv_interl.push_back(uv.y);
+
+		//normal
+		pos_uv_interl.push_back(n.x);
+		pos_uv_interl.push_back(n.y);
+		pos_uv_interl.push_back(n.z);
 
 
+		k++;
+		//.
+		//int idx = idxmdl.indices[i];
+		//const auto p = idxmdl.positions[idx];
+		//const auto tc = idxmdl.texCoords[idx];
+		//
+		//pos_uv_interl.push_back(p.x);
+		//pos_uv_interl.push_back(p.y);
+		//pos_uv_interl.push_back(p.z);
+		//pos_uv_interl.push_back(tc.x);
+		//pos_uv_interl.push_back(tc.y);
 
-	m_vb = new VertexBuffer(&pos_uv[0], pos_uv.size() * sizeof(float));
+	}
 
-	 if (!UVs_vec.empty())
-	 	m_vb->BufferSubData(mesh_vertices, UVs_vec);
+
+	m_vb = new VertexBuffer(&pos_uv_interl[0], pos_uv_interl.size() * sizeof(float));
+
+	//if (!UVs_vec.empty())
+	//	m_vb->BufferSubData(mesh_vertices, UVs_vec);
 
 	m_layout = new VertexBufferLayout();
 
-	m_layout->Push<float>(mesh_vertices.size());
-
-	if (!UVs_vec.empty())
-		m_layout->Push<float>(UVs_vec.size());
+	m_layout->Push<float>(3); //pos vert
+	m_layout->Push<float>(2); //uv
+	m_layout->Push<float>(3); //normie
 
 	m_va = new VertexArraySub();
 	m_va->AddBuffer(*m_vb, *m_layout);
@@ -98,7 +138,7 @@ void GameObject::LoadMesh(const std::string& filename)
 	m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 
 	//m_texture = new Texture("res/mesh objects/spyro_texture.png");
-	m_texture = new Texture("res/textures/uvtest.png");
+	m_texture = new Texture("res/meshes/Spyro/spyro_tex.png");
 
 	m_transform = new Transform;
 
