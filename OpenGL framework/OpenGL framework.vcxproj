@@ -123,6 +123,7 @@
     <ClCompile Include="src\tests\TestClearColor.cpp" />
     <ClCompile Include="src\GameObject\Components\Transform.cpp" />
     <ClCompile Include="src\Rendering\Buffer\VertexArraySub.cpp" />
+    <ClCompile Include="src\GameObject\Components\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.glsl" />
@@ -420,6 +421,7 @@
     <ClInclude Include="src\tests\Test.h" />
     <ClInclude Include="src\tests\TestClearColor.h" />
     <ClInclude Include="src\Rendering\Buffer\VertexArraySub.h" />
+    <ClInclude Include="src\GameObject\Components\Texture2D.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\ChernoLogo.png" />

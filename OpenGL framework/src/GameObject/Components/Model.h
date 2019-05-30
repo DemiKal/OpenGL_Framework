@@ -22,6 +22,7 @@ private:
 	/*  Model Data  */
 	std::vector<MeshNew> meshes;
 	std::string directory;
+	std::vector<Texture2D> textures_loaded;
 
 
 	/*  Functions   */
@@ -29,8 +30,8 @@ private:
 	
 	void processNode(aiNode *node, const aiScene *scene);
 	MeshNew processMesh(aiMesh *mesh, const aiScene *scene);
-	std::vector<Texture*> loadMaterialTextures(
-		aiMaterial* mat, aiTextureType type, const std::string& typeName) const;
+	std::vector<Texture2D> loadMaterialTextures(
+		aiMaterial* mat, aiTextureType type, const std::string& typeName)  ;
 
 	//std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
 	//	const std::string& typeName);
