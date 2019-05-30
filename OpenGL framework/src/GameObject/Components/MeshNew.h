@@ -12,8 +12,8 @@ public:
 
 	MeshNew();
 	MeshNew(std::vector<VertexNew>& vertices,
-		std::vector <unsigned int> indices,
-		std::vector <Texture2D> textures);
+		std::vector <unsigned int>& indices,
+		std::vector <Texture2D>& textures);
 
 	~MeshNew();
 
