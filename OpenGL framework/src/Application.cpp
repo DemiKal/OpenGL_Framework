@@ -22,18 +22,44 @@ int main(void)
 
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
+
 	std::cout << glGetString(GL_VERSION) << std::endl;
+
+
 	{
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
 
 		//Cube cube("myCube");
 
+		const std::string path = "res/meshes/Spyro/spyro.obj";
+
 		//GameObject bunny("Spyro");
 		//bunny.renderer = renderer;
-		//bunny.LoadMesh("res/meshes/cube.obj");
+		//bunny.LoadMesh(path);
+		Model mdl(path);
+
+		//bunny.m_shader = new Shader("res/shaders/basic.glsl");
+		//bunny.m_shader->Bind();
+		//bunny.m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
+		//
+		//bunny.m_texture = new Texture("res/meshes/Spyro/spyro_tex.png", Texture::DIFFUSE);
+		//bunny.m_texture->Bind();
+		//bunny.m_shader->SetUniform1i("texture_diffuse1", 0);
+
+		Shader shader("res/shaders/basic.glsl");
+		shader.Bind();
+		shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
+
+		//auto tex = Texture("res/meshes/Spyro/spyro_tex.png", Texture::DIFFUSE);
+		//tex.Bind();
+		//shader.SetUniform1i("texture_diffuse1", 0);
 
 
+		//shader.SetUniform1i("texture_diffuse1", 0);
+
+		//bunny.m_shader->Bind();
+		//bunny.m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 
 
 
@@ -59,11 +85,10 @@ int main(void)
 		ImGui_ImplGlfwGL3_Init(window, true);
 		ImGui::StyleColorsDark();
 
-		test::Test* currentTest = nullptr;
-		test::TestMenu* testMenu = new test::TestMenu(currentTest);
-		currentTest = testMenu;
-
-		testMenu->RegisterTest<test::TestClearColor>("Clear color");
+		//test::Test* currentTest = nullptr;
+		//test::TestMenu* testMenu = new test::TestMenu(currentTest);
+		//currentTest = testMenu;
+		//testMenu->RegisterTest<test::TestClearColor>("Clear color");
 		float rot = 0;
 
 		//game loop
@@ -76,6 +101,7 @@ int main(void)
 		std::clock_t start;
 		double duration;
 
+		Transform t;
 
 		int i = 0;
 		std::vector<float>  frametimes;
@@ -139,20 +165,30 @@ int main(void)
 			{
 				// cube.m_shader->Bind();
 				//camera.MoveCameraMouse(mDiff, camSpeed, mouseVelocity);
-				///bunny.m_shader->Bind();
+
 
 				//*cube.m_transform->GetRot() += glm::vec3(0.01f);
 
 				//*bunny.m_transform->GetPos() += glm::vec3(0, 0, -0.01f);
 
-				// glm::mat4 mvp = cube.m_transform->GetMVP(camera);
 				// cube.m_shader->SetUniformMat4f("u_MVP", mvp);
 
-				///const glm::mat4 mvp = bunny.m_transform->GetMVP(camera);
-				///bunny.m_shader->SetUniformMat4f("u_MVP", mvp);
+				//new?
+				// shader.Bind();
+				//tex.Bind();
+				// shader.SetUniform1i("texture_diffuse1", 0);
+				const glm::mat4 mvp = t.GetMVP(camera);
+				 shader.SetUniformMat4f("u_MVP", mvp);
+				 mdl.Draw(shader);
+
+				///draw old style
+				//const glm::mat4 mvp = bunny.m_transform->GetMVP(camera);
+				//bunny.m_shader->Bind();
+				//bunny.m_shader->SetUniformMat4f("u_MVP", mvp);
+				//bunny.Draw();
+
 
 				//cube.Draw ();
-				///bunny.Draw();
 
 				//mesh.Draw();
 
@@ -198,7 +234,7 @@ int main(void)
 			}
 
 			ImGui::Render();
-			  ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 
@@ -209,9 +245,9 @@ int main(void)
 
 		}
 
-		delete currentTest;
-		if (currentTest != testMenu)
-			delete testMenu;
+		//delete currentTest;
+		//if (currentTest != testMenu)
+		//	delete testMenu;
 	}
 
 	ImGui_ImplGlfwGL3_Shutdown();

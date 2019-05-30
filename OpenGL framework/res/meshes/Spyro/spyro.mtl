@@ -7,7 +7,7 @@ newmtl 00084530-material.002
 	Kd 0.64 0.64 0.64
 	Ks 0.0 0.0 0.0
 	Ka 1.0 1.0 1.0
-	map_Kd spyro_texture.png
+	map_Kd spyro_tex.png
 
 
 	tmax 0.609653294

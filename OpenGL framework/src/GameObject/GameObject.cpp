@@ -13,7 +13,7 @@ GameObject::~GameObject()
 void GameObject::LoadMesh(const std::string& filename)
 {
 	OBJModel obj(filename);
-	IndexedModel idxmdl = obj.ToIndexedModel();
+	  idxmdl = obj.ToIndexedModel();
 	//mesh_indices = idxmdl.indices;
 
 	std::vector<float> vertices_vec;
@@ -77,8 +77,6 @@ void GameObject::LoadMesh(const std::string& filename)
 	int k = 0;
 	for (int i = 0 ; i < idxmdl.positions.size(); i++)
 	{
-		 
-
 		const glm::vec3 p = idxmdl.positions[i];	//obj.vertices[pi];
 		const glm::vec2 uv = idxmdl.texCoords[i];	//obj.uvs[uvi];
 		const glm::vec3 n = idxmdl.normals[i];	//obj.normals[ni];
@@ -88,15 +86,14 @@ void GameObject::LoadMesh(const std::string& filename)
 		pos_uv_interl.push_back(p.y);
 		pos_uv_interl.push_back(p.z);
 		
-		//uv
-		pos_uv_interl.push_back(uv.x);
-		pos_uv_interl.push_back(uv.y);
-
 		//normal
 		pos_uv_interl.push_back(n.x);
 		pos_uv_interl.push_back(n.y);
 		pos_uv_interl.push_back(n.z);
-
+		
+		//uv
+		pos_uv_interl.push_back(uv.x);
+		pos_uv_interl.push_back(uv.y);
 
 		k++;
 		//.
@@ -111,6 +108,13 @@ void GameObject::LoadMesh(const std::string& filename)
 		//pos_uv_interl.push_back(tc.y);
 
 	}
+	//m_shader = new Shader("res/shaders/basic.glsl");
+	//m_shader->Bind();
+	//m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
+	//
+	//m_texture = new Texture("res/meshes/Spyro/spyro_tex.png", Texture::DIFFUSE);
+	//m_texture->Bind();
+	//m_shader->SetUniform1i("texture_diffuse1", 0);
 
 
 	m_vb = new VertexBuffer(&pos_uv_interl[0], pos_uv_interl.size() * sizeof(float));
@@ -121,8 +125,8 @@ void GameObject::LoadMesh(const std::string& filename)
 	m_layout = new VertexBufferLayout();
 
 	m_layout->Push<float>(3); //pos vert
-	m_layout->Push<float>(2); //uv
 	m_layout->Push<float>(3); //normie
+	m_layout->Push<float>(2); //uv
 
 	m_va = new VertexArraySub();
 	m_va->AddBuffer(*m_vb, *m_layout);
@@ -131,17 +135,12 @@ void GameObject::LoadMesh(const std::string& filename)
 
 
 
-	m_shader = new Shader("res/shaders/basic.shader");
-	m_shader->Bind();
-	m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 
-	//m_texture = new Texture("res/mesh objects/spyro_texture.png");
-	m_texture = new Texture("res/textures/uvtest.png", Texture::DIFFUSE);
+	//m_texture = new Texture("res/textures/uvtest.png", Texture::DIFFUSE);
+	
 
 	m_transform = new Transform;
 
-	m_texture->Bind();
-	m_shader->SetUniform1i("u_Texture", 0);
 
 	m_va->Unbind();
 	m_vb->UnBind();

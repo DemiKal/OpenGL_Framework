@@ -10,14 +10,14 @@ public:
 		HEIGHTMAP
 	};
 
-private:
-	unsigned int m_RendererID;
-	std::string m_FilePath;
+ 
+public:
 	unsigned char* m_LocalBuffer;
 	int m_Width, m_Height, m_BPP;
 	TextureType type;
 
-public:
+	std::string m_FilePath;
+	unsigned int m_RendererID;
 
 
 
@@ -33,7 +33,7 @@ public:
 	inline std::string GetTypeName()  const
 	{
 		switch (type) {
-		case  DIFFUSE: return "texture_diffuse";
+		case  DIFFUSE:	return "texture_diffuse";
 		case  SPECULAR: return "texture_specular";
 		case  NORMALMAP: return "texture_normal";
 		case  HEIGHTMAP: return "texture_height";
@@ -41,6 +41,17 @@ public:
 		}
 		return {};
 	}
+
+	static TextureType GetType(const std::string & name)
+	{
+		if (name == "texture_diffuse") return DIFFUSE;
+		else if (name == "texture_specular")return  SPECULAR;
+		else if (name == "texture_normal")return NORMALMAP;
+		else if (name == "texture_height")return HEIGHTMAP;
+
+		ASSERT(false);
+	}
+
 
 	inline unsigned int GetID()  const { return m_RendererID; }
 };

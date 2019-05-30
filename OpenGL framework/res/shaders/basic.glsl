@@ -1,8 +1,14 @@
 #shader vertex
 #version 330 core
+///#########################\\\
+///							\\\
+///		VERTEX SHADER		\\\
+///							\\\
+///#########################\\\
+
 layout(location = 0) in vec4 position;
-layout(location = 1) in vec2 texCoord;
-layout(location = 2) in vec3 normal;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 texCoord;
 
 out vec2 v_TexCoord;
 out vec3 v_normal;
@@ -35,12 +41,15 @@ in vec3 v_normal;
 in vec3 v_pos;
 
 uniform vec4 u_Color;
+
+
 uniform sampler2D texture_diffuse1;
+
 
 void main()
 { 
 	vec3 lightColor = vec3(1.f, 1.f, 1.f);
- 	vec4 texColor = texture(u_Texture, v_TexCoord  );
+ 	vec4 texColor = texture(texture_diffuse1, v_TexCoord  );
 	vec3 lightPos = vec3(  1.0f,2.0f, 2.0f);
 	vec3 lightDir   = normalize(lightPos - v_pos);
  
@@ -49,9 +58,11 @@ void main()
 	float diff = max(dot(v_normal, lightDir), 0.0f);
 	vec3 diffuse = diff * lightColor;
 	
-	vec3 result =    diffuse  * texColor.xyz;
+	vec3 result = diffuse  * texColor.xyz;
 	color = vec4(result, 1.0f);
-	//color = texColor;
+	// color = vec4(vec3(v_TexCoord, 0.0f), 1.0f);
+	
+	color = vec4(texColor.xyz, 1.0f);
 	// color = texColor;
 
 };

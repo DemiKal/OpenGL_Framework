@@ -60,16 +60,21 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include "Rendering/Renderer.h"
 #include "Rendering/Texture.h"
 #include "GameObject/Camera.h"
+#include "GameObject/VertexNew.h"
 
 #include "GameObject/Components/Transform.h"
 
 #include "GameObject/GameObject.h"
 #include "GameObject/Cube.h"
 
-
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 
 #include "GameObject/Components/Mesh.h"
 #include "GameObject/Components/MeshNew.h"
+#include "GameObject/Components/Model.h"
+ 
 
 

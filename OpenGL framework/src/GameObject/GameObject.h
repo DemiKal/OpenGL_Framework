@@ -64,7 +64,7 @@ public:
 	Shader* m_shader;
 	Texture* m_texture;
 	Transform* m_transform;
-
+	IndexedModel idxmdl;
 	void LoadMesh(const std::string& filename);
 	inline std::vector<Triangle> GetMeshTriangles()
 	{
