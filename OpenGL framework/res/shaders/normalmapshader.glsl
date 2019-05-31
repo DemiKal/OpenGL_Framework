@@ -18,8 +18,8 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
- uniform vec3 lightPos;
- uniform vec3 viewPos;
+uniform vec3 lightPos;
+uniform vec3 viewPos;
 
 void main()
 {
@@ -84,7 +84,7 @@ void main()
 
     vec3 specular = vec3(0.0784, 0.1961, 0.3333) * spec;
     FragColor = vec4(ambient + diffuse + specular, 1.0);
-   // FragColor =  texture(normalMap, fs_in.TexCoords) ;
+    //FragColor =  vec4(normal, 1.0f) ;
 	//FragColor = vec4(normal, 1.0f);
 }
 

@@ -41,8 +41,8 @@ int main(void)
 		//bunny.LoadMesh(path);
 
 		///test
-		 Model mdl(path);
-		Shader shader("res/shaders/basic.glsl");
+		Model mdl(path);
+		Shader shader("res/shaders/normalmapshader.glsl");
 		shader.Bind();
 		// shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 		//shader.SetUniform1i("diffuseMap", 0);
@@ -76,6 +76,7 @@ int main(void)
 		//Texture2D diffuseMap = Texture2D("res/textures/brickwall.jpg", "texture_diffuse");
 		//Texture2D normalMap = Texture2D("res/textures/brickwall_normal.jpg", "texture_normal");
 
+		  glm::vec3 lightpos(2, 6, 7);
 
 
 		while (!glfwWindowShouldClose(window))
@@ -96,9 +97,14 @@ int main(void)
 			int mb = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
 			ImGui::Text("mouse click %s", mb ? "true" : "false");
 
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camMovement += camSpeed * forward;
-			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camMovement -= camSpeed * forward;
-			if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) camMovement += camSpeed * up;
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
+				camMovement += camSpeed * forward;
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+				camMovement -= camSpeed * forward;
+			if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+				camMovement += camSpeed * up;
+			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+				camMovement -= camSpeed * up;
 			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 				camMovement -= glm::normalize(glm::cross(forward, up)) * camSpeed;
 			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
@@ -111,9 +117,22 @@ int main(void)
 				camera.RotateXlocal(.01f);
 			if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 				camera.RotateXlocal(-.01f);
+			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+				lightpos += 2*camSpeed* glm::vec3(-1, 0, 0);
+			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+				lightpos += 2 * camSpeed*glm::vec3(1, 0, 0);
+			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+				lightpos += 2 * camSpeed*glm::vec3(0, 0, -1);
+			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+				lightpos += 2 * camSpeed*glm::vec3(0, 0, 1);
+			if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+				lightpos += 2 * camSpeed*glm::vec3(0, 1, 0);
+			if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+				lightpos += 2 * camSpeed*glm::vec3(0, -1, 0);
+
 
 			*camera.Position() += camMovement;
-						
+
 			float signX = glm::sign(mouseXnew - mouseXold);
 			float signY = glm::sign(mouseYold - mouseYnew);
 			glm::vec2 mDiff = glm::vec2(signX, signY);
@@ -142,34 +161,47 @@ int main(void)
 			//GLCall(glActiveTexture(GL_TEXTURE1);				  )
 			//GLCall(glBindTexture(GL_TEXTURE_2D, normalMap.GetID()));
 			//renderQuad();
- 		
+
 			const glm::mat4 mvp = t.GetMVP(camera);
-			shader.SetUniformMat4f("u_MVP", mvp);
+			const glm::mat4 model = glm::mat4(1.0f);
+			const glm::mat4 view = camera.GetViewMatrix();
+			const glm::mat4 proj = camera.GetProjectionMatrix();
+
+			const glm::vec3 viewpos = *camera.Position();
+
+			shader.SetUniformMat4f("model", model);
+			shader.SetUniformMat4f("projection", proj);
+			shader.SetUniformMat4f("view", view);
+			
+			shader.setVec3("viewPos", viewpos);
+			shader.setVec3("lightPos", lightpos);
+
+
 			mdl.Draw(shader);
-			 //draw old style
+			//draw old style
 			//const glm::mat4 mvp = bunny.m_transform->GetMVP(camera);
 			//bunny.m_shader->Bind();
 			//bunny.m_shader->SetUniformMat4f("u_MVP", mvp);
 			//bunny.Draw();
-			   //cube.Draw ();
+			  //cube.Draw ();
 			//mesh.Draw();
-						//camera.CheckMouseHover(mouseXnew, mouseYnew, cube);
-						// camera.meme(cube);
+					   //camera.CheckMouseHover(mouseXnew, mouseYnew, cube);
+					   // camera.meme(cube);
 
 
-		//{
-		//	static float f = 0.0f;
-		//	static int counter = 0;
-		//	ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
-		//	ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
-		//	ImGui::SliderFloat3("TranslationB", &translationB.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
-		//	//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
-		//	//ImGui::Checkbox("Another Window", &show_another_window);
-		//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
-		//		counter++;
-		//	ImGui::SameLine();
-		//	ImGui::Text("counter = %d", counter);
-			//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	   //{
+	   //	static float f = 0.0f;
+	   //	static int counter = 0;
+	   //	ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
+	   //	ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+	   //	ImGui::SliderFloat3("TranslationB", &translationB.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+	   //	//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
+	   //	//ImGui::Checkbox("Another Window", &show_another_window);
+	   //	if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
+	   //		counter++;
+	   //	ImGui::SameLine();
+	   //	ImGui::Text("counter = %d", counter);
+		   //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
 			//}
 
@@ -188,7 +220,7 @@ int main(void)
 
 			ImGui::Render();
 			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
-			
+
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 

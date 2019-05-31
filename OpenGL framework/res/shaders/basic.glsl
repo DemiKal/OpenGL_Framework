@@ -80,11 +80,11 @@ void main()
 	vec3 diffuse = diff * lightColor;
 
 	vec3 result = diffuse * texColor.xyz;
-	//color = vec4(result, 1.0f);
+	color = vec4(result, 1.0f);
 	// color = vec4(vec3(v_TexCoord, 0.0f), 1.0f);
 
-	color = vec4(texColor.xyz, 1.0f);
-	color = vec4(texture(texture_normal1, v_TexCoord).xyz, 1.0f);
+	//color = vec4(texColor.xyz, 1.0f);
+	//color = vec4(texture(texture_normal1, v_TexCoord).xyz, 1.0f);
 	// color = texColor;
 
 };
