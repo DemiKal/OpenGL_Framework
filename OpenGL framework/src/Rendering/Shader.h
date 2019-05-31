@@ -32,6 +32,7 @@ public:
 	unsigned int CompileShader(unsigned type, const std::string& source);
 	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
 	void SetUniformMat4f(const char* name, const glm::mat4& mat);
+	void setVec3(const std::string & name, const glm::vec3 & value)  ;
 	void SetFloat(const std::string& name, float value)  ;
 	Shader& operator=(Shader* shader);
 };

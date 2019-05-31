@@ -428,6 +428,9 @@
     <Image Include="res\textures\ChernoLogo2.png" />
     <Image Include="res\textures\mario.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\shaders\normalmapshader.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

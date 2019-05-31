@@ -37,7 +37,7 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
 void Renderer::SetAlphaBlending(bool set)
 {
 	alphaBlending = set;
-
+	 
 	if (set)
 	{
 		GLCall(glEnable(GL_BLEND));

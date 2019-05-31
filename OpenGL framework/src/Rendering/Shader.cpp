@@ -2,7 +2,7 @@
 
 //Shader::Shader (){}
 Shader::Shader(const std::string& filepath)
-	: m_FilePath(filepath),	m_RendererID(0)
+	: m_FilePath(filepath), m_RendererID(0)
 {
 	const ShaderProgramSource sps = parseShader(filepath);
 	m_RendererID = CreateShader(sps.VertexSource, sps.FragmentSource);
@@ -99,8 +99,12 @@ void Shader::SetUniformMat4f(const char* name, const glm::mat4& mat)
 	const int location = GetUniformLocation(name);
 	GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]));
 }
-
-void Shader::SetFloat(const std::string &name, float value)  
+void Shader::setVec3(const std::string &name, const glm::vec3 &value)
+{
+	const int location = GetUniformLocation(name);
+	glUniform3fv(location, 1, &value[0]);
+}
+void Shader::SetFloat(const std::string &name, float value)
 {
 	const int location = GetUniformLocation(name);
 	GLCall(glUniform1f(glGetUniformLocation(location, name.c_str()), value));
@@ -111,7 +115,7 @@ void Shader::SetFloat(const std::string &name, float value)
 //	return *shader;
 //}
 
- 
+
 ShaderProgramSource Shader::parseShader(const std::string& path) const
 {
 	std::ifstream stream(path);

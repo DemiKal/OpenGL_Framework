@@ -1,4 +1,5 @@
 #include "precomp.h"
+void renderQuad();
 
 
 //struct Cuban;
@@ -32,68 +33,33 @@ int main(void)
 
 		//Cube cube("myCube");
 
-		const std::string path = "res/meshes/Spyro/spyro.obj";
+		const std::string path = "res/meshes/nanosuit/nanosuit.obj";
+		//const std::string path = "res/meshes/nanosuit/nanosuit.obj";
 
 		//GameObject bunny("Spyro");
 		//bunny.renderer = renderer;
 		//bunny.LoadMesh(path);
-		Model mdl(path);
 
-		//bunny.m_shader = new Shader("res/shaders/basic.glsl");
-		//bunny.m_shader->Bind();
-		//bunny.m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
-		//
-		//bunny.m_texture = new Texture("res/meshes/Spyro/spyro_tex.png", Texture::DIFFUSE);
-		//bunny.m_texture->Bind();
-		//bunny.m_shader->SetUniform1i("texture_diffuse1", 0);
-
+		///test
+		 Model mdl(path);
 		Shader shader("res/shaders/basic.glsl");
 		shader.Bind();
-		shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
+		// shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
+		//shader.SetUniform1i("diffuseMap", 0);
+		//shader.SetUniform1i("normalMap", 1);
 
-		//auto tex = Texture("res/meshes/Spyro/spyro_tex.png", Texture::DIFFUSE);
-		//tex.Bind();
-		//shader.SetUniform1i("texture_diffuse1", 0);
-
-
-		//shader.SetUniform1i("texture_diffuse1", 0);
-
-		//bunny.m_shader->Bind();
-		//bunny.m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		//Mesh mesh("res/mesh objects/Bunny2.obj");
-		//cube.renderer = &renderer;
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
-		Camera camera(glm::vec3(0, 0, 5), 70, aspect, 0.1f, 200.0f);
+		Camera camera(glm::vec3(0, 0, 3), 70, aspect, 0.1f, 200.0f);
+
 		ImGui::CreateContext();
 		ImGui_ImplGlfwGL3_Init(window, true);
 		ImGui::StyleColorsDark();
-
-		//test::Test* currentTest = nullptr;
-		//test::TestMenu* testMenu = new test::TestMenu(currentTest);
-		//currentTest = testMenu;
-		//testMenu->RegisterTest<test::TestClearColor>("Clear color");
 		float rot = 0;
 
 		//game loop
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_BACK);
 		glEnable(GL_DEPTH_TEST);
 
 		double mouseXold = 0, mouseYold = 0;
@@ -105,6 +71,13 @@ int main(void)
 
 		int i = 0;
 		std::vector<float>  frametimes;
+
+
+		//Texture2D diffuseMap = Texture2D("res/textures/brickwall.jpg", "texture_diffuse");
+		//Texture2D normalMap = Texture2D("res/textures/brickwall_normal.jpg", "texture_normal");
+
+
+
 		while (!glfwWindowShouldClose(window))
 		{
 			ImGui_ImplGlfwGL3_NewFrame();
@@ -114,13 +87,6 @@ int main(void)
 
 			rot += 0.005;
 			glfwGetCursorPos(window, &mouseXnew, &mouseYnew);
-			float signX = glm::sign(mouseXnew - mouseXold);
-			float signY = glm::sign(mouseYold - mouseYnew);
-			glm::vec2 mDiff = glm::vec2(signX, signY);
-			glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
-
-
-			renderer.Clear();
 
 			float camSpeed = 0.05f;
 			glm::vec3 camMovement = glm::vec3();
@@ -147,81 +113,68 @@ int main(void)
 				camera.RotateXlocal(-.01f);
 
 			*camera.Position() += camMovement;
-
-			/*if (currentTest)
-			{
-				currentTest->OnUpdate(0.0f);
-				currentTest->OnRender();
-				ImGui::Begin("Test");
-				if (currentTest != testMenu && ImGui::Button("<-"))
-				{
-					delete currentTest;
-					currentTest = testMenu;
-				}
-
-				currentTest->OnImGuiRender();
-				ImGui::End();
-			}*/
-			{
-				// cube.m_shader->Bind();
-				//camera.MoveCameraMouse(mDiff, camSpeed, mouseVelocity);
+						
+			float signX = glm::sign(mouseXnew - mouseXold);
+			float signY = glm::sign(mouseYold - mouseYnew);
+			glm::vec2 mDiff = glm::vec2(signX, signY);
+			glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
 
 
-				//*cube.m_transform->GetRot() += glm::vec3(0.01f);
+			renderer.Clear();
+			///test / (float)
+			//glm::mat4 projection = glm::perspective(glm::radians(45.0f),
+			//	(float)SCREENWIDTH / (float)SCREENHEIGHT, 0.1f, 100.0f);
+			//
+			//const glm::mat4 view = camera.GetViewMatrix();
+			//
+			//shader.SetUniformMat4f("projection", projection);
+			//shader.SetUniformMat4f("view", view);
+			//
+			//// render normal-mapped quad
+			//glm::mat4 model = glm::mat4(1.0f);
+			// model = glm::rotate(model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
+			//shader.SetUniformMat4f("model", model);
+			//glm::vec3 viewpos = *camera.Position();
+			//shader.setVec3("viewPos", viewpos);
+			//shader.setVec3("lightPos", { 0.5f, 1.0f, 0.3f });
+			//GLCall(glActiveTexture(GL_TEXTURE0);				  )
+			//GLCall(glBindTexture(GL_TEXTURE_2D, diffuseMap.GetID()));
+			//GLCall(glActiveTexture(GL_TEXTURE1);				  )
+			//GLCall(glBindTexture(GL_TEXTURE_2D, normalMap.GetID()));
+			//renderQuad();
+ 		
+			const glm::mat4 mvp = t.GetMVP(camera);
+			shader.SetUniformMat4f("u_MVP", mvp);
+			mdl.Draw(shader);
+			 //draw old style
+			//const glm::mat4 mvp = bunny.m_transform->GetMVP(camera);
+			//bunny.m_shader->Bind();
+			//bunny.m_shader->SetUniformMat4f("u_MVP", mvp);
+			//bunny.Draw();
+			   //cube.Draw ();
+			//mesh.Draw();
+						//camera.CheckMouseHover(mouseXnew, mouseYnew, cube);
+						// camera.meme(cube);
 
-				//*bunny.m_transform->GetPos() += glm::vec3(0, 0, -0.01f);
 
-				// cube.m_shader->SetUniformMat4f("u_MVP", mvp);
-
-				//new?
-				// shader.Bind();
-				//tex.Bind();
-				// shader.SetUniform1i("texture_diffuse1", 0);
-				const glm::mat4 mvp = t.GetMVP(camera);
-				 shader.SetUniformMat4f("u_MVP", mvp);
-				 mdl.Draw(shader);
-
-				///draw old style
-				//const glm::mat4 mvp = bunny.m_transform->GetMVP(camera);
-				//bunny.m_shader->Bind();
-				//bunny.m_shader->SetUniformMat4f("u_MVP", mvp);
-				//bunny.Draw();
-
-
-				//cube.Draw ();
-
-				//mesh.Draw();
-
-				//camera.CheckMouseHover(mouseXnew, mouseYnew, cube);
-
-				// camera.meme(cube);
-
-			}
-
-
-			//{
-			//	static float f = 0.0f;
-			//	static int counter = 0;
-			//	ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
-			//	ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
-			//	ImGui::SliderFloat3("TranslationB", &translationB.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
-			//	//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
-			//	//ImGui::Checkbox("Another Window", &show_another_window);
-			//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
-			//		counter++;
-			//	ImGui::SameLine();
-			//	ImGui::Text("counter = %d", counter);
-				//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		//{
+		//	static float f = 0.0f;
+		//	static int counter = 0;
+		//	ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
+		//	ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+		//	ImGui::SliderFloat3("TranslationB", &translationB.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+		//	//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
+		//	//ImGui::Checkbox("Another Window", &show_another_window);
+		//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
+		//		counter++;
+		//	ImGui::SameLine();
+		//	ImGui::Text("counter = %d", counter);
+			//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
 			//}
 
-
-
 			mouseXold = mouseXnew;
 			mouseYold = mouseYnew;
-
-
-
 
 			const float average = std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
 			const float avgfps = 1000 * float(1.0 / average);
@@ -235,19 +188,14 @@ int main(void)
 
 			ImGui::Render();
 			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
-
 
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currenttime);
 			frametimes.push_back(diffms);
-
 		}
-
-		//delete currentTest;
-		//if (currentTest != testMenu)
-		//	delete testMenu;
 	}
 
 	ImGui_ImplGlfwGL3_Shutdown();
@@ -255,4 +203,98 @@ int main(void)
 
 	glfwTerminate();
 	return 0;
+}
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+
+void renderQuad()
+{
+	if (quadVAO == 0)
+	{
+		// positions
+		glm::vec3 pos1(-1.0f, 1.0f, 0.0f);
+		glm::vec3 pos2(-1.0f, -1.0f, 0.0f);
+		glm::vec3 pos3(1.0f, -1.0f, 0.0f);
+		glm::vec3 pos4(1.0f, 1.0f, 0.0f);
+		// texture coordinates
+		glm::vec2 uv1(0.0f, 1.0f);
+		glm::vec2 uv2(0.0f, 0.0f);
+		glm::vec2 uv3(1.0f, 0.0f);
+		glm::vec2 uv4(1.0f, 1.0f);
+		// normal vector
+		glm::vec3 nm(0.0f, 0.0f, 1.0f);
+
+		// calculate tangent/bitangent vectors of both triangles
+		glm::vec3 tangent1(0, 0, 0), bitangent1(0, 0, 0);
+		glm::vec3 tangent2(0, 0, 0), bitangent2(0, 0, 0);
+		// triangle 1
+		// ----------
+		glm::vec3 edge1 = pos2 - pos1;
+		glm::vec3 edge2 = pos3 - pos1;
+		glm::vec2 deltaUV1 = uv2 - uv1;
+		glm::vec2 deltaUV2 = uv3 - uv1;
+
+		GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		tangent1 = glm::normalize(tangent1);
+
+		bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		bitangent1 = glm::normalize(bitangent1);
+
+		// triangle 2
+		// ----------
+		edge1 = pos3 - pos1;
+		edge2 = pos4 - pos1;
+		deltaUV1 = uv3 - uv1;
+		deltaUV2 = uv4 - uv1;
+
+		f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		tangent2 = glm::normalize(tangent2);
+
+
+		bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		bitangent2 = glm::normalize(bitangent2);
+
+
+		float quadVertices[] = {
+			// positions            // normal         // texcoords  // tangent                          // bitangent
+			pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+			pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+			pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+
+			pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+			pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+			pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
+		};
+		// configure plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
 }

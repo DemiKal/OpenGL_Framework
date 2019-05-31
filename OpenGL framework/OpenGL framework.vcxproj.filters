@@ -998,4 +998,7 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\shaders\normalmapshader.glsl" />
+  </ItemGroup>
 </Project>

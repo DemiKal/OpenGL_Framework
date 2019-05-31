@@ -30,6 +30,7 @@ private:
 	
 	void processNode(aiNode *node, const aiScene *scene);
 	MeshNew processMesh(aiMesh *mesh, const aiScene *scene);
+	
 	std::vector<Texture2D> loadMaterialTextures(
 		aiMaterial* mat, aiTextureType type, const std::string& typeName)  ;
 
