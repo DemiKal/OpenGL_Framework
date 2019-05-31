@@ -33,7 +33,7 @@ int main(void)
 
 		//Cube cube("myCube");
 
-		const std::string path = "res/meshes/nanosuit/nanosuit.obj";
+		const std::string path = "res/meshes/cyborg/cyborg.obj";
 		//const std::string path = "res/meshes/nanosuit/nanosuit.obj";
 
 		//GameObject bunny("Spyro");
@@ -76,7 +76,7 @@ int main(void)
 		//Texture2D diffuseMap = Texture2D("res/textures/brickwall.jpg", "texture_diffuse");
 		//Texture2D normalMap = Texture2D("res/textures/brickwall_normal.jpg", "texture_normal");
 
-		  glm::vec3 lightpos(2, 6, 7);
+		  glm::vec3 lightpos( 0.5f, 1.0f, 0.3f)  ;
 
 
 		while (!glfwWindowShouldClose(window))
@@ -163,10 +163,11 @@ int main(void)
 			//renderQuad();
 
 			const glm::mat4 mvp = t.GetMVP(camera);
-			const glm::mat4 model = glm::mat4(1.0f);
+			auto model = glm::mat4(1.0f);
+			//model = glm::rotate(model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
+
 			const glm::mat4 view = camera.GetViewMatrix();
 			const glm::mat4 proj = camera.GetProjectionMatrix();
-
 			const glm::vec3 viewpos = *camera.Position();
 
 			shader.SetUniformMat4f("model", model);

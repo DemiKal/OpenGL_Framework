@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-
+static int highest = 0;
 void MeshNew::Draw(Shader& shader)
 {
 	// bind appropriate textures
@@ -27,6 +27,11 @@ void MeshNew::Draw(Shader& shader)
 		GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
 		// and finally bind the texture
 		GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].GetID()));
+
+		if (diffuseNr  > highest) highest = diffuseNr;
+		if (specularNr > highest) highest = specularNr;
+		if (normalNr > highest)  highest = normalNr;
+		if (heightNr > highest)  highest = heightNr;
 	}
 
 	// draw mesh
