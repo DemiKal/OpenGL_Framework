@@ -78,6 +78,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="res\shaders\lightShader.glsl">
+      <FileType>CppCode</FileType>
+    </None>
     <ClCompile Include="src\GameObject\Components\Model.cpp" />
     <ClCompile Include="src\GameObject\Components\MeshNew.cpp" />
     <ClCompile Include="src\GameObject\Camera.cpp" />

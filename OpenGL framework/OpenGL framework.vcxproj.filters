@@ -456,6 +456,9 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\basic.glsl" />
+    <None Include="res\shaders\lightShader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">

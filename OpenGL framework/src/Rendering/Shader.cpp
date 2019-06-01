@@ -2,7 +2,7 @@
 
 //Shader::Shader (){}
 Shader::Shader(const std::string& filepath)
-	: m_FilePath(filepath), m_RendererID(0)
+	: m_FilePath(filepath) 
 {
 	const ShaderProgramSource sps = parseShader(filepath);
 	m_RendererID = CreateShader(sps.VertexSource, sps.FragmentSource);
@@ -11,6 +11,10 @@ Shader::Shader(const std::string& filepath)
 Shader::~Shader()
 {
 	GLCall(glDeleteProgram(m_RendererID));
+}
+
+Shader::Shader()
+{
 }
 
 void Shader::Bind() const
@@ -50,7 +54,7 @@ int Shader::GetUniformLocation(const std::string&  name)
 	return location;
 }
 
-unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
+unsigned int Shader::CompileShader(const unsigned int type, const std::string& source)
 {
 	unsigned int id = glCreateShader(type);
 	const char* src = source.c_str();
@@ -78,9 +82,9 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 }
 unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
 {
-	unsigned int program = glCreateProgram();
-	unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-	unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+	const unsigned int program = glCreateProgram();
+	const unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
+	const unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
@@ -109,6 +113,11 @@ void Shader::SetFloat(const std::string &name, float value)
 	const int location = GetUniformLocation(name);
 	GLCall(glUniform1f(glGetUniformLocation(location, name.c_str()), value));
 }
+
+//Shader & Shader::operator=(Shader * shader)
+//{
+//	// TODO: insert return statement here
+//}
 
 //Shader & Shader::operator=(Shader * shader)
 //{
