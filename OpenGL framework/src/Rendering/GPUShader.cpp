@@ -1,7 +1,6 @@
 #include "precomp.h"
 
-//Shader::Shader (){}
-GPUShader::GPUShader(const std::string& filepath)
+ GPUShader::GPUShader(const std::string& filepath)
 	: m_FilePath(filepath)
 {
 	const ShaderProgramSource sps = parseShader(filepath);
@@ -10,15 +9,7 @@ GPUShader::GPUShader(const std::string& filepath)
 	const  std::string nm = std::filesystem::path(filepath).stem().string();
 	name = nm;
 }
-
-GPUShader::~GPUShader()
-{
-	//auto x = glGetCurrentContext();
-	//GLFWwindow* x = glfwGetCurrentContext();
-	//if(x != NULL)
-		GLCall(glDeleteProgram(m_RendererID));
-}
-
+ 
 GPUShader::GPUShader()
 {
 }
@@ -104,33 +95,28 @@ unsigned int GPUShader::CreateShader(const std::string& vertexShader, const std:
 	return program;
 }
 
-void GPUShader::SetUniformMat4f(const char* name, const glm::mat4& mat)
+void GPUShader::SetUniformMat4f(const char* name, const glm::mat4& mat)  
 {
 	const int location = GetUniformLocation(name);
 	GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]));
 }
-void GPUShader::setVec3(const std::string &name, const glm::vec3 &value)
+void GPUShader::setVec3(const std::string &name, const glm::vec3 &value)  
 {
 	const int location = GetUniformLocation(name);
 	glUniform3fv(location, 1, &value[0]);
 }
-void GPUShader::SetFloat(const std::string &name, float value)
+void GPUShader::SetFloat(const std::string &name, float value)  
 {
 	const int location = GetUniformLocation(name);
 	GLCall(glUniform1f(glGetUniformLocation(location, name.c_str()), value));
 }
 
-//Shader & Shader::operator=(Shader * shader)
-//{
-//	// TODO: insert return statement here
-//}
+void GPUShader::Destroy()
+{
+	GLCall(glDeleteProgram(m_RendererID));
 
-//Shader & Shader::operator=(Shader * shader)
-//{
-//	return *shader;
-//}
-
-
+} 
+ 
 ShaderProgramSource GPUShader::parseShader(const std::string& path) const
 {
 	std::ifstream stream(path);

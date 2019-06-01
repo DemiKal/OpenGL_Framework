@@ -31,7 +31,6 @@ Texture::Texture(const std::string& path, const TextureType  texType)
 
 	if (m_LocalBuffer)
 		stbi_image_free(m_LocalBuffer);
-	
 	 
 }
 

@@ -1,6 +1,4 @@
 #pragma once
- 
-
 
 class MeshNew
 {
@@ -16,15 +14,14 @@ public:
 	std::vector<VertexNew> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture2D> textures;
-	void Draw(GPUShader& shader);
+	void Draw(const GPUShader& shader);
 
-	MeshNew();
+	MeshNew() = default;
+	~MeshNew() = default;
 	MeshNew(std::vector<VertexNew>& vertices,
 		std::vector <unsigned int>& indices,
 		std::vector <Texture2D>& textures,
 		std::vector<bool> & bools);
-
-	~MeshNew();
 
 	bool hasPositions() const { return pos_loaded; }
 	bool hasNormals() const { return normals_loaded; }

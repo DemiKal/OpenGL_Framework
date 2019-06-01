@@ -1,7 +1,4 @@
-#pragma once
-
- 
-
+#pragma once 
 struct Transform
 {
 public:

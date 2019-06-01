@@ -36,6 +36,7 @@ public:
 	~Camera();
 
 	glm::vec3* Position() { return  &pos; }
+	glm::vec3 PositionRead() const { return pos; };
 	float GetAspectRatio() const { return  aspectRatio; }
 	void SetAspectRatio(const float asp) { aspectRatio = asp; } //possible extra stuff to do when setting
 	glm::vec3 GetForward() const;

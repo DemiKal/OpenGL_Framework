@@ -6,10 +6,6 @@ void Model::SetShader(const std::string& shadername)
 	shaderIdx = ShaderManager::getShaderIdx(shadername);
 }
 
-Model::~Model()
-{
-
-}
 
 
 void Model::loadModel(const std::string& path)
@@ -187,4 +183,61 @@ std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
 		}
 	}
 	return textures;
+}
+
+void Model::Draw(const Camera& cam)
+{
+	//auto d = shader.get();
+	GPUShader& shader = ShaderManager::getShaderIdx(shaderIdx);
+	shader.Bind();
+	const unsigned int shaderID = shader.m_RendererID;
+
+	int count;
+	GLCall(glGetProgramiv(shaderID, GL_ACTIVE_UNIFORMS, &count));
+	//printf("Active Uniforms: %d\n", count);
+	GLint maxLength;
+	GLCall(glGetProgramiv(shaderID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength));
+
+	std::vector < std::string> names;
+
+	for (int i = 0; i < count; i++)
+	{
+		GLchar name[GL_ACTIVE_UNIFORM_MAX_LENGTH + 1];
+		int length, size;
+		GLenum type;
+
+		glGetActiveUniform(shaderID, i, maxLength, &length, &size, &type, name);
+
+		//const GLubyte* ss = glGetString(type);
+		//printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
+		//names.emplace_back(name);
+	}
+
+	const glm::mat4 view = cam.GetViewMatrix();
+	const glm::mat4 proj = cam.GetProjectionMatrix();
+	const glm::vec3 pos = { 1,0,0 };
+	const glm::vec3 fw = { -1,0,0 };
+	
+	const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
+	const auto zx =   cam.PositionRead();
+
+	Camera cam2({ 2,0,0 }, 70, aspect, 0.1f, 200.0f);
+	static float time = 0;
+	time += 0.01f;
+	cam2.RotateYlocal(time);
+	const glm::mat4 view2 = cam2.GetViewMatrix();//glm::lookAt(pos, pos + fw, { 0,1,0 });
+	const glm::mat4 proj2 = cam2.GetProjectionMatrix();
+
+
+	shader.SetUniformMat4f("model", model);
+	shader.SetUniformMat4f("view", view);
+	shader.SetUniformMat4f("projection", proj);
+	
+	shader.SetUniformMat4f("view2", view2);
+	shader.SetUniformMat4f("proj2", proj2);
+
+	for (auto& mesh : meshes)
+		mesh.Draw(shader);
+
+	shader.Unbind();
 }

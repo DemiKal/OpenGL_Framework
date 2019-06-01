@@ -6,17 +6,23 @@
 //}
 //
 //
-//ShaderManager::~ShaderManager()
-//{
-//}
 
 
-unsigned int ShaderManager::getShaderIdx(const std::string& _name)  
+
+void ShaderManager::Destroy()
+{
+	auto& inst = getInstance();
+	for (auto& s : inst.shaders)
+		s.Destroy();
+}
+
+
+unsigned int ShaderManager::getShaderIdx(const std::string& _name)
 {
 	const auto & inst = getInstance();
-	for (unsigned int i = 0; i < inst->shaders.size(); i++)
+	for (unsigned int i = 0; i < inst.shaders.size(); i++)
 	{
-		if (inst->shaders[i]->name == _name)
+		if (inst.shaders[i].name == _name)
 		{
 			return  i;
 		}
@@ -25,8 +31,8 @@ unsigned int ShaderManager::getShaderIdx(const std::string& _name)
 	return 0;
 }
 
-std::shared_ptr<GPUShader> ShaderManager::getShader(const unsigned idx)
+GPUShader & ShaderManager::getShaderIdx(const unsigned idx)
 {
-	auto inst = getInstance();
-	return inst->shaders[idx];
+	auto& inst = getInstance();
+	return inst.shaders[idx];
 }

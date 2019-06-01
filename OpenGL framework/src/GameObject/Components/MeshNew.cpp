@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-void MeshNew::Draw(GPUShader& shader)
+void MeshNew::Draw(const GPUShader& shader)
 {
 	// bind appropriate textures
 	unsigned int diffuseNr = 1;
@@ -39,9 +39,7 @@ void MeshNew::Draw(GPUShader& shader)
 	
 }
 
-MeshNew::MeshNew()
-{
-}
+ 
 
 MeshNew::MeshNew(
 	std::vector<VertexNew>& vertices,
@@ -114,8 +112,12 @@ void MeshNew::setupMesh()
 	//vertices.clear(); clear can be done in static draw
 }
 
-MeshNew::~MeshNew()
-{
-}
+//eshNew::~MeshNew()
+//
+//	std::cout << "destructor called meshnew" << "\n";
+//	//GLCall(glDeleteBuffers(1, &VAO));
+//	//GLCall(glDeleteBuffers(1, &VBO));
+//	//GLCall(glDeleteBuffers(1, &EBO));
+//
 
 
