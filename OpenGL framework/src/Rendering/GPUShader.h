@@ -6,23 +6,24 @@ struct ShaderProgramSource
 	std::string FragmentSource;
 };
 
-class Shader
+class GPUShader
 {
 public:
 
 	std::string m_FilePath;
+	std::string name;
 	unsigned int m_RendererID = 0;
-	std::unordered_map<std::string, int> m_UniformLocationCache;
+	std::unordered_map<  std::string, int> m_UniformLocationCache;
 
 	int GetUniformLocation(const std::string& name);
 	ShaderProgramSource parseShader(const std::string& path) const;
 
 
 	//Shader();
-	Shader(const std::string& filepath);
+	GPUShader(const std::string& filepath);
 	 
-	~Shader();
-	Shader(); 
+	~GPUShader();
+	GPUShader(); 
 	void Bind() const;
 	void Unbind() const;
 	void SetUniform1i(const std::string& name, int value);

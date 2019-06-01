@@ -1,5 +1,11 @@
 #include "precomp.h"
 
+void Model::SetShader(const std::string& shadername)
+{
+	//const auto& shadermanager = ShaderManager::getInstance();
+	shaderIdx = ShaderManager::getShaderIdx(shadername);
+}
+
 Model::~Model()
 {
 
@@ -91,22 +97,22 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		// tangent
 		//auto& x = mesh->mBitangents[0];
 
-		 if (mesh->HasTangentsAndBitangents())
-		 {
-		  	vector.x = mesh->mTangents[i].x;
-		  	vector.y = mesh->mTangents[i].y;
-		  	vector.z = mesh->mTangents[i].z;
-		  	vertex.Tangent = vector;
-		  	// bitangent
-		  	vector.x = mesh->mBitangents[i].x;
-		  	vector.y = mesh->mBitangents[i].y;
-		  	vector.z = mesh->mBitangents[i].z;
-		  	vertex.Bitangent = vector;
-		 }
-		 else
-		 {
-		 	int asdsad = 1;
-		 }
+		if (mesh->HasTangentsAndBitangents())
+		{
+			vector.x = mesh->mTangents[i].x;
+			vector.y = mesh->mTangents[i].y;
+			vector.z = mesh->mTangents[i].z;
+			vertex.Tangent = vector;
+			// bitangent
+			vector.x = mesh->mBitangents[i].x;
+			vector.y = mesh->mBitangents[i].y;
+			vector.z = mesh->mBitangents[i].z;
+			vertex.Bitangent = vector;
+		}
+		else
+		{
+			int asdsad = 1;
+		}
 
 		vertices.push_back(vertex);
 	}

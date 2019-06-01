@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-void MeshNew::Draw(Shader& shader)
+void MeshNew::Draw(GPUShader& shader)
 {
 	// bind appropriate textures
 	unsigned int diffuseNr = 1;

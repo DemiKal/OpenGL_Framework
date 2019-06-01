@@ -29,7 +29,7 @@ GLuint Texture2D::TextureFromFile(const std::string& fullpath/*, Texture& textur
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//
 		//stbi_image_free(data);
-		GLenum format;
+		GLenum format ;
 		if (nrComponents == 1)
 			format = GL_RED;
 		else if (nrComponents == 3)
@@ -37,6 +37,7 @@ GLuint Texture2D::TextureFromFile(const std::string& fullpath/*, Texture& textur
 		else if (nrComponents == 4)
 			format = GL_RGBA;
 
+		ASSERT(nrComponents > 0);
 		GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
 		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D));

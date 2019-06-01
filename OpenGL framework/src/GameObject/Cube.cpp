@@ -168,7 +168,7 @@ Cube::Cube(const std::string& name) : GameObject(name)
 	m_va->AddBuffer(*m_vb, *m_layout);
 
 	m_ib = new IndexBuffer(indices, 6 * 6);
-	m_shader = new Shader("res/shaders/basic.shader");
+	m_shader = new GPUShader("res/shaders/basic.shader");
 	m_shader->Bind();
 	m_shader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 0.0f);
 

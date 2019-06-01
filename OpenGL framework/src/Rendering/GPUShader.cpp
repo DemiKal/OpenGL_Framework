@@ -1,45 +1,51 @@
 #include "precomp.h"
 
 //Shader::Shader (){}
-Shader::Shader(const std::string& filepath)
-	: m_FilePath(filepath) 
+GPUShader::GPUShader(const std::string& filepath)
+	: m_FilePath(filepath)
 {
 	const ShaderProgramSource sps = parseShader(filepath);
 	m_RendererID = CreateShader(sps.VertexSource, sps.FragmentSource);
+
+	const  std::string nm = std::filesystem::path(filepath).stem().string();
+	name = nm;
 }
 
-Shader::~Shader()
+GPUShader::~GPUShader()
 {
-	GLCall(glDeleteProgram(m_RendererID));
+	//auto x = glGetCurrentContext();
+	//GLFWwindow* x = glfwGetCurrentContext();
+	//if(x != NULL)
+		GLCall(glDeleteProgram(m_RendererID));
 }
 
-Shader::Shader()
+GPUShader::GPUShader()
 {
 }
 
-void Shader::Bind() const
+void GPUShader::Bind() const
 {
 	GLCall(glUseProgram(m_RendererID));
 }
 
-void Shader::Unbind() const
+void GPUShader::Unbind() const
 {
 	GLCall(glUseProgram(0));
 }
 
-void Shader::SetUniform1i(const std::string& name, int value)
+void GPUShader::SetUniform1i(const std::string& name, int value)
 {
 	GLint l = GetUniformLocation(name);
 	GLCall(glUniform1i(l, value));
 }
 
-void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
+void GPUShader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
 	GLCall(int loc = GetUniformLocation(name));
 	GLCall(glUniform4f(loc, v0, v1, v2, v3));
 }
 
-int Shader::GetUniformLocation(const std::string&  name)
+int GPUShader::GetUniformLocation(const std::string&  name)
 {
 	if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
 		return m_UniformLocationCache[name];
@@ -54,7 +60,7 @@ int Shader::GetUniformLocation(const std::string&  name)
 	return location;
 }
 
-unsigned int Shader::CompileShader(const unsigned int type, const std::string& source)
+unsigned int GPUShader::CompileShader(const unsigned int type, const std::string& source)
 {
 	unsigned int id = glCreateShader(type);
 	const char* src = source.c_str();
@@ -80,7 +86,7 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
 	}
 	return id;
 }
-unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
+unsigned int GPUShader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
 {
 	const unsigned int program = glCreateProgram();
 	const unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
@@ -98,17 +104,17 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 	return program;
 }
 
-void Shader::SetUniformMat4f(const char* name, const glm::mat4& mat)
+void GPUShader::SetUniformMat4f(const char* name, const glm::mat4& mat)
 {
 	const int location = GetUniformLocation(name);
 	GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]));
 }
-void Shader::setVec3(const std::string &name, const glm::vec3 &value)
+void GPUShader::setVec3(const std::string &name, const glm::vec3 &value)
 {
 	const int location = GetUniformLocation(name);
 	glUniform3fv(location, 1, &value[0]);
 }
-void Shader::SetFloat(const std::string &name, float value)
+void GPUShader::SetFloat(const std::string &name, float value)
 {
 	const int location = GetUniformLocation(name);
 	GLCall(glUniform1f(glGetUniformLocation(location, name.c_str()), value));
@@ -125,7 +131,7 @@ void Shader::SetFloat(const std::string &name, float value)
 //}
 
 
-ShaderProgramSource Shader::parseShader(const std::string& path) const
+ShaderProgramSource GPUShader::parseShader(const std::string& path) const
 {
 	std::ifstream stream(path);
 	std::string line;

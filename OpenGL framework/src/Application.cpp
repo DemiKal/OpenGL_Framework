@@ -40,24 +40,27 @@ int main(void)
 		//bunny.renderer = renderer;
 		//bunny.LoadMesh(path);
 
+		ShaderManager::Init("res/shaders"); //init before any model
+
 		///test
-		//Model obj("res/meshes/nanosuit/nanosuit.obj");
-		//Shader normalmapshader("res/shaders/normalmapshader.glsl");
-		//obj.shader = normalmapshader;
-		glDeleteProgram(1);
-		glDeleteProgram(1);
-		//light
-		Model LightObj("res/meshes/cube/cube.obj");
-		Shader  LightObjShader = Shader("res/shaders/lightShader.glsl");
+		Model obj = Model("res/meshes/cyborg/cyborg.obj");
+		obj.SetShader("normalmapshader");
+		//auto normalmapshader = std::make_shared< GPUShader>("res/shaders/normalmapshader.glsl");
+		//obj->shader = normalmapshader;		
+	    //light
+	    // Model LightObj("res/meshes/cube/cube.obj");
+	    // auto LightObjShader = std::make_shared<GPUShader>("res/shaders/lightShader.glsl");
 
-		LightObj.shader = LightObjShader;
+		//LightObj.shader = LightObjShader;
 
-		//LightObjShader.m_FilePath =  "sdfaas" ;
+	   // delete obj;
+	   // obj = nullptr;
+	   //LightObjShader.m_FilePath =  "sdfaas" ;
 
-		//Model obj2("res/meshes/cube/cube.obj");
-	//	const Shader objShader("res/shaders/lightShader.glsl");
-	//	obj2.shader = objShader;
-	//	obj2.model = glm::translate(glm::mat4(1.0f), {2.05,0,0 });
+	   //Model obj2("res/meshes/cube/cube.obj");
+   //	const Shader objShader("res/shaders/lightShader.glsl");
+   //	obj2.shader = objShader;
+   //	obj2.model = glm::translate(glm::mat4(1.0f), {2.05,0,0 });
 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
@@ -149,26 +152,6 @@ int main(void)
 
 			renderer.Clear();
 			///test / (float)
-			//glm::mat4 projection = glm::perspective(glm::radians(45.0f),
-			//	(float)SCREENWIDTH / (float)SCREENHEIGHT, 0.1f, 100.0f);
-			//
-			//const glm::mat4 view = camera.GetViewMatrix();
-			//
-			//shader.SetUniformMat4f("projection", projection);
-			//shader.SetUniformMat4f("view", view);
-			//
-			//// render normal-mapped quad
-			//glm::mat4 model = glm::mat4(1.0f);
-			// model = glm::rotate(model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
-			//shader.SetUniformMat4f("model", model);
-			//glm::vec3 viewpos = *camera.Position();
-			//shader.setVec3("viewPos", viewpos);
-			//shader.setVec3("lightPos", { 0.5f, 1.0f, 0.3f });
-			//GLCall(glActiveTexture(GL_TEXTURE0);				  )
-			//GLCall(glBindTexture(GL_TEXTURE_2D, diffuseMap.GetID()));
-			//GLCall(glActiveTexture(GL_TEXTURE1);				  )
-			//GLCall(glBindTexture(GL_TEXTURE_2D, normalMap.GetID()));
-			//renderQuad();
 
 			const glm::mat4 mvp = t.GetMVP(camera);
 			auto model = glm::mat4(1.0f);
@@ -178,12 +161,12 @@ int main(void)
 			const glm::mat4 proj = camera.GetProjectionMatrix();
 			const glm::vec3 viewpos = *camera.Position();
 
-			LightObj.Draw(camera);
-			//	obj2.Draw(camera);
+			//LightObj.Draw(camera);
+			obj.Draw(camera);
 
 
 			ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
-			//}
+
 
 			mouseXold = mouseXnew;
 			mouseYold = mouseYnew;
@@ -212,6 +195,11 @@ int main(void)
 
 	ImGui_ImplGlfwGL3_Shutdown();
 	ImGui::DestroyContext();
+
+	//delete shaders while context is still current
+	auto& s = ShaderManager::getInstance() ;
+	s.reset();
+
 
 	glfwTerminate();
 	return 0;

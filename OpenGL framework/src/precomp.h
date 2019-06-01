@@ -55,7 +55,8 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include "tests/Test.h"
 #include "tests/TestClearColor.h"
 
-#include "Rendering/Shader.h"
+#include "Rendering/GPUShader.h"
+#include "Rendering/ShaderManager.h"
 
 #include "Rendering/Renderer.h"
 #include "Rendering/Texture.h"

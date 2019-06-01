@@ -61,7 +61,7 @@ public:
 	VertexBuffer* m_vb;
 	VertexBufferLayout* m_layout;
 	IndexBuffer* m_ib;
-	Shader* m_shader;
+	GPUShader* m_shader;
 	Texture* m_texture;
 	Transform* m_transform;
 	IndexedModel idxmdl;

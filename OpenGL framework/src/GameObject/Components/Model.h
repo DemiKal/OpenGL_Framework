@@ -12,11 +12,13 @@ public:
 		loadModel(path);
 	}
 
+	void SetShader(const std::string& shadername);
 	void Draw(const Camera& cam)
 	{
 		//auto d = shader.get();
-		shader.Bind();
-		const int shaderID = shader.m_RendererID;
+		const std::shared_ptr<GPUShader> shader = ShaderManager::getShader(shaderIdx);
+		shader.get()->Bind();
+		const unsigned int shaderID = shader.get()->m_RendererID;
 
 		int count;
 		glGetProgramiv(shaderID, GL_ACTIVE_UNIFORMS, &count);
@@ -26,44 +28,48 @@ public:
 
 		std::vector < std::string> names;
 
-		for (unsigned int i = 0; i < count; i++)
+		for (int i = 0; i < count; i++)
 		{
 			GLchar name[GL_ACTIVE_UNIFORM_MAX_LENGTH + 1];
 			int length, size;
 			GLenum type;
 
-			glGetActiveUniform(shaderID,
-				i, maxLength, &length, &size, &type, name);
+			glGetActiveUniform(shaderID, i, maxLength, &length, &size, &type, name);
 
-			const GLubyte* ss = glGetString(type);
-			printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
-			names.emplace_back(name);
+			//const GLubyte* ss = glGetString(type);
+			//printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
+			//names.emplace_back(name);
 		}
 
 		const glm::mat4 view = cam.GetViewMatrix();
 		const glm::mat4 proj = cam.GetProjectionMatrix();
 
-		shader.SetUniformMat4f("model", model);
-		shader.SetUniformMat4f("view", view);
-		shader.SetUniformMat4f("projection", proj);
+		shader.get()->SetUniformMat4f("model", model);
+		shader.get()->SetUniformMat4f("view", view);
+		shader.get()->SetUniformMat4f("projection", proj);
 
 		for (auto& mesh : meshes)
-			mesh.Draw(shader);
+			mesh.Draw(*shader.get());
 
-		shader.Unbind();
+		shader.get()->Unbind();
 	}
 
 	glm::mat4 model = glm::mat4(1.0f);
 
-	Shader GetShader() const { return  shader; }
+	std::shared_ptr<GPUShader>  GetShader() const
+	{
+		return   ShaderManager::getShader(shaderIdx);
+	}
 	~Model();
-	Shader  shader;
+	//std::shared_ptr<GPUShader>  shader;
+
 
 private:
 	/*  Model Data  */
 	std::vector<MeshNew> meshes;
 	std::string directory;
 	std::vector<Texture2D> textures_loaded;
+	unsigned int shaderIdx;
 
 	/*  Functions   */
 	void loadModel(const std::string& path);

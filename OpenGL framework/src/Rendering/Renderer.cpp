@@ -25,7 +25,7 @@ void Renderer::Clear()
 	GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
-void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader)
+void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const GPUShader& shader)
 {
 	shader.Bind();
 	va.Bind();
@@ -37,13 +37,13 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
 void Renderer::SetAlphaBlending(bool set)
 {
 	alphaBlending = set;
-	 
+
 	if (set)
 	{
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	}
 	else { GLCall(glDisable(GL_BLEND)); }
-	
+
 
 }
