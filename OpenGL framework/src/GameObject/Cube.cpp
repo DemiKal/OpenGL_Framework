@@ -162,8 +162,8 @@ Cube::Cube(const std::string& name) : GameObject(name)
 	
 	m_layout = new VertexBufferLayout();
 
-	m_layout->Push<float>(mesh_vertices.size());
-	m_layout->Push<float>(UVs_vec.size());
+	m_layout->Push<float>((int)mesh_vertices.size());
+	m_layout->Push<float>((int)UVs_vec.size());
 
 	m_va->AddBuffer(*m_vb, *m_layout);
 

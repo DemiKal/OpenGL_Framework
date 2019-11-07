@@ -66,7 +66,7 @@ public:
 	Transform* m_transform;
 	IndexedModel idxmdl;
 	void LoadMesh(const std::string& filename);
-	inline std::vector<Triangle> GetMeshTriangles()
+	inline std::vector<Triangle> GetMeshTriangles() const
 	{
 		glm::mat4 model_matrix = m_transform->GetModelMatrix();
 		std::vector<Triangle> world_space_triangles;

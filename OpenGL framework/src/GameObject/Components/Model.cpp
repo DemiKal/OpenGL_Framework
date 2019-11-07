@@ -224,7 +224,7 @@ void Model::Draw(const Camera& cam)
 	Camera cam2({ 2,0,0 }, 70, aspect, 0.1f, 200.0f);
 	static float time = 0;
 	time += 0.01f;
-	cam2.RotateYlocal(time);
+	//cam2.RotateYlocal(time);
 	const glm::mat4 view2 = cam2.GetViewMatrix();//glm::lookAt(pos, pos + fw, { 0,1,0 });
 	const glm::mat4 proj2 = cam2.GetProjectionMatrix();
 
@@ -233,8 +233,8 @@ void Model::Draw(const Camera& cam)
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", proj);
 	
-	shader.SetUniformMat4f("view2", view2);
-	shader.SetUniformMat4f("proj2", proj2);
+	//shader.SetUniformMat4f("view2", view2);
+	//shader.SetUniformMat4f("proj2", proj2);
 
 	for (auto& mesh : meshes)
 		mesh.Draw(shader);

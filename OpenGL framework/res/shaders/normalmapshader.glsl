@@ -21,8 +21,8 @@ uniform mat4 model;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-uniform mat4 proj2;
-uniform mat4 view2;
+ 
+ 
 
 void main()
 {
@@ -43,7 +43,7 @@ void main()
 	vs_out.TangentViewPos = TBN * viewPos;
 	vs_out.TangentFragPos = TBN * vs_out.FragPos;
 
-	gl_Position = projection * view *  proj2 *  view2 * model * vec4(aPos, 1.0);
+	gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 
 #shader fragment

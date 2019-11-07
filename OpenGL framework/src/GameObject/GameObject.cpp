@@ -131,7 +131,7 @@ void GameObject::LoadMesh(const std::string& filename)
 	m_va = new VertexArraySub();
 	m_va->AddBuffer(*m_vb, *m_layout);
 
-	m_ib = new IndexBuffer(&mesh_indices[0], mesh_indices.size());
+	m_ib = new IndexBuffer(&mesh_indices[0], (unsigned int) mesh_indices.size());
 
 
 

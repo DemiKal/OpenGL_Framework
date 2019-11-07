@@ -17,7 +17,7 @@ public:
 
 	void meme(Cube& cyb);
 
-	void CheckMouseHover(double mX, double mY, Cube & cube);
+	void CheckMouseHover(float mX, float mY, const Cube & cube);
 	
 
 	inline glm::mat4 GetViewMatrix() const

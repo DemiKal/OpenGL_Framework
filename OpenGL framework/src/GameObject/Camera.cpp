@@ -56,11 +56,11 @@ void Camera::meme(Cube& cyb)
 	std::string s = cyb.Name();
 }
 
-void Camera::CheckMouseHover(double mX, double mY, Cube& cube)
+void Camera::CheckMouseHover(const float mX, const float mY, const Cube& cube)
 {
 	auto tris = cube.GetMeshTriangles();
 	glm::vec3 const campos = *Position();
-	const auto  dir = RayFromMouse(mX, mY);
+	glm::vec3 const  dir = RayFromMouse(mX, mY);
 
 	bool cubeIntersect = false;
 	for (const auto tri : tris)

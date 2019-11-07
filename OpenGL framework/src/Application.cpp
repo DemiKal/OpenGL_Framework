@@ -47,7 +47,7 @@ int main(void)
 		// obj.SetShader("normalmapshader");
 		 
 		Model obj2 = Model("res/meshes/cyborg/cyborg.obj");
-		obj2.SetShader("basic"); 
+		obj2.SetShader("normalmapshader"); 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
 		Camera camera(glm::vec3(0, 0, 3), 70, aspect, 0.1f, 200.0f);
@@ -64,8 +64,8 @@ int main(void)
 
 		double mouseXold = 0, mouseYold = 0;
 		double mouseXnew = 0, mouseYnew = 0;
-		std::clock_t start;
-		double duration;
+		//std::clock_t start;
+		//double duration;
 
 		Transform t;
 		int i = 0;
@@ -81,7 +81,7 @@ int main(void)
 			i++;
 			double currenttime = glfwGetTime();
 
-			rot += 0.005;
+			rot += 0.005f;
 			glfwGetCursorPos(window, &mouseXnew, &mouseYnew);
 
 			float camSpeed = 0.05f;
@@ -129,8 +129,8 @@ int main(void)
 
 			*camera.Position() += camMovement;
 
-			float signX = glm::sign(mouseXnew - mouseXold);
-			float signY = glm::sign(mouseYold - mouseYnew);
+			float signX = (float)glm::sign(mouseXnew - mouseXold);
+			float signY = (float)glm::sign(mouseYold - mouseYnew);
 			glm::vec2 mDiff = glm::vec2(signX, signY);
 			glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
 #pragma endregion input
@@ -158,8 +158,8 @@ int main(void)
 			mouseXold = mouseXnew;
 			mouseYold = mouseYnew;
 
-			const float average = std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
-			const float avgfps = 1000 * float(1.0 / average);
+			const float average = (float)std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
+			const float avgfps = 1000.0f * float(1.0f / average);
 
 			ImGui::Text("ms %f", avgfps);
 
@@ -176,7 +176,7 @@ int main(void)
 
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currenttime);
-			frametimes.push_back(diffms);
+			frametimes.push_back((float)diffms);
 		}
 	}
 
