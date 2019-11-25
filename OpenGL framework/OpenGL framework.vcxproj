@@ -130,6 +130,8 @@
     <ClCompile Include="src\GameObject\Components\Transform.cpp" />
     <ClCompile Include="src\Rendering\Buffer\VertexArraySub.cpp" />
     <ClCompile Include="src\GameObject\Components\Texture2D.cpp" />
+    <None Include="src\vendor\glm\util\autoexp.vc2010.dat" />
+    <None Include="src\vendor\glm\util\usertype.dat" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.glsl" />
@@ -437,6 +439,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\shaders\normalmapshader.glsl" />
+    <Text Include="src\vendor\glm\util\autoexp.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="src\vendor\glm\util\glm.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

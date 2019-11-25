@@ -71,9 +71,9 @@ int main(void)
 		int i = 0;
 		std::vector<float>  frametimes;
 
-		glm::vec3 lightpos(0.5f, 1.0f, 0.3f);
-
-
+		glm::vec3 lightpos(1.0f,2.0f,  3.0f);
+		glm::mat4 pp = glm::translate(glm::mat4(1.0f), lightpos);
+		glm::vec4 s = pp[3];
 		while (!glfwWindowShouldClose(window))
 		{
 			ImGui_ImplGlfwGL3_NewFrame();
