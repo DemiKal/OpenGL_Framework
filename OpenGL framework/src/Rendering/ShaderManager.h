@@ -15,7 +15,7 @@ private:
 			shaders.emplace_back(GPUShader(p));
 		}
 	}
-  
+
 public:
 
 	std::string directory;
@@ -33,7 +33,7 @@ public:
 
 	ShaderManager() = default;
 	static unsigned int getShaderIdx(const std::string& _name);
-	static    GPUShader& getShaderIdx(const unsigned int idx);
+	static GPUShader& getShaderIdx(const unsigned int idx);
 
 	static void Init(const std::string& shaderDirectory)
 	{
@@ -44,11 +44,11 @@ public:
 
 	static ShaderManager& getInstance()
 	{
-		static  ShaderManager instance; 
+		static  ShaderManager instance;
 		return instance;
 	}
 	static void Destroy();
-	 
+
 
 };
 

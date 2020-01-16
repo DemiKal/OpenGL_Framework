@@ -464,6 +464,14 @@
     </None>
     <None Include="src\vendor\glm\util\usertype.dat" />
     <None Include="src\vendor\glm\util\autoexp.vc2010.dat" />
+    <None Include="src\fbo test.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="src\sobel.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="res\shaders\framebuffers.glsl" />
+    <None Include="res\shaders\framebuffers_screen.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">

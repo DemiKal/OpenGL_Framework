@@ -80,9 +80,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="res\shaders\framebuffers.glsl" />
+    <None Include="res\shaders\framebuffers_screen.glsl" />
     <None Include="res\shaders\lightShader.glsl">
       <FileType>CppCode</FileType>
     </None>
+    <None Include="src\fbo test.cpp" />
     <ClCompile Include="src\Rendering\ShaderManager.cpp" />
     <ClCompile Include="src\GameObject\Components\Model.cpp" />
     <ClCompile Include="src\GameObject\Components\MeshNew.cpp" />
@@ -96,6 +99,7 @@
     <ClCompile Include="src\Rendering\Buffer\IndexBuffer.cpp" />
     <ClCompile Include="src\Rendering\Renderer.cpp" />
     <ClCompile Include="src\misc\util.cpp" />
+    <None Include="src\sobel.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>

@@ -17,6 +17,8 @@ public:
 
 	int GetUniformLocation(const std::string& name);
 	ShaderProgramSource parseShader(const std::string& path) const;
+	void SetInt(const std::string &name, int value)  ;
+ 
 
 
 	//Shader();
