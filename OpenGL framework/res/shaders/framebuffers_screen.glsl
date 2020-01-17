@@ -34,12 +34,12 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
+uniform vec4 override_color;
 uniform sampler2D screenTexture;
 
 void main()
 {
 	vec3 col = texture(screenTexture, TexCoords).rgb;
-	vec3 override = vec3(1.0f, 0.0f, 0.0f);
-	vec3 mixed = mix(col, override, 0.3f);
+	vec3 mixed = mix(col, override_color.rgb, override_color.a);
 	FragColor = vec4(mixed.xyz, 1.0f);
 }

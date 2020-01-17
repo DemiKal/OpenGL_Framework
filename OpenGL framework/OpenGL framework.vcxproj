@@ -86,6 +86,8 @@
       <FileType>CppCode</FileType>
     </None>
     <None Include="src\fbo test.cpp" />
+    <ClCompile Include="src\Rendering\Buffer\FrameBuffer.cpp" />
+    <ClCompile Include="src\Rendering\Buffer\RenderBufferObject.cpp" />
     <ClCompile Include="src\Rendering\ShaderManager.cpp" />
     <ClCompile Include="src\GameObject\Components\Model.cpp" />
     <ClCompile Include="src\GameObject\Components\MeshNew.cpp" />
@@ -258,6 +260,8 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rendering\Buffer\FrameBuffer.h" />
+    <ClInclude Include="src\Rendering\Buffer\RenderBufferObject.h" />
     <ClInclude Include="src\Rendering\ShaderManager.h" />
     <ClInclude Include="src\GameObject\Components\Model.h" />
     <ClInclude Include="src\GameObject\Components\MeshNew.h" />

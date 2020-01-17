@@ -104,6 +104,16 @@ void GPUShader::SetUniformMat4f(const char* name, const glm::mat4& mat)
 	const int location = GetUniformLocation(name);
 	GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]));
 }
+ 
+
+void GPUShader::SetVec4f(const std::string &name, const glm::vec4& value)
+{
+	const int location = GetUniformLocation(name);
+	GLCall(glUniform4fv(location, 1,   &value[0]));
+}
+
+
+
 void GPUShader::setVec3(const std::string &name, const glm::vec3 &value)
 {
 	const int location = GetUniformLocation(name);

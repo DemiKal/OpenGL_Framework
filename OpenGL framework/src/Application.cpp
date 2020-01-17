@@ -1,110 +1,11 @@
 #include "precomp.h"
-void renderQuad();
-void createShaderProgram(const GLchar* vertSrc, const GLchar* fragSrc, GLuint& vertexShader, GLuint& fragmentShader, GLuint& shaderProgram)
-{
-	// Create and compile the vertex shader
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertSrc, NULL);
-	glCompileShader(vertexShader);
-
-	// Create and compile the fragment shader
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragSrc, NULL);
-	glCompileShader(fragmentShader);
-
-	// Link the vertex and fragment shader into a shader program
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glBindFragDataLocation(shaderProgram, 0, "outColor");
-	glLinkProgram(shaderProgram);
-}
-void specifySceneVertexAttributes(GLuint shaderProgram)
-{
-	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
-
-	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
-	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-
-	GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
-	glEnableVertexAttribArray(texAttrib);
-	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
-}
-
-void specifyScreenVertexAttributes(GLuint shaderProgram)
-{
-	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-
-	GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
-	glEnableVertexAttribArray(texAttrib);
-	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-}
-
-const GLchar* sceneVertexSource = R"glsl(
-    #version 150 core
-    in vec3 position;
-    in vec3 color;
-    in vec2 texcoord;
-    out vec3 Color;
-    out vec2 Texcoord;
-    uniform mat4 model;
-    uniform mat4 view;
-    uniform mat4 proj;
-    uniform vec3 overrideColor;
-    void main()
-    {
-        Color = overrideColor * color;
-        Texcoord = texcoord;
-        gl_Position = proj * view * model * vec4(position, 1.0);
-    }
-)glsl";
-const GLchar* sceneFragmentSource = R"glsl(
-    #version 150 core
-    in vec3 Color;
-    in vec2 Texcoord;
-    out vec4 outColor;
-    uniform sampler2D texKitten;
-    uniform sampler2D texPuppy;
-    void main()
-    {
-        outColor = vec4(Color, 1.0) * mix(texture(texKitten, Texcoord), texture(texPuppy, Texcoord), 0.5);
-    }
-)glsl";
-
-const GLchar* screenVertexSource = R"glsl(
-    #version 150 core
-    in vec2 position;
-    in vec2 texcoord;
-    out vec2 Texcoord;
-    void main()
-    {
-        Texcoord = texcoord;
-        gl_Position = vec4(position, 0.0, 1.0);
-    }
-)glsl";
-const GLchar* screenFragmentSource = R"glsl(
-    #version 150 core
-    in vec2 Texcoord;
-    out vec4 outColor;
-    uniform sampler2D texFramebuffer;
-    void main()
-    {
-        outColor = texture(texFramebuffer, Texcoord);
-    }
-)glsl";
-
 
 int main(void)
 {
 	if (!glfwInit()) return -1;
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -116,20 +17,17 @@ int main(void)
 		glfwTerminate();
 		return -1;
 	}
-
-
-
+		
 
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
-
 	{
-
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
+		ShaderManager::Init(); //init before any model
 
 		//Cube cube("myCube");
 
@@ -140,12 +38,11 @@ int main(void)
 		//bunny.renderer = renderer;
 		//bunny.LoadMesh(path);
 
-		ShaderManager::Init("res/shaders"); //init before any model
 		//Texture tex("res\textures\uvtest.png", Texture::DIFFUSE);
 
 		///test
-		// Model obj = Model("res/meshes/nanosuit/nanosuit.obj");
-		// obj.SetShader("normalmapshader");
+		 //Model obj = Model("res/meshes/nanosuit/nanosuit.obj");
+		 //obj.SetShader("normalmapshader");
 
 		//Model obj2 = Model("res/meshes/cyborg/cyborg.obj");
 		//	obj2.SetShader("normalmapshader");
@@ -251,8 +148,8 @@ int main(void)
 
 		// load textures
 		// -------------
-		Texture t1("res/textures/marble.jpg", Texture::DIFFUSE);
-		Texture t2("res/textures/metal.png", Texture::DIFFUSE);
+		Texture t1("res/textures/marble.jpg");
+		Texture t2("res/textures/metal.png");
 
 
 
@@ -263,22 +160,25 @@ int main(void)
 		int screenShader_idx = ShaderManager::getShaderIdx("framebuffers_screen");
 
 		auto& shader = ShaderManager::getShaderIdx(shader_idx);
-		auto& screenShader = ShaderManager::getShaderIdx(screenShader_idx);
+		auto& postProcessShader = ShaderManager::getShaderIdx(screenShader_idx);
 
 		shader.Bind();
 		shader.SetInt("texture1", 0);
 
-		screenShader.Bind();
-		screenShader.SetInt("screenTexture", 0);
+		postProcessShader.Bind();
+		postProcessShader.SetInt("screenTexture", 0);
 
 
 		// framebuffer configuration
 		// -------------------------
 		////////////////////////////
 
-		unsigned int framebuffer;
-		glGenFramebuffers(1, &framebuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		 FrameBuffer framebuffer;
+		//unsigned int fb;
+		//glGenFramebuffers(1, &fb);
+		//glBindFramebuffer(GL_FRAMEBUFFER, fb);
+
+
 		// create a color attachment texture
 		unsigned int textureColorbuffer;
 		glGenTextures(1, &textureColorbuffer);
@@ -288,15 +188,13 @@ int main(void)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
 		// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
-		unsigned int rbo;
-		glGenRenderbuffers(1, &rbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCREENWIDTH, SCREENHEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
+		RenderBufferObject rbo;
 		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -341,6 +239,7 @@ int main(void)
 		glm::vec3 lightpos(1.0f, 2.0f, 3.0f);
 		glm::mat4 pp = glm::translate(glm::mat4(1.0f), lightpos);
 		glm::vec4 s = pp[3];
+		glm::vec4  override_color (0.3f, 0.5, 0.1, 0.5f);
 
 		//
 		// Render loop
@@ -362,7 +261,7 @@ int main(void)
 			}
 
 			tick = 45;
-				ImGui_ImplGlfwGL3_NewFrame();
+			ImGui_ImplGlfwGL3_NewFrame();
 
 			i++;
 			double currenttime = glfwGetTime();
@@ -425,8 +324,8 @@ int main(void)
 			int b = a << 3;
 
 
-		//	renderer.Clear();
-			///test / (float)
+			//	renderer.Clear();
+				///test / (float)
 
 			const glm::mat4 mvp = t.GetMVP(camera);
 			//auto model = glm::mat4(1.0f);
@@ -437,7 +336,6 @@ int main(void)
 			//const glm::vec3 viewpos = *camera.Position();
 
 			//LightObj.Draw(camera);
-			//obj.Draw(camera);
 			//obj2.Draw(camera);
 
 
@@ -450,21 +348,24 @@ int main(void)
 			const float average = (float)std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
 			const float avgfps = 1000.0f * float(1.0f / average);
 
-			//ImGui::Text("ms %f", avgfps);
+			ImGui::Text("ms %f", avgfps);
 
 			if (frametimes.size() >= 30)
 			{
 				frametimes.clear();
 			}
 
+			//glBindFramebuffer(GL_FRAMEBUFFER, fb);
 
-
-			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+			framebuffer.Bind();
+			//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 			glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 
 			// make sure we clear the framebuffer's content
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			//obj.Draw(camera);
 
 			shader.Bind();
 			glm::mat4 model = glm::mat4(1.0f);
@@ -491,16 +392,19 @@ int main(void)
 			shader.SetUniformMat4f("model", glm::mat4(1.0f));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glBindVertexArray(0);
-		 	//shader.Unbind();
-			
+			//shader.Unbind();
+
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 			// clear all relevant buffers
-		//	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessery actually, since we won't be able to see behind the quad anyways)
-		//	glClear(GL_COLOR_BUFFER_BIT);
+			//	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessery actually, since we won't be able to see behind the quad anyways)
+			//	glClear(GL_COLOR_BUFFER_BIT);
+			ImGui::ColorEdit4("clear color", (float*)&override_color[0]);
 
-			 screenShader.Bind();
+			postProcessShader.Bind();
+			postProcessShader.SetVec4f("override_color", override_color);
+
 			//		screenShader.setVec3("override_color", glm::vec3(1.0f, 0.0f, 0.0f));
 			glBindVertexArray(quadVAO);
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane

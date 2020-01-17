@@ -35,7 +35,7 @@ public:
 	static unsigned int getShaderIdx(const std::string& _name);
 	static GPUShader& getShaderIdx(const unsigned int idx);
 
-	static void Init(const std::string& shaderDirectory)
+	static void Init(const std::string& shaderDirectory  = "res/shaders")
 	{
 		auto&  instance = getInstance();
 		instance.loadShaders(shaderDirectory);

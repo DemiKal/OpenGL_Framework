@@ -23,7 +23,7 @@ public:
 
 
 	Texture();
-	Texture(const std::string& path, const TextureType  texType);
+	Texture(const std::string& path, const TextureType  texType= Texture::DIFFUSE );
 	~Texture();
 	void Bind(unsigned int slot = 0) const;
 	void Unbind() const;
