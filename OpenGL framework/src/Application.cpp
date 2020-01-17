@@ -317,9 +317,9 @@ int main(void)
 
 		Camera camera(glm::vec3(0, 0, 3), 70, aspect, 0.1f, 200.0f);
 
-		//ImGui::CreateContext();
-		//ImGui_ImplGlfwGL3_Init(window, true);
-		//ImGui::StyleColorsDark();
+		ImGui::CreateContext();
+		ImGui_ImplGlfwGL3_Init(window, true);
+		ImGui::StyleColorsDark();
 		float rot = 0;
 
 
@@ -362,7 +362,7 @@ int main(void)
 			}
 
 			tick = 45;
-			//	ImGui_ImplGlfwGL3_NewFrame();
+				ImGui_ImplGlfwGL3_NewFrame();
 
 			i++;
 			double currenttime = glfwGetTime();
@@ -376,7 +376,7 @@ int main(void)
 			const glm::vec3 up = camera.GetUp();
 
 			int mb = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
-			//ImGui::Text("mouse click %s", mb ? "true" : "false");
+			ImGui::Text("mouse click %s", mb ? "true" : "false");
 
 #pragma region input
 			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -441,7 +441,7 @@ int main(void)
 			//obj2.Draw(camera);
 
 
-			//ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
+			ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
 
 
 			mouseXold = mouseXnew;
@@ -509,8 +509,8 @@ int main(void)
 
 
 
-			//ImGui::Render();
-			//ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			ImGui::Render();
+			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
 			// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 			// -------------------------------------------------------------------------------
