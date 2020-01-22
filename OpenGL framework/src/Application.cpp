@@ -4,6 +4,7 @@ int main(void)
 {
 	if (!glfwInit()) return -1;
 
+ 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
@@ -17,7 +18,7 @@ int main(void)
 		glfwTerminate();
 		return -1;
 	}
-		
+
 
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
@@ -41,8 +42,8 @@ int main(void)
 		//Texture tex("res\textures\uvtest.png", Texture::DIFFUSE);
 
 		///test
-		 //Model obj = Model("res/meshes/nanosuit/nanosuit.obj");
-		 //obj.SetShader("normalmapshader");
+		Model obj = Model("res/meshes/boblamp/boblampclean.md5mesh");
+		obj.SetShader("testshader");
 
 		//Model obj2 = Model("res/meshes/cyborg/cyborg.obj");
 		//	obj2.SetShader("normalmapshader");
@@ -140,7 +141,7 @@ int main(void)
 		glGenBuffers(1, &quadVBO);
 		glBindVertexArray(quadVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
@@ -151,7 +152,24 @@ int main(void)
 		Texture t1("res/textures/marble.jpg");
 		Texture t2("res/textures/metal.png");
 
+		float lineverts[] = {
+			0,0, 1,1 // xy , xy
+		};
 
+		//obj.model = glm::mat4(1.0f);
+
+		//obj.model = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1,0,0 ) );
+
+		unsigned int lineVao, lineVBO;
+		glGenVertexArrays(1, &lineVao);
+		glGenBuffers(1, &lineVBO);
+		glBindVertexArray(lineVao);
+		glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(lineverts), &lineverts, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		//glEnableVertexAttribArray(1);
+		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 		unsigned int cubeTexture = t1.GetID();
 		unsigned int floorTexture = t2.GetID();
@@ -168,12 +186,16 @@ int main(void)
 		postProcessShader.Bind();
 		postProcessShader.SetInt("screenTexture", 0);
 
+		int lineshader_idx = ShaderManager::getShaderIdx("lineshader");
+
+		auto& lineshader = ShaderManager::getShaderIdx(lineshader_idx);
+
 
 		// framebuffer configuration
 		// -------------------------
 		////////////////////////////
 
-		 FrameBuffer framebuffer;
+		FrameBuffer framebuffer;
 		//unsigned int fb;
 		//glGenFramebuffers(1, &fb);
 		//glBindFramebuffer(GL_FRAMEBUFFER, fb);
@@ -193,8 +215,8 @@ int main(void)
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-		
-		
+
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -205,7 +227,7 @@ int main(void)
 		///
 
 
-
+		Texture back("res/textures/uvtest.png");
 
 
 
@@ -231,36 +253,27 @@ int main(void)
 		double mouseXnew = 0, mouseYnew = 0;
 		//std::clock_t start;
 		//double duration;
-
+		//Camera cam;
 		Transform t;
+		t.SetPos({ 0, 0, 0 });
+		t.SetRot({ 0, 0, 0 });
+		t.SetScale({ 1, 1,1 });
 		int i = 0;
 		std::vector<float>  frametimes;
 
 		glm::vec3 lightpos(1.0f, 2.0f, 3.0f);
 		glm::mat4 pp = glm::translate(glm::mat4(1.0f), lightpos);
 		glm::vec4 s = pp[3];
-		glm::vec4  override_color (0.3f, 0.5, 0.1, 0.5f);
+		glm::vec4  override_color(0.3f, 0.5, 0.1, 0.5f);
 
 		//
 		// Render loop
 		//
-		float tick = 0;
-		float mult = 1;
+		obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
+
 		while (!glfwWindowShouldClose(window))
 		{
-			tick += mult * 0.3f;
-			if (tick >= 45.0f)
-			{
-				tick = 45.0f;
-				mult *= -1;
-			}
-			else if (mult <= 0.f)
-			{
-				tick = 0.0;
-				mult *= -1;
-			}
 
-			tick = 45;
 			ImGui_ImplGlfwGL3_NewFrame();
 
 			i++;
@@ -364,19 +377,52 @@ int main(void)
 			// make sure we clear the framebuffer's content
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			
+
 			//obj.Draw(camera);
+			obj.Draw(camera);
+
 
 			shader.Bind();
 			glm::mat4 model = glm::mat4(1.0f);
 			glm::mat4 view = camera.GetViewMatrix();
-			glm::mat4 projection = glm::perspective(glm::radians(tick),
-				(float)SCREENWIDTH / (float)SCREENHEIGHT, 0.1f, 100.0f);
+			glm::mat4 projection = camera.GetProjectionMatrix();
+			
+			//glm::mat4 projection = glm::perspective(glm::radians(45.f),
+			//	(float)SCREENWIDTH / (float)SCREENHEIGHT, 0.1f, 100.0f);
+
+
 
 			shader.SetUniformMat4f("view", view);
 			shader.SetUniformMat4f("projection", projection);
 			// cubes
+		 
+			
 			glBindVertexArray(cubeVAO);
+		//
+		//
+		//int verts = sizeof(cubeVertices) / sizeof(float);
+		//for (int i = 0; i < verts; i += 5) {
+		//	float* vx = &cubeVertices[i + 0];
+		//	float* vy = &cubeVertices[i + 1];
+		//	float* vz = &cubeVertices[i + 2];
+		//	float* vu = &cubeVertices[i + 3];
+		//	float* vv = &cubeVertices[i + 4];
+		//
+		//	*vx += 0.01f;
+		//	*vy += 0.01f;
+		//	*vz += 0.01f;
+		//
+		//}
+		//glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+		//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(cubeVertices), &cubeVertices);
+
+
+
+
+
+
+
+
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, cubeTexture);
 			model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
@@ -393,23 +439,32 @@ int main(void)
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glBindVertexArray(0);
 			//shader.Unbind();
+			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+
+			lineshader.Bind();
+			GLCall(glBindVertexArray(lineVao));
+			GLCall(glDrawArrays(GL_LINES, 0, 4));
 
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+			//glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 			// clear all relevant buffers
 			//	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessery actually, since we won't be able to see behind the quad anyways)
 			//	glClear(GL_COLOR_BUFFER_BIT);
 			ImGui::ColorEdit4("clear color", (float*)&override_color[0]);
 
-			postProcessShader.Bind();
-			postProcessShader.SetVec4f("override_color", override_color);
 
-			//		screenShader.setVec3("override_color", glm::vec3(1.0f, 0.0f, 0.0f));
+
+			postProcessShader.Bind();
+
 			glBindVertexArray(quadVAO);
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+	   //	back.Bind();
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			//screenShader.Unbind();
+
+
+
 
 
 

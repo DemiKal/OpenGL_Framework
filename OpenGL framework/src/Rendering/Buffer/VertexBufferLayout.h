@@ -1,7 +1,5 @@
 #pragma once
  
-
-
 struct VertexBufferElement
 {
 	unsigned int type;

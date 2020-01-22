@@ -48,6 +48,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<VertexNew> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture2D> textures;
+	
 
 	std::vector<bool> boolsarray;
 	boolsarray.emplace_back(mesh->HasPositions());
@@ -77,6 +78,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			vector.z = mesh->mNormals[i].z;
 			vertex.Normal = vector;
 		}
+		else vertex.Normal = { 0,0,0 };
 
 		// texture coordinates
 		//
@@ -107,7 +109,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		}
 		else
 		{
-			int asdsad = 1;
+			vertex.Tangent = {0,0,0};
+			vertex.Tangent = {0,0,0};
 		}
 
 		vertices.push_back(vertex);
@@ -215,24 +218,13 @@ void Model::Draw(const Camera& cam)
 
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();
-	const glm::vec3 pos = { 1,0,0 };
-	const glm::vec3 fw = { -1,0,0 };
-	
-	const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
-	const auto zx =   cam.PositionRead();
 
-	Camera cam2({ 2,0,0 }, 70, aspect, 0.1f, 200.0f);
-	static float time = 0;
-	time += 0.01f;
-	//cam2.RotateYlocal(time);
-	const glm::mat4 view2 = cam2.GetViewMatrix();//glm::lookAt(pos, pos + fw, { 0,1,0 });
-	const glm::mat4 proj2 = cam2.GetProjectionMatrix();
 
 
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", proj);
-	
+
 	//shader.SetUniformMat4f("view2", view2);
 	//shader.SetUniformMat4f("proj2", proj2);
 

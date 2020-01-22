@@ -26,7 +26,6 @@ void MeshNew::Draw(const GPUShader& shader)
 		GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
 		// and finally bind the texture
 		GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].GetID()));
-
 	}
 
 	// draw mesh
@@ -36,10 +35,10 @@ void MeshNew::Draw(const GPUShader& shader)
 
 	// always good practice to set everything back to defaults once configured.
 	glActiveTexture(GL_TEXTURE0);
-	
+
 }
 
- 
+
 
 MeshNew::MeshNew(
 	std::vector<VertexNew>& vertices,
@@ -79,34 +78,43 @@ void MeshNew::setupMesh()
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 		indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
 
+
+	//GLint stride = sizeof(VertexNew);
+	//if (!hasNormals()) stride -= 3 * sizeof(float); //xyz
+	//if (!hasUVs()) stride -= 2 * sizeof(float);  //uv
+	//if (!hasTangents()) stride -= 6 * sizeof(float); //xyz xyz
+
 	const GLint stride = sizeof(VertexNew);
 	const GLint normalPos = offsetof(VertexNew, Normal);
 	const GLint uvPos = offsetof(VertexNew, TexCoords);
 	const GLint tangentPos = offsetof(VertexNew, Tangent);
 	const GLint btangentPos = offsetof(VertexNew, Bitangent);
 
-	if (hasPositions()) {
+	int offset = 0;
+	//if (hasPositions()) {
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,  nullptr );
-	}
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+		offset += stride;
+	//}
 
-	if (hasNormals()) {
+	//if (hasNormals()) {
 		// vertex normals
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)normalPos);
-	}
-	if (hasUVs()) {
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(normalPos));
+		offset += stride;
+	//}
+	//if (hasUVs()) {
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)uvPos);
-	}
+	//}
 
-	if (hasTangents()) {
+	//if (hasTangents()) {
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)tangentPos); 
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)tangentPos);
 		//bitangent
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)btangentPos);
-	}
+	//}
 
 	glBindVertexArray(0);
 	//vertices.clear(); clear can be done in static draw

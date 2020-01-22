@@ -1,7 +1,7 @@
 #include "precomp.h"
 
 GPUShader::GPUShader(const std::string& filepath)
-	: m_FilePath(filepath)
+	: m_FilePath(filepath),  name("not yet loaded"), m_RendererID(0), m_UniformLocationCache()
 {
 	const ShaderProgramSource sps = parseShader(filepath);
 	m_RendererID = CreateShader(sps.VertexSource, sps.FragmentSource);
@@ -122,7 +122,7 @@ void GPUShader::setVec3(const std::string &name, const glm::vec3 &value)
 void GPUShader::SetFloat(const std::string &name, float value)
 {
 	const int location = GetUniformLocation(name);
-	GLCall(glUniform1f(glGetUniformLocation(location, name.c_str()), value));
+	GLCall(glUniform1f(location  , value));
 }
 
 void GPUShader::Destroy()

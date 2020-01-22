@@ -28,10 +28,10 @@ public:
 	GPUShader(); 
 	void Bind() const;
 	void Unbind() const;
-	void SetUniform1i(const std::string& name, int value);
-	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 	unsigned int CompileShader(const unsigned int type, const std::string& source);
 	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
+	void SetUniform1i(const std::string& name, int value);
+	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 	void SetUniformMat4f(const char* name, const glm::mat4& mat);
 	void SetVec4f(const std::string & name, const glm::vec4 & value);
  	void setVec3(const std::string & name, const glm::vec3 & value);

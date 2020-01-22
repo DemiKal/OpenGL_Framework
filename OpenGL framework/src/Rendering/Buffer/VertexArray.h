@@ -1,6 +1,6 @@
 #pragma once
  
-  class VertexArray
+class VertexArray
 {
 private:
 	unsigned int m_RendererID;

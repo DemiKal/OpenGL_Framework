@@ -40,6 +40,6 @@ uniform sampler2D screenTexture;
 void main()
 {
 	vec3 col = texture(screenTexture, TexCoords).rgb;
-	vec3 mixed = mix(col, override_color.rgb, override_color.a);
-	FragColor = vec4(mixed.xyz, 1.0f);
+	//vec3 mixed = mix(col, override_color.rgb, override_color.a);
+	FragColor = vec4(col.rgb, 1.0f);
 }
