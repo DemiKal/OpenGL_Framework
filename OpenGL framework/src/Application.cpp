@@ -418,7 +418,18 @@ int main(void)
 			model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
 			shader.SetUniformMat4f("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
+			
+			
+			
+			auto id = ShaderManager::getShaderIdx("plane");
+			GPUShader sssssssss = ShaderManager::getShaderIdx(id);
+			sssssssss.Bind();
+			sssssssss.SetFloat("blend", override_color.w);
+
 			obj.Draw(camera);
+			
+			
+			
 			// floor
 			//glBindVertexArray(planeVAO);
 			//glBindTexture(GL_TEXTURE_2D, floorTexture);
@@ -442,7 +453,7 @@ int main(void)
 			//	glClear(GL_COLOR_BUFFER_BIT);
 			ImGui::ColorEdit4("clear color", (float*)&override_color[0]);
 
-
+			
 
 			postProcessShader.Bind();
 

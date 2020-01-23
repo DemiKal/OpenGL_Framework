@@ -4,8 +4,8 @@ GLuint Texture2D::TextureFromFile(const std::string& fullpath/*, Texture& textur
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
+	stbi_set_flip_vertically_on_load(true);
+	int width, height, nrComponents; 
 	unsigned char *data = stbi_load(fullpath.c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{ 
