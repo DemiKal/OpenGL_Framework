@@ -42,13 +42,19 @@ int main(void)
 		//Texture tex("res\textures\uvtest.png", Texture::DIFFUSE);
 
 		///test
-		Model obj = Model("res/meshes/boblamp/boblampclean.md5mesh");
-		obj.SetShader("testshader");
+		//Model obj = Model("res/meshes/boblamp/boblampclean.md5mesh");
+		//obj.SetShader("testshader");
 
 		//Model obj2 = Model("res/meshes/cyborg/cyborg.obj");
 		//	obj2.SetShader("normalmapshader");
 
-
+		Model obj = Model("", Model::LoadType::PLANE);
+		Texture2D metal("res/textures/brickwall.jpg", "texture_diffuse");
+		Texture2D uvtest("res/textures/uvtest.png", "texture_diffuse");
+		auto sh = ShaderManager::getShaderIdx(obj.shaderIdx);
+		obj.meshes[0].AddTexture(uvtest);
+		obj.meshes[0].AddTexture(metal);
+//
 		float cubeVertices[] = {
 			// positions          // texture Coords
 			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -93,16 +99,7 @@ int main(void)
 			-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 		};
-		float planeVertices[] = {
-			// positions          // texture Coords 
-			 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-			-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-			-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-
-			 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-			-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-			 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
-		};
+		 
 		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 			// positions   // texCoords
 			-1.0f,  1.0f,  0.0f, 1.0f,
@@ -124,17 +121,8 @@ int main(void)
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-		// plane VAO
-		unsigned int planeVAO, planeVBO;
-		glGenVertexArrays(1, &planeVAO);
-		glGenBuffers(1, &planeVBO);
-		glBindVertexArray(planeVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		
+		
 		// screen quad VAO
 		unsigned int quadVAO, quadVBO;
 		glGenVertexArrays(1, &quadVAO);
@@ -269,7 +257,7 @@ int main(void)
 		//
 		// Render loop
 		//
-		obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
+		//obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -332,9 +320,7 @@ int main(void)
 			glm::vec2 mDiff = glm::vec2(signX, signY);
 			glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
 #pragma endregion input
-
-			int a = 1;
-			int b = a << 3;
+			 
 
 
 			//	renderer.Clear();
@@ -379,7 +365,7 @@ int main(void)
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//obj.Draw(camera);
-			obj.Draw(camera);
+			//obj.Draw(camera);
 
 
 			shader.Bind();
@@ -432,18 +418,21 @@ int main(void)
 			model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
 			shader.SetUniformMat4f("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
+			obj.Draw(camera);
 			// floor
-			glBindVertexArray(planeVAO);
-			glBindTexture(GL_TEXTURE_2D, floorTexture);
-			shader.SetUniformMat4f("model", glm::mat4(1.0f));
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glBindVertexArray(0);
+			//glBindVertexArray(planeVAO);
+			//glBindTexture(GL_TEXTURE_2D, floorTexture);
+			//shader.SetUniformMat4f("model", glm::mat4(1.0f));
+			//glDrawArrays(GL_TRIANGLES, 0, 6);
+			//glBindVertexArray(0);
 			//shader.Unbind();
 			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
 			lineshader.Bind();
 			GLCall(glBindVertexArray(lineVao));
 			GLCall(glDrawArrays(GL_LINES, 0, 4));
+
+
 
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);

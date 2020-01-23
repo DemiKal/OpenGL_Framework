@@ -7,6 +7,7 @@ void MeshNew::Draw(const GPUShader& shader)
 	unsigned int specularNr = 1;
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
+	
 	for (unsigned int i = 0; i < textures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
@@ -30,7 +31,9 @@ void MeshNew::Draw(const GPUShader& shader)
 
 	// draw mesh
 	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
+	if (indices.size() > 0)
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
+	else glDrawArrays(GL_TRIANGLES, 0, 6); //plane!
 	glBindVertexArray(0);
 
 	// always good practice to set everything back to defaults once configured.
@@ -92,33 +95,70 @@ void MeshNew::setupMesh()
 
 	int offset = 0;
 	//if (hasPositions()) {
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
-		offset += stride;
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+	offset += stride;
 	//}
 
 	//if (hasNormals()) {
 		// vertex normals
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(normalPos));
-		offset += stride;
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(normalPos));
+	offset += stride;
 	//}
 	//if (hasUVs()) {
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)uvPos);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)uvPos);
 	//}
 
 	//if (hasTangents()) {
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)tangentPos);
-		//bitangent
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)btangentPos);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)tangentPos);
+	//bitangent
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)btangentPos);
 	//}
 
 	glBindVertexArray(0);
 	//vertices.clear(); clear can be done in static draw
 }
+
+
+MeshNew& MeshNew::CreatePlane() {
+	float planeVertices[] = {
+		// positions          // texture Coords 
+		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+
+		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+		 5.0f, -0.5f, -5.0f, 1.0f,1.0f
+	};
+	unsigned int planeVAO, planeVBO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	 
+
+	MeshNew mesh;
+	mesh.VBO = planeVBO;
+	mesh.VAO = planeVAO;
+	mesh.indices.clear();
+	return mesh;
+
+
+
+
+
+}
+
 
 //eshNew::~MeshNew()
 //

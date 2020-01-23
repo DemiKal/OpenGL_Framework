@@ -6,7 +6,40 @@ void Model::SetShader(const std::string& shadername)
 	shaderIdx = ShaderManager::getShaderIdx(shadername);
 }
 
+void Model::LoadPlane() {
 
+	float planeVertices[] = {
+		// positions          // texture Coords 
+		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+
+		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+		 5.0f, -0.5f, -5.0f, 1.0f,1.0f
+	};
+	unsigned int planeVAO, planeVBO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	MeshNew mesh;
+	mesh.SetVBO(planeVBO);
+	mesh.SetVAO(planeVAO);
+	meshes.emplace_back(mesh);
+	
+	//textures_loaded.emplace_back(tex);
+	//mesh.textures.emplace_back(tex);
+
+	unsigned int shaderidx = ShaderManager::getShaderIdx("plane");
+	this->shaderIdx = shaderidx;
+
+}
 
 void Model::loadModel(const std::string& path)
 {
@@ -38,13 +71,10 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	{
 		processNode(node->mChildren[i], scene);
 	}
-
 }
 
 MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
-	// Data to fill
-		// data to fill
 	std::vector<VertexNew> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture2D> textures;
@@ -195,26 +225,26 @@ void Model::Draw(const Camera& cam)
 	shader.Bind();
 	const unsigned int shaderID = shader.m_RendererID;
 
-	int count;
-	GLCall(glGetProgramiv(shaderID, GL_ACTIVE_UNIFORMS, &count));
-	//printf("Active Uniforms: %d\n", count);
-	GLint maxLength;
-	GLCall(glGetProgramiv(shaderID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength));
+	//int count;
+	//GLCall(glGetProgramiv(shaderID, GL_ACTIVE_UNIFORMS, &count));
+	////printf("Active Uniforms: %d\n", count);
+	//GLint maxLength;
+	//GLCall(glGetProgramiv(shaderID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength));
 
 	std::vector < std::string> names;
 
-	for (int i = 0; i < count; i++)
-	{
-		GLchar name[GL_ACTIVE_UNIFORM_MAX_LENGTH + 1];
-		int length, size;
-		GLenum type;
-
-		glGetActiveUniform(shaderID, i, maxLength, &length, &size, &type, name);
-
-		//const GLubyte* ss = glGetString(type);
-		//printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
-		//names.emplace_back(name);
-	}
+	//for (int i = 0; i < count; i++)
+	//{
+	//	GLchar name[GL_ACTIVE_UNIFORM_MAX_LENGTH + 1];
+	//	int length, size;
+	//	GLenum type;
+	//
+	//	glGetActiveUniform(shaderID, i, maxLength, &length, &size, &type, name);
+	//
+	//	//const GLubyte* ss = glGetString(type);
+	//	//printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
+	//	//names.emplace_back(name);
+	//}
 
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();
@@ -232,4 +262,23 @@ void Model::Draw(const Camera& cam)
 		mesh.Draw(shader);
 
 	shader.Unbind();
+}
+
+  
+Model& Model::CreatePlane( ) 
+{
+		Model model =   Model();
+		//MeshNew& mesh =  MeshNew::CreatePlane();
+		//
+		//
+		//model->meshes.emplace_back(*mesh);
+		//Texture2D t2("res/textures/metal.png", "texture_diffuse");
+		//model->textures_loaded.emplace_back(t2);
+		//model->SetShader("plane");
+		////model.shaderIdx = shader.m_RendererID;
+	return model;
+		
+		//mesh.vertices = std::vector<float>planeVertices;
+
+
 }

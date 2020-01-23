@@ -35,6 +35,8 @@ void Mesh::InitMesh(const IndexedModel& model)
 	glBindVertexArray(0);
 }
 
+ 
+
 Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices)
 {
 	IndexedModel model;

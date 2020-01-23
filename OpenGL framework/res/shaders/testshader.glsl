@@ -45,7 +45,7 @@ void main()
 out vec4 FragColor;
 in vec2 TexCoords;
 
- uniform sampler2D diffuse_texture;
+uniform sampler2D diffuse_texture;
 
 
 void main()

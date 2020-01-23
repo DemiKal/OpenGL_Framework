@@ -86,6 +86,7 @@
       <FileType>CppCode</FileType>
     </None>
     <None Include="res\shaders\lineshader.glsl" />
+    <None Include="res\shaders\plane.glsl" />
     <None Include="res\shaders\testshader.glsl" />
     <None Include="src\fbo test.cpp" />
     <ClCompile Include="src\Rendering\Buffer\FrameBuffer.cpp" />
