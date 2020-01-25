@@ -77,7 +77,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<VertexNew> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Texture2D> textures;
+	//std::vector<Texture2D> textures;
 	
 
 	std::vector<bool> boolsarray;
@@ -161,24 +161,25 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	// diffuse: texture_diffuseN
 	// specular: texture_specularN
 	// normal: texture_normalN
-
+	
+	auto& shader  = GetShader( );
 	// 1. diffuse maps
 	std::vector<Texture2D> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	shader.m_textures.insert(shader.m_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	// 2. specular maps
 	std::vector<Texture2D> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	shader.m_textures. insert(shader.m_textures.end(), specularMaps.begin(), specularMaps.end());
 	// 3. normal maps
 	std::vector<Texture2D> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+	shader.m_textures.insert(shader.m_textures.end(), normalMaps.begin(), normalMaps.end());
 	// 4. height maps
 	std::vector<Texture2D> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+	shader.m_textures.insert(shader.m_textures.end(), heightMaps.begin(), heightMaps.end());
 
 
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, textures, boolsarray);
+	return MeshNew(vertices, indices, boolsarray);
 
 
 }

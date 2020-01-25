@@ -8,12 +8,17 @@ void MeshNew::Draw(const GPUShader& shader)
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
 	
-	for (unsigned int i = 0; i < textures.size(); i++)
+	const unsigned int size = shader.m_textures.size();
+	int i = 0;
+	for(const Texture2D& tex : shader.m_textures)
+	//for (unsigned int i = 0; i < size; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
 		// retrieve texture number (the N in diffuse_textureN)
+	//	const Texture2D tex = (shader.m_textures[i]);
+		
 		std::string number;
-		std::string name = textures[i].GetType();
+		std::string name = tex.GetType();
 		if (name == "texture_diffuse")
 			number = std::to_string(diffuseNr++);
 		else if (name == "texture_specular")
@@ -26,7 +31,8 @@ void MeshNew::Draw(const GPUShader& shader)
 		// now set the sampler to the correct texture unit
 		GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
 		// and finally bind the texture
-		GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].GetID()));
+		GLCall(glBindTexture(GL_TEXTURE_2D, tex .GetID()));
+		i++;
 	}
 
 	// draw mesh
@@ -46,12 +52,12 @@ void MeshNew::Draw(const GPUShader& shader)
 MeshNew::MeshNew(
 	std::vector<VertexNew>& vertices,
 	std::vector<unsigned>& indices,
-	std::vector<Texture2D>& textures,
+	//std::vector<Texture2D>& textures,
 	std::vector<bool>& bools)
 {
 	this->vertices = vertices;
 	this->indices = indices;
-	this->textures = textures;
+	//this->textures = textures;
 
 	pos_loaded = bools[0];
 	normals_loaded = bools[1];

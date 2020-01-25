@@ -14,13 +14,12 @@ public:
 	std::string name;
 	unsigned int m_RendererID = 0;
 	std::unordered_map<  std::string, int> m_UniformLocationCache;
+	std::vector<Texture2D> m_textures;
 
 	int GetUniformLocation(const std::string& name);
 	ShaderProgramSource parseShader(const std::string& path) const;
 	void SetInt(const std::string &name, int value)  ;
  
-
-
 	//Shader();
 	GPUShader(const std::string& filepath);
 	 
@@ -36,6 +35,7 @@ public:
 	void SetVec4f(const std::string & name, const glm::vec4 & value);
  	void setVec3(const std::string & name, const glm::vec3 & value);
 	void SetFloat(const std::string& name, float value);
+	void AddTexture(const Texture2D& tex) { m_textures.emplace_back(tex); };
 	void Destroy();
 };
 

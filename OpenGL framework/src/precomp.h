@@ -57,6 +57,7 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include "tests/Test.h"
 #include "tests/TestClearColor.h"
 
+#include "GameObject/Components/Texture2D.h"
 #include "Rendering/GPUShader.h"
 #include "Rendering/ShaderManager.h"
 
@@ -64,7 +65,6 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include "Rendering/Texture.h"
 #include "GameObject/Camera.h"
 #include "GameObject/VertexNew.h"
-#include "GameObject/Components/Texture2D.h"
 
 #include "GameObject/Components/Transform.h"
 

@@ -12,14 +12,13 @@ protected:
 public:
 	std::vector<VertexNew> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Texture2D> textures;
 	void Draw(const GPUShader& shader);
 
-	MeshNew() :vertices(), indices(), textures() {};
+	MeshNew() :vertices(), indices()/*, textures()*/ {};
 	~MeshNew() = default;
 	MeshNew(std::vector<VertexNew>& vertices,
 		std::vector <unsigned int>& indices,
-		std::vector <Texture2D>& textures,
+		/*std::vector <Texture2D>& textures,*/
 		std::vector<bool> & bools);
 
 	bool hasPositions() const { return pos_loaded; }
@@ -36,7 +35,7 @@ public:
 	void SetVAO(unsigned int val) { VAO = val; }
 	void SetVBO(unsigned int val) { VBO = val; }
 	void SetEBO(unsigned int val) { EBO = val; }
-	void AddTexture(const Texture2D& tex) { textures.emplace_back(tex); } 
+	//void AddTexture(const Texture2D& tex) { textures.emplace_back(tex); } 
 };
 
 

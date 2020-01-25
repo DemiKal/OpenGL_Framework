@@ -12,7 +12,7 @@ int main(void)
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	GLFWwindow * window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -51,9 +51,10 @@ int main(void)
 		Model obj = Model("", Model::LoadType::PLANE);
 		Texture2D metal("res/textures/brickwall.jpg", "texture_diffuse");
 		Texture2D uvtest("res/textures/uvtest.png", "texture_diffuse");
-		auto sh = ShaderManager::getShaderIdx(obj.shaderIdx);
-		obj.meshes[0].AddTexture(uvtest);
-		obj.meshes[0].AddTexture(metal);
+		auto&  sh = ShaderManager::getShaderIdx(obj.shaderIdx);
+		
+		sh.AddTexture(uvtest);
+		sh.AddTexture(metal);
 //
 		float cubeVertices[] = {
 			// positions          // texture Coords
