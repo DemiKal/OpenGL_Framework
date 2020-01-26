@@ -32,7 +32,7 @@ void Model::LoadPlane() {
 	mesh.SetVBO(planeVBO);
 	mesh.SetVAO(planeVAO);
 	meshes.emplace_back(mesh);
-	
+
 	//textures_loaded.emplace_back(tex);
 	//mesh.textures.emplace_back(tex);
 
@@ -78,7 +78,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<VertexNew> vertices;
 	std::vector<unsigned int> indices;
 	//std::vector<Texture2D> textures;
-	
+
 
 	std::vector<bool> boolsarray;
 	boolsarray.emplace_back(mesh->HasPositions());
@@ -139,8 +139,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		}
 		else
 		{
-			vertex.Tangent = {0,0,0};
-			vertex.Tangent = {0,0,0};
+			vertex.Tangent = { 0,0,0 };
+			vertex.Tangent = { 0,0,0 };
 		}
 
 		vertices.push_back(vertex);
@@ -161,14 +161,14 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	// diffuse: texture_diffuseN
 	// specular: texture_specularN
 	// normal: texture_normalN
-	
-	auto& shader  = GetShader( );
+
+	auto& shader = GetShader();
 	// 1. diffuse maps
 	std::vector<Texture2D> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 	shader.m_textures.insert(shader.m_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	// 2. specular maps
 	std::vector<Texture2D> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-	shader.m_textures. insert(shader.m_textures.end(), specularMaps.begin(), specularMaps.end());
+	shader.m_textures.insert(shader.m_textures.end(), specularMaps.begin(), specularMaps.end());
 	// 3. normal maps
 	std::vector<Texture2D> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
 	shader.m_textures.insert(shader.m_textures.end(), normalMaps.begin(), normalMaps.end());
@@ -265,21 +265,43 @@ void Model::Draw(const Camera& cam)
 	shader.Unbind();
 }
 
-  
-Model& Model::CreatePlane( ) 
+void Model::CreateCube() {
+
+	MeshNew mesh = MeshNew();
+	mesh.CreateCube();
+	meshes.emplace_back(mesh);
+	SetShader("framebuffers");
+	auto& s = GetShader();
+	const Texture2D t1("res/textures/marble.jpg", "texture_diffuse");
+	s.AddTexture(t1);
+
+}
+
+void Model::CreatePlane()
 {
-		Model model =   Model();
-		//MeshNew& mesh =  MeshNew::CreatePlane();
-		//
-		//
-		//model->meshes.emplace_back(*mesh);
-		//Texture2D t2("res/textures/metal.png", "texture_diffuse");
-		//model->textures_loaded.emplace_back(t2);
-		//model->SetShader("plane");
-		////model.shaderIdx = shader.m_RendererID;
-	return model;
-		
-		//mesh.vertices = std::vector<float>planeVertices;
+	//Model model =   Model();
+
+
+	MeshNew mesh = MeshNew();//::CreatePlane();
+	mesh.CreatePlane();
+	meshes.emplace_back(mesh);
+	SetShader("plane");
+	Texture2D metal("res/textures/brickwall.jpg", "texture_diffuse");
+	Texture2D uvtest("res/textures/uvtest.png", "texture_diffuse");
+	auto&  sh = ShaderManager::getShaderIdx(shaderIdx);
+
+	sh.AddTexture(uvtest);
+	sh.AddTexture(metal);
+
+
+	//this->meshes[0].CreatePlane();
+			// model. meshes.emplace_back(  mesh);
+			////Texture2D t2("res/textures/metal.png", "texture_diffuse");
+			////model->textures_loaded.emplace_back(t2);
+			//////model.shaderIdx = shader.m_RendererID;
+			//return model;
+
+			//mesh.vertices = std::vector<float>planeVertices;
 
 
 }

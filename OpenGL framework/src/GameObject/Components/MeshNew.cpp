@@ -7,16 +7,16 @@ void MeshNew::Draw(const GPUShader& shader)
 	unsigned int specularNr = 1;
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
-	
-	const unsigned int size = shader.m_textures.size();
+
+	const size_t size = shader.m_textures.size();
 	int i = 0;
-	for(const Texture2D& tex : shader.m_textures)
-	//for (unsigned int i = 0; i < size; i++)
+	for (const Texture2D& tex : shader.m_textures)
+		//for (unsigned int i = 0; i < size; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
 		// retrieve texture number (the N in diffuse_textureN)
 	//	const Texture2D tex = (shader.m_textures[i]);
-		
+
 		std::string number;
 		std::string name = tex.GetType();
 		if (name == "texture_diffuse")
@@ -31,7 +31,7 @@ void MeshNew::Draw(const GPUShader& shader)
 		// now set the sampler to the correct texture unit
 		GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
 		// and finally bind the texture
-		GLCall(glBindTexture(GL_TEXTURE_2D, tex .GetID()));
+		GLCall(glBindTexture(GL_TEXTURE_2D, tex.GetID()));
 		i++;
 	}
 
@@ -39,7 +39,7 @@ void MeshNew::Draw(const GPUShader& shader)
 	glBindVertexArray(VAO);
 	if (indices.size() > 0)
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
-	else glDrawArrays(GL_TRIANGLES, 0, 6); //plane!
+	else glDrawArrays(GL_TRIANGLES, 0, GetVertexCount()); //plane!
 	glBindVertexArray(0);
 
 	// always good practice to set everything back to defaults once configured.
@@ -130,7 +130,7 @@ void MeshNew::setupMesh()
 }
 
 
-MeshNew& MeshNew::CreatePlane() {
+void MeshNew::CreatePlane() {
 	float planeVertices[] = {
 		// positions          // texture Coords 
 		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
@@ -139,7 +139,7 @@ MeshNew& MeshNew::CreatePlane() {
 
 		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
 		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
-		 5.0f, -0.5f, -5.0f, 1.0f,1.0f
+		 5.0f, -0.5f, -5.0f,  1.0f, 1.0f
 	};
 	unsigned int planeVAO, planeVBO;
 	glGenVertexArrays(1, &planeVAO);
@@ -151,13 +151,13 @@ MeshNew& MeshNew::CreatePlane() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	 
 
-	MeshNew mesh;
-	mesh.VBO = planeVBO;
-	mesh.VAO = planeVAO;
-	mesh.indices.clear();
-	return mesh;
+
+	// MeshNew* mesh = new MeshNew();
+	VBO = planeVBO;
+	VAO = planeVAO;
+	vertexCount = 6;
+	//return  *mesh;
 
 
 
@@ -165,7 +165,71 @@ MeshNew& MeshNew::CreatePlane() {
 
 }
 
+void MeshNew::CreateCube() {
 
+	float cubeVertices[] = {
+		// positions          // texture Coords
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+
+	// cube VAO
+	unsigned int cubeVAO, cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &cubeVBO);
+	glBindVertexArray(cubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	VAO = cubeVAO;
+	VAO = cubeVAO;
+	vertexCount = 36;
+
+}
 //eshNew::~MeshNew()
 //
 //	std::cout << "destructor called meshnew" << "\n";

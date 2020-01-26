@@ -4,7 +4,7 @@ int main(void)
 {
 	if (!glfwInit()) return -1;
 
- 
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
@@ -48,82 +48,29 @@ int main(void)
 		//Model obj2 = Model("res/meshes/cyborg/cyborg.obj");
 		//	obj2.SetShader("normalmapshader");
 
-		Model obj = Model("", Model::LoadType::PLANE);
-		Texture2D metal("res/textures/brickwall.jpg", "texture_diffuse");
-		Texture2D uvtest("res/textures/uvtest.png", "texture_diffuse");
-		auto&  sh = ShaderManager::getShaderIdx(obj.shaderIdx);
+		//Model obj = Model("", Model::LoadType::PLANE);
+
+		Model obj = Model();
+		obj.CreatePlane();
 		
-		sh.AddTexture(uvtest);
-		sh.AddTexture(metal);
-//
-		float cubeVertices[] = {
-			// positions          // texture Coords
-			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-			 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		//MeshNew mesh = MeshNew();//::CreatePlane();
+		//mesh.CreatePlane();
+		//obj.meshes.emplace_back(mesh);
+		//obj.SetShader("plane");
 
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-			-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-			-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-		};
-		 
+		
+		//obj.SetShader(sh);
+		//
 		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			-1.0f, -1.0f,  0.0f, 0.0f,
-			 1.0f, -1.0f,  1.0f, 0.0f,
+		// positions   // texCoords
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
 
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			 1.0f, -1.0f,  1.0f, 0.0f,
-			 1.0f,  1.0f,  1.0f, 1.0f
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f, 1.0f
 		};
-		// cube VAO
-		unsigned int cubeVAO, cubeVBO;
-		glGenVertexArrays(1, &cubeVAO);
-		glGenBuffers(1, &cubeVBO);
-		glBindVertexArray(cubeVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-		
-		
 		// screen quad VAO
 		unsigned int quadVAO, quadVBO;
 		glGenVertexArrays(1, &quadVAO);
@@ -138,12 +85,9 @@ int main(void)
 
 		// load textures
 		// -------------
-		Texture t1("res/textures/marble.jpg");
 		Texture t2("res/textures/metal.png");
 
-		float lineverts[] = {
-			0,0, 1,1 // xy , xy
-		};
+		float lineverts[] = {0,0, 1,1 };
 
 		//obj.model = glm::mat4(1.0f);
 
@@ -160,17 +104,17 @@ int main(void)
 		//glEnableVertexAttribArray(1);
 		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-		unsigned int cubeTexture = t1.GetID();
-		unsigned int floorTexture = t2.GetID();
+		//unsigned int cubeTexture = t1.GetID();
+		//unsigned int floorTexture = t2.GetID();
 
-		int shader_idx = ShaderManager::getShaderIdx("framebuffers");
+	//	int shader_idx = ShaderManager::getShaderIdx("framebuffers");
 		int screenShader_idx = ShaderManager::getShaderIdx("framebuffers_screen");
 
-		auto& shader = ShaderManager::getShaderIdx(shader_idx);
+	//	auto& shader = ShaderManager::getShaderIdx(shader_idx);
 		auto& postProcessShader = ShaderManager::getShaderIdx(screenShader_idx);
 
-		shader.Bind();
-		shader.SetInt("texture1", 0);
+		//shader.Bind();
+		//shader.SetInt("texture1", 0);
 
 		postProcessShader.Bind();
 		postProcessShader.SetInt("screenTexture", 0);
@@ -321,7 +265,7 @@ int main(void)
 			glm::vec2 mDiff = glm::vec2(signX, signY);
 			glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
 #pragma endregion input
-			 
+
 
 
 			//	renderer.Clear();
@@ -369,68 +313,70 @@ int main(void)
 			//obj.Draw(camera);
 
 
-			shader.Bind();
-			glm::mat4 model = glm::mat4(1.0f);
-			glm::mat4 view = camera.GetViewMatrix();
-			glm::mat4 projection = camera.GetProjectionMatrix();
-			
+			//shader.Bind();
+			//glm::mat4 model = glm::mat4(1.0f);
+			//glm::mat4 view = camera.GetViewMatrix();
+			//glm::mat4 projection = camera.GetProjectionMatrix();
+
 			//glm::mat4 projection = glm::perspective(glm::radians(45.f),
 			//	(float)SCREENWIDTH / (float)SCREENHEIGHT, 0.1f, 100.0f);
 
 
 
-			shader.SetUniformMat4f("view", view);
-			shader.SetUniformMat4f("projection", projection);
+			//shader.SetUniformMat4f("view", view);
+			//shader.SetUniformMat4f("projection", projection);
 			// cubes
-		 
-			
-			glBindVertexArray(cubeVAO);
+
+
+		//glBindVertexArray(cubeVAO);
+		////
+			//
+			//int verts = sizeof(cubeVertices) / sizeof(float);
+			//for (int i = 0; i < verts; i += 5) {
+			//	float* vx = &cubeVertices[i + 0];
+			//	float* vy = &cubeVertices[i + 1];
+			//	float* vz = &cubeVertices[i + 2];
+			//	float* vu = &cubeVertices[i + 3];
+			//	float* vv = &cubeVertices[i + 4];
+			//
+			//	*vx += 0.01f;
+			//	*vy += 0.01f;
+			//	*vz += 0.01f;
+			//
+			//}
+			//glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+			//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(cubeVertices), &cubeVertices);
 		//
 		//
-		//int verts = sizeof(cubeVertices) / sizeof(float);
-		//for (int i = 0; i < verts; i += 5) {
-		//	float* vx = &cubeVertices[i + 0];
-		//	float* vy = &cubeVertices[i + 1];
-		//	float* vz = &cubeVertices[i + 2];
-		//	float* vu = &cubeVertices[i + 3];
-		//	float* vv = &cubeVertices[i + 4];
 		//
-		//	*vx += 0.01f;
-		//	*vy += 0.01f;
-		//	*vz += 0.01f;
 		//
-		//}
-		//glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-		//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(cubeVertices), &cubeVertices);
+		//
+		//
+		//
+		//
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, cubeTexture);
+		//model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		//shader.SetUniformMat4f("model", model);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		//shader.SetUniformMat4f("model", model);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 
-
-
-
-
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, cubeTexture);
-			model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-			shader.SetUniformMat4f("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-			shader.SetUniformMat4f("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-			
-			
-			
-			auto id = ShaderManager::getShaderIdx("plane");
-			GPUShader sssssssss = ShaderManager::getShaderIdx(id);
-			sssssssss.Bind();
-			sssssssss.SetFloat("blend", override_color.w);
-
+		//	auto id = ShaderManager::getShaderIdx("plane");
+		//	GPUShader sssssssss = ShaderManager::getShaderIdx(id);
+		//	sssssssss.Bind();
+		//	sssssssss.SetFloat("blend", override_color.w);
+			//obj.model = glm::mat4(1.0f);
 			obj.Draw(camera);
-			
-			
-			
+
+			//obj.model = glm::translate(glm::mat4(1.0f), glm::vec3(-3, 0, 0));
+			//obj.model *= glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), { 0,0,1 });
+			//obj.Draw(camera);
+
 			// floor
 			//glBindVertexArray(planeVAO);
 			//glBindTexture(GL_TEXTURE_2D, floorTexture);
@@ -454,7 +400,7 @@ int main(void)
 			//	glClear(GL_COLOR_BUFFER_BIT);
 			ImGui::ColorEdit4("clear color", (float*)&override_color[0]);
 
-			
+
 
 			postProcessShader.Bind();
 

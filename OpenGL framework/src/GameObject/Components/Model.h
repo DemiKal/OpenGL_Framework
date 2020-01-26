@@ -9,16 +9,16 @@ public:
 		CUBE
 	};
 
-	Model() = default;
+	Model() : model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0) {}
 	~Model() = default;
 
 	Model(const std::string& path, LoadType type) :
 		model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0)
 	{
 		switch (type) {
-			case OBJLOAD: loadModel(path);
-			case PLANE: LoadPlane();
-			case CUBE: ;
+		case OBJLOAD: loadModel(path);
+		case PLANE: LoadPlane();
+		case CUBE:;
 		}
 	}
 
@@ -28,9 +28,10 @@ public:
 	void SetShader(const std::string& shadername);
 	void Draw(const Camera& cam);
 	GPUShader& GetShader() const { return   ShaderManager::getShaderIdx(shaderIdx); }
-	static 	Model& CreatePlane();
+	void CreatePlane();
+	void CreateCube();
 
- 
+
 	glm::mat4 model;
 	std::vector<MeshNew> meshes;
 	std::string directory;

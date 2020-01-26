@@ -1,8 +1,9 @@
 #pragma once
 class MeshNew
 {
+
 protected:
-	unsigned int VAO, VBO, EBO;
+	unsigned int VAO, VBO, EBO, vertexCount;
 	//vertex bools
 	bool pos_loaded, normals_loaded, UVs_loaded, tangents_loaded;
 
@@ -29,8 +30,9 @@ public:
 	unsigned int GetVBO() { return VBO; }
 	unsigned int GetEBO() { return EBO; }
 
-	static MeshNew& CreatePlane();
-
+	void CreatePlane();
+	void CreateCube();
+	inline unsigned int GetVertexCount() {	return vertexCount;	}
 
 	void SetVAO(unsigned int val) { VAO = val; }
 	void SetVBO(unsigned int val) { VBO = val; }
