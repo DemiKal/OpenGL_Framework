@@ -29,9 +29,10 @@ public:
 	unsigned int GetVAO() { return VAO; }
 	unsigned int GetVBO() { return VBO; }
 	unsigned int GetEBO() { return EBO; }
-
-	void CreatePlane();
-	void CreateCube();
+	
+	static MeshNew CreatePlane();
+	
+ 	static MeshNew CreateCube();
 	inline unsigned int GetVertexCount() {	return vertexCount;	}
 
 	void SetVAO(unsigned int val) { VAO = val; }

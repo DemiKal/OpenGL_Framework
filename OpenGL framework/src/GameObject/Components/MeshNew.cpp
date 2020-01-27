@@ -130,43 +130,43 @@ void MeshNew::setupMesh()
 }
 
 
-void MeshNew::CreatePlane() {
-	float planeVertices[] = {
-		// positions          // texture Coords 
-		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
-		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+//void MeshNew::CreatePlane() {
+//	float planeVertices[] = {
+//		// positions          // texture Coords 
+//		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+//		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+//		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+//
+//		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+//		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+//		 5.0f, -0.5f, -5.0f,  1.0f, 1.0f
+//	};
+//	unsigned int planeVAO, planeVBO;
+//	glGenVertexArrays(1, &planeVAO);
+//	glGenBuffers(1, &planeVBO);
+//	glBindVertexArray(planeVAO);
+//	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+//	glEnableVertexAttribArray(0);
+//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+//	glEnableVertexAttribArray(1);
+//	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+//
+//
+//	// MeshNew* mesh = new MeshNew();
+//	VBO = planeVBO;
+//	VAO = planeVAO;
+//	vertexCount = 6;
+//	//return  *mesh;
+//
+//
+//
+//
+//
+//}
 
-		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
-		 5.0f, -0.5f, -5.0f,  1.0f, 1.0f
-	};
-	unsigned int planeVAO, planeVBO;
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-	glBindVertexArray(planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-
-	// MeshNew* mesh = new MeshNew();
-	VBO = planeVBO;
-	VAO = planeVAO;
-	vertexCount = 6;
-	//return  *mesh;
-
-
-
-
-
-}
-
-void MeshNew::CreateCube() {
-
+MeshNew MeshNew::CreateCube() {
+	MeshNew mesh;
 	float cubeVertices[] = {
 		// positions          // texture Coords
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -211,8 +211,7 @@ void MeshNew::CreateCube() {
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-
-
+	 
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
@@ -225,10 +224,10 @@ void MeshNew::CreateCube() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-	VAO = cubeVAO;
-	VAO = cubeVAO;
-	vertexCount = 36;
-
+	mesh.VAO = cubeVAO;
+	mesh.VAO = cubeVAO;
+	mesh.vertexCount = 36;
+	return mesh;
 }
 //eshNew::~MeshNew()
 //
@@ -239,3 +238,36 @@ void MeshNew::CreateCube() {
 //
 
 
+MeshNew MeshNew::CreatePlane () {
+
+	MeshNew mesh;
+	float planeVertices[] = {
+		// positions          // texture Coords 
+		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+
+		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+		 5.0f, -0.5f, -5.0f,  1.0f, 1.0f
+	};
+	unsigned int planeVAO, planeVBO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+
+	// MeshNew* mesh = new MeshNew();
+	mesh.VBO = planeVBO;
+	mesh.VAO = planeVAO;
+	mesh.vertexCount = 6;
+
+	return mesh;
+
+}

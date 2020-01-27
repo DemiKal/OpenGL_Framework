@@ -45,20 +45,28 @@ int main(void)
 		//Model obj = Model("res/meshes/boblamp/boblampclean.md5mesh");
 		//obj.SetShader("testshader");
 
-		//Model obj2 = Model("res/meshes/cyborg/cyborg.obj");
-		//	obj2.SetShader("normalmapshader");
+		//Model obj = Model("res/meshes/cyborg/cyborg.obj", Model::LoadType::OBJLOAD);
+		//obj .SetShader("normalmapshader");
+
+		Model cube = Model::CreateCube(); 
+		cube.SetShader("framebuffers");
+		cube.GetShader().AddTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
+	 
+		Model plane = Model::CreatePlane();
+		plane.SetShader("plane");
+		plane.GetShader().AddTexture(Texture2D ("res/textures/brickwall.jpg", "texture_diffuse") );
 
 		//Model obj = Model("", Model::LoadType::PLANE);
 
-		Model obj = Model();
-		obj.CreatePlane();
-		
+		//Model obj = Model();
+		//obj.CreatePlane();
+
 		//MeshNew mesh = MeshNew();//::CreatePlane();
 		//mesh.CreatePlane();
 		//obj.meshes.emplace_back(mesh);
 		//obj.SetShader("plane");
 
-		
+
 		//obj.SetShader(sh);
 		//
 		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -85,9 +93,9 @@ int main(void)
 
 		// load textures
 		// -------------
-		Texture t2("res/textures/metal.png");
+		//Texture t2("res/textures/metal.png");
 
-		float lineverts[] = {0,0, 1,1 };
+		float lineverts[] = { 0,0, 1,1 };
 
 		//obj.model = glm::mat4(1.0f);
 
@@ -110,7 +118,7 @@ int main(void)
 	//	int shader_idx = ShaderManager::getShaderIdx("framebuffers");
 		int screenShader_idx = ShaderManager::getShaderIdx("framebuffers_screen");
 
-	//	auto& shader = ShaderManager::getShaderIdx(shader_idx);
+		//	auto& shader = ShaderManager::getShaderIdx(shader_idx);
 		auto& postProcessShader = ShaderManager::getShaderIdx(screenShader_idx);
 
 		//shader.Bind();
@@ -371,8 +379,8 @@ int main(void)
 		//	sssssssss.Bind();
 		//	sssssssss.SetFloat("blend", override_color.w);
 			//obj.model = glm::mat4(1.0f);
-			obj.Draw(camera);
-
+			cube.Draw(camera);
+			plane.Draw(camera);
 			//obj.model = glm::translate(glm::mat4(1.0f), glm::vec3(-3, 0, 0));
 			//obj.model *= glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), { 0,0,1 });
 			//obj.Draw(camera);

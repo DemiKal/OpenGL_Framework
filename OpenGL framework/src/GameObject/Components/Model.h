@@ -17,19 +17,18 @@ public:
 	{
 		switch (type) {
 		case OBJLOAD: loadModel(path);
-		case PLANE: LoadPlane();
+		case PLANE:  
 		case CUBE:;
 		}
 	}
 
-	void LoadPlane();
 	glm::mat4 GetModelMatrix() { return model; }
 	void SetModelMatrix(const glm::mat4& mat) { model = mat; }
 	void SetShader(const std::string& shadername);
 	void Draw(const Camera& cam);
 	GPUShader& GetShader() const { return   ShaderManager::getShaderIdx(shaderIdx); }
-	void CreatePlane();
-	void CreateCube();
+	//void CreatePlane();
+	static Model CreateCube();
 
 
 	glm::mat4 model;
@@ -39,7 +38,7 @@ public:
 	unsigned int shaderIdx;
 
 	void loadModel(const std::string& path);
-
+	static Model CreatePlane();
 	void processNode(aiNode *node, const aiScene *scene);
 	MeshNew processMesh(aiMesh *mesh, const aiScene *scene);
 

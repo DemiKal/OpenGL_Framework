@@ -5,41 +5,7 @@ void Model::SetShader(const std::string& shadername)
 	//const auto& shadermanager = ShaderManager::getInstance();
 	shaderIdx = ShaderManager::getShaderIdx(shadername);
 }
-
-void Model::LoadPlane() {
-
-	float planeVertices[] = {
-		// positions          // texture Coords 
-		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
-		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
-
-		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
-		 5.0f, -0.5f, -5.0f, 1.0f,1.0f
-	};
-	unsigned int planeVAO, planeVBO;
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-	glBindVertexArray(planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	MeshNew mesh;
-	mesh.SetVBO(planeVBO);
-	mesh.SetVAO(planeVAO);
-	meshes.emplace_back(mesh);
-
-	//textures_loaded.emplace_back(tex);
-	//mesh.textures.emplace_back(tex);
-
-	unsigned int shaderidx = ShaderManager::getShaderIdx("plane");
-	this->shaderIdx = shaderidx;
-
-}
+ 
 
 void Model::loadModel(const std::string& path)
 {
@@ -265,43 +231,53 @@ void Model::Draw(const Camera& cam)
 	shader.Unbind();
 }
 
-void Model::CreateCube() {
-
-	MeshNew mesh = MeshNew();
-	mesh.CreateCube();
-	meshes.emplace_back(mesh);
-	SetShader("framebuffers");
-	auto& s = GetShader();
-	const Texture2D t1("res/textures/marble.jpg", "texture_diffuse");
-	s.AddTexture(t1);
+Model Model::CreateCube() {
+	Model model;
+	MeshNew mesh = MeshNew::CreateCube();
+	model.meshes.emplace_back(mesh);
+	return model;
 
 }
 
-void Model::CreatePlane()
-{
-	//Model model =   Model();
+//void Model::CreatePlane()
+//{
+//	//Model model =   Model();
+//
+//
+//	MeshNew mesh = MeshNew();//::CreatePlane();
+//	mesh.CreatePlane();
+//	meshes.emplace_back(mesh);
+//	SetShader("plane");
+//	Texture2D metal("res/textures/brickwall.jpg", "texture_diffuse");
+//	Texture2D uvtest("res/textures/uvtest.png", "texture_diffuse");
+//	auto&  sh = ShaderManager::getShaderIdx(shaderIdx);
+//
+//	sh.AddTexture(uvtest);
+//	sh.AddTexture(metal);
+//
+//
+//	//this->meshes[0].CreatePlane();
+//			// model. meshes.emplace_back(  mesh);
+//			////Texture2D t2("res/textures/metal.png", "texture_diffuse");
+//			////model->textures_loaded.emplace_back(t2);
+//			//////model.shaderIdx = shader.m_RendererID;
+//			//return model;
+//
+//			//mesh.vertices = std::vector<float>planeVertices;
+//
+//
+//}
 
+  Model Model::CreatePlane() 
+  {
+	   Model model;
+	  MeshNew mesh = MeshNew::CreatePlane();
+	  
+	  model.meshes.emplace_back(mesh);
+	 // model.SetShader("framebuffers");
+	 // auto& s = GetShader();
 
-	MeshNew mesh = MeshNew();//::CreatePlane();
-	mesh.CreatePlane();
-	meshes.emplace_back(mesh);
-	SetShader("plane");
-	Texture2D metal("res/textures/brickwall.jpg", "texture_diffuse");
-	Texture2D uvtest("res/textures/uvtest.png", "texture_diffuse");
-	auto&  sh = ShaderManager::getShaderIdx(shaderIdx);
-
-	sh.AddTexture(uvtest);
-	sh.AddTexture(metal);
-
-
-	//this->meshes[0].CreatePlane();
-			// model. meshes.emplace_back(  mesh);
-			////Texture2D t2("res/textures/metal.png", "texture_diffuse");
-			////model->textures_loaded.emplace_back(t2);
-			//////model.shaderIdx = shader.m_RendererID;
-			//return model;
-
-			//mesh.vertices = std::vector<float>planeVertices;
+	  return model;
 
 
 }
