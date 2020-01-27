@@ -14,12 +14,13 @@ public:
 	std::vector<VertexNew> vertices;
 	std::vector<unsigned int> indices;
 	void Draw(const GPUShader& shader);
+	std::vector<Texture2D> m_textures;
 
-	MeshNew() :vertices(), indices()/*, textures()*/ {};
+	MeshNew() :vertices(), indices(), m_textures() {};
 	~MeshNew() = default;
 	MeshNew(std::vector<VertexNew>& vertices,
 		std::vector <unsigned int>& indices,
-		/*std::vector <Texture2D>& textures,*/
+		std::vector <Texture2D>& textures,
 		std::vector<bool> & bools);
 
 	bool hasPositions() const { return pos_loaded; }
@@ -29,11 +30,11 @@ public:
 	unsigned int GetVAO() { return VAO; }
 	unsigned int GetVBO() { return VBO; }
 	unsigned int GetEBO() { return EBO; }
-	
+
 	static MeshNew CreatePlane();
-	
- 	static MeshNew CreateCube();
-	inline unsigned int GetVertexCount() {	return vertexCount;	}
+
+	static MeshNew CreateCube();
+	inline unsigned int GetVertexCount() { return vertexCount; }
 
 	void SetVAO(unsigned int val) { VAO = val; }
 	void SetVBO(unsigned int val) { VBO = val; }

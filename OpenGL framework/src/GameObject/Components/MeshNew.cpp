@@ -8,9 +8,9 @@ void MeshNew::Draw(const GPUShader& shader)
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
 
-	const size_t size = shader.m_textures.size();
+	//const size_t size = shader.m_textures.size();
 	int i = 0;
-	for (const Texture2D& tex : shader.m_textures)
+	for (const Texture2D& tex : m_textures)
 		//for (unsigned int i = 0; i < size; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
@@ -52,12 +52,12 @@ void MeshNew::Draw(const GPUShader& shader)
 MeshNew::MeshNew(
 	std::vector<VertexNew>& vertices,
 	std::vector<unsigned>& indices,
-	//std::vector<Texture2D>& textures,
+	std::vector<Texture2D>& textures,
 	std::vector<bool>& bools)
 {
 	this->vertices = vertices;
 	this->indices = indices;
-	//this->textures = textures;
+	this->m_textures = textures;
 
 	pos_loaded = bools[0];
 	normals_loaded = bools[1];
@@ -211,7 +211,7 @@ MeshNew MeshNew::CreateCube() {
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-	 
+
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
@@ -238,7 +238,7 @@ MeshNew MeshNew::CreateCube() {
 //
 
 
-MeshNew MeshNew::CreatePlane () {
+MeshNew MeshNew::CreatePlane() {
 
 	MeshNew mesh;
 	float planeVertices[] = {

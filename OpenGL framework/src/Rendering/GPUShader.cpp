@@ -2,7 +2,7 @@
 
 GPUShader::GPUShader(const std::string& filepath)
 	: m_FilePath(filepath), name("not yet loaded"), m_RendererID(0),
-	  m_UniformLocationCache(), m_textures()
+	  m_UniformLocationCache()
 {
 	const ShaderProgramSource sps = parseShader(filepath);
 	m_RendererID = CreateShader(sps.VertexSource, sps.FragmentSource);
@@ -118,7 +118,7 @@ void GPUShader::SetVec4f(const std::string &name, const glm::vec4& value)
 void GPUShader::setVec3(const std::string &name, const glm::vec3 &value)
 {
 	const int location = GetUniformLocation(name);
-	glUniform3fv(location, 1, &value[0]);
+	GLCall(glUniform3fv(location, 1, &value[0]));
 }
 void GPUShader::SetFloat(const std::string &name, float value)
 {

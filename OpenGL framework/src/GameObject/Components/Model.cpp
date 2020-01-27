@@ -2,15 +2,14 @@
 
 void Model::SetShader(const std::string& shadername)
 {
-	//const auto& shadermanager = ShaderManager::getInstance();
 	shaderIdx = ShaderManager::getShaderIdx(shadername);
 }
- 
+
 
 void Model::loadModel(const std::string& path)
 {
 	Assimp::Importer import;
-	const auto flags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
+	const auto flags = aiProcess_Triangulate |  aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
 	const aiScene *scene = import.ReadFile(path, flags);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -43,7 +42,6 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<VertexNew> vertices;
 	std::vector<unsigned int> indices;
-	//std::vector<Texture2D> textures;
 
 
 	std::vector<bool> boolsarray;
@@ -127,27 +125,23 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	// diffuse: texture_diffuseN
 	// specular: texture_specularN
 	// normal: texture_normalN
-
-	auto& shader = GetShader();
+	std::vector<Texture2D> textures;
+	//auto& shader = GetShader();
 	// 1. diffuse maps
 	std::vector<Texture2D> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-	shader.m_textures.insert(shader.m_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	// 2. specular maps
 	std::vector<Texture2D> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-	shader.m_textures.insert(shader.m_textures.end(), specularMaps.begin(), specularMaps.end());
+	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	// 3. normal maps
 	std::vector<Texture2D> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-	shader.m_textures.insert(shader.m_textures.end(), normalMaps.begin(), normalMaps.end());
+	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 	// 4. height maps
 	std::vector<Texture2D> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-	shader.m_textures.insert(shader.m_textures.end(), heightMaps.begin(), heightMaps.end());
-
-
+	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, boolsarray);
-
-
+	return MeshNew(vertices, indices, textures, boolsarray);
 }
 
 
@@ -216,14 +210,10 @@ void Model::Draw(const Camera& cam)
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();
 
-
-
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", proj);
 
-	//shader.SetUniformMat4f("view2", view2);
-	//shader.SetUniformMat4f("proj2", proj2);
 
 	for (auto& mesh : meshes)
 		mesh.Draw(shader);
@@ -239,45 +229,11 @@ Model Model::CreateCube() {
 
 }
 
-//void Model::CreatePlane()
-//{
-//	//Model model =   Model();
-//
-//
-//	MeshNew mesh = MeshNew();//::CreatePlane();
-//	mesh.CreatePlane();
-//	meshes.emplace_back(mesh);
-//	SetShader("plane");
-//	Texture2D metal("res/textures/brickwall.jpg", "texture_diffuse");
-//	Texture2D uvtest("res/textures/uvtest.png", "texture_diffuse");
-//	auto&  sh = ShaderManager::getShaderIdx(shaderIdx);
-//
-//	sh.AddTexture(uvtest);
-//	sh.AddTexture(metal);
-//
-//
-//	//this->meshes[0].CreatePlane();
-//			// model. meshes.emplace_back(  mesh);
-//			////Texture2D t2("res/textures/metal.png", "texture_diffuse");
-//			////model->textures_loaded.emplace_back(t2);
-//			//////model.shaderIdx = shader.m_RendererID;
-//			//return model;
-//
-//			//mesh.vertices = std::vector<float>planeVertices;
-//
-//
-//}
+Model Model::CreatePlane()
+{
+	Model model;
+	MeshNew mesh = MeshNew::CreatePlane();
 
-  Model Model::CreatePlane() 
-  {
-	   Model model;
-	  MeshNew mesh = MeshNew::CreatePlane();
-	  
-	  model.meshes.emplace_back(mesh);
-	 // model.SetShader("framebuffers");
-	 // auto& s = GetShader();
-
-	  return model;
-
-
+	model.meshes.emplace_back(mesh);
+	return model;
 }

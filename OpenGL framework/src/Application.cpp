@@ -45,29 +45,18 @@ int main(void)
 		//Model obj = Model("res/meshes/boblamp/boblampclean.md5mesh");
 		//obj.SetShader("testshader");
 
-		//Model obj = Model("res/meshes/cyborg/cyborg.obj", Model::LoadType::OBJLOAD);
-		//obj .SetShader("normalmapshader");
+		Model obj = Model("res/meshes/nanosuit/nanosuit.obj", Model::LoadType::OBJLOAD);
+		obj.SetShader("normalmapshader");
+		
 
-		Model cube = Model::CreateCube(); 
+		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");
-		cube.GetShader().AddTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
-	 
+		cube.meshes[0].m_textures.emplace_back(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
+
 		Model plane = Model::CreatePlane();
 		plane.SetShader("plane");
-		plane.GetShader().AddTexture(Texture2D ("res/textures/brickwall.jpg", "texture_diffuse") );
+		plane.meshes[0].m_textures.emplace_back(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
-		//Model obj = Model("", Model::LoadType::PLANE);
-
-		//Model obj = Model();
-		//obj.CreatePlane();
-
-		//MeshNew mesh = MeshNew();//::CreatePlane();
-		//mesh.CreatePlane();
-		//obj.meshes.emplace_back(mesh);
-		//obj.SetShader("plane");
-
-
-		//obj.SetShader(sh);
 		//
 		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 		// positions   // texCoords
@@ -169,10 +158,6 @@ int main(void)
 
 
 		Texture back("res/textures/uvtest.png");
-
-
-
-
 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
@@ -302,13 +287,8 @@ int main(void)
 
 			ImGui::Text("ms %f", avgfps);
 
-			if (frametimes.size() >= 30)
-			{
-				frametimes.clear();
-			}
-
-			//glBindFramebuffer(GL_FRAMEBUFFER, fb);
-
+			if (frametimes.size() >= 30) frametimes.clear();
+			
 			framebuffer.Bind();
 			//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 			glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
@@ -316,89 +296,21 @@ int main(void)
 			// make sure we clear the framebuffer's content
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//obj.Draw(camera);
-			//obj.Draw(camera);
-
-
-			//shader.Bind();
-			//glm::mat4 model = glm::mat4(1.0f);
-			//glm::mat4 view = camera.GetViewMatrix();
-			//glm::mat4 projection = camera.GetProjectionMatrix();
-
-			//glm::mat4 projection = glm::perspective(glm::radians(45.f),
-			//	(float)SCREENWIDTH / (float)SCREENHEIGHT, 0.1f, 100.0f);
-
-
-
-			//shader.SetUniformMat4f("view", view);
-			//shader.SetUniformMat4f("projection", projection);
-			// cubes
-
-
-		//glBindVertexArray(cubeVAO);
-		////
-			//
-			//int verts = sizeof(cubeVertices) / sizeof(float);
-			//for (int i = 0; i < verts; i += 5) {
-			//	float* vx = &cubeVertices[i + 0];
-			//	float* vy = &cubeVertices[i + 1];
-			//	float* vz = &cubeVertices[i + 2];
-			//	float* vu = &cubeVertices[i + 3];
-			//	float* vv = &cubeVertices[i + 4];
-			//
-			//	*vx += 0.01f;
-			//	*vy += 0.01f;
-			//	*vz += 0.01f;
-			//
-			//}
-			//glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-			//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(cubeVertices), &cubeVertices);
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		//model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-		//shader.SetUniformMat4f("model", model);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		//shader.SetUniformMat4f("model", model);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-
-		//	auto id = ShaderManager::getShaderIdx("plane");
-		//	GPUShader sssssssss = ShaderManager::getShaderIdx(id);
-		//	sssssssss.Bind();
-		//	sssssssss.SetFloat("blend", override_color.w);
-			//obj.model = glm::mat4(1.0f);
+			
+			obj.GetShader().Bind();
+			obj.GetShader().setVec3("lightPos", { 0,5,0 });
+			obj.GetShader().setVec3("viewPos", camera.PositionRead());
+			obj.GetShader().Unbind();
+			
+			obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);
-			//obj.model = glm::translate(glm::mat4(1.0f), glm::vec3(-3, 0, 0));
-			//obj.model *= glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), { 0,0,1 });
-			//obj.Draw(camera);
 
-			// floor
-			//glBindVertexArray(planeVAO);
-			//glBindTexture(GL_TEXTURE_2D, floorTexture);
-			//shader.SetUniformMat4f("model", glm::mat4(1.0f));
-			//glDrawArrays(GL_TRIANGLES, 0, 6);
-			//glBindVertexArray(0);
-			//shader.Unbind();
 			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
 			lineshader.Bind();
 			GLCall(glBindVertexArray(lineVao));
 			GLCall(glDrawArrays(GL_LINES, 0, 4));
-
-
 
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -417,10 +329,6 @@ int main(void)
 	   //	back.Bind();
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			//screenShader.Unbind();
-
-
-
-
 
 
 			ImGui::Render();
