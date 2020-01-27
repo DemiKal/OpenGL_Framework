@@ -8,13 +8,14 @@ public:
 		PLANE,
 		CUBE
 	};
-
+	//VertexBufferLayout vbl;
 	Model() : model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0) {}
 	~Model() = default;
 
 	Model(const std::string& path, LoadType type) :
 		model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0)
 	{
+		
 		switch (type) 
 		{
 			case OBJLOAD: loadModel(path);

@@ -11,18 +11,20 @@ protected:
 	void setupMesh();
 
 public:
-	std::vector<VertexNew> vertices;
+	std::vector<float> vertices; //TODO make it dynamic for ints and others
 	std::vector<unsigned int> indices;
-	void Draw(const GPUShader& shader);
 	std::vector<Texture2D> m_textures;
 
-	MeshNew() :vertices(), indices(), m_textures() {};
+	MeshNew() : indices(), m_textures() {};
 	~MeshNew() = default;
-	MeshNew(std::vector<VertexNew>& vertices,
+	
+	MeshNew(
+		std::vector<float>& vertices,
 		std::vector <unsigned int>& indices,
 		std::vector <Texture2D>& textures,
-		std::vector<bool> & bools);
-
+		std::vector<bool>& bools);
+	
+	void Draw(const GPUShader& shader);
 	bool hasPositions() const { return pos_loaded; }
 	bool hasNormals() const { return normals_loaded; }
 	bool hasUVs() const { return UVs_loaded; }

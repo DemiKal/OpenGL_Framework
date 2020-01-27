@@ -8,25 +8,21 @@ void MeshNew::Draw(const GPUShader& shader)
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
 
-	//const size_t size = shader.m_textures.size();
 	int i = 0;
 	for (const Texture2D& tex : m_textures)
-		//for (unsigned int i = 0; i < size; i++)
 	{
-		glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-		// retrieve texture number (the N in diffuse_textureN)
-	//	const Texture2D tex = (shader.m_textures[i]);
+		glActiveTexture(GL_TEXTURE0 + i);
 
 		std::string number;
 		std::string name = tex.GetType();
 		if (name == "texture_diffuse")
 			number = std::to_string(diffuseNr++);
 		else if (name == "texture_specular")
-			number = std::to_string(specularNr++); // transfer unsigned int to stream
+			number = std::to_string(specularNr++);	// transfer unsigned int to stream
 		else if (name == "texture_normal")
-			number = std::to_string(normalNr++); // transfer unsigned int to stream
+			number = std::to_string(normalNr++);	// transfer unsigned int to stream
 		else if (name == "texture_height")
-			number = std::to_string(heightNr++); // transfer unsigned int to stream
+			number = std::to_string(heightNr++);	// transfer unsigned int to stream
 
 		// now set the sampler to the correct texture unit
 		GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
@@ -47,10 +43,8 @@ void MeshNew::Draw(const GPUShader& shader)
 
 }
 
-
-
 MeshNew::MeshNew(
-	std::vector<VertexNew>& vertices,
+	std::vector<float>& vertices,
 	std::vector<unsigned>& indices,
 	std::vector<Texture2D>& textures,
 	std::vector<bool>& bools)
@@ -79,7 +73,7 @@ void MeshNew::setupMesh()
 	// The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
 	// again translates to 3/2 floats which translates to a byte array.
 
-	const GLsizeiptr bufferSize = sizeof(VertexNew) * vertices.size();
+	const GLsizeiptr bufferSize = sizeof(vertices[0]) * vertices.size();
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &vertices[0], GL_STATIC_DRAW));
 
@@ -88,45 +82,51 @@ void MeshNew::setupMesh()
 		indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
 
 
-	//GLint stride = sizeof(VertexNew);
-	//if (!hasNormals()) stride -= 3 * sizeof(float); //xyz
-	//if (!hasUVs()) stride -= 2 * sizeof(float);  //uv
-	//if (!hasTangents()) stride -= 6 * sizeof(float); //xyz xyz
+	GLint stride = 3 * sizeof(float); //pos
+	unsigned int normalSize = 3 * sizeof(float);
+	unsigned int uvSize = 2 * sizeof(float);
+	unsigned int tangentSize = 6 * sizeof(float);
 
-	const GLint stride = sizeof(VertexNew);
-	const GLint normalPos = offsetof(VertexNew, Normal);
-	const GLint uvPos = offsetof(VertexNew, TexCoords);
-	const GLint tangentPos = offsetof(VertexNew, Tangent);
-	const GLint btangentPos = offsetof(VertexNew, Bitangent);
 
-	int offset = 0;
-	//if (hasPositions()) {
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
-	offset += stride;
-	//}
+	if ( hasNormals()) stride += normalSize; //xyz normal
+	if ( hasUVs()) stride += uvSize;  //uv tex
+	if ( hasTangents()) stride += tangentSize; //xyz xyz bitangents
 
-	//if (hasNormals()) {
-		// vertex normals
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(normalPos));
-	offset += stride;
-	//}
-	//if (hasUVs()) {
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)uvPos);
-	//}
+   //const GLint stride = sizeof(VertexNew);
+   //const GLint normalPos = offsetof(VertexNew, Normal);
+   //const GLint uvPos = offsetof(VertexNew, TexCoords);
+   //const GLint tangentPos = offsetof(VertexNew, Tangent);
+   //const GLint btangentPos = offsetof(VertexNew, Bitangent);
+   //
+	unsigned int offset = 0;
 
-	//if (hasTangents()) {
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)tangentPos);
-	//bitangent
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)btangentPos);
-	//}
+	if (hasPositions()) {
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+	}
 
-	glBindVertexArray(0);
-	//vertices.clear(); clear can be done in static draw
+	if (hasNormals()) {
+		offset += normalSize;
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
+	}
+	if (hasUVs()) {
+		offset += uvSize;
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+	}
+
+	if (hasTangents()) {
+		offset += tangentSize/2;
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+		
+		offset += tangentSize / 2;
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+	}
+
+	glBindVertexArray(0); 
 }
 
 

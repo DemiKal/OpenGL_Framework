@@ -29,26 +29,10 @@ int main(void)
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
 		ShaderManager::Init(); //init before any model
-
-		//Cube cube("myCube");
-
-		//const std::string path = "res/meshes/cyborg/cyborg.obj";
-		// const std::string path = ;
-
-		//GameObject bunny("Spyro");
-		//bunny.renderer = renderer;
-		//bunny.LoadMesh(path);
-
-		//Texture tex("res\textures\uvtest.png", Texture::DIFFUSE);
-
-		///test
-		//Model obj = Model("res/meshes/boblamp/boblampclean.md5mesh");
-		//obj.SetShader("testshader");
-
+ 
 		Model obj = Model("res/meshes/nanosuit/nanosuit.obj", Model::LoadType::OBJLOAD);
 		obj.SetShader("normalmapshader");
-		
-
+	 
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");
 		cube.meshes[0].m_textures.emplace_back(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
@@ -80,15 +64,7 @@ int main(void)
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-		// load textures
-		// -------------
-		//Texture t2("res/textures/metal.png");
-
 		float lineverts[] = { 0,0, 1,1 };
-
-		//obj.model = glm::mat4(1.0f);
-
-		//obj.model = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1,0,0 ) );
 
 		unsigned int lineVao, lineVBO;
 		glGenVertexArrays(1, &lineVao);
@@ -98,6 +74,7 @@ int main(void)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(lineverts), &lineverts, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		
 		//glEnableVertexAttribArray(1);
 		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 

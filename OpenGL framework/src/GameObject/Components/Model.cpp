@@ -9,8 +9,8 @@ void Model::SetShader(const std::string& shadername)
 void Model::loadModel(const std::string& path)
 {
 	Assimp::Importer import;
-	const auto flags = aiProcess_Triangulate |  aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
-	const aiScene *scene = import.ReadFile(path, flags);
+	const auto flags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
+	const aiScene* scene = import.ReadFile(path, flags);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -28,7 +28,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
-		aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		meshes.push_back(processMesh(mesh, scene));
 	}
 	// then do the same for each of its children
@@ -40,7 +40,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 
 MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
-	std::vector<VertexNew> vertices;
+	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
 
 
@@ -53,8 +53,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	// Walk through each of the mesh's vertices
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		VertexNew vertex{};
-		unsigned int size = sizeof(vertex);
+		//VertexNew vertex{};
+		//unsigned int size = sizeof(vertex);
 		glm::vec3 vector;
 
 		// positions
@@ -63,16 +63,20 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			vector.x = mesh->mVertices[i].x;
 			vector.y = mesh->mVertices[i].y;
 			vector.z = mesh->mVertices[i].z;
-			vertex.Position = vector;
+			vertices.emplace_back(vector.x);
+			vertices.emplace_back(vector.y);
+			vertices.emplace_back(vector.z);
 		}
 		// normals
 		if (mesh->HasNormals()) {
 			vector.x = mesh->mNormals[i].x;
 			vector.y = mesh->mNormals[i].y;
 			vector.z = mesh->mNormals[i].z;
-			vertex.Normal = vector;
+			vertices.emplace_back(vector.x);
+			vertices.emplace_back(vector.y);
+			vertices.emplace_back(vector.z);
 		}
-		else vertex.Normal = { 0,0,0 };
+		else { vertices.emplace_back(0); vertices.emplace_back(0); vertices.emplace_back(0); }
 
 		// texture coordinates
 		//
@@ -82,32 +86,35 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 			vec.x = mesh->mTextureCoords[0][i].x;
 			vec.y = mesh->mTextureCoords[0][i].y;
-			vertex.TexCoords = vec;
+			vertices.emplace_back(vec.x);
+			vertices.emplace_back(vec.y);
 		}
-		else
-			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-		// tangent
-		//auto& x = mesh->mBitangents[0];
+		else { vertices.emplace_back(0); vertices.emplace_back(0); }
 
 		if (mesh->HasTangentsAndBitangents())
 		{
 			vector.x = mesh->mTangents[i].x;
 			vector.y = mesh->mTangents[i].y;
 			vector.z = mesh->mTangents[i].z;
-			vertex.Tangent = vector;
+			vertices.emplace_back(vector.x);
+			vertices.emplace_back(vector.y);
+			vertices.emplace_back(vector.z);
 			// bitangent
-			vector.x = mesh->mBitangents[i].x;
-			vector.y = mesh->mBitangents[i].y;
-			vector.z = mesh->mBitangents[i].z;
-			vertex.Bitangent = vector;
+			glm::vec3 vv(0, 0, 0);
+			vv.x = mesh->mBitangents[i].x;
+			vv.y = mesh->mBitangents[i].y;
+			vv.z = mesh->mBitangents[i].z;
+			vertices.emplace_back(vv.x);
+			vertices.emplace_back(vv.y);
+			vertices.emplace_back(vv.z);
 		}
 		else
 		{
-			vertex.Tangent = { 0,0,0 };
-			vertex.Tangent = { 0,0,0 };
+			vertices.emplace_back(0), vertices.emplace_back(0), vertices.emplace_back(0);
+			vertices.emplace_back(0), vertices.emplace_back(0), vertices.emplace_back(0);
 		}
 
-		vertices.push_back(vertex);
+		//vertices.emplace_back(vertex);
 	}
 	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -147,7 +154,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 
 
-std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
+std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
 	const std::string& typeName)
 {
 	std::vector<Texture2D> textures;
