@@ -38,6 +38,29 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	}
 }
 
+//from assimpviewer
+glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
+	glm::mat4 result;
+	aiMatrix4x4 transposed = ai_mat.Transpose();
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++)
+		{
+			result[i][j] = transposed[i][j];
+		}
+	}
+	return result;
+}
+void Model::AddWeight(
+	std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
+	GLuint bone_id, GLfloat weight)
+{
+	unsigned int stride = 3 + 3 + 2 + 3 + 3 + 3 + 3;
+	unsigned int idx = stride * vertex_index;
+	unsigned int id_offset = 14;// elems to right *sizeof(float);
+	vertices[idx + id_offset + bone_index] = bone_id;
+	vertices[idx + id_offset + 3 + bone_index] = weight;
+}
+
 MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<float> vertices;
@@ -49,6 +72,17 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	boolsarray.emplace_back(mesh->HasNormals());
 	boolsarray.emplace_back(mesh->HasTextureCoords(0));
 	boolsarray.emplace_back(mesh->HasTangentsAndBitangents());
+	boolsarray.emplace_back(mesh->HasBones());
+
+	//if (scene->HasAnimations()) {
+	//	for (size_t i = 0; i <  scene->mNumAnimations; i++)
+	//	{
+	//		aiAnimation* ai_animation = scene->mAnimations[i];
+	//		ai_animation
+
+
+
+
 
 	// Walk through each of the mesh's vertices
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -113,9 +147,14 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			vertices.emplace_back(0), vertices.emplace_back(0), vertices.emplace_back(0);
 			vertices.emplace_back(0), vertices.emplace_back(0), vertices.emplace_back(0);
 		}
-
+		if (mesh->HasBones()) {
+			//3IDs, 3Weights (ints)
+			vertices.emplace_back(0); vertices.emplace_back(0); vertices.emplace_back(0);
+			vertices.emplace_back(0); vertices.emplace_back(0); vertices.emplace_back(0);
+		}
 		//vertices.emplace_back(vertex);
 	}
+
 	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 	{
@@ -125,6 +164,83 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			indices.push_back(face.mIndices[j]);
 	}
 
+
+
+
+	if (mesh->HasBones())
+	{
+		std::vector<Joint> bones;
+		std::unordered_map<unsigned int, unsigned int> bonemap; //vertexid <> count
+
+		unsigned int m_NumBones = 0;
+
+		for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+ 			aiBone* ai_bone = mesh->mBones[i];
+			const std::string BoneName(mesh->mBones[i]->mName.data);
+
+			const unsigned int numWeights = mesh->mBones[i]->mNumWeights;
+
+			Joint joint(i, BoneName, AI2GLMMAT((mesh->mBones[i]->mOffsetMatrix)));
+			bones.emplace_back(joint);
+
+			for (unsigned int j = 0; j < numWeights; j++)
+			{
+				aiVertexWeight vw = ai_bone->mWeights[j];
+				if (bonemap.find(vw.mVertexId) == bonemap.end())
+				{
+					bonemap[vw.mVertexId] = 0;
+				}
+
+				if (bonemap[vw.mVertexId] < 4) {
+					AddWeight(vertices, vw.mVertexId, bonemap[vw.mVertexId]++, i, vw.mWeight);
+				}
+			}
+
+			//std::vector<aiVertexWeight> weights;
+			//auto* weightPtr = mesh->mBones[i]->mWeights;
+			//for (unsigned int j = 0; j < NrW; j++)
+			//{
+			//	weights.emplace_back(weightPtr[j]);
+			//
+			//
+			//}
+			//auto prev1 = weightPtr[0];
+			//auto prev2 = weightPtr[1];
+			//auto prev3 = weightPtr[2];
+			//
+			//std::copy(weightPtr, weightPtr + NrW,
+			//	(weights.begin()));
+			//
+			//std::sort(weights.begin(), weights.end(),
+			//	[](const aiVertexWeight& a, const aiVertexWeight& b) -> bool
+			//	{
+			//		return a.mWeight > b.mWeight;
+			//	});
+			//
+			//auto top1 = weights[0];
+			//auto top2 = weights[1];
+			//auto top3 = weights[2];
+			//
+			//if (bonemap.find(BoneName) == bonemap.end()) {
+			//	BoneIndex = m_NumBones;
+			//	m_NumBones++;
+			//	BoneInfo bi;
+			//	m_BoneInfo.push_back(bi);
+			//}
+			//else {
+			//	BoneIndex = m_BoneMapping[BoneName];
+			//}
+			//
+			//bonemap[BoneName] = BoneIndex;
+			//m_BoneInfo[BoneIndex].BoneOffset = mesh->mBones[i].mOffsetMatrix;
+			//
+			//for (uint j = 0; j < pMesh->mBones[i]->mNumWeights; j++) {
+			//	uint VertexID = m_Entries[MeshIndex].BaseVertex + pMesh->mBones[i]->mWeights[j].mVertexId;
+			//	float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
+			//	Bones[VertexID].AddBoneData(BoneIndex, Weight);
+			//
+		}
+	}
 
 	// process materials
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];

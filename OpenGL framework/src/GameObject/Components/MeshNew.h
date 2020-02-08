@@ -6,6 +6,7 @@ protected:
 	unsigned int VAO, VBO, EBO, vertexCount;
 	//vertex bools
 	bool pos_loaded, normals_loaded, UVs_loaded, tangents_loaded;
+	bool animation_loaded = false;
 
 	/*  Functions    */
 	void setupMesh();
@@ -17,18 +18,19 @@ public:
 
 	MeshNew() : indices(), m_textures() {};
 	~MeshNew() = default;
-	
+
 	MeshNew(
 		std::vector<float>& vertices,
 		std::vector <unsigned int>& indices,
 		std::vector <Texture2D>& textures,
 		std::vector<bool>& bools);
-	
+
 	void Draw(const GPUShader& shader);
 	bool hasPositions() const { return pos_loaded; }
 	bool hasNormals() const { return normals_loaded; }
 	bool hasUVs() const { return UVs_loaded; }
 	bool hasTangents() const { return tangents_loaded; }
+	bool hasAnimation() const { return animation_loaded; }
 	unsigned int GetVAO() { return VAO; }
 	unsigned int GetVBO() { return VBO; }
 	unsigned int GetEBO() { return EBO; }
@@ -41,6 +43,11 @@ public:
 	void SetVAO(unsigned int val) { VAO = val; }
 	void SetVBO(unsigned int val) { VBO = val; }
 	void SetEBO(unsigned int val) { EBO = val; }
+
+	//void AddWeight(std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
+	//	GLuint bone_id, GLfloat weight);
+
+	//void AddWeight(std::vector<float> vertices&, unsigned int vertex_index, unsigned int bone_index, GLuint bone_id, GLfloat weight);
 	//void AddTexture(const Texture2D& tex) { textures.emplace_back(tex); } 
 };
 

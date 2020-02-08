@@ -39,6 +39,7 @@ public:
 	void loadModel(const std::string& path);
 	static Model CreatePlane();
 	void processNode(aiNode *node, const aiScene *scene);
+	void AddWeight(std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index, GLuint bone_id, GLfloat weight);
 	MeshNew processMesh(aiMesh *mesh, const aiScene *scene);
 
 	std::vector<Texture2D> loadMaterialTextures(

@@ -110,7 +110,7 @@ int main(void)
 		ShaderManager::Init(); //init before any model
 
 		Model obj = Model("res/meshes/animation test/run2.dae", Model::LoadType::OBJLOAD);
-		obj.SetShader("basic");
+		obj.SetShader("anim");
 
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");

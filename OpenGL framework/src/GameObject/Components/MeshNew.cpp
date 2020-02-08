@@ -53,10 +53,12 @@ MeshNew::MeshNew(
 	this->indices = indices;
 	this->m_textures = textures;
 
+	//TODO: MAKE VERTEX BUFFER DYNAMIC!
 	pos_loaded = bools[0];
 	normals_loaded = bools[1];
 	UVs_loaded = bools[2];
 	tangents_loaded = bools[3];
+	animation_loaded = bools[4];
 
 	setupMesh();
 
@@ -86,11 +88,13 @@ void MeshNew::setupMesh()
 	unsigned int normalSize = 3 * sizeof(float);
 	unsigned int uvSize = 2 * sizeof(float);
 	unsigned int tangentSize = 6 * sizeof(float);
+	unsigned int bonesSize = 6 * sizeof(float);
 
 
-	if ( hasNormals()) stride += normalSize; //xyz normal
-	if ( hasUVs()) stride += uvSize;  //uv tex
-	if ( hasTangents()) stride += tangentSize; //xyz xyz bitangents
+	if (hasNormals()) stride += normalSize; //xyz normal
+	if (hasUVs()) stride += uvSize;  //uv tex
+	if (hasTangents()) stride += tangentSize; //xyz xyz bitangents
+	if (hasAnimation()) stride += bonesSize; //xyz xyz bitangents
 
    //const GLint stride = sizeof(VertexNew);
    //const GLint normalPos = offsetof(VertexNew, Normal);
@@ -117,16 +121,27 @@ void MeshNew::setupMesh()
 	}
 
 	if (hasTangents()) {
-		offset += tangentSize/2;
+		offset += tangentSize / 2;
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
-		
+
 		offset += tangentSize / 2;
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
 	}
 
-	glBindVertexArray(0); 
+	if (hasAnimation()) {
+		offset += 3 * sizeof(float);
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+
+		offset += 3 * sizeof(float);
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+
+	}
+
+	glBindVertexArray(0);
 }
 
 

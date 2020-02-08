@@ -6,7 +6,7 @@ class Joint
 	std::vector<Joint> Children;
 	glm::mat4 mat_local;
 	glm::mat4 inv_mat;
-
+public:
 	Joint(int idx, const std::string& _name, const glm::mat4& local_mat)
 		:
 		Index(idx), Name(_name), mat_local( local_mat )
