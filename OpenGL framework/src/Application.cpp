@@ -1,7 +1,86 @@
 #include "precomp.h"
 
+
+//template<class T>
+//struct A {
+//	std::vector<T> meme;
+//	A(T t) { meme.emplace_back(t); }
+//};
+//
+//template<typename  ... rest >
+//struct V {
+//	std::vector<...rest> v;
+//	V(rest ... args)
+//	{
+//		v.emplace_back( args);
+//	}
+//};
 int main(void)
 {
+	//V<float, int> v(1.0f, 3);
+	//
+	//A< V<float, int> > aa(v);
+
+	//VertexBufferLayout vbl;
+	//vbl.Push<float>(3);
+	//vbl.Push<unsigned int>(3);
+	//VertexBuffer vb;  
+	//vb.BufferSubData()
+	//struct Vee {
+	//	Vee(float _a, double _b, unsigned int _c) : a(_a), b(_b), c(_c) {};
+	//	float a;
+	//	double b;
+	//	unsigned int c;
+	//	//int  padding = -1.0 ;
+	//};
+	//auto vesize = sizeof(Vee);
+	//void* arr = (void*)malloc(2 * vesize );
+	
+
+	//Vee xx(22.3f, 34.5f, 15u);;
+	//*((Vee*) arr + 0)  = xx;
+	//
+	// //*((float*)arr + 0) = 22.3f;
+	// //*((double*)arr + 1) = 34.5f;
+	// //*((unsigned int*)arr + 2) = 15u;
+	//
+	//
+	// 
+	// auto a =  ((float*)arr)[0] ; ;
+	// auto b =  ((double*)arr)[1] ; ;
+	// auto c =  ((unsigned int*)arr)[4] ; ;
+	 
+	// int x = 121;
+	//V<float, int> sas;
+	//s.meme.emplace_back();
+
+	//char* ss = (char*)malloc(2 * sizeof(float) + 1 * sizeof(double));//{0.0f, 0.1989, 1u}
+	//*(((float*)ss) + 0) = 0.1f; //4bytes
+	//*(((double*)ss) + 4) = 0.1989; //
+	//*(((unsigned int*)ss) + 12) = 159u;
+	//
+	//
+	//float a = (float)ss[0];
+	//double b = (double)ss[4];
+	//unsigned int c = (unsigned int)ss[12];
+	//
+
+	//template <class myType>
+	//myType GetMax(myType a, myType b) {
+	//	return (a > b ? a : b);
+	//}
+
+
+
+
+	glm::quat q();
+
+
+
+
+
+
+
 	if (!glfwInit()) return -1;
 
 
@@ -29,10 +108,10 @@ int main(void)
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
 		ShaderManager::Init(); //init before any model
- 
-		Model obj = Model("res/meshes/nanosuit/nanosuit.obj", Model::LoadType::OBJLOAD);
-		obj.SetShader("normalmapshader");
-	 
+
+		Model obj = Model("res/meshes/animation test/run2.dae", Model::LoadType::OBJLOAD);
+		obj.SetShader("basic");
+
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");
 		cube.meshes[0].m_textures.emplace_back(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
@@ -74,7 +153,7 @@ int main(void)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(lineverts), &lineverts, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-		
+
 		//glEnableVertexAttribArray(1);
 		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
@@ -172,7 +251,7 @@ int main(void)
 		//
 		// Render loop
 		//
-		//obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
+		 //obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -215,17 +294,17 @@ int main(void)
 			if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 				camera.RotateXlocal(-.01f);
 			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-				lightpos += 2 * camSpeed* glm::vec3(-1, 0, 0);
+				lightpos += 2 * camSpeed * glm::vec3(-1, 0, 0);
 			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-				lightpos += 2 * camSpeed*glm::vec3(1, 0, 0);
+				lightpos += 2 * camSpeed * glm::vec3(1, 0, 0);
 			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-				lightpos += 2 * camSpeed*glm::vec3(0, 0, -1);
+				lightpos += 2 * camSpeed * glm::vec3(0, 0, -1);
 			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-				lightpos += 2 * camSpeed*glm::vec3(0, 0, 1);
+				lightpos += 2 * camSpeed * glm::vec3(0, 0, 1);
 			if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-				lightpos += 2 * camSpeed*glm::vec3(0, 1, 0);
+				lightpos += 2 * camSpeed * glm::vec3(0, 1, 0);
 			if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-				lightpos += 2 * camSpeed*glm::vec3(0, -1, 0);
+				lightpos += 2 * camSpeed * glm::vec3(0, -1, 0);
 
 
 			*camera.Position() += camMovement;
@@ -265,7 +344,7 @@ int main(void)
 			ImGui::Text("ms %f", avgfps);
 
 			if (frametimes.size() >= 30) frametimes.clear();
-			
+
 			framebuffer.Bind();
 			//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 			glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
@@ -273,12 +352,12 @@ int main(void)
 			// make sure we clear the framebuffer's content
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			
+
 			obj.GetShader().Bind();
 			obj.GetShader().setVec3("lightPos", { 0,5,0 });
 			obj.GetShader().setVec3("viewPos", camera.PositionRead());
 			obj.GetShader().Unbind();
-			
+
 			obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);

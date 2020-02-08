@@ -1,5 +1,5 @@
 #pragma once
- 
+
 struct VertexBufferElement
 {
 	unsigned int type;
@@ -28,7 +28,7 @@ private:
 
 public:
 	VertexBufferLayout() : m_Stride(0) {}
-	~VertexBufferLayout();
+	//~VertexBufferLayout() {};
 
 	template<typename T>
 	void Push(unsigned int count)
@@ -39,11 +39,11 @@ public:
 	template<>
 	void Push<float>(unsigned int count)
 	{
-		 m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
-		 m_Stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
+		m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
+		m_Stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
 		//m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
 		//m_Stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
- 	}
+	}
 
 	template<>
 	void Push<unsigned int>(unsigned int count)

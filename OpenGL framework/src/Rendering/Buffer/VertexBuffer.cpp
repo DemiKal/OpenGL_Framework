@@ -3,17 +3,15 @@
 
 VertexBuffer::VertexBuffer(const void* data, unsigned int size)
 {
-	auto* rec = (float*)data;
-
-		GLCall(glGenBuffers(1, &m_rendererID));
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_rendererID));
-		GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+	GLCall(glGenBuffers(1, &m_rendererID));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_rendererID));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 }
 
 
 void VertexBuffer::InterleaveVertexData(
 	const  std::vector<float>& position,
-	const std::vector<float>&  uvs) const
+	const std::vector<float>& uvs) const
 {
 	//const unsigned int posSize = position.size() * sizeof(float);
 	//GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, posSize, &position[0]));
@@ -27,9 +25,9 @@ void VertexBuffer::InterleaveVertexData(
 
 void VertexBuffer::BufferSubData(
 	const std::vector<float>& position,
-	const std::vector<float>&  uvs) const
+	const std::vector<float>& uvs) const
 {
-	 	//glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+	//glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
 	//glEnableVertexAttribArray(0);    // We like submitting vertices on stream 0 for no special reason
 	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)0 );      // The starting point of the VBO, for the vertices
 	//glEnableVertexAttribArray(1);    // We like submitting normals on stream 1 for no special reason

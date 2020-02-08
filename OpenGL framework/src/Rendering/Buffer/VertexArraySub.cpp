@@ -33,12 +33,12 @@ void  VertexArraySub::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout
 	//
 
 	const auto& elements = layout.GetElements();
+	int stride = layout.GetStride();
 	unsigned int offset = 0;
 
 	for (unsigned int i = 0; i < elements.size(); i++)
 	{
 		const auto& element = elements[i];
-		int stride = layout.GetStride();
 		GLCall(glEnableVertexAttribArray(i));
 		GLCall(glVertexAttribPointer(i, element.count,
 			element.type, element.normalized, stride, (const void*)offset));

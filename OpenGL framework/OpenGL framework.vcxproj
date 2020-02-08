@@ -89,6 +89,11 @@
     <None Include="res\shaders\plane.glsl" />
     <None Include="res\shaders\testshader.glsl" />
     <None Include="src\fbo test.cpp" />
+    <ClCompile Include="src\Animation\Animator.cpp" />
+    <ClCompile Include="src\Animation\JointTransform.cpp" />
+    <ClCompile Include="src\Animation\Keyframe.cpp" />
+    <ClCompile Include="src\Animation\Animation.cpp" />
+    <ClCompile Include="src\Animation\Joint.cpp" />
     <ClCompile Include="src\Rendering\Buffer\FrameBuffer.cpp" />
     <ClCompile Include="src\Rendering\Buffer\RenderBufferObject.cpp" />
     <ClCompile Include="src\Rendering\ShaderManager.cpp" />
@@ -263,6 +268,11 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Animation\Animator.h" />
+    <ClInclude Include="src\Animation\JointTransform.h" />
+    <ClInclude Include="src\Animation\Keyframe.h" />
+    <ClInclude Include="src\Animation\Animation.h" />
+    <ClInclude Include="src\Animation\Joint.h" />
     <ClInclude Include="src\Rendering\Buffer\FrameBuffer.h" />
     <ClInclude Include="src\Rendering\Buffer\RenderBufferObject.h" />
     <ClInclude Include="src\Rendering\ShaderManager.h" />

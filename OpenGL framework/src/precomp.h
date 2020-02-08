@@ -8,6 +8,8 @@ const int SCREENHEIGHT = 720;
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+//#include <glm/gtx/matrix_interpolation.hpp>
 
 #include <iostream>
 #include <vector>
@@ -75,10 +77,17 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Animation/Joint.h"
+#include "Animation/Keyframe.h"
+#include "Animation/Animation.h"
+#include "Animation/JointTransform.h"
+#include "Animation/Animator.h"
 
 #include "GameObject/Components/Mesh.h"
 #include "GameObject/Components/MeshNew.h"
 #include "GameObject/Components/Model.h"
+
+
 
 
 
