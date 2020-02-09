@@ -225,12 +225,6 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 
 	if (mesh->HasBones())
 	{
-		//void applyHierarchy(std::shared_ptr<Armature> arma, Joint & joint) 
-		//{
-		//	
-		//}
-
-
 		std::vector<Joint> bones;
 		std::vector< std::unordered_map<unsigned int, float>> bonemapping;
 		bonemapping.resize(mesh->mNumVertices);
@@ -248,8 +242,6 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
 
 			FindChildren(armature, joint, bonesDict);
-
-
 			bones.emplace_back(joint);
 
 			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
@@ -304,7 +296,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			}
 		}
 	}
-
+	
 	if (scene->HasAnimations()) {
 		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 			aiAnimation* anim = scene->mAnimations[i];
@@ -342,15 +334,14 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 				{
 					aiVectorKey ai_key = ai_channel->mScalingKeys[k];
 					std::pair<float, glm::vec3>
-						scalingKey = { ai_key.mTime ,glm::vec3{ ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z } };
+						scalingKey = { ai_key.mTime,
+						glm::vec3(ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z) };
 
 					scalingKeys.emplace_back(scalingKey);
 				}
 			}
 		}
 	}
-	Animation anim;
-	anim.keyframes
 
 	// process materials
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -376,7 +367,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, textures, boolsarray, bones, bonesDict);
+	return MeshNew(vertices, indices, textures, boolsarray);
 }
 
 

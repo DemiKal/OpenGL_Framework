@@ -30,7 +30,7 @@ int main(void)
 		renderer.SetAlphaBlending(true);
 		ShaderManager::Init(); //init before any model
 
-		Model obj = Model("res/meshes/animation test/new run.dae", Model::LoadType::OBJLOAD);
+		Model obj = Model("res/meshes/animation test/run.glb", Model::LoadType::OBJLOAD);
 		obj.SetShader("anim");
 
 		Model cube = Model::CreateCube();
