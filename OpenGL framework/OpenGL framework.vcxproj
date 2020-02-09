@@ -90,6 +90,7 @@
     <None Include="res\shaders\plane.glsl" />
     <None Include="res\shaders\testshader.glsl" />
     <None Include="src\fbo test.cpp" />
+    <ClCompile Include="src\Animation\AnimationChannel.cpp" />
     <ClCompile Include="src\Animation\Animator.cpp" />
     <ClCompile Include="src\Animation\JointTransform.cpp" />
     <ClCompile Include="src\Animation\Keyframe.cpp" />
@@ -269,6 +270,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Animation\AnimationChannel.h" />
     <ClInclude Include="src\Animation\Animator.h" />
     <ClInclude Include="src\Animation\JointTransform.h" />
     <ClInclude Include="src\Animation\Keyframe.h" />

@@ -47,11 +47,13 @@ MeshNew::MeshNew(
 	std::vector<float>& vertices,
 	std::vector<unsigned>& indices,
 	std::vector<Texture2D>& textures,
-	std::vector<bool>& bools)
+	std::vector<bool>& bools,
+	Animator& animator)
 {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->m_textures = textures;
+	this->m_animator =  animator ;
 
 	//TODO: MAKE VERTEX BUFFER DYNAMIC!
 	pos_loaded = bools[0];

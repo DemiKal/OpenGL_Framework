@@ -13,6 +13,10 @@ public:
 		Index(idx), Name(_name), mat_local(local_mat), inv_mat(glm::inverse(local_mat)), childrenPair()
 	{};
 
+	Joint()
+		: Index(-1), Name(""), Children(), mat_local(glm::mat4(1.0f)),	
+		inv_mat(glm::mat4(1.0f)), childrenPair() {};
+
 	std::string GetName() {
 		return Name;
 	}

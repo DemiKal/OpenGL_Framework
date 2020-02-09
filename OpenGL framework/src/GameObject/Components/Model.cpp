@@ -223,6 +223,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			indices.push_back(face.mIndices[j]);
 	}
 
+	Animator  animator;
+	 
 	if (mesh->HasBones())
 	{
 		std::vector<Joint> bones;
@@ -262,6 +264,10 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			}
 		}
 
+		//copy bones
+		animator.m_bones.resize(bones.size());
+		std::copy(bones.begin(), bones.end(), animator.m_bones.begin());
+
 		for (size_t i = 0; i < bonemapping.size(); i++) {
 
 			float sum = 0;
@@ -296,18 +302,26 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			}
 		}
 	}
-	
+
+
+
 	if (scene->HasAnimations()) {
 		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 			aiAnimation* anim = scene->mAnimations[i];
 			const std::string name = anim->mName.C_Str();
 			float ticks = anim->mTicksPerSecond;
 			float duration = anim->mDuration;
+			animator.m_duration = duration;
+			animator.m_ticks = ticks;
+
+
+			std::vector<AnimationChannel> AnimationChannels;
 
 			for (size_t j = 0; j < anim->mNumChannels; j++)
 			{
-				aiNodeAnim* ai_channel = anim->mChannels[j];
-				std::string name = ai_channel->mNodeName.C_Str();
+				const aiNodeAnim* ai_channel = anim->mChannels[j];
+				const std::string channelName = ai_channel->mNodeName.C_Str();
+
 				std::vector< std::pair<float, glm::vec3>> positionkeys;
 				std::vector< std::pair<float, glm::quat>> rotationKeys;
 				std::vector< std::pair<float, glm::vec3>> scalingKeys;
@@ -339,7 +353,13 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 
 					scalingKeys.emplace_back(scalingKey);
 				}
+
+				AnimationChannels.emplace_back(AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys));
+
 			}
+
+			Animation animation(duration, AnimationChannels);
+			animator.current =  animation ;
 		}
 	}
 
@@ -367,7 +387,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, textures, boolsarray);
+	return MeshNew(vertices, indices, textures, boolsarray, animator);
 }
 
 

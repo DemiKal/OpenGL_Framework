@@ -77,6 +77,7 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Animation/AnimationChannel.h"
 #include "Animation/Joint.h"
 #include "Animation/Keyframe.h"
 #include "Animation/Animation.h"

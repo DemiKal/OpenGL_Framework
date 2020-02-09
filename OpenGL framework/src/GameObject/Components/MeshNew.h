@@ -15,15 +15,20 @@ public:
 	std::vector<float> vertices; //TODO make it dynamic for ints and others
 	std::vector<unsigned int> indices;
 	std::vector<Texture2D> m_textures;
-
-	MeshNew() : indices(), m_textures() {};
+	Animator m_animator;
+	
+	MeshNew() : indices(), m_textures(), VAO(0), VBO(0), EBO(0), vertexCount(0),
+		pos_loaded(0), normals_loaded(0), UVs_loaded(0), tangents_loaded(0)
+	{};
+	
 	~MeshNew() = default;
-
+	//MeshNew(MeshNew& a) = default;
 	MeshNew(
 		std::vector<float>& vertices,
 		std::vector <unsigned int>& indices,
 		std::vector <Texture2D>& textures,
-		std::vector<bool>& bools);
+		std::vector<bool>& bools,
+		Animator& animator);
 
 	void Draw(const GPUShader& shader);
 	bool hasPositions() const { return pos_loaded; }
