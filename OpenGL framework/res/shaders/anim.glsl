@@ -11,7 +11,7 @@ layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoord;
 layout(location = 3) in vec3 aTangent;
 layout(location = 4) in vec3 aBitangent;
-layout(location = 5) in vec3 BoneIDs;
+layout(location = 5) in vec3 BoneIDs; //TODO: convert to ivec3!
 layout(location = 6) in vec3 weights;
 
 //out vec2 v_TexCoord;

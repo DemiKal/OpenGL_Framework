@@ -1,10 +1,48 @@
 #include "precomp.h"
+//from assimpviewer
+glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
+	glm::mat4 result;
+	aiMatrix4x4 transposed = ai_mat.Transpose();
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++)
+		{
+			result[i][j] = transposed[i][j];
+		}
+	}
+	return result;
+}
 
 void Model::SetShader(const std::string& shadername)
 {
 	shaderIdx = ShaderManager::getShaderIdx(shadername);
 }
 
+
+
+
+void CreateHierarchy(std::shared_ptr<Model::Armature> parentArmature, aiNode* node)
+{
+	//Model::Armature* arma = new Model::Armature; //ptr?
+	//arma.name = node->mName.C_Str();
+	//arma.mat =	AI2GLMMAT(node->mTransformation);
+
+	std::shared_ptr<Model::Armature> me = std::make_shared<Model::Armature>();
+	me->name = node->mName.C_Str();
+	me->mat = AI2GLMMAT(node->mTransformation);
+	me->parent = parentArmature;
+
+	parentArmature->children.push_back(me);
+
+	// then do the same for each of its children
+	for (unsigned int i = 0; i < node->mNumChildren; i++)
+	{
+		CreateHierarchy(me, node->mChildren[i]);
+	}
+
+
+
+
+}
 
 void Model::loadModel(const std::string& path)
 {
@@ -19,37 +57,42 @@ void Model::loadModel(const std::string& path)
 	}
 	directory = path.substr(0, path.find_last_of('/'));
 
-	processNode(scene->mRootNode, scene);
+	std::shared_ptr <Armature > armature = std::make_shared<Armature>();
+	armature->name = scene->mRootNode->mName.C_Str();
+	armature->mat = AI2GLMMAT(scene->mRootNode->mTransformation);
+	armature->parent = nullptr;
 
+	CreateHierarchy(armature, scene->mRootNode);
+
+	processNode(scene->mRootNode, scene, armature);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene)
+
+void Model::processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature> armature)
 {
+	//auto mat = node->mTransformation;
+	//auto glmmat = AI2GLMMAT(mat);
+	//auto name = node->mName;
+
+	//Armature new_armature;
+	//new_armature.name = name.C_Str();
+
+	//armature.children.emplace_back(new_armature);
+
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		meshes.push_back(processMesh(mesh, scene, armature));
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene);
+		processNode(node->mChildren[i], scene, armature);
 	}
 }
 
-//from assimpviewer
-glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
-	glm::mat4 result;
-	aiMatrix4x4 transposed = ai_mat.Transpose();
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++)
-		{
-			result[i][j] = transposed[i][j];
-		}
-	}
-	return result;
-}
+
 void Model::AddWeight(
 	std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
 	GLuint bone_id, GLfloat weight)
@@ -61,11 +104,27 @@ void Model::AddWeight(
 	vertices[idx + id_offset + 3 + bone_index] = weight;
 }
 
-MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
+void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
+	std::unordered_map<std::string, unsigned int > bonesDict) {
+
+	if (arma->name == joint.GetName())
+	{
+		for (int i = 0; i < arma->children.size(); i++)
+		{
+			joint.childrenPair.emplace_back(
+				std::make_pair(arma->children[i]->name, bonesDict[arma->children[i]->name]));
+		}
+		return;
+	}
+	for (int i = 0; i < arma->children.size(); i++)
+		FindChildren(arma->children[i], joint, bonesDict);
+}
+
+MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
 {
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
-
+	const unsigned int BONESPERVERTEX = 3;
 
 	std::vector<bool> boolsarray;
 	boolsarray.emplace_back(mesh->HasPositions());
@@ -166,12 +225,33 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 	if (mesh->HasBones())
 	{
+		//void applyHierarchy(std::shared_ptr<Armature> arma, Joint & joint) 
+		//{
+		//	
+		//}
+
+
 		std::vector<Joint> bones;
 		std::vector< std::unordered_map<unsigned int, float>> bonemapping;
 		bonemapping.resize(mesh->mNumVertices);
 
+		std::unordered_map<std::string, unsigned int> bonesDict;
 		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++) {
 			aiBone* ai_bone = mesh->mBones[boneIdx];
+			std::string boneName = ai_bone->mName.C_Str();
+			bonesDict[boneName] = boneIdx;
+		}
+
+		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++) {
+			aiBone* ai_bone = mesh->mBones[boneIdx];
+			std::string boneName = ai_bone->mName.C_Str();
+			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
+
+			FindChildren(armature, joint, bonesDict);
+
+
+			bones.emplace_back(joint);
+
 			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
 
 			for (int j = 0; j < numWeights; j++) {
@@ -188,10 +268,9 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 					ASSERT(false);
 				}
 			}
-
 		}
 
-		for (unsigned int i = 0; i < bonemapping.size(); i++) {
+		for (size_t i = 0; i < bonemapping.size(); i++) {
 
 			float sum = 0;
 			for (auto& bm : bonemapping[i]) sum += bm.second;
@@ -216,24 +295,62 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 			}
 
-			int j = 0;
+			size_t j = 0;
 			for (auto& bm : bonemapping[i]) {
 				vertices[20 * i + 14 + j] = bm.first;
 				vertices[20 * i + 14 + 3 + j] = bm.second;
 				j++;
-				if (j >= 3) break;
+				if (j >= BONESPERVERTEX) break;
 			}
 		}
 	}
 
 	if (scene->HasAnimations()) {
-		for (unsigned int i = 0; i < scene->mNumAnimations; i++)
+		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 			aiAnimation* anim = scene->mAnimations[i];
+			const std::string name = anim->mName.C_Str();
+			float ticks = anim->mTicksPerSecond;
+			float duration = anim->mDuration;
 
+			for (size_t j = 0; j < anim->mNumChannels; j++)
+			{
+				aiNodeAnim* ai_channel = anim->mChannels[j];
+				std::string name = ai_channel->mNodeName.C_Str();
+				std::vector< std::pair<float, glm::vec3>> positionkeys;
+				std::vector< std::pair<float, glm::quat>> rotationKeys;
+				std::vector< std::pair<float, glm::vec3>> scalingKeys;
 
+				for (size_t k = 0; k < ai_channel->mNumPositionKeys; k++)
+				{
+					aiVectorKey ai_key = ai_channel->mPositionKeys[k];
+					std::pair<float, glm::vec3> positionKey
+						= { ai_key.mTime , glm::vec3{ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z } };
+
+					positionkeys.emplace_back(positionKey);
+				}
+
+				for (size_t k = 0; k < ai_channel->mNumRotationKeys; k++)
+				{
+					aiQuatKey ai_key = ai_channel->mRotationKeys[k];
+					std::pair<float, glm::quat> rotationKey
+						= { ai_key.mTime, glm::quat{ ai_key.mValue.w, ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z  } };
+
+					rotationKeys.emplace_back(rotationKey);
+				}
+
+				for (size_t k = 0; k < ai_channel->mNumScalingKeys; k++)
+				{
+					aiVectorKey ai_key = ai_channel->mScalingKeys[k];
+					std::pair<float, glm::vec3>
+						scalingKey = { ai_key.mTime ,glm::vec3{ ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z } };
+
+					scalingKeys.emplace_back(scalingKey);
+				}
+			}
+		}
 	}
-
-
+	Animation anim;
+	anim.keyframes
 
 	// process materials
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -259,7 +376,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, textures, boolsarray);
+	return MeshNew(vertices, indices, textures, boolsarray, bones, bonesDict);
 }
 
 

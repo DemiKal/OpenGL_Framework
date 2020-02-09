@@ -3,11 +3,21 @@
 class Model
 {
 public:
-	enum LoadType {
+	enum class LoadType {
 		OBJLOAD,
 		PLANE,
 		CUBE
 	};
+
+	struct  Armature {
+		std::string name;
+		int id;
+		std::vector<std::shared_ptr<Armature>> children;
+		std::shared_ptr< Armature> parent;
+		glm::mat4 mat;
+		
+	};
+
 	glm::mat4 model;
 	std::vector<MeshNew> meshes;
 	std::string directory;
@@ -21,13 +31,7 @@ public:
 	Model(const std::string& path, LoadType type) :
 		model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0)
 	{
-		
-		switch (type) 
-		{
-			case OBJLOAD: loadModel(path);
-			case PLANE:
-			case CUBE:;
-		}
+		loadModel(path);
 	}
 
 	glm::mat4 GetModelMatrix() { return model; }
@@ -38,9 +42,9 @@ public:
 	static Model CreateCube();
 	void loadModel(const std::string& path);
 	static Model CreatePlane();
-	void processNode(aiNode *node, const aiScene *scene);
+	void processNode(aiNode *node, const aiScene *scene, std::shared_ptr<Armature>  armature  );
 	void AddWeight(std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index, GLuint bone_id, GLfloat weight);
-	MeshNew processMesh(aiMesh *mesh, const aiScene *scene);
+	MeshNew processMesh(aiMesh *mesh, const aiScene *scene, std::shared_ptr <Armature> armature);
 
 	std::vector<Texture2D> loadMaterialTextures(
 		aiMaterial* mat, aiTextureType type, const std::string& typeName);
