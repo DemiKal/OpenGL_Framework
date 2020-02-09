@@ -56,7 +56,7 @@ void Model::AddWeight(
 {
 	unsigned int stride = 3 + 3 + 2 + 3 + 3 + 3 + 3;
 	unsigned int idx = stride * vertex_index;
-	unsigned int id_offset = 14;// elems to right *sizeof(float);
+	unsigned int id_offset = 13;// elems to right *sizeof(float);
 	vertices[idx + id_offset + bone_index] = bone_id;
 	vertices[idx + id_offset + 3 + bone_index] = weight;
 }
@@ -164,83 +164,76 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			indices.push_back(face.mIndices[j]);
 	}
 
-
-
-
 	if (mesh->HasBones())
 	{
 		std::vector<Joint> bones;
-		std::unordered_map<unsigned int, unsigned int> bonemap; //vertexid <> count
+		std::vector< std::unordered_map<unsigned int, float>> bonemapping;
+		bonemapping.resize(mesh->mNumVertices);
 
-		unsigned int m_NumBones = 0;
+		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++) {
+			aiBone* ai_bone = mesh->mBones[boneIdx];
+			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
 
-		for (unsigned int i = 0; i < mesh->mNumBones; i++) {
- 			aiBone* ai_bone = mesh->mBones[i];
-			const std::string BoneName(mesh->mBones[i]->mName.data);
-
-			const unsigned int numWeights = mesh->mBones[i]->mNumWeights;
-
-			Joint joint(i, BoneName, AI2GLMMAT((mesh->mBones[i]->mOffsetMatrix)));
-			bones.emplace_back(joint);
-
-			for (unsigned int j = 0; j < numWeights; j++)
-			{
+			for (int j = 0; j < numWeights; j++) {
 				aiVertexWeight vw = ai_bone->mWeights[j];
-				if (bonemap.find(vw.mVertexId) == bonemap.end())
-				{
-					bonemap[vw.mVertexId] = 0;
-				}
+				const unsigned int v_idx = vw.mVertexId;
+				const float v_w = vw.mWeight;
 
-				if (bonemap[vw.mVertexId] < 4) {
-					AddWeight(vertices, vw.mVertexId, bonemap[vw.mVertexId]++, i, vw.mWeight);
+				if (bonemapping[v_idx].find(boneIdx) == bonemapping[v_idx].end())
+				{
+					bonemapping[v_idx][boneIdx] = v_w;
+				}
+				else
+				{
+					ASSERT(false);
 				}
 			}
 
-			//std::vector<aiVertexWeight> weights;
-			//auto* weightPtr = mesh->mBones[i]->mWeights;
-			//for (unsigned int j = 0; j < NrW; j++)
-			//{
-			//	weights.emplace_back(weightPtr[j]);
-			//
-			//
-			//}
-			//auto prev1 = weightPtr[0];
-			//auto prev2 = weightPtr[1];
-			//auto prev3 = weightPtr[2];
-			//
-			//std::copy(weightPtr, weightPtr + NrW,
-			//	(weights.begin()));
-			//
-			//std::sort(weights.begin(), weights.end(),
-			//	[](const aiVertexWeight& a, const aiVertexWeight& b) -> bool
-			//	{
-			//		return a.mWeight > b.mWeight;
-			//	});
-			//
-			//auto top1 = weights[0];
-			//auto top2 = weights[1];
-			//auto top3 = weights[2];
-			//
-			//if (bonemap.find(BoneName) == bonemap.end()) {
-			//	BoneIndex = m_NumBones;
-			//	m_NumBones++;
-			//	BoneInfo bi;
-			//	m_BoneInfo.push_back(bi);
-			//}
-			//else {
-			//	BoneIndex = m_BoneMapping[BoneName];
-			//}
-			//
-			//bonemap[BoneName] = BoneIndex;
-			//m_BoneInfo[BoneIndex].BoneOffset = mesh->mBones[i].mOffsetMatrix;
-			//
-			//for (uint j = 0; j < pMesh->mBones[i]->mNumWeights; j++) {
-			//	uint VertexID = m_Entries[MeshIndex].BaseVertex + pMesh->mBones[i]->mWeights[j].mVertexId;
-			//	float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
-			//	Bones[VertexID].AddBoneData(BoneIndex, Weight);
-			//
+		}
+
+		for (unsigned int i = 0; i < bonemapping.size(); i++) {
+
+			float sum = 0;
+			for (auto& bm : bonemapping[i]) sum += bm.second;
+
+			if (fabs(sum - 1) > 0.01) //renormalize values!
+			{
+				std::vector<std::pair<unsigned int, float>> vec;
+				std::for_each(bonemapping[i].begin(), bonemapping[i].end(),
+					[&](const std::pair<unsigned int, float>& element) {
+						vec.push_back(element);
+					});
+
+				std::sort(vec.begin(), vec.end(),
+					[](const std::pair<unsigned int, float>& L,
+						const std::pair<unsigned int, float>& R) {
+							return L.second < R.second;
+					});
+
+				for (auto& bm : bonemapping[i]) {
+					bm.second = bm.second / sum;
+				}
+
+			}
+
+			int j = 0;
+			for (auto& bm : bonemapping[i]) {
+				vertices[20 * i + 14 + j] = bm.first;
+				vertices[20 * i + 14 + 3 + j] = bm.second;
+				j++;
+				if (j >= 3) break;
+			}
 		}
 	}
+
+	if (scene->HasAnimations()) {
+		for (unsigned int i = 0; i < scene->mNumAnimations; i++)
+			aiAnimation* anim = scene->mAnimations[i];
+
+
+	}
+
+
 
 	// process materials
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -338,7 +331,6 @@ void Model::Draw(const Camera& cam)
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", proj);
-
 
 	for (auto& mesh : meshes)
 		mesh.Draw(shader);
