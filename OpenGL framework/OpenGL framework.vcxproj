@@ -277,6 +277,7 @@
     <ClInclude Include="src\Animation\Keyframe.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\Joint.h" />
+    <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Rendering\Buffer\FrameBuffer.h" />
     <ClInclude Include="src\Rendering\Buffer\RenderBufferObject.h" />
     <ClInclude Include="src\Rendering\ShaderManager.h" />

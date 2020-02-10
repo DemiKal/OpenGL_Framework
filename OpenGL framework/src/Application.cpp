@@ -1,4 +1,7 @@
 #include "precomp.h"
+
+
+
 std::vector<glm::vec3> FindChildren(Model& obj, Joint& joint)
 {
 	std::vector<glm::vec3> children;
@@ -30,10 +33,8 @@ void UpdateHierarchy(Joint& current, std::vector<Joint>& bones, const glm::mat4&
 	glm::mat4 currentMat = parentMat * current.pose_transform;
 	current.pose_transform = inverse_root * currentMat * current.offset;
 
-	for (auto& cp : current.childrenPair) {
-		Joint& child = bones[cp.second];
-		UpdateHierarchy(child, bones, currentMat, inverse_root);
-	}
+	for (auto& cp : current.childrenPair)
+		UpdateHierarchy(bones[cp.second], bones, currentMat, inverse_root);
 }
 
 int main(void)
@@ -119,18 +120,16 @@ int main(void)
 		}
 		boneverts.clear();
 		//GetArmatureVertices(obj.armature, boneverts);
-		UpdateHierarchy(obj.meshes[0].m_animator.m_bones[0], obj.meshes[0].m_animator.m_bones,
-			glm::mat4(1.0f), obj.inverse_root);
 
 
-		unsigned int boneVAO, boneVBO;
-		glGenVertexArrays(1, &boneVAO);
-		glGenBuffers(1, &boneVBO);
-		glBindVertexArray(boneVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, boneVBO);
-		glBufferData(GL_ARRAY_BUFFER, boneverts.size() * sizeof(glm::vec3), &boneverts[0], GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		//unsigned int boneVAO, boneVBO;
+		//glGenVertexArrays(1, &boneVAO);
+		//glGenBuffers(1, &boneVBO);
+		//glBindVertexArray(boneVAO);
+		//glBindBuffer(GL_ARRAY_BUFFER, boneVBO);
+		//glBufferData(GL_ARRAY_BUFFER, boneverts.size() * sizeof(glm::vec3), &boneverts[0], GL_STATIC_DRAW);
+		//glEnableVertexAttribArray(0);
+		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 		//
 		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -264,16 +263,16 @@ int main(void)
 		// Render loop
 		//
 		//obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
-
+		double prevFrameTime = glfwGetTime();
 		while (!glfwWindowShouldClose(window))
 		{
+			double currentFrameTime = glfwGetTime();
 			ImGui_ImplGlfwGL3_NewFrame();
-
-			i++;
-			double currenttime = glfwGetTime();
-
-			rot += 0.005f;
 			glfwGetCursorPos(window, &mouseXnew, &mouseYnew);
+
+#pragma region input
+			i++;
+			rot += 0.005f;
 
 			float camSpeed = 0.05f;
 			glm::vec3 camMovement = glm::vec3();
@@ -282,8 +281,6 @@ int main(void)
 
 			int mb = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
 			ImGui::Text("mouse click %s", mb ? "true" : "false");
-
-#pragma region input
 			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 				camMovement += camSpeed * forward;
 			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -324,27 +321,10 @@ int main(void)
 			float signY = (float)glm::sign(mouseYold - mouseYnew);
 			glm::vec2 mDiff = glm::vec2(signX, signY);
 			glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
-#pragma endregion input
-
-
-
-			//	renderer.Clear();
-				///test / (float)
 
 			const glm::mat4 mvp = t.GetMVP(camera);
-			//auto model = glm::mat4(1.0f);
-			//model = glm::rotate(model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
-
-			//const glm::mat4 view = camera.GetViewMatrix();
-			//const glm::mat4 proj = camera.GetProjectionMatrix();
-			//const glm::vec3 viewpos = *camera.Position();
-
-			//LightObj.Draw(camera);
-			//obj2.Draw(camera);
-
 
 			ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
-
 
 			mouseXold = mouseXnew;
 			mouseYold = mouseYnew;
@@ -355,6 +335,7 @@ int main(void)
 			ImGui::Text("ms %f", avgfps);
 
 			if (frametimes.size() >= 30) frametimes.clear();
+#pragma endregion input
 
 			framebuffer.Bind();
 			//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -364,7 +345,64 @@ int main(void)
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			static glm::vec3 pos = glm::vec3(0, 0, 0);
+			//static float timer = 0;
+			float deltaTime = currentFrameTime - prevFrameTime;
+			
+			obj.meshes[0].m_animator.animTime += deltaTime;
+			for (Joint& joint : obj.meshes[0].m_animator.m_bones)
+			{
+				std::vector<glm::vec3> children = FindChildren(obj, joint);
+				glm::vec3 pos;
+				for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
+				{
+					if (channel.m_name == joint.Name)
+					{
+						float tick = obj.meshes[0].m_animator.animTime * obj.meshes[0].m_animator.m_ticks;
+						tick = std::fmod(tick, obj.meshes[0].m_animator.m_duration);
+
+						unsigned int prev_indexPos = channel.FindPositionIndex(obj.meshes[0].m_animator.animTime);
+						auto prevPos = channel.m_positionKeys[prev_indexPos];
+						auto nextPos = channel.m_positionKeys[prev_indexPos];
+						if (prev_indexPos + 1 < channel.m_positionKeys.size()) {
+							nextPos = channel.m_positionKeys[prev_indexPos + 1];
+						}
+
+						float delta = nextPos.first - prevPos.first;
+						float interp =  (tick - prevPos.first) / delta  ;
+						interp = glm::clamp(interp, 0.0f, 1.0f);
+						glm::vec3 pos1 = prevPos.second; //channel.m_positionKeys[prev_index].second;
+						glm::vec3 pos2 = nextPos.second; //channel.m_positionKeys[0].second;
+						glm::vec3 interpPos = glm::mix(pos1, pos2, interp);
+						glm::mat4 posMat = glm::translate(glm::mat4(1.0f), interpPos);
+
+						//glm::quat  rot1 = channel.m_rotationKeys[0].second;
+						//glm::quat  rot2 = channel.m_rotationKeys[0].second;
+						//glm::quat  interpRot = glm::mix(rot1, rot2, 0.5f);
+						//glm::mat4  rotMat = glm::mat4_cast(interpRot);
+						size_t prev_indexRot = channel.FindRotationIndex(tick);
+						auto prevRot = channel.m_rotationKeys[prev_indexRot];
+						auto nextRot = channel.m_rotationKeys[prev_indexRot];
+						if (prev_indexRot + 1 < channel.m_rotationKeys.size())
+						{
+							nextRot = channel.m_rotationKeys[prev_indexRot + 1];
+						}
+
+						float deltaRot = nextRot.first - prevRot.first;
+						float interpolantRot = (tick - prevRot.first) / delta;
+
+						interpolantRot = glm::clamp(interpolantRot, 0.0f, 1.0f);
+						//glm::quat interpolated = Interpolate(prev.value, next.value, static_cast<float(interpolant));
+						glm::quat interpolatedRot = glm::mix(prevRot.second, nextRot.second, interpolantRot);
+						glm::mat4 rotMat = glm::mat4_cast(interpolatedRot);
+
+
+						joint.pose_transform = posMat * rotMat;
+					}
+				}
+			}
+			UpdateHierarchy(obj.meshes[0].m_animator.m_bones[0], obj.meshes[0].m_animator.m_bones,
+				glm::mat4(1.0f), obj.inverse_root);
+
 			obj.GetShader().Bind();
 			obj.GetShader().setVec3("lightPos", { 0,5,0 });
 			obj.GetShader().setVec3("viewPos", camera.PositionRead());
@@ -384,19 +422,21 @@ int main(void)
 			///# DRAW BONES
 			///#
 
-			if (boneverts.size() > 0) {
-				boneshader.Bind();
-				glEnable(GL_PROGRAM_POINT_SIZE);
-				glPointSize(15);
 
-				boneshader.SetUniformMat4f("model", glm::mat4(1.0f));
-				boneshader.SetUniformMat4f("view", camera.GetViewMatrix());
-				boneshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-				GLCall(glBindVertexArray(boneVAO));
-				GLCall(glDrawArrays(GL_POINTS, 0, boneverts.size()));
+			//	boneshader.Bind();
+			//	glEnable(GL_PROGRAM_POINT_SIZE);
+			//	glPointSize(15);
+			//
+			//	boneshader.SetUniformMat4f("model", glm::mat4(1.0f));
+			//	boneshader.SetUniformMat4f("view", camera.GetViewMatrix());
+			//	boneshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+			//	GLCall(glBindVertexArray(boneVAO));
+			//	GLCall(glDrawArrays(GL_POINTS, 0, boneverts.size()));
+			//
+			//	boneshader.Unbind();
 
-				boneshader.Unbind();
-			}
+			prevFrameTime = currentFrameTime;
+
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			//glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
@@ -409,7 +449,7 @@ int main(void)
 
 
 
-
+		///	timer += 0.01f;
 			postProcessShader.Bind();
 
 			glBindVertexArray(quadVAO);
@@ -435,7 +475,7 @@ int main(void)
 			GLCall(glfwPollEvents());
 
 			const double endtime = glfwGetTime();
-			const double diffms = 1000 * (endtime - currenttime);
+			const double diffms = 1000 * (endtime - currentFrameTime);
 			frametimes.push_back((float)diffms);
 		}
 	}

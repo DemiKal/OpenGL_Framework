@@ -15,6 +15,8 @@ public:
 		: m_name(a.m_name), m_positionKeys(a.m_positionKeys),
 		m_rotationKeys(a.m_rotationKeys), m_scaleKeys(a.m_scaleKeys) {}
 
+	size_t FindPositionIndex(float timer);
+	size_t FindRotationIndex(float timer);
 
 //private:
 	std::string m_name;
