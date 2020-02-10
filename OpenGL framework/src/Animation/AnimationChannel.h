@@ -16,7 +16,7 @@ public:
 		m_rotationKeys(a.m_rotationKeys), m_scaleKeys(a.m_scaleKeys) {}
 
 
-private:
+//private:
 	std::string m_name;
 	std::vector<std::pair<float, glm::vec3>> m_positionKeys;
 	std::vector<std::pair<float, glm::quat>> m_rotationKeys;

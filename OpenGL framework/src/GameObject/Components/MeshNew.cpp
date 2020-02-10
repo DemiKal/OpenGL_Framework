@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-void MeshNew::Draw(const GPUShader& shader)
+void MeshNew::Draw(GPUShader& shader)
 {
 	// bind appropriate textures
 	unsigned int diffuseNr = 1;
@@ -31,6 +31,61 @@ void MeshNew::Draw(const GPUShader& shader)
 		i++;
 	}
 
+	/*int count;
+	glGetProgramiv(shader.m_RendererID, GL_ACTIVE_UNIFORMS, &count);
+	printf("Active Uniforms: %d\n", count);
+
+	for (i = 0; i < count; i++)
+	{
+		glGetActiveUniform(program, (GLuint)i, bufSize, &length, &size, &type, name);
+
+		printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
+	}*/
+
+	int count;
+	GLCall(glGetProgramiv(shader.m_RendererID, GL_ACTIVE_UNIFORMS, &count));
+	//printf("Active Uniforms: %d\n", count);
+	GLint maxLength;
+	GLCall(glGetProgramiv(shader.m_RendererID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength));
+
+	std::vector < std::string> names;
+
+	for (int i = 0; i < count; i++)
+	{
+		GLchar name[GL_ACTIVE_UNIFORM_MAX_LENGTH + 1];
+		int length, size;
+		GLenum type;
+
+		glGetActiveUniform(shader.m_RendererID, i, maxLength, &length, &size, &type, name);
+		names.emplace_back(name);
+		//const GLubyte* ss = glGetString(type);
+		//printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
+		//names.emplace_back(name);
+	}
+
+	std::vector<glm::mat4> boneMatrices;
+	if (m_animator.m_bones.size() > 0) {
+		int k = 0;
+		for (auto& m : m_animator.m_bones)
+		{
+			//boneMatrices.emplace_back(glm::rotate(glm::mat4(1.0f), glm::radians(-45.f * k++), glm::vec3(1, 0, 0)));
+			boneMatrices.emplace_back(glm::mat4(1.0f));
+		}
+
+		auto idx = shader.GetUniformLocation("mBones[0]");
+		GLCall(glUniformMatrix4fv((GLint)idx, (GLsizei)20, GL_FALSE, (const GLfloat*)&boneMatrices[0])); // Passing 20 matrices
+	}
+
+
+	//for(int i = 0; i < bones.size()l i++)
+	//shader.SetUniformMat4f("boneMatrices[")
+	//	Matrix4fv
+	//	  glUniformMatrix4fv(GLint location,
+	//		GLsizei count,
+	//		GLboolean transpose,
+	//		const GLfloat * value);
+
+
 	// draw mesh
 	glBindVertexArray(VAO);
 	if (indices.size() > 0)
@@ -53,7 +108,7 @@ MeshNew::MeshNew(
 	this->vertices = vertices;
 	this->indices = indices;
 	this->m_textures = textures;
-	this->m_animator =  animator ;
+	this->m_animator = animator;
 
 	//TODO: MAKE VERTEX BUFFER DYNAMIC!
 	pos_loaded = bools[0];
@@ -135,11 +190,11 @@ void MeshNew::setupMesh()
 	if (hasAnimation()) {
 		offset += 3 * sizeof(float);
 		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
 
 		offset += 3 * sizeof(float);
 		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
 
 	}
 

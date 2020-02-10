@@ -1,5 +1,32 @@
 #include "precomp.h"
+std::vector<glm::vec3> FindChildren(Model& obj, Joint& joint)
+{
+	std::vector<glm::vec3> children;
 
+
+	for (auto& cp : joint.childrenPair) {
+		for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
+		{
+			if (channel.m_name == cp.first)
+			{
+				children.emplace_back(channel.m_positionKeys[0].second);
+			}
+		}
+	}
+
+	return children;
+}
+
+void UpdateHierarchy(Joint& current, std::vector<Joint>& bones, glm::mat4 parentMat)
+{
+	glm::mat4 currentMat = parentMat * current.mat_local;
+	current.mat_local = currentMat;
+	for (auto& cp : current.childrenPair) {
+		Joint& child = bones[cp.second];
+		UpdateHierarchy(child, bones, currentMat);
+	}
+
+}
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -40,6 +67,53 @@ int main(void)
 		Model plane = Model::CreatePlane();
 		plane.SetShader("plane");
 		plane.meshes[0].m_textures.emplace_back(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+
+
+		std::vector<glm::vec3> boneverts;
+
+		//std::list<std::pair<std::string, glm::mat4>> matrices;
+
+
+
+		for (Joint& joint : obj.meshes[0].m_animator.m_bones)
+		{
+			//for(auto& cp: joint.ChildrenPairs)
+			//	joint.Children.emplace_back
+		}
+
+
+		//UpdateHierarchy(obj.meshes[0].m_animator.m_bones[0], obj.meshes[0].m_animator.m_bones, glm::mat4(1.0f));
+
+		for (Joint& joint : obj.meshes[0].m_animator.m_bones)
+		{
+			std::vector<glm::vec3> children = FindChildren(obj, joint);
+			glm::vec3 pos;
+			for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
+			{
+				if (channel.m_name == joint.Name)
+				{
+					//	pos = glm::inverse(joint.mat_local) * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
+					pos =   joint.mat_local  * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
+					break;
+				}
+			}
+
+			for (glm::vec3& c : children)
+			{
+				boneverts.emplace_back(pos); //duplicate!
+				boneverts.emplace_back(c);
+			}
+			if (children.size() == 0) { boneverts.emplace_back(pos); boneverts.emplace_back(pos); }
+		}
+
+		unsigned int boneVAO, boneVBO;
+		glGenVertexArrays(1, &boneVAO);
+		glGenBuffers(1, &boneVBO);
+		glBindVertexArray(boneVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, boneVBO);
+		glBufferData(GL_ARRAY_BUFFER, boneverts.size() * sizeof(glm::vec3), &boneverts[0], GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 		//
 		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -96,7 +170,7 @@ int main(void)
 		int lineshader_idx = ShaderManager::getShaderIdx("lineshader");
 
 		auto& lineshader = ShaderManager::getShaderIdx(lineshader_idx);
-
+		auto& boneshader = ShaderManager::getShaderIdx(ShaderManager::getShaderIdx("bones"));
 
 		// framebuffer configuration
 		// -------------------------
@@ -279,15 +353,32 @@ int main(void)
 			obj.GetShader().setVec3("viewPos", camera.PositionRead());
 			obj.GetShader().Unbind();
 
+
 			obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);
 
 			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
-			lineshader.Bind();
-			GLCall(glBindVertexArray(lineVao));
-			GLCall(glDrawArrays(GL_LINES, 0, 4));
+			//lineshader.Bind();
+			//GLCall(glBindVertexArray(lineVao));
+			//GLCall(glDrawArrays(GL_LINES, 0, 4));
+
+			///# 
+			///# DRAW BONES
+			///#
+
+			//	boneshader.Bind();
+			//	glEnable(GL_PROGRAM_POINT_SIZE);
+			//	glPointSize(25);
+			//
+			//	boneshader.SetUniformMat4f("model", glm::mat4(1.0f));
+			//	boneshader.SetUniformMat4f("view", camera.GetViewMatrix());
+			//	boneshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+			//	GLCall(glBindVertexArray(boneVAO));
+			//	GLCall(glDrawArrays(GL_POINTS, 0, boneverts.size()));
+			//
+			//	boneshader.Unbind();
 
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -296,6 +387,9 @@ int main(void)
 			//	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessery actually, since we won't be able to see behind the quad anyways)
 			//	glClear(GL_COLOR_BUFFER_BIT);
 			ImGui::ColorEdit4("clear color", (float*)&override_color[0]);
+
+
+
 
 
 

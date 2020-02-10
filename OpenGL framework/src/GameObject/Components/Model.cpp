@@ -242,7 +242,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			aiBone* ai_bone = mesh->mBones[boneIdx];
 			std::string boneName = ai_bone->mName.C_Str();
 			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
-
+			
 			FindChildren(armature, joint, bonesDict);
 			bones.emplace_back(joint);
 
@@ -452,6 +452,8 @@ void Model::Draw(const Camera& cam)
 	//	//printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
 	//	//names.emplace_back(name);
 	//}
+
+	 
 
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();

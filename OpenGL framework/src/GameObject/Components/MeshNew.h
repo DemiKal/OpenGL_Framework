@@ -30,7 +30,7 @@ public:
 		std::vector<bool>& bools,
 		Animator& animator);
 
-	void Draw(const GPUShader& shader);
+	void Draw(  GPUShader& shader);
 	bool hasPositions() const { return pos_loaded; }
 	bool hasNormals() const { return normals_loaded; }
 	bool hasUVs() const { return UVs_loaded; }
