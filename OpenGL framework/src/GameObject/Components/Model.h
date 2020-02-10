@@ -17,7 +17,7 @@ public:
 		glm::mat4 mat;
 
 	};
-
+	std::shared_ptr <Armature > armature;
 	glm::mat4 model;
 	std::vector<MeshNew> meshes;
 	std::string directory;

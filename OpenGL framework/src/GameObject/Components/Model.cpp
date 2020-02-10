@@ -1,4 +1,6 @@
 #include "precomp.h"
+#include <glm/gtc/type_ptr.hpp>
+
 //from assimpviewer
 glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
 	glm::mat4 result;
@@ -16,8 +18,6 @@ void Model::SetShader(const std::string& shadername)
 {
 	shaderIdx = ShaderManager::getShaderIdx(shadername);
 }
-
-
 
 
 void CreateHierarchy(std::shared_ptr<Model::Armature> parentArmature, aiNode* node)
@@ -44,6 +44,16 @@ void CreateHierarchy(std::shared_ptr<Model::Armature> parentArmature, aiNode* no
 
 }
 
+aiNode* FindRootNode(aiNode* node, const std::string& name) {
+	if (node->mName.C_Str() == name)
+		return node;
+	else {
+		for (int i = 0; i < node->mNumChildren; i++)
+			FindRootNode(node->mChildren[i], name);
+	}
+
+}
+
 void Model::loadModel(const std::string& path)
 {
 	Assimp::Importer import;
@@ -57,7 +67,8 @@ void Model::loadModel(const std::string& path)
 	}
 	directory = path.substr(0, path.find_last_of('/'));
 
-	std::shared_ptr <Armature > armature = std::make_shared<Armature>();
+	//aiNode* root_node = FindRootNode(scene->mRootNode, "Torso");
+	armature = std::make_shared<Armature>();
 	armature->name = scene->mRootNode->mName.C_Str();
 	armature->mat = AI2GLMMAT(scene->mRootNode->mTransformation);
 	armature->parent = nullptr;
@@ -224,7 +235,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	}
 
 	Animator  animator;
-	 
+
 	if (mesh->HasBones())
 	{
 		std::vector<Joint> bones;
@@ -241,8 +252,12 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++) {
 			aiBone* ai_bone = mesh->mBones[boneIdx];
 			std::string boneName = ai_bone->mName.C_Str();
+
+			//glm::mat4 a1 = glm::make_mat4(ai_bone->mOffsetMatrix[0]);
+			//glm::mat4 a2 = AI2GLMMAT(ai_bone->mOffsetMatrix);
+
 			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
-			
+
 			FindChildren(armature, joint, bonesDict);
 			bones.emplace_back(joint);
 
@@ -359,7 +374,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			}
 
 			Animation animation(duration, AnimationChannels);
-			animator.current =  animation ;
+			animator.current = animation;
 		}
 	}
 
@@ -453,7 +468,7 @@ void Model::Draw(const Camera& cam)
 	//	//names.emplace_back(name);
 	//}
 
-	 
+
 
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();

@@ -93,7 +93,7 @@ int main(void)
 				if (channel.m_name == joint.Name)
 				{
 					//	pos = glm::inverse(joint.mat_local) * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
-					pos =   joint.mat_local  * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
+					pos = joint.mat_local * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
 					break;
 				}
 			}
@@ -246,11 +246,10 @@ int main(void)
 		//
 		// Render loop
 		//
-		 //obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
+		//obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
 
 		while (!glfwWindowShouldClose(window))
 		{
-
 			ImGui_ImplGlfwGL3_NewFrame();
 
 			i++;

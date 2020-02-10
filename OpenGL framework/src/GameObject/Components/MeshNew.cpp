@@ -69,13 +69,12 @@ void MeshNew::Draw(GPUShader& shader)
 		for (auto& m : m_animator.m_bones)
 		{
 			//boneMatrices.emplace_back(glm::rotate(glm::mat4(1.0f), glm::radians(-45.f * k++), glm::vec3(1, 0, 0)));
-			boneMatrices.emplace_back(glm::mat4(1.0f));
+			boneMatrices.emplace_back(m.mat_local);
 		}
 
 		auto idx = shader.GetUniformLocation("mBones[0]");
 		GLCall(glUniformMatrix4fv((GLint)idx, (GLsizei)20, GL_FALSE, (const GLfloat*)&boneMatrices[0])); // Passing 20 matrices
 	}
-
 
 	//for(int i = 0; i < bones.size()l i++)
 	//shader.SetUniformMat4f("boneMatrices[")
