@@ -17,16 +17,25 @@ std::vector<glm::vec3> FindChildren(Model& obj, Joint& joint)
 	return children;
 }
 
-void UpdateHierarchy(Joint& current, std::vector<Joint>& bones, glm::mat4 parentMat)
+void   GetArmatureVertices(std::shared_ptr<Model::Armature> arma, std::vector<glm::vec3>& verts)
 {
-	glm::mat4 currentMat = parentMat * current.mat_local;
-	current.mat_local = currentMat;
-	for (auto& cp : current.childrenPair) {
-		Joint& child = bones[cp.second];
-		UpdateHierarchy(child, bones, currentMat);
-	}
+	glm::vec3 pos = arma->mat * glm::vec4(0, 0, 0, 1);
+	verts.emplace_back(pos);
+
+	for (auto& child : arma->children) GetArmatureVertices(child, verts);
 
 }
+void UpdateHierarchy(Joint& current, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverse_root)
+{
+	glm::mat4 currentMat = parentMat * current.pose_transform;
+	current.pose_transform = inverse_root * currentMat * current.offset;
+
+	for (auto& cp : current.childrenPair) {
+		Joint& child = bones[cp.second];
+		UpdateHierarchy(child, bones, currentMat, inverse_root);
+	}
+}
+
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -82,7 +91,6 @@ int main(void)
 		}
 
 
-		//UpdateHierarchy(obj.meshes[0].m_animator.m_bones[0], obj.meshes[0].m_animator.m_bones, glm::mat4(1.0f));
 
 		for (Joint& joint : obj.meshes[0].m_animator.m_bones)
 		{
@@ -92,8 +100,12 @@ int main(void)
 			{
 				if (channel.m_name == joint.Name)
 				{
-					//	pos = glm::inverse(joint.mat_local) * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
-					pos = joint.mat_local * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
+					//	pos = glm::inverse(joint.offset) * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
+					glm::mat4 matPos = glm::translate(glm::mat4(1.0f), channel.m_positionKeys[10].second);
+					glm::mat4 matRot = glm::mat4_cast(channel.m_rotationKeys[10].second);
+
+					glm::mat4 transf = matPos * matRot;
+					joint.pose_transform = transf;
 					break;
 				}
 			}
@@ -105,6 +117,11 @@ int main(void)
 			}
 			if (children.size() == 0) { boneverts.emplace_back(pos); boneverts.emplace_back(pos); }
 		}
+		boneverts.clear();
+		//GetArmatureVertices(obj.armature, boneverts);
+		UpdateHierarchy(obj.meshes[0].m_animator.m_bones[0], obj.meshes[0].m_animator.m_bones,
+			glm::mat4(1.0f), obj.inverse_root);
+
 
 		unsigned int boneVAO, boneVBO;
 		glGenVertexArrays(1, &boneVAO);
@@ -347,11 +364,11 @@ int main(void)
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			static glm::vec3 pos = glm::vec3(0, 0, 0);
 			obj.GetShader().Bind();
 			obj.GetShader().setVec3("lightPos", { 0,5,0 });
 			obj.GetShader().setVec3("viewPos", camera.PositionRead());
 			obj.GetShader().Unbind();
-
 
 			obj.Draw(camera);
 			cube.Draw(camera);
@@ -367,18 +384,19 @@ int main(void)
 			///# DRAW BONES
 			///#
 
-			//	boneshader.Bind();
-			//	glEnable(GL_PROGRAM_POINT_SIZE);
-			//	glPointSize(25);
-			//
-			//	boneshader.SetUniformMat4f("model", glm::mat4(1.0f));
-			//	boneshader.SetUniformMat4f("view", camera.GetViewMatrix());
-			//	boneshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-			//	GLCall(glBindVertexArray(boneVAO));
-			//	GLCall(glDrawArrays(GL_POINTS, 0, boneverts.size()));
-			//
-			//	boneshader.Unbind();
+			if (boneverts.size() > 0) {
+				boneshader.Bind();
+				glEnable(GL_PROGRAM_POINT_SIZE);
+				glPointSize(15);
 
+				boneshader.SetUniformMat4f("model", glm::mat4(1.0f));
+				boneshader.SetUniformMat4f("view", camera.GetViewMatrix());
+				boneshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+				GLCall(glBindVertexArray(boneVAO));
+				GLCall(glDrawArrays(GL_POINTS, 0, boneverts.size()));
+
+				boneshader.Unbind();
+			}
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			//glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.

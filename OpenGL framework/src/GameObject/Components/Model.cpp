@@ -72,6 +72,7 @@ void Model::loadModel(const std::string& path)
 	armature->name = scene->mRootNode->mName.C_Str();
 	armature->mat = AI2GLMMAT(scene->mRootNode->mTransformation);
 	armature->parent = nullptr;
+	this->inverse_root = AI2GLMMAT(scene->mRootNode->mTransformation);
 
 	CreateHierarchy(armature, scene->mRootNode);
 
@@ -130,7 +131,15 @@ void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
 	for (int i = 0; i < arma->children.size(); i++)
 		FindChildren(arma->children[i], joint, bonesDict);
 }
-
+void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
+{
+	if (armature->name == joint.Name) 
+	{
+		joint.nodeTransform = armature->mat; 
+		return; 
+	}
+	else for (auto& children : armature->children)	AssignMatrices(children, joint);
+}
 MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
 {
 	std::vector<float> vertices;
@@ -259,6 +268,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
 
 			FindChildren(armature, joint, bonesDict);
+			AssignMatrices(armature, joint);
+			
 			bones.emplace_back(joint);
 
 			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;

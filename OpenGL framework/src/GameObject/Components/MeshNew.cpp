@@ -69,7 +69,7 @@ void MeshNew::Draw(GPUShader& shader)
 		for (auto& m : m_animator.m_bones)
 		{
 			//boneMatrices.emplace_back(glm::rotate(glm::mat4(1.0f), glm::radians(-45.f * k++), glm::vec3(1, 0, 0)));
-			boneMatrices.emplace_back(m.mat_local);
+			boneMatrices.emplace_back(m.pose_transform);
 		}
 
 		auto idx = shader.GetUniformLocation("mBones[0]");

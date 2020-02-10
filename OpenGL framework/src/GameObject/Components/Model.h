@@ -22,6 +22,7 @@ public:
 	std::vector<MeshNew> meshes;
 	std::string directory;
 	std::vector<Texture2D> textures_loaded;
+	glm::mat4 inverse_root;
 	unsigned int shaderIdx;
 
 	//VertexBufferLayout vbl;
