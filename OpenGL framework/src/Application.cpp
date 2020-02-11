@@ -1,4 +1,7 @@
+#define GLFW_EXPOSE_NATIVE_WGL
+#define GLFW_EXPOSE_NATIVE_WIN32 
 #include "precomp.h"
+#include <GLFW/glfw3native.h>
 
 
 
@@ -45,11 +48,12 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
+
 	if (!window)
 	{
 		glfwTerminate();
@@ -347,17 +351,23 @@ int main(void)
 
 			//static float timer = 0;
 			float deltaTime = currentFrameTime - prevFrameTime;
-			
-			obj.meshes[0].m_animator.animTime += deltaTime;
+			std::cout << "delta: " << deltaTime << "\n";
+
+
+			Animator* anim = &obj.meshes[0].m_animator;
+			obj.meshes[0].m_animator.animTime = fmod(anim->animTime + deltaTime, anim->m_duration);
+			float currentTime = anim->animTime;
+			float ticksPerSec = obj.meshes[0].m_animator.m_ticks;
+			std::cout << "currentTime: " << currentTime << "\n";
+
 			for (Joint& joint : obj.meshes[0].m_animator.m_bones)
 			{
-				std::vector<glm::vec3> children = FindChildren(obj, joint);
-				glm::vec3 pos;
+
 				for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
 				{
 					if (channel.m_name == joint.Name)
 					{
-						float tick = obj.meshes[0].m_animator.animTime * obj.meshes[0].m_animator.m_ticks;
+						float tick = currentTime * ticksPerSec/1000;
 						tick = std::fmod(tick, obj.meshes[0].m_animator.m_duration);
 
 						unsigned int prev_indexPos = channel.FindPositionIndex(obj.meshes[0].m_animator.animTime);
@@ -368,7 +378,10 @@ int main(void)
 						}
 
 						float delta = nextPos.first - prevPos.first;
-						float interp =  (tick - prevPos.first) / delta  ;
+						float interp = delta / (tick - prevPos.first);
+						std::cout << "pos interp: " << interp << "\n";
+						//if (interp < 0 || interp > 1)
+						//	int xxx = 1;
 						interp = glm::clamp(interp, 0.0f, 1.0f);
 						glm::vec3 pos1 = prevPos.second; //channel.m_positionKeys[prev_index].second;
 						glm::vec3 pos2 = nextPos.second; //channel.m_positionKeys[0].second;
@@ -388,7 +401,7 @@ int main(void)
 						}
 
 						float deltaRot = nextRot.first - prevRot.first;
-						float interpolantRot = (tick - prevRot.first) / delta;
+						float interpolantRot = delta / (tick - prevRot.first);
 
 						interpolantRot = glm::clamp(interpolantRot, 0.0f, 1.0f);
 						//glm::quat interpolated = Interpolate(prev.value, next.value, static_cast<float(interpolant));
@@ -449,7 +462,7 @@ int main(void)
 
 
 
-		///	timer += 0.01f;
+			///	timer += 0.01f;
 			postProcessShader.Bind();
 
 			glBindVertexArray(quadVAO);

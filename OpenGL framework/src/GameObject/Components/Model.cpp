@@ -133,10 +133,10 @@ void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
 }
 void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 {
-	if (armature->name == joint.Name) 
+	if (armature->name == joint.Name)
 	{
-		joint.nodeTransform = armature->mat; 
-		return; 
+		joint.nodeTransform = armature->mat;
+		return;
 	}
 	else for (auto& children : armature->children)	AssignMatrices(children, joint);
 }
@@ -269,7 +269,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 
 			FindChildren(armature, joint, bonesDict);
 			AssignMatrices(armature, joint);
-			
+
 			bones.emplace_back(joint);
 
 			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
@@ -335,8 +335,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 			aiAnimation* anim = scene->mAnimations[i];
 			const std::string name = anim->mName.C_Str();
-			float ticks = anim->mTicksPerSecond;
-			float duration = anim->mDuration;
+			float ticks = 1000;//anim->mTicksPerSecond;
+			float duration = anim->mDuration / 1000;
 			animator.m_duration = duration;
 			animator.m_ticks = ticks;
 
@@ -356,7 +356,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 				{
 					aiVectorKey ai_key = ai_channel->mPositionKeys[k];
 					std::pair<float, glm::vec3> positionKey
-						= { ai_key.mTime , glm::vec3{ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z } };
+						= { ai_key.mTime / 1000.0f,
+						glm::vec3{ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z } };
 
 					positionkeys.emplace_back(positionKey);
 				}
@@ -365,7 +366,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 				{
 					aiQuatKey ai_key = ai_channel->mRotationKeys[k];
 					std::pair<float, glm::quat> rotationKey
-						= { ai_key.mTime, glm::quat{ ai_key.mValue.w, ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z  } };
+						= { ai_key.mTime / 1000.0f,
+						glm::quat{ ai_key.mValue.w, ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z  } };
 
 					rotationKeys.emplace_back(rotationKey);
 				}
@@ -374,7 +376,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 				{
 					aiVectorKey ai_key = ai_channel->mScalingKeys[k];
 					std::pair<float, glm::vec3>
-						scalingKey = { ai_key.mTime,
+						scalingKey = { ai_key.mTime / 1000.0f,
 						glm::vec3(ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z) };
 
 					scalingKeys.emplace_back(scalingKey);
