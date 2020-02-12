@@ -32,14 +32,6 @@ void   GetArmatureVertices(std::shared_ptr<Model::Armature> arma, std::vector<gl
 	for (auto& child : arma->children) GetArmatureVertices(child, verts);
 
 }
-void UpdateHierarchy(Joint& current, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverse_root)
-{
-	glm::mat4 currentMat = parentMat * current.pose_transform;
-	current.pose_transform = inverse_root * currentMat * current.offset;
-
-	for (auto& cp : current.childrenPair)
-		UpdateHierarchy(bones[cp.second], bones, currentMat, inverse_root);
-}
 
 int main(void)
 {
@@ -90,11 +82,6 @@ int main(void)
 
 
 
-		for (Joint& joint : obj.meshes[0].m_animator.m_bones)
-		{
-			//for(auto& cp: joint.ChildrenPairs)
-			//	joint.Children.emplace_back
-		}
 
 
 
@@ -344,103 +331,16 @@ int main(void)
 #pragma endregion input
 
 			framebuffer.Bind();
-			//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 			glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 
 			// make sure we clear the framebuffer's content
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			//static float timer = 0;
-			float deltaTime = 1000.0f * (currentFrameTime - prevFrameTime);
-			//std::cout << "delta: " << deltaTime << "\n";
-
-
-			Animator* anim = &obj.meshes[0].m_animator;
-			anim->animTime = fmod(anim->animTime + 0.1f * deltaTime, anim->m_duration);
-
-			float currentTime = anim->animTime;
-			float ticksPerSec = obj.meshes[0].m_animator.m_ticks;
-			//std::cout << "currentTime: " << currentTime << "\n";
+			float deltaTime = currentFrameTime - prevFrameTime ;
 			output = true;
 
-			ImGui::Text("time: %.2f,", anim->animTime);
-
-			//ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
-			//deltaTime* glm::radians(1.0f)
-			obj.model = glm::rotate(obj.model,      glm::radians(1.f ), { 1,0,0 });
-			//deltaTime * glm::vec3(0.001f, 0, 0));
-			for (Joint& joint : obj.meshes[0].m_animator.m_bones)
-			{
-				 for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
-				{
-					if (channel.m_name == joint.Name)
-					{
-						float tick = currentTime * ticksPerSec;
-						tick = std::fmod(tick, obj.meshes[0].m_animator.m_duration);
-
-						unsigned int prev_indexPos = channel.FindPositionIndex(obj.meshes[0].m_animator.animTime);
-
-						auto prevPos = channel.m_positionKeys[prev_indexPos];
-						auto nextPos = channel.m_positionKeys[prev_indexPos + 1];
-
-						float delta = nextPos.first - prevPos.first;
-						float interp =   (tick - prevPos.first) / delta;
- 						interp = glm::clamp(interp, 0.0f, 1.0f);
-						glm::vec3 pos1 = prevPos.second; //channel.m_positionKeys[prev_index].second;
-						glm::vec3 pos2 = nextPos.second; //channel.m_positionKeys[0].second;
-						glm::vec3 interpPos = glm::mix(pos1, pos2, interp);
-						glm::mat4 posMat = glm::translate(glm::mat4(1.0f), interpPos);
-
- 						size_t prev_indexRot = channel.FindRotationIndex(tick);
-						auto prevRot = channel.m_rotationKeys[prev_indexPos];
-						auto nextRot = channel.m_rotationKeys[prev_indexPos + 1];
-
-						float deltaRot = nextRot.first - prevRot.first;
-						float interpolantRot =  (tick - prevRot.first) / delta;
-						//interpolantRot = glm::clamp(interpolantRot, 0.0f, 1.0f);
-						if (output)
-						{
-							std::cout << "interpRot: " << interpolantRot << "\n";
-							ImGui::Text("frameNr: %i, %i", prev_indexRot, prev_indexRot + 1);
-
-							output = false;
-						}
-						float dot = glm::dot(prevRot.second, nextRot.second);
-						if(dot < 0){
-							prevRot.second.w = fabs(prevRot.second.w);
-							nextRot.second.w = fabs(prevRot.second.w);
-						}
-						//glm::quat interpolated = Interpolate(prev.value, next.value, static_cast<float(interpolant));
-						glm::quat interpolatedRot = glm::mix(prevRot.second, nextRot.second, interpolantRot);
-
-						//if (interpolantRot > 1 || interpolantRot < 0)
-						//	int ass = 1;
-						//if (prev_indexRot == 11)
-						//	interpolantRot = 1 - interpolantRot;
-						//
-						float degree = 2.0f* acos(prevRot.second.w);
-						auto angle = glm::angle(prevRot.second);
-						//float lerp = 2*tick / anim->m_duration;
-						//	
-						//	lerp *= 360.f;
-						float matchingA = acos(dot);
-
-						glm::mat4 rotMat = glm::mat4_cast(interpolatedRot);
-						//	rotMat = glm::rotate(glm::mat4(1), glm::radians(lerp), { 0,0,1 });
-						//	rotMat = glm::mat4(1.0f);
-						joint.pose_transform = posMat * rotMat;
-					}
-				}
-			}
-			UpdateHierarchy(obj.meshes[0].m_animator.m_bones[0], obj.meshes[0].m_animator.m_bones,
-				glm::mat4(1.0f), obj.inverse_root);
-
-			obj.GetShader().Bind();
-			obj.GetShader().setVec3("lightPos", { 0,5,0 });
-			obj.GetShader().setVec3("viewPos", camera.PositionRead());
-			obj.GetShader().Unbind();
-
+			obj.meshes[0].m_animator.UpdateAnimation(deltaTime);
 			obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);

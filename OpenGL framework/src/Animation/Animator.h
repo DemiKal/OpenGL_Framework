@@ -7,12 +7,13 @@ public:
 	std::vector<Joint> m_bones;
 	float m_duration;
 	float m_ticks;		//ticks per second
+	glm::mat4 m_inverse_root;
 
 	Animator() : animTime(0), current() {}
 
 	Animator(const Animator& a) :
-		animTime(a.animTime), current(a.current), m_bones(a.m_bones), 
-		m_duration(a.m_duration), m_ticks(a.m_ticks) {}
+		animTime(a.animTime), current(a.current), m_bones(a.m_bones),
+		m_duration(a.m_duration), m_ticks(a.m_ticks), m_inverse_root(a.m_inverse_root) {}
 
 
 	//TODO: improve
@@ -24,19 +25,12 @@ public:
 		animTime = AnimationTime;
 	}
 
-	void UpdateAnimation() {
-		UpdateAnimTime();
-		std::unordered_map<std::string, glm::mat4> currentPose = CalcPose();
-		//ApplyPose()
-	}
+	void UpdateAnimation(float deltaTime);
 
-	std::unordered_map<std::string, glm::mat4> CalcPose()
-	{
-
-	}
+	std::unordered_map<std::string, glm::mat4> CalcPose();
 
 	void SetAnimation(Animation& animation) {
-		// current = animation ;
+		current = animation;
 	}
 
 

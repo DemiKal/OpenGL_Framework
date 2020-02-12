@@ -244,8 +244,9 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	}
 
 	Animator  animator;
+	animator.m_inverse_root = inverse_root;
 
-	if (mesh->HasBones())
+ 	if (mesh->HasBones())
 	{
 		std::vector<Joint> bones;
 		std::vector< std::unordered_map<unsigned int, float>> bonemapping;
