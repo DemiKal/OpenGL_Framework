@@ -233,7 +233,7 @@ int main(void)
 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
-		Camera camera(glm::vec3(0, 0, 3), 70, aspect, 0.1f, 200.0f);
+		Camera camera(glm::vec3(0, 3, 8), 70, aspect, 0.1f, 200.0f);
 
 		ImGui::CreateContext();
 		ImGui_ImplGlfwGL3_Init(window, true);
@@ -356,12 +356,18 @@ int main(void)
 
 
 			Animator* anim = &obj.meshes[0].m_animator;
-			anim->animTime = fmod(anim->animTime + 0.1f * deltaTime, anim->m_duration);
+			anim->animTime = fmod(anim->animTime +  0.1f * deltaTime, anim->m_duration);
 
 			float currentTime = anim->animTime;
 			float ticksPerSec = obj.meshes[0].m_animator.m_ticks;
 			//std::cout << "currentTime: " << currentTime << "\n";
 			output = true;
+
+			ImGui::Text("time: %.2f,",  anim->animTime );
+			
+			//ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
+
+
 			for (Joint& joint : obj.meshes[0].m_animator.m_bones)
 			{
 
@@ -373,6 +379,10 @@ int main(void)
 						tick = std::fmod(tick, obj.meshes[0].m_animator.m_duration);
 
 						unsigned int prev_indexPos = channel.FindPositionIndex(obj.meshes[0].m_animator.animTime);
+						
+					//	if(output)
+
+						
 						auto prevPos = channel.m_positionKeys[prev_indexPos];
 						auto nextPos = channel.m_positionKeys[prev_indexPos + 1];
 
@@ -414,6 +424,8 @@ int main(void)
 						if (output)
 						{
 							std::cout << "interpRot: " << interpolantRot << "\n";
+							ImGui::Text("frameNr: %i, %iine", prev_indexRot, prev_indexRot  + 1);
+
 							output = false;
 						}
 
