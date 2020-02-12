@@ -98,17 +98,18 @@ void MeshNew::Draw(GPUShader& shader)
 }
 
 MeshNew::MeshNew(
-	std::vector<float>& vertices,
-	std::vector<unsigned>& indices,
-	std::vector<Texture2D>& textures,
-	std::vector<bool>& bools,
-	Animator& animator)
+	const std::vector<float>& vertices,
+	const std::vector<unsigned>& indices,
+	const std::vector<Texture2D>& textures,
+	const std::vector<bool>& bools,
+	const Animator& animator,
+	const VertexBufferLayout& vbl)
 {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->m_textures = textures;
 	this->m_animator = animator;
-
+	this->m_VertexBufferLayout = vbl;
 	//TODO: MAKE VERTEX BUFFER DYNAMIC!
 	pos_loaded = bools[0];
 	normals_loaded = bools[1];
@@ -126,115 +127,92 @@ void MeshNew::setupMesh()
 	glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO);
-	// load data into vertex buffers
-	// A great thing about structs is that their memory layout is sequential for all its items.
-	// The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
-	// again translates to 3/2 floats which translates to a byte array.
 
 	const GLsizeiptr bufferSize = sizeof(vertices[0]) * vertices.size();
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &vertices[0], GL_STATIC_DRAW));
 
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
 
-
-	GLint stride = 3 * sizeof(float); //pos
-	unsigned int normalSize = 3 * sizeof(float);
-	unsigned int uvSize = 2 * sizeof(float);
-	unsigned int tangentSize = 6 * sizeof(float);
-	unsigned int bonesSize = 6 * sizeof(float);
-
-
-	if (hasNormals()) stride += normalSize; //xyz normal
-	if (hasUVs()) stride += uvSize;  //uv tex
-	if (hasTangents()) stride += tangentSize; //xyz xyz bitangents
-	if (hasAnimation()) stride += bonesSize; //xyz xyz bitangents
-
-   //const GLint stride = sizeof(VertexNew);
-   //const GLint normalPos = offsetof(VertexNew, Normal);
-   //const GLint uvPos = offsetof(VertexNew, TexCoords);
-   //const GLint tangentPos = offsetof(VertexNew, Tangent);
-   //const GLint btangentPos = offsetof(VertexNew, Bitangent);
-   //
-	unsigned int offset = 0;
-
-	if (hasPositions()) {
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+	unsigned int i = 0;
+	const unsigned int stride = m_VertexBufferLayout.GetStride();
+	for (const VertexBufferElement& vbe : m_VertexBufferLayout.GetElements())
+	{
+		glEnableVertexAttribArray(i);
+		glVertexAttribPointer(i, vbe.count, vbe.type, vbe.normalized, stride, (const void*)vbe.vertexIndex);
+		i++;
 	}
 
-	if (hasNormals()) {
-		offset += normalSize;
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
-	}
-	if (hasUVs()) {
-		offset += uvSize;
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)offset);
-	}
 
-	if (hasTangents()) {
-		offset += tangentSize / 2;
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+	//const GLsizeiptr bufferSize = sizeof(vertices[0]) * vertices.size();
+	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+	//GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &vertices[0], GL_STATIC_DRAW));
 
-		offset += tangentSize / 2;
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
-	}
+	//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
+	//GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+	//	indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
 
-	if (hasAnimation()) {
-		offset += 3 * sizeof(float);
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
 
-		offset += 3 * sizeof(float);
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+	//GLint stride = 3 * sizeof(float); //pos
+	//unsigned int normalSize = 3 * sizeof(float);
+	//unsigned int uvSize = 2 * sizeof(float);
+	//unsigned int tangentSize = 6 * sizeof(float);
+	//unsigned int bonesSize = 6 * sizeof(float);
 
-	}
+
+	//if (hasNormals()) stride += normalSize; //xyz normal
+	//if (hasUVs()) stride += uvSize;  //uv tex
+	//if (hasTangents()) stride += tangentSize; //xyz xyz bitangents
+	//if (hasAnimation()) stride += bonesSize; //xyz xyz bitangents
+
+ //  //const GLint stride = sizeof(VertexNew);
+ //  //const GLint normalPos = offsetof(VertexNew, Normal);
+ //  //const GLint uvPos = offsetof(VertexNew, TexCoords);
+ //  //const GLint tangentPos = offsetof(VertexNew, Tangent);
+ //  //const GLint btangentPos = offsetof(VertexNew, Bitangent);
+ //  //
+	//unsigned int offset = 0;
+
+	//if (hasPositions()) {
+	//	glEnableVertexAttribArray(0);
+	//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+	//}
+
+	//if (hasNormals()) {
+	//	offset += normalSize;
+	//	glEnableVertexAttribArray(1);
+	//	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
+	//}
+	//if (hasUVs()) {
+	//	offset += uvSize;
+	//	glEnableVertexAttribArray(2);
+	//	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+	//}
+
+	//if (hasTangents()) {
+	//	offset += tangentSize / 2;
+	//	glEnableVertexAttribArray(3);
+	//	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+
+	//	offset += tangentSize / 2;
+	//	glEnableVertexAttribArray(4);
+	//	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+	//}
+
+	//if (hasAnimation()) {
+	//	offset += 3 * sizeof(float);
+	//	glEnableVertexAttribArray(5);
+	//	glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+
+	//	offset += 3 * sizeof(float);
+	//	glEnableVertexAttribArray(6);
+	//	glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+
+	//}
 
 	glBindVertexArray(0);
 }
-
-
-//void MeshNew::CreatePlane() {
-//	float planeVertices[] = {
-//		// positions          // texture Coords 
-//		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
-//		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-//		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
-//
-//		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
-//		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
-//		 5.0f, -0.5f, -5.0f,  1.0f, 1.0f
-//	};
-//	unsigned int planeVAO, planeVBO;
-//	glGenVertexArrays(1, &planeVAO);
-//	glGenBuffers(1, &planeVBO);
-//	glBindVertexArray(planeVAO);
-//	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-//	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-//	glEnableVertexAttribArray(0);
-//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-//	glEnableVertexAttribArray(1);
-//	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-//
-//
-//	// MeshNew* mesh = new MeshNew();
-//	VBO = planeVBO;
-//	VAO = planeVAO;
-//	vertexCount = 6;
-//	//return  *mesh;
-//
-//
-//
-//
-//
-//}
 
 MeshNew MeshNew::CreateCube() {
 	MeshNew mesh;

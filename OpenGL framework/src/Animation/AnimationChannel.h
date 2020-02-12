@@ -3,13 +3,13 @@
 struct PositionKey {
 	float time;
 	glm::vec3 position;
-	PositionKey(std::pair<float, glm::vec3> timeAndPos) : time(timeAndPos.first), position(timeAndPos.second) {};
+	PositionKey(const std::pair<float, glm::vec3>& timeAndPos) : time(timeAndPos.first), position(timeAndPos.second) {};
 };
 
 struct RotationKey {
 	float time;
 	glm::quat rotation;
-	RotationKey(std::pair<float, glm::quat> timeAndRot) : time(timeAndRot.first), rotation(timeAndRot.second) {};
+	RotationKey(const std::pair<float, glm::quat>& timeAndRot) : time(timeAndRot.first), rotation(timeAndRot.second) {};
 };
 struct ScaleKey {
 	float time;
@@ -23,9 +23,9 @@ public:
 	AnimationChannel() : m_name(""), m_positionKeys(), m_rotationKeys(), m_scaleKeys() {};
 	AnimationChannel(
 		const std::string& name,
-		std::vector<PositionKey  > positions,
-		std::vector<RotationKey  > rotations,
-		std::vector<ScaleKey   >  scalings)
+		std::vector<PositionKey>& positions,
+		std::vector<RotationKey>& rotations,
+		std::vector<ScaleKey>& scalings)
 		:
 		m_name(name), m_positionKeys(positions), m_rotationKeys(rotations), m_scaleKeys(m_scaleKeys) {};
 

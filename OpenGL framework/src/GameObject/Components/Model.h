@@ -3,11 +3,6 @@
 class Model
 {
 public:
-	enum class LoadType {
-		OBJLOAD,
-		PLANE,
-		CUBE
-	};
 
 	struct  Armature {
 		std::string name;
@@ -26,13 +21,15 @@ public:
 	unsigned int shaderIdx;
 
 	//VertexBufferLayout vbl;
-	Model() : model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0) {}
+	Model() : model(glm::mat4(1.0f)), meshes(), directory(""),
+		textures_loaded(), shaderIdx(0), inverse_root(glm::mat4(1.0f)) {}
+
 	~Model() = default;
 
-	Model(const std::string& path, LoadType type) :
+	Model(const std::string& path, const aiPostProcessSteps loadFlags) :
 		model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0)
 	{
-		loadModel(path);
+		loadModel(path, loadFlags);
 	}
 
 	glm::mat4 GetModelMatrix() { return model; }
@@ -41,14 +38,16 @@ public:
 	void Draw(const Camera& cam);
 	GPUShader& GetShader() const { return   ShaderManager::getShaderIdx(shaderIdx); }
 	static Model CreateCube();
-	void loadModel(const std::string& path);
+	void loadModel(const std::string& path, const aiPostProcessSteps LoadFlags);
 	static Model CreatePlane();
 	void processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature>  armature);
-	void AddWeight(std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index, GLuint bone_id, GLfloat weight);
+
+	void AddWeight(std::vector<float>& vertices, unsigned int vertex_index,
+		unsigned int bone_index, GLuint bone_id, GLfloat weight);
+
 	MeshNew processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr <Armature> armature);
 
-	std::vector<Texture2D> loadMaterialTextures(
-		aiMaterial* mat, aiTextureType type, const std::string& typeName);
+	std::vector<Texture2D> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
 };
 
 

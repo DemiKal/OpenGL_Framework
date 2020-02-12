@@ -12,11 +12,12 @@ protected:
 	void setupMesh();
 
 public:
+	 
 	std::vector<float> vertices; //TODO make it dynamic for ints and others
 	std::vector<unsigned int> indices;
 	std::vector<Texture2D> m_textures;
 	Animator m_animator;
-	
+	VertexBufferLayout m_VertexBufferLayout;
 	MeshNew() : indices(), m_textures(), VAO(0), VBO(0), EBO(0), vertexCount(0),
 		pos_loaded(0), normals_loaded(0), UVs_loaded(0), tangents_loaded(0)
 	{};
@@ -24,11 +25,12 @@ public:
 	~MeshNew() = default;
 	//MeshNew(MeshNew& a) = default;
 	MeshNew(
-		std::vector<float>& vertices,
-		std::vector <unsigned int>& indices,
-		std::vector <Texture2D>& textures,
-		std::vector<bool>& bools,
-		Animator& animator);
+		const std::vector<float>& vertices,
+		const std::vector <unsigned int>& indices,
+		const std::vector <Texture2D>& textures,
+		const std::vector<bool>& bools,
+		const Animator& animator, 
+		const VertexBufferLayout& vbl);
 
 	void Draw(  GPUShader& shader);
 	bool hasPositions() const { return pos_loaded; }

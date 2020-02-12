@@ -42,8 +42,12 @@ int main(void)
 		renderer.SetAlphaBlending(true);
 		ShaderManager::Init(); //init before any model
 
-		Model obj = Model("res/meshes/animation test/run.glb", Model::LoadType::OBJLOAD);
-		obj.SetShader("anim");
+		Model obj = Model();
+		obj.loadModel("res/meshes/spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		obj.SetShader("basic");
+
+
+
 
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");
@@ -91,15 +95,6 @@ int main(void)
 		boneverts.clear();
 		//GetArmatureVertices(obj.armature, boneverts);
 
-
-		//unsigned int boneVAO, boneVBO;
-		//glGenVertexArrays(1, &boneVAO);
-		//glGenBuffers(1, &boneVBO);
-		//glBindVertexArray(boneVAO);
-		//glBindBuffer(GL_ARRAY_BUFFER, boneVBO);
-		//glBufferData(GL_ARRAY_BUFFER, boneverts.size() * sizeof(glm::vec3), &boneverts[0], GL_STATIC_DRAW);
-		//glEnableVertexAttribArray(0);
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 		//
 		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -315,10 +310,10 @@ int main(void)
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			float deltaTime = currentFrameTime - prevFrameTime ;
+			float deltaTime = currentFrameTime - prevFrameTime;
 			output = true;
 
-			obj.meshes[0].m_animator.UpdateAnimation(deltaTime);
+			//obj.meshes[0].m_animator.UpdateAnimation(deltaTime);
 			obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);

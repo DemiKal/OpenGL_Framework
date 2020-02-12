@@ -124,9 +124,9 @@ void GameObject::LoadMesh(const std::string& filename)
 
 	m_layout = new VertexBufferLayout();
 
-	m_layout->Push<float>(3); //pos vert
-	m_layout->Push<float>(3); //normie
-	m_layout->Push<float>(2); //uv
+	//m_layout->Push<float>(3); //pos vert
+	//m_layout->Push<float>(3); //normie
+	//m_layout->Push<float>(2); //uv
 
 	m_va = new VertexArraySub();
 	m_va->AddBuffer(*m_vb, *m_layout);

@@ -54,12 +54,13 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 
 }
 
-void Model::loadModel(const std::string& path)
+void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags = (aiPostProcessSteps)0)
 {
 	Assimp::Importer import;
-	const auto flags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
-	const aiScene* scene = import.ReadFile(path, flags);
-
+	const auto standardFlags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenNormals;
+	const auto flagsComposed = standardFlags | LoadFlags;
+	const aiScene* scene = import.ReadFile(path, flagsComposed);
+	 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
@@ -77,6 +78,7 @@ void Model::loadModel(const std::string& path)
 	CreateHierarchy(armature, scene->mRootNode);
 
 	processNode(scene->mRootNode, scene, armature);
+	
 }
 
 
@@ -159,80 +161,78 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	//		aiAnimation* ai_animation = scene->mAnimations[i];
 	//		ai_animation
 
+	VertexBufferLayout vbLayout;
+	unsigned int stride = 0;
+
+	const bool hasPositions = mesh->HasPositions();
+	if (hasPositions) vbLayout.Push<float>(3, VertexType::POSITION);
+
+	const bool hasNormals = mesh->HasNormals();
+	if (hasNormals)
+		vbLayout.Push<float>(3, VertexType::NORMAL);
+
+	const bool hasTexCoords = mesh->HasTextureCoords(0);
+	if (hasTexCoords) vbLayout.Push<float>(2, VertexType::TEXCOORD);
+
+	const bool hasTangents = mesh->HasTangentsAndBitangents();
+	if (hasTangents)
+	{
+		vbLayout.Push<float>(3, VertexType::TANGENT);
+		vbLayout.Push<float>(3, VertexType::BI_TANGENT);
+	}
+
+	//TODO colors
+	bool colors = mesh->HasVertexColors(1);//??
+
+	const bool hasBones = mesh->HasBones();
+	if (hasBones) {
+		vbLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_INDEX);	//bone idx
+		vbLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_WEIGHT);	//bone weight
+	}
 
 
-
-
-	// Walk through each of the mesh's vertices
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		//VertexNew vertex{};
-		//unsigned int size = sizeof(vertex);
-		glm::vec3 vector;
+		vertices.emplace_back(mesh->mVertices[i].x);
+		vertices.emplace_back(mesh->mVertices[i].y);
+		vertices.emplace_back(mesh->mVertices[i].z);
 
-		// positions
-		if (mesh->HasPositions()) {
 
-			vector.x = mesh->mVertices[i].x;
-			vector.y = mesh->mVertices[i].y;
-			vector.z = mesh->mVertices[i].z;
-			vertices.emplace_back(vector.x);
-			vertices.emplace_back(vector.y);
-			vertices.emplace_back(vector.z);
-		}
-		// normals
-		if (mesh->HasNormals()) {
-			vector.x = mesh->mNormals[i].x;
-			vector.y = mesh->mNormals[i].y;
-			vector.z = mesh->mNormals[i].z;
-			vertices.emplace_back(vector.x);
-			vertices.emplace_back(vector.y);
-			vertices.emplace_back(vector.z);
-		}
-		else { vertices.emplace_back(0); vertices.emplace_back(0); vertices.emplace_back(0); }
-
-		// texture coordinates
-		//
-		if (mesh->HasTextureCoords(0)) // TODO: check what this indx 0 is for
+		if (hasNormals)
 		{
-			glm::vec2 vec;
+			vertices.emplace_back(mesh->mNormals[i].x);
+			vertices.emplace_back(mesh->mNormals[i].y);
+			vertices.emplace_back(mesh->mNormals[i].z);
+		}
 
-			vec.x = mesh->mTextureCoords[0][i].x;
-			vec.y = mesh->mTextureCoords[0][i].y;
-			vertices.emplace_back(vec.x);
-			vertices.emplace_back(vec.y);
+		if (hasTexCoords)
+		{
+			vertices.emplace_back(mesh->mTextureCoords[0][i].x);
+			vertices.emplace_back(mesh->mTextureCoords[0][i].y);
 		}
-		else { vertices.emplace_back(0); vertices.emplace_back(0); }
 
-		if (mesh->HasTangentsAndBitangents())
+
+		if (hasTangents)
 		{
-			vector.x = mesh->mTangents[i].x;
-			vector.y = mesh->mTangents[i].y;
-			vector.z = mesh->mTangents[i].z;
-			vertices.emplace_back(vector.x);
-			vertices.emplace_back(vector.y);
-			vertices.emplace_back(vector.z);
-			// bitangent
-			glm::vec3 vv(0, 0, 0);
-			vv.x = mesh->mBitangents[i].x;
-			vv.y = mesh->mBitangents[i].y;
-			vv.z = mesh->mBitangents[i].z;
-			vertices.emplace_back(vv.x);
-			vertices.emplace_back(vv.y);
-			vertices.emplace_back(vv.z);
+			vertices.emplace_back(mesh->mTangents[i].x);
+			vertices.emplace_back(mesh->mTangents[i].y);
+			vertices.emplace_back(mesh->mTangents[i].z);
+			// bitangemplace_back( 
+			vertices.emplace_back(mesh->mBitangents[i].x);
+			vertices.emplace_back(mesh->mBitangents[i].y);
+			vertices.emplace_back(mesh->mBitangents[i].z);
 		}
-		else
-		{
-			vertices.emplace_back(0), vertices.emplace_back(0), vertices.emplace_back(0);
-			vertices.emplace_back(0), vertices.emplace_back(0), vertices.emplace_back(0);
+		if (hasBones) {
+			vertices.emplace_back(0);
+			vertices.emplace_back(0);
+			vertices.emplace_back(0);
+			vertices.emplace_back(0);
+			vertices.emplace_back(0);
+			vertices.emplace_back(0);
 		}
-		if (mesh->HasBones()) {
-			//3IDs, 3Weights (ints)
-			vertices.emplace_back(0); vertices.emplace_back(0); vertices.emplace_back(0);
-			vertices.emplace_back(0); vertices.emplace_back(0); vertices.emplace_back(0);
-		}
-		//vertices.emplace_back(vertex);
+
 	}
+
 
 	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -245,6 +245,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 
 	Animator  animator;
 	animator.m_inverse_root = inverse_root;
+
 	std::unordered_map<std::string, unsigned int> bonesMapping;
 	if (mesh->HasBones())
 	{
@@ -300,7 +301,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			float sum = 0;
 			for (auto& bm : bonemapping[i]) sum += bm.second;
 
-			if (fabs(sum - 1) > 0.01) //renormalize values!
+			if (fabs(sum - 1) > 0.01) //renormalize values! shouldn't happen with assimp postprocessing
 			{
 				std::vector<std::pair<unsigned int, float>> vec;
 				std::for_each(bonemapping[i].begin(), bonemapping[i].end(),
@@ -321,9 +322,15 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			}
 
 			size_t j = 0;
-			for (auto& bm : bonemapping[i]) {
-				vertices[20 * i + 14 + j] = bm.first;
-				vertices[20 * i + 14 + 3 + j] = bm.second;
+			for (auto& bm : bonemapping[i])
+			{
+				int elemidx1 = 20 * i + 14 + j;
+				int elemidx2 = 20 * i + 14 + 3 + j;
+
+				int elemidxV1 = vbLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
+				int elemidxV2 = vbLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
+				vertices[elemidxV1] = bm.first;
+				vertices[elemidxV2] = bm.second;
 				j++;
 				if (j >= BONESPERVERTEX) break;
 			}
@@ -418,10 +425,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, textures, boolsarray, animator);
+	return MeshNew(vertices, indices, textures, boolsarray, animator, vbLayout);
 }
-
-
 
 
 std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
