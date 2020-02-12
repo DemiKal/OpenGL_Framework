@@ -97,31 +97,31 @@ int main(void)
 
 
 
-		for (Joint& joint : obj.meshes[0].m_animator.m_bones)
-		{
-			std::vector<glm::vec3> children = FindChildren(obj, joint);
-			glm::vec3 pos;
-			for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
-			{
-				if (channel.m_name == joint.Name)
-				{
-					//	pos = glm::inverse(joint.offset) * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
-					glm::mat4 matPos = glm::translate(glm::mat4(1.0f), channel.m_positionKeys[10].second);
-					glm::mat4 matRot = glm::mat4_cast(channel.m_rotationKeys[10].second);
+		//for (Joint& joint : obj.meshes[0].m_animator.m_bones)
+		//{
+		//	std::vector<glm::vec3> children = FindChildren(obj, joint);
+		//	glm::vec3 pos;
+		//	for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
+		//	{
+		//		if (channel.m_name == joint.Name)
+		//		{
+		//			//	pos = glm::inverse(joint.offset) * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
+		//			//glm::mat4 matPos = glm::translate(glm::mat4(1.0f), channel.m_positionKeys[10].second);
+		//			//glm::mat4 matRot = glm::mat4_cast(channel.m_rotationKeys[10].second);
 
-					glm::mat4 transf = matPos * matRot;
-					joint.pose_transform = transf;
-					break;
-				}
-			}
+		//			//glm::mat4 transf = matPos * matRot;
+		//			//joint.pose_transform = transf;
+		//			break;
+		//		}
+		//	}
 
-			for (glm::vec3& c : children)
-			{
-				boneverts.emplace_back(pos); //duplicate!
-				boneverts.emplace_back(c);
-			}
-			if (children.size() == 0) { boneverts.emplace_back(pos); boneverts.emplace_back(pos); }
-		}
+		//	for (glm::vec3& c : children)
+		//	{
+		//		boneverts.emplace_back(pos); //duplicate!
+		//		boneverts.emplace_back(c);
+		//	}
+		//	if (children.size() == 0) { boneverts.emplace_back(pos); boneverts.emplace_back(pos); }
+		//}
 		boneverts.clear();
 		//GetArmatureVertices(obj.armature, boneverts);
 
@@ -202,6 +202,7 @@ int main(void)
 		//glBindFramebuffer(GL_FRAMEBUFFER, fb);
 
 
+		static bool output = true;
 		// create a color attachment texture
 		unsigned int textureColorbuffer;
 		glGenTextures(1, &textureColorbuffer);
@@ -350,16 +351,17 @@ int main(void)
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//static float timer = 0;
-			float deltaTime = currentFrameTime - prevFrameTime;
-			std::cout << "delta: " << deltaTime << "\n";
+			float deltaTime = 1000.0f * (currentFrameTime - prevFrameTime);
+			//std::cout << "delta: " << deltaTime << "\n";
 
 
 			Animator* anim = &obj.meshes[0].m_animator;
-			obj.meshes[0].m_animator.animTime = fmod(anim->animTime + deltaTime, anim->m_duration);
+			anim->animTime = fmod(anim->animTime + 0.1f * deltaTime, anim->m_duration);
+
 			float currentTime = anim->animTime;
 			float ticksPerSec = obj.meshes[0].m_animator.m_ticks;
-			std::cout << "currentTime: " << currentTime << "\n";
-
+			//std::cout << "currentTime: " << currentTime << "\n";
+			output = true;
 			for (Joint& joint : obj.meshes[0].m_animator.m_bones)
 			{
 
@@ -367,19 +369,23 @@ int main(void)
 				{
 					if (channel.m_name == joint.Name)
 					{
-						float tick = currentTime * ticksPerSec/1000;
+						float tick = currentTime * ticksPerSec;
 						tick = std::fmod(tick, obj.meshes[0].m_animator.m_duration);
 
 						unsigned int prev_indexPos = channel.FindPositionIndex(obj.meshes[0].m_animator.animTime);
 						auto prevPos = channel.m_positionKeys[prev_indexPos];
-						auto nextPos = channel.m_positionKeys[prev_indexPos];
-						if (prev_indexPos + 1 < channel.m_positionKeys.size()) {
-							nextPos = channel.m_positionKeys[prev_indexPos + 1];
-						}
+						auto nextPos = channel.m_positionKeys[prev_indexPos + 1];
+
+						//if (prev_indexPos + 1 < channel.m_positionKeys.size()) {
+						//	nextPos = channel.m_positionKeys[prev_indexPos + 1];
+						//}
+						//else {
+						//	int asdas = 1;
+						//}
 
 						float delta = nextPos.first - prevPos.first;
-						float interp = delta / (tick - prevPos.first);
-						std::cout << "pos interp: " << interp << "\n";
+						float interp = (tick - prevPos.first) / delta;
+						//std::cout << "pos interp: " << interp << "\n";
 						//if (interp < 0 || interp > 1)
 						//	int xxx = 1;
 						interp = glm::clamp(interp, 0.0f, 1.0f);
@@ -394,20 +400,27 @@ int main(void)
 						//glm::mat4  rotMat = glm::mat4_cast(interpRot);
 						size_t prev_indexRot = channel.FindRotationIndex(tick);
 						auto prevRot = channel.m_rotationKeys[prev_indexRot];
-						auto nextRot = channel.m_rotationKeys[prev_indexRot];
-						if (prev_indexRot + 1 < channel.m_rotationKeys.size())
-						{
-							nextRot = channel.m_rotationKeys[prev_indexRot + 1];
-						}
+						auto nextRot = channel.m_rotationKeys[prev_indexRot + 1];
+
+						//if (prev_indexRot + 1 < channel.m_rotationKeys.size())
+						//{
+						//	nextRot = channel.m_rotationKeys[prev_indexRot + 1];
+						//}
 
 						float deltaRot = nextRot.first - prevRot.first;
-						float interpolantRot = delta / (tick - prevRot.first);
+						float interpolantRot = (tick - prevRot.first) / delta;
 
-						interpolantRot = glm::clamp(interpolantRot, 0.0f, 1.0f);
+						//interpolantRot = glm::clamp(interpolantRot, 0.0f, 1.0f);
+						if (output)
+						{
+							std::cout << "interpRot: " << interpolantRot << "\n";
+							output = false;
+						}
+
 						//glm::quat interpolated = Interpolate(prev.value, next.value, static_cast<float(interpolant));
 						glm::quat interpolatedRot = glm::mix(prevRot.second, nextRot.second, interpolantRot);
 						glm::mat4 rotMat = glm::mat4_cast(interpolatedRot);
-
+						//rotMat = glm::rotate(glm::mat4(1), 45)
 
 						joint.pose_transform = posMat * rotMat;
 					}
