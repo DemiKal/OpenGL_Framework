@@ -1,28 +1,6 @@
 #define GLFW_EXPOSE_NATIVE_WGL
 #define GLFW_EXPOSE_NATIVE_WIN32 
 #include "precomp.h"
-//#include <GLFW/glfw3native.h>
-//#include <glm/gtx/quaternion.hpp>
-
-
-
-std::vector<glm::vec3> FindChildren(Model& obj, Joint& joint)
-{
-	std::vector<glm::vec3> children;
-
-
-	for (auto& cp : joint.childrenPair) {
-		for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
-		{
-			if (channel.m_name == cp.first)
-			{
-				children.emplace_back(channel.m_positionKeys[0].second);
-			}
-		}
-	}
-
-	return children;
-}
 
 void   GetArmatureVertices(std::shared_ptr<Model::Armature> arma, std::vector<glm::vec3>& verts)
 {

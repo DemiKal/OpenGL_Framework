@@ -10,40 +10,37 @@ struct _CompareKeys
 	//{
 	//	return left.first < right.first;
 	//}
-	bool operator() (const std::pair<float, glm::vec3>& left, const std::pair<float, glm::vec3>& right)
+	bool operator() (const PositionKey& left, const PositionKey& right)
 	{
-		return left.first < right.first;
+		return left.time < right.time;
 	}
-	bool operator() (const std::pair<float, glm::vec3>& left, float right)
+	bool operator() (const PositionKey& left, float right)
 	{
-		return left.first < right;
+		return left.time < right;
 	}
-	bool operator() (float left, const std::pair<float, glm::vec3>& right)
+	bool operator() (float left, PositionKey& right)
 	{
-		return left < right.first;
+		return left < right.time;
 	}
-	bool operator() (const std::pair<float, glm::quat>& left, const std::pair<float, glm::quat>& right)
+	bool operator() (const RotationKey& left, const RotationKey& right)
 	{
-		return left.first < right.first;
+		return left.time < right.time;
 	}
-	bool operator() (const std::pair<float, glm::quat>& left, float right)
+	bool operator() (const RotationKey& left, float right)
 	{
-		return left.first < right;
+		return left.time < right;
 	}
-	bool operator() (float left, const std::pair<float, glm::quat>& right)
+	bool operator() (float left, const RotationKey& right)
 	{
-		return left < right.first;
+		return left < right.time;
 	}
 
-
+	//TODO: add scalekeys?
 
 }CompareKeys;
+
 size_t AnimationChannel::FindPositionIndex(const float timer)
 {
-	//for (int i = 0; i < m_positionKeys.size(); i++)
-	//	if (timer < m_positionKeys[i].first)
-	//		return  i - 1 ;
-
 	auto it = std::upper_bound(m_positionKeys.begin(), m_positionKeys.end(), timer, CompareKeys);
 	return it - m_positionKeys.begin() - 1;
 
@@ -52,10 +49,6 @@ size_t AnimationChannel::FindPositionIndex(const float timer)
 
 size_t  AnimationChannel::FindRotationIndex(const float timer)
 {
-	//for (unsigned int i = 0; i < m_rotationKeys.size(); i++)
-	//	if (timer < m_rotationKeys[i].first)
-	//		return   i - 1;
-
 	auto it = std::upper_bound(m_rotationKeys.begin(), m_rotationKeys.end(), timer, CompareKeys);
 	return it - m_rotationKeys.begin() - 1;
 

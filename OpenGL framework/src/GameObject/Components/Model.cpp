@@ -245,8 +245,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 
 	Animator  animator;
 	animator.m_inverse_root = inverse_root;
-
- 	if (mesh->HasBones())
+	std::unordered_map<std::string, unsigned int> bonesMapping;
+	if (mesh->HasBones())
 	{
 		std::vector<Joint> bones;
 		std::vector< std::unordered_map<unsigned int, float>> bonemapping;
@@ -267,7 +267,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			//glm::mat4 a2 = AI2GLMMAT(ai_bone->mOffsetMatrix);
 
 			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
-
+			bonesMapping[boneName] = boneIdx;
 			FindChildren(armature, joint, bonesDict);
 			AssignMatrices(armature, joint);
 
@@ -331,11 +331,10 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	}
 
 
-
 	if (scene->HasAnimations()) {
 		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 			aiAnimation* anim = scene->mAnimations[i];
-			const std::string name = anim->mName.C_Str();
+			const std::string anim_name = anim->mName.C_Str();
 			float ticks = 1;//anim->mTicksPerSecond;
 			float duration = anim->mDuration;
 			animator.m_duration = duration;
@@ -343,15 +342,16 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 
 
 			std::vector<AnimationChannel> AnimationChannels;
+			AnimationChannels.resize(anim->mNumChannels); //resize to sync with bones
 
 			for (size_t j = 0; j < anim->mNumChannels; j++)
 			{
 				const aiNodeAnim* ai_channel = anim->mChannels[j];
 				const std::string channelName = ai_channel->mNodeName.C_Str();
 
-				std::vector< std::pair<float, glm::vec3>> positionkeys;
-				std::vector< std::pair<float, glm::quat>> rotationKeys;
-				std::vector< std::pair<float, glm::vec3>> scalingKeys;
+				std::vector<  PositionKey> positionkeys;
+				std::vector< RotationKey > rotationKeys;
+				std::vector< ScaleKey> scalingKeys;
 
 				for (size_t k = 0; k < ai_channel->mNumPositionKeys; k++)
 				{
@@ -383,7 +383,9 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 					scalingKeys.emplace_back(scalingKey);
 				}
 
-				AnimationChannels.emplace_back(AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys));
+				//AnimationChannels.emplace_back(AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys));
+				unsigned int channel_idx = bonesMapping[channelName];
+				AnimationChannels[channel_idx] = AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys);
 
 			}
 
@@ -502,7 +504,6 @@ Model Model::CreateCube() {
 	MeshNew mesh = MeshNew::CreateCube();
 	model.meshes.emplace_back(mesh);
 	return model;
-
 }
 
 Model Model::CreatePlane()
