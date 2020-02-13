@@ -43,11 +43,8 @@ int main(void)
 		ShaderManager::Init(); //init before any model
 
 		Model obj = Model();
-		obj.loadModel("res/meshes/spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		obj.loadModel("res/meshes/Crash Bandicoot/Spike/SpikeHero.obj", aiProcess_Triangulate);
 		obj.SetShader("basic");
-
-
-
 
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");
@@ -56,45 +53,6 @@ int main(void)
 		Model plane = Model::CreatePlane();
 		plane.SetShader("plane");
 		plane.meshes[0].m_textures.emplace_back(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
-
-
-		std::vector<glm::vec3> boneverts;
-
-		//std::list<std::pair<std::string, glm::mat4>> matrices;
-
-
-
-
-
-
-		//for (Joint& joint : obj.meshes[0].m_animator.m_bones)
-		//{
-		//	std::vector<glm::vec3> children = FindChildren(obj, joint);
-		//	glm::vec3 pos;
-		//	for (AnimationChannel& channel : obj.meshes[0].m_animator.current.m_animationChannels)
-		//	{
-		//		if (channel.m_name == joint.Name)
-		//		{
-		//			//	pos = glm::inverse(joint.offset) * glm::vec4(channel.m_positionKeys[0].second, 1.0f);
-		//			//glm::mat4 matPos = glm::translate(glm::mat4(1.0f), channel.m_positionKeys[10].second);
-		//			//glm::mat4 matRot = glm::mat4_cast(channel.m_rotationKeys[10].second);
-
-		//			//glm::mat4 transf = matPos * matRot;
-		//			//joint.pose_transform = transf;
-		//			break;
-		//		}
-		//	}
-
-		//	for (glm::vec3& c : children)
-		//	{
-		//		boneverts.emplace_back(pos); //duplicate!
-		//		boneverts.emplace_back(c);
-		//	}
-		//	if (children.size() == 0) { boneverts.emplace_back(pos); boneverts.emplace_back(pos); }
-		//}
-		boneverts.clear();
-		//GetArmatureVertices(obj.armature, boneverts);
-
 
 		//
 		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -130,28 +88,13 @@ int main(void)
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
-		//glEnableVertexAttribArray(1);
-		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-		//unsigned int cubeTexture = t1.GetID();
-		//unsigned int floorTexture = t2.GetID();
-
-	//	int shader_idx = ShaderManager::getShaderIdx("framebuffers");
-		int screenShader_idx = ShaderManager::getShaderIdx("framebuffers_screen");
-
-		//	auto& shader = ShaderManager::getShaderIdx(shader_idx);
-		auto& postProcessShader = ShaderManager::getShaderIdx(screenShader_idx);
-
-		//shader.Bind();
-		//shader.SetInt("texture1", 0);
+		GPUShader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
 		postProcessShader.Bind();
 		postProcessShader.SetInt("screenTexture", 0);
 
-		int lineshader_idx = ShaderManager::getShaderIdx("lineshader");
-
-		auto& lineshader = ShaderManager::getShaderIdx(lineshader_idx);
-		auto& boneshader = ShaderManager::getShaderIdx(ShaderManager::getShaderIdx("bones"));
+		GPUShader& lineshader = ShaderManager::GetShader("lineshader");
+		GPUShader& boneshader = ShaderManager::GetShader("bones");
 
 		// framebuffer configuration
 		// -------------------------

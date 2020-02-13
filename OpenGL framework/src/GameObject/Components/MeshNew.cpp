@@ -111,11 +111,8 @@ MeshNew::MeshNew(
 	this->m_animator = animator;
 	this->m_VertexBufferLayout = vbl;
 	//TODO: MAKE VERTEX BUFFER DYNAMIC!
-	pos_loaded = bools[0];
-	normals_loaded = bools[1];
-	UVs_loaded = bools[2];
-	tangents_loaded = bools[3];
-	animation_loaded = bools[4];
+
+	animation_loaded = bools[0];
 
 	setupMesh();
 
@@ -261,13 +258,20 @@ MeshNew MeshNew::CreateCube() {
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
+	std::copy(cubeVertices, cubeVertices + 6 * 5 * 6, std::back_inserter(mesh.vertices));
+
+	VertexBufferLayout vbl;
+	vbl.Push<float>(3, VertexType::POSITION);
+	vbl.Push<float>(2, VertexType::TEXCOORD);
+
+	mesh.m_VertexBufferLayout = vbl;
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &cubeVBO);
 	glBindVertexArray(cubeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER,  sizeof(float)* mesh.vertices.size () , &mesh.vertices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
@@ -275,7 +279,7 @@ MeshNew MeshNew::CreateCube() {
 
 	mesh.VAO = cubeVAO;
 	mesh.VAO = cubeVAO;
-	mesh.vertexCount = 36;
+	//mesh.vertexCount = mesh.vertices.size(); 
 	return mesh;
 }
 //eshNew::~MeshNew()
@@ -300,12 +304,21 @@ MeshNew MeshNew::CreatePlane() {
 		-5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
 		 5.0f, -0.5f, -5.0f,  1.0f, 1.0f
 	};
+
+	//= std::vector<float>(&planeVertices, 2);
+	std::copy(planeVertices, planeVertices + 30, std::back_inserter(mesh.vertices));
+
+	VertexBufferLayout vbl;
+	vbl.Push<float>(3, VertexType::POSITION);
+	vbl.Push<float>(2, VertexType::TEXCOORD);
+	mesh.m_VertexBufferLayout = vbl;
+
 	unsigned int planeVAO, planeVBO;
 	glGenVertexArrays(1, &planeVAO);
 	glGenBuffers(1, &planeVBO);
 	glBindVertexArray(planeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.vertices.size(), &mesh.vertices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
@@ -315,7 +328,7 @@ MeshNew MeshNew::CreatePlane() {
 	// MeshNew* mesh = new MeshNew();
 	mesh.VBO = planeVBO;
 	mesh.VAO = planeVAO;
-	mesh.vertexCount = 6;
+	//mesh.vertexCount = 6;
 
 	return mesh;
 

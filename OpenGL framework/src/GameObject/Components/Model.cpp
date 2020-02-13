@@ -148,19 +148,6 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	std::vector<unsigned int> indices;
 	const unsigned int BONESPERVERTEX = 3;
 
-	std::vector<bool> boolsarray;
-	boolsarray.emplace_back(mesh->HasPositions());
-	boolsarray.emplace_back(mesh->HasNormals());
-	boolsarray.emplace_back(mesh->HasTextureCoords(0));
-	boolsarray.emplace_back(mesh->HasTangentsAndBitangents());
-	boolsarray.emplace_back(mesh->HasBones());
-
-	//if (scene->HasAnimations()) {
-	//	for (size_t i = 0; i <  scene->mNumAnimations; i++)
-	//	{
-	//		aiAnimation* ai_animation = scene->mAnimations[i];
-	//		ai_animation
-
 	VertexBufferLayout vbLayout;
 	unsigned int stride = 0;
 
@@ -182,7 +169,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	}
 
 	//TODO colors
-	bool colors = mesh->HasVertexColors(1);//??
+	bool colors = mesh->HasVertexColors(1);
 
 	const bool hasBones = mesh->HasBones();
 	if (hasBones) {
@@ -324,9 +311,6 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 			size_t j = 0;
 			for (auto& bm : bonemapping[i])
 			{
-				int elemidx1 = 20 * i + 14 + j;
-				int elemidx2 = 20 * i + 14 + 3 + j;
-
 				int elemidxV1 = vbLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
 				int elemidxV2 = vbLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
 				vertices[elemidxV1] = bm.first;
@@ -425,7 +409,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, textures, boolsarray, animator, vbLayout);
+	return MeshNew(vertices, indices, textures, animator, vbLayout);
 }
 
 

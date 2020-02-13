@@ -32,6 +32,7 @@ public:
 	};
 
 	ShaderManager() = default;
+	static GPUShader& GetShader(const std::string& name);
 	static unsigned int getShaderIdx(const std::string& _name);
 	static GPUShader& getShaderIdx(const unsigned int idx);
 
