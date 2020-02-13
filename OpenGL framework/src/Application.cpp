@@ -43,8 +43,8 @@ int main(void)
 		ShaderManager::Init(); //init before any model
 
 		Model obj = Model();
-		obj.loadModel("res/meshes/Crash Bandicoot/Spike/SpikeHero.obj", aiProcess_Triangulate);
-		obj.SetShader("basic");
+		obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
+		obj.SetShader("normalmapshader");
 
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");

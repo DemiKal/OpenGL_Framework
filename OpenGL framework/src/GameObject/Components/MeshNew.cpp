@@ -101,7 +101,6 @@ MeshNew::MeshNew(
 	const std::vector<float>& vertices,
 	const std::vector<unsigned>& indices,
 	const std::vector<Texture2D>& textures,
-	const std::vector<bool>& bools,
 	const Animator& animator,
 	const VertexBufferLayout& vbl)
 {
@@ -111,8 +110,6 @@ MeshNew::MeshNew(
 	this->m_animator = animator;
 	this->m_VertexBufferLayout = vbl;
 	//TODO: MAKE VERTEX BUFFER DYNAMIC!
-
-	animation_loaded = bools[0];
 
 	setupMesh();
 
