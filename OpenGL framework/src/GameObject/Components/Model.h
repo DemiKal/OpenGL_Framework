@@ -36,7 +36,7 @@ public:
 	void SetModelMatrix(const glm::mat4& mat) { model = mat; }
 	void SetShader(const std::string& shadername);
 	void Draw(const Camera& cam);
-	GPUShader& GetShader() const { return   ShaderManager::getShaderIdx(shaderIdx); }
+	GPUShader& GetShader() const { return   ShaderManager::GetShader(shaderIdx); }
 	static Model CreateCube();
 	void loadModel(const std::string& path, const aiPostProcessSteps LoadFlags);
 	static Model CreatePlane();

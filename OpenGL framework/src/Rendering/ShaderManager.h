@@ -8,7 +8,7 @@ class ShaderManager
 private:
 	void loadShaders(const std::string& shaderDirectory)
 	{
-		for (const auto & entry : std::filesystem::directory_iterator(shaderDirectory))
+		for (const auto& entry : std::filesystem::directory_iterator(shaderDirectory))
 		{
 			std::cout << entry.path() << std::endl;
 			const std::string p = entry.path().string();
@@ -33,12 +33,12 @@ public:
 
 	ShaderManager() = default;
 	static GPUShader& GetShader(const std::string& name);
-	static unsigned int getShaderIdx(const std::string& _name);
-	static GPUShader& getShaderIdx(const unsigned int idx);
-
-	static void Init(const std::string& shaderDirectory  = "res/shaders")
+	static GPUShader& GetShader(const unsigned int idx); 
+	static unsigned int GetShaderIdx(const std::string& _name);
+	
+	static void Init(const std::string& shaderDirectory = "res/shaders")
 	{
-		auto&  instance = getInstance();
+		auto& instance = getInstance();
 		instance.loadShaders(shaderDirectory);
 		instance.initialized = true;
 	}

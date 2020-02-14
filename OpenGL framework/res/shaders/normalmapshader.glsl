@@ -21,8 +21,8 @@ uniform mat4 model;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
- 
- 
+
+
 
 void main()
 {
@@ -61,10 +61,10 @@ in VS_OUT{
 
 //uniform sampler2D diffuseMap;
 //uniform sampler2D normalMap;
-uniform sampler2D texture_diffuse1	;
-uniform sampler2D texture_specular1	;
-uniform sampler2D texture_normal1	;
-uniform sampler2D texture_height1	;
+uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_specular1;
+uniform sampler2D texture_normal1;
+uniform sampler2D texture_height1;
 
 
 void main()
@@ -90,11 +90,11 @@ void main()
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 
 	vec3 specular = vec3(0.0784, 0.1961, 0.3333) * spec;
-    FragColor = vec4(ambient + diffuse + specular, 1.0f);
-	 //FragColor = vec4(ambient + diffuse, 1.0f);
-	//FragColor = vec4(texture(texture_normal1, fs_in.TexCoords).xyz, 1.0f);
-	//FragColor = vec4(normal, 1.0f);
-	// FragColor = vec4(normal, 1.0f);
+	FragColor = vec4(ambient + diffuse + specular, 1.0f);
+	//FragColor = vec4(ambient + diffuse, 1.0f);
+   //FragColor = vec4(texture(texture_normal1, fs_in.TexCoords).xyz, 1.0f);
+   //FragColor = vec4(normal, 1.0f);
+   // FragColor = vec4(normal, 1.0f);
 }
 
 

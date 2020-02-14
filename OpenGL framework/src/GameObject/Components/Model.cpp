@@ -16,7 +16,7 @@ glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
 
 void Model::SetShader(const std::string& shadername)
 {
-	shaderIdx = ShaderManager::getShaderIdx(shadername);
+	shaderIdx = ShaderManager::GetShaderIdx(shadername);
 }
 
 
@@ -448,32 +448,11 @@ std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 void Model::Draw(const Camera& cam)
 {
 	//auto d = shader.get();
-	GPUShader& shader = ShaderManager::getShaderIdx(shaderIdx);
+	GPUShader& shader = ShaderManager::GetShader(shaderIdx);
 	shader.Bind();
 	const unsigned int shaderID = shader.m_RendererID;
 
-	//int count;
-	//GLCall(glGetProgramiv(shaderID, GL_ACTIVE_UNIFORMS, &count));
-	////printf("Active Uniforms: %d\n", count);
-	//GLint maxLength;
-	//GLCall(glGetProgramiv(shaderID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength));
-
 	std::vector < std::string> names;
-
-	//for (int i = 0; i < count; i++)
-	//{
-	//	GLchar name[GL_ACTIVE_UNIFORM_MAX_LENGTH + 1];
-	//	int length, size;
-	//	GLenum type;
-	//
-	//	glGetActiveUniform(shaderID, i, maxLength, &length, &size, &type, name);
-	//
-	//	//const GLubyte* ss = glGetString(type);
-	//	//printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
-	//	//names.emplace_back(name);
-	//}
-
-
 
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();

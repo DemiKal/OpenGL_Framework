@@ -1,5 +1,3 @@
-#define GLFW_EXPOSE_NATIVE_WGL
-#define GLFW_EXPOSE_NATIVE_WIN32 
 #include "precomp.h"
 
 void   GetArmatureVertices(std::shared_ptr<Model::Armature> arma, std::vector<glm::vec3>& verts)
@@ -8,13 +6,11 @@ void   GetArmatureVertices(std::shared_ptr<Model::Armature> arma, std::vector<gl
 	verts.emplace_back(pos);
 
 	for (auto& child : arma->children) GetArmatureVertices(child, verts);
-
 }
 
 int main(void)
 {
 	if (!glfwInit()) return -1;
-
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -54,8 +50,7 @@ int main(void)
 		plane.SetShader("plane");
 		plane.meshes[0].m_textures.emplace_back(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
-		//
-		float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+		float quadVertices[] = {
 		// positions   // texCoords
 		-1.0f,  1.0f,  0.0f, 1.0f,
 		-1.0f, -1.0f,  0.0f, 0.0f,
@@ -65,6 +60,7 @@ int main(void)
 		 1.0f, -1.0f,  1.0f, 0.0f,
 		 1.0f,  1.0f,  1.0f, 1.0f
 		};
+
 		// screen quad VAO
 		unsigned int quadVAO, quadVBO;
 		glGenVertexArrays(1, &quadVAO);
@@ -88,6 +84,18 @@ int main(void)
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
+		float dotVerts[] = { 0,0,0 };
+
+		unsigned int dotVao, dotVBO;
+		glGenVertexArrays(1, &dotVao);
+		glGenBuffers(1, &dotVBO);
+		glBindVertexArray(dotVao);
+		glBindBuffer(GL_ARRAY_BUFFER, dotVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(dotVerts), &dotVerts, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+
 		GPUShader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
 		postProcessShader.Bind();
@@ -101,10 +109,6 @@ int main(void)
 		////////////////////////////
 
 		FrameBuffer framebuffer;
-		//unsigned int fb;
-		//glGenFramebuffers(1, &fb);
-		//glBindFramebuffer(GL_FRAMEBUFFER, fb);
-
 
 		static bool output = true;
 		// create a color attachment texture
@@ -144,7 +148,6 @@ int main(void)
 		ImGui::StyleColorsDark();
 		float rot = 0;
 
-
 		//game loop
 		//glEnable(GL_CULL_FACE);
 		//glCullFace(GL_BACK);
@@ -168,10 +171,15 @@ int main(void)
 		glm::vec4 s = pp[3];
 		glm::vec4  override_color(0.3f, 0.5, 0.1, 0.5f);
 
+
+		auto& singledotshader = ShaderManager::GetShader("singledotshader");
 		//
 		// Render loop
 		//
 		//obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
+		glm::mat4 lightPos = glm::translate(glm::mat4(1.0f), { 0, -5, 0 });
+
+
 		double prevFrameTime = glfwGetTime();
 		while (!glfwWindowShouldClose(window))
 		{
@@ -210,6 +218,10 @@ int main(void)
 				camera.RotateXlocal(.01f);
 			if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 				camera.RotateXlocal(-.01f);
+			if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+				lightpos += 2 * camSpeed * glm::vec3(0, 1, 0);
+			if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+				lightpos += 2 * camSpeed * glm::vec3(0, -1, 0);
 			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 				lightpos += 2 * camSpeed * glm::vec3(-1, 0, 0);
 			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
@@ -257,9 +269,31 @@ int main(void)
 			output = true;
 
 			//obj.meshes[0].m_animator.UpdateAnimation(deltaTime);
+			//lightPos = glm::rotate(lightPos, glm::radians(1.0f), glm::vec3(0, 1, 0));
+
+			obj.GetShader().Bind();
+			obj.GetShader().setVec3("viewPos", *camera.Position());
+			obj.GetShader().setVec3("lightPos", lightpos);
 			obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);
+
+
+			singledotshader.Bind();
+			singledotshader.SetUniformMat4f("view", camera.GetViewMatrix());
+			singledotshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+			singledotshader.SetUniformMat4f("model", glm::translate(glm::mat4(1.0f), lightpos));
+
+
+
+
+			glEnable(GL_PROGRAM_POINT_SIZE);
+			glPointSize(15);
+
+			GLCall(glBindVertexArray(dotVao));
+			GLCall(glDrawArrays(GL_POINTS, 0, 3));
+
+
 
 			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 

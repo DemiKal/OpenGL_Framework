@@ -6,15 +6,19 @@ struct ShaderProgramSource
 	std::string FragmentSource;
 };
 
+struct uniform_info_t
+{
+	GLint location;
+	GLsizei count;
+};
+
 class GPUShader
 {
 public:
-
+	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
 	std::string m_FilePath;
 	std::string name;
 	unsigned int m_RendererID = 0;
-	std::unordered_map<  std::string, int> m_UniformLocationCache;
-	//std::vector<Texture2D> m_textures;
 
 	int GetUniformLocation(const std::string& name);
 	ShaderProgramSource parseShader(const std::string& path) const;
@@ -23,7 +27,8 @@ public:
 	//Shader();
 	GPUShader(const std::string& filepath);
 	 
-	//~GPUShader();
+	void SetupUniforms();
+
 	GPUShader(); 
 	void Bind() const;
 	void Unbind() const;
@@ -35,7 +40,6 @@ public:
 	void SetVec4f(const std::string & name, const glm::vec4 & value);
  	void setVec3(const std::string & name, const glm::vec3 & value);
 	void SetFloat(const std::string& name, float value);
-	//void AddTexture(const Texture2D& tex) { m_textures.emplace_back(tex); };
 	void Destroy();
 };
 

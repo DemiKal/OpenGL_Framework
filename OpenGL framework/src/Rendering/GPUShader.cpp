@@ -2,15 +2,49 @@
 
 GPUShader::GPUShader(const std::string& filepath)
 	: m_FilePath(filepath), name("not yet loaded"), m_RendererID(0),
-	  m_UniformLocationCache()
+	m_uniformsInfo()
 {
 	const ShaderProgramSource sps = parseShader(filepath);
 	m_RendererID = CreateShader(sps.VertexSource, sps.FragmentSource);
 
 	const  std::string nm = std::filesystem::path(filepath).stem().string();
 	name = nm;
+
+	SetupUniforms();
 }
 
+void GPUShader::SetupUniforms() {
+
+
+	GLint uniform_count = 0;
+	glGetProgramiv(m_RendererID, GL_ACTIVE_UNIFORMS, &uniform_count);
+
+	if (uniform_count != 0)
+	{
+		GLint 	max_name_len = 0;
+		GLsizei length = 0;
+		GLsizei count = 0;
+		GLenum 	type = GL_NONE;
+		glGetProgramiv(m_RendererID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_name_len);
+
+		auto uniform_name = std::make_unique<char[]>(max_name_len);
+
+		//std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
+
+		for (GLint i = 0; i < uniform_count; ++i)
+		{
+			glGetActiveUniform(m_RendererID, i, max_name_len, &length, &count, &type, uniform_name.get());
+
+			uniform_info_t uniform_info = {};
+			uniform_info.location = glGetUniformLocation(m_RendererID, uniform_name.get());
+			uniform_info.count = count;
+
+			m_uniformsInfo.emplace(std::make_pair(std::string(uniform_name.get(), length), uniform_info));
+		
+		}
+	}
+
+}
 GPUShader::GPUShader()
 {
 }
@@ -43,15 +77,18 @@ void GPUShader::SetUniform4f(const std::string& name, float v0, float v1, float 
 
 int GPUShader::GetUniformLocation(const std::string&  name)
 {
-	if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
-		return m_UniformLocationCache[name];
+	if (m_uniformsInfo.find(name) != m_uniformsInfo.end())
+		return m_uniformsInfo[name].location;
 
 	GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
 
 	if (location == -1)
 		std::cout << "location is not set of uniform " << name << std::endl;
 
-	m_UniformLocationCache[name] = location;
+	uniform_info_t ut;
+	ut.location = location;
+	ut.count = 1; //? ?
+	m_uniformsInfo[name] = ut;
 
 	return location;
 }

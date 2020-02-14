@@ -16,13 +16,14 @@ void ShaderManager::Destroy()
 		s.Destroy();
 }
 
-GPUShader& ShaderManager::GetShader(const std::string& name) 
+GPUShader& ShaderManager::GetShader(const std::string& name)
 {
-	const unsigned int idx = getShaderIdx(name);
-	return getShaderIdx(idx);
+	const unsigned int idx = GetShaderIdx(name);
+	auto& inst = getInstance();
+	return inst.shaders[idx];
 }
 
-unsigned int ShaderManager::getShaderIdx(const std::string& _name)
+unsigned int ShaderManager::GetShaderIdx(const std::string& _name)
 {
 	const auto& inst = getInstance();
 	for (unsigned int i = 0; i < inst.shaders.size(); i++)
@@ -36,7 +37,7 @@ unsigned int ShaderManager::getShaderIdx(const std::string& _name)
 	return 0;
 }
 
-GPUShader& ShaderManager::getShaderIdx(const unsigned idx)
+GPUShader& ShaderManager::GetShader(const unsigned idx)
 {
 	auto& inst = getInstance();
 	return inst.shaders[idx];
