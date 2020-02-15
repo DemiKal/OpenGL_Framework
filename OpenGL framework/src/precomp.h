@@ -46,7 +46,6 @@ bool GLLogCall(const char* function, const char* file, int line);
 
 #include "misc/obj_loader.h"
 
-
 #include "Rendering/Buffer/VertexBuffer.h"
 #include "Rendering/Buffer/VertexBufferLayout.h"
 #include "Rendering/Buffer/VertexArray.h"
@@ -84,11 +83,9 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include "Animation/JointTransform.h"
 #include "Animation/Animator.h"
 
+#include "Light/Light.h"
+#include "Light/LightManager.h"
 #include "GameObject/Components/Mesh.h"
 #include "GameObject/Components/MeshNew.h"
 #include "GameObject/Components/Model.h"
-
-
-
-
-
+//#include "InputProcessing.cpp"

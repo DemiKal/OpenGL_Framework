@@ -51,14 +51,14 @@ int main(void)
 		plane.meshes[0].m_textures.emplace_back(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
 		float quadVertices[] = {
-		// positions   // texCoords
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		-1.0f, -1.0f,  0.0f, 0.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
+			// positions   // texCoords
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			-1.0f, -1.0f,  0.0f, 0.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
 
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
-		 1.0f,  1.0f,  1.0f, 1.0f
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
+			 1.0f,  1.0f,  1.0f, 1.0f
 		};
 
 		// screen quad VAO
@@ -84,17 +84,16 @@ int main(void)
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
-		float dotVerts[] = { 0,0,0 };
-
-		unsigned int dotVao, dotVBO;
-		glGenVertexArrays(1, &dotVao);
-		glGenBuffers(1, &dotVBO);
-		glBindVertexArray(dotVao);
-		glBindBuffer(GL_ARRAY_BUFFER, dotVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(dotVerts), &dotVerts, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
+		//float dotVerts[] = { 0,0,0 };
+		//
+		//unsigned int dotVao, dotVBO;
+		//glGenVertexArrays(1, &dotVao);
+		//glGenBuffers(1, &dotVBO);
+		//glBindVertexArray(dotVao);
+		//glBindBuffer(GL_ARRAY_BUFFER, dotVBO);
+		//glBufferData(GL_ARRAY_BUFFER, sizeof(dotVerts), &dotVerts, GL_STATIC_DRAW);
+		//glEnableVertexAttribArray(0);
+		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 		GPUShader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
@@ -179,6 +178,9 @@ int main(void)
 		//obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
 		glm::mat4 lightPos = glm::translate(glm::mat4(1.0f), { 0, -5, 0 });
 
+		light_manager::add_light({ 0,  5, 0 }, { 1,0,0 });
+		light_manager::add_light({ -2,  3, 0 }, { 0,1,0 });
+		light_manager::add_light({ 2,  3, 0 }, { 0,0,1 });
 
 		double prevFrameTime = glfwGetTime();
 		while (!glfwWindowShouldClose(window))
@@ -219,21 +221,21 @@ int main(void)
 			if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 				camera.RotateXlocal(-.01f);
 			if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-				lightpos += 2 * camSpeed * glm::vec3(0, 1, 0);
+				light_manager::get_lights()[0].get_position() += (2 * camSpeed * glm::vec3(0, 1, 0));
 			if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-				lightpos += 2 * camSpeed * glm::vec3(0, -1, 0);
+				light_manager::get_lights()[0].get_position() += 2 * camSpeed * glm::vec3(0, -1, 0);
 			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-				lightpos += 2 * camSpeed * glm::vec3(-1, 0, 0);
+				light_manager::get_lights()[0].get_position() += 2 * camSpeed * glm::vec3(-1, 0, 0);
 			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-				lightpos += 2 * camSpeed * glm::vec3(1, 0, 0);
+				light_manager::get_lights()[0].get_position() += 2 * camSpeed * glm::vec3(1, 0, 0);
 			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-				lightpos += 2 * camSpeed * glm::vec3(0, 0, -1);
+				light_manager::get_lights()[0].get_position() += 2 * camSpeed * glm::vec3(0, 0, -1);
 			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-				lightpos += 2 * camSpeed * glm::vec3(0, 0, 1);
+				light_manager::get_lights()[0].get_position() += 2 * camSpeed * glm::vec3(0, 0, 1);
 			if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-				lightpos += 2 * camSpeed * glm::vec3(0, 1, 0);
+				light_manager::get_lights()[0].get_position() += 2 * camSpeed * glm::vec3(0, 1, 0);
 			if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-				lightpos += 2 * camSpeed * glm::vec3(0, -1, 0);
+				light_manager::get_lights()[0].get_position() += 2 * camSpeed * glm::vec3(0, -1, 0);
 
 
 			*camera.Position() += camMovement;
@@ -273,11 +275,12 @@ int main(void)
 
 			obj.GetShader().Bind();
 			obj.GetShader().setVec3("viewPos", *camera.Position());
-			obj.GetShader().setVec3("lightPos", lightpos);
+			obj.GetShader().setVec3("lightPos", light_manager::get_lights()[0].get_position());
 			obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);
 
+			light_manager::debug_render(camera);
 
 			singledotshader.Bind();
 			singledotshader.SetUniformMat4f("view", camera.GetViewMatrix());
@@ -287,95 +290,48 @@ int main(void)
 
 
 
-			glEnable(GL_PROGRAM_POINT_SIZE);
-			glPointSize(15);
-
-			GLCall(glBindVertexArray(dotVao));
-			GLCall(glDrawArrays(GL_POINTS, 0, 3));
-
-
-
-			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
-
-			//lineshader.Bind();
-			//GLCall(glBindVertexArray(lineVao));
-			//GLCall(glDrawArrays(GL_LINES, 0, 4));
-
-			///# 
-			///# DRAW BONES
-			///#
-
-
-			//	boneshader.Bind();
-			//	glEnable(GL_PROGRAM_POINT_SIZE);
-			//	glPointSize(15);
+			//glEnable(GL_PROGRAM_POINT_SIZE);
+			//glPointSize(15);
 			//
-			//	boneshader.SetUniformMat4f("model", glm::mat4(1.0f));
-			//	boneshader.SetUniformMat4f("view", camera.GetViewMatrix());
-			//	boneshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-			//	GLCall(glBindVertexArray(boneVAO));
-			//	GLCall(glDrawArrays(GL_POINTS, 0, boneverts.size()));
-			//
-			//	boneshader.Unbind();
+			//GLCall(glBindVertexArray(dotVao));
+			//GLCall(glDrawArrays(GL_POINTS, 0, 3));
+
+
+
+			glDisable(GL_DEPTH_TEST);
 
 			prevFrameTime = currentFrameTime;
 
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			//glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
-			// clear all relevant buffers
-			//	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessery actually, since we won't be able to see behind the quad anyways)
-			//	glClear(GL_COLOR_BUFFER_BIT);
-			ImGui::ColorEdit4("clear color", (float*)&override_color[0]);
+			ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
 
-
-
-
-
-			///	timer += 0.01f;
+			///	timer += 0.01f
 			postProcessShader.Bind();
 
 			glBindVertexArray(quadVAO);
-			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
-	   //	back.Bind();
+			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
-			//screenShader.Unbind();
-
 
 			ImGui::Render();
 			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
-
-			// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-			// -------------------------------------------------------------------------------
-			//glfwSwapBuffers(window);
-			//glfwPollEvents();
-		   ///
-
-
-
 
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currentFrameTime);
-			frametimes.push_back((float)diffms);
+			frametimes.push_back(static_cast<float>(diffms));
 		}
 	}
 
 	ShaderManager::Destroy();
-	//ImGui_ImplGlfwGL3_Shutdown();
-	//ImGui::DestroyContext();
-
-	//delete shaders while context is still current
-	//auto& s = ShaderManager::getInstance() ;
-	//s.reset();
+	ImGui_ImplGlfwGL3_Shutdown();
+	ImGui::DestroyContext();
 
 
 	glfwTerminate();
 	return 0;
 }
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
 
 
