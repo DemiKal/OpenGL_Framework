@@ -1,31 +1,31 @@
 #pragma once
-class light_manager
+class LightManager
 {
 private:
 	std::vector<Light> m_lights;
 
-	light_manager();
-
-public:
-	static inline light_manager& get_instance()
+	LightManager();
+	
+	static inline LightManager& GetInstance()
 	{
-		static light_manager instance;
+		static LightManager instance;
 		return instance;
 	}
 
-	static void add_light(const glm::vec3 position, const glm::vec3 color)
+public:
+	static void AddLight(const glm::vec3 position, const glm::vec3 color)
 	{
-		get_instance().m_lights.emplace_back(Light( position , color));
+		GetInstance().m_lights.emplace_back(Light( position , color));
 	}
 
 	static std::vector<Light>& GetLights()
 	{
-		 return get_instance().m_lights;
+		 return GetInstance().m_lights;
 	}
 
 	static Light& GetLight(const unsigned int idx) 
 	{
-		return get_instance().m_lights[idx];
+		return GetInstance().m_lights[idx];
 	}
 
 	static void debug_render(const Camera& cam)

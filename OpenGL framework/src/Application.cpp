@@ -112,7 +112,9 @@ int main(void)
 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
-		Camera camera(glm::vec3(0, 3, 8), 70, aspect, 0.1f, 200.0f);
+		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 200.0f);
+		Camera::SetMainCamera(&camera);
+		Camera* cam = Camera::GetMain(); //??
 
 		ImGui::CreateContext();
 		ImGui_ImplGlfwGL3_Init(window, true);
@@ -131,12 +133,10 @@ int main(void)
 		//
 		// Render loop
 		//
-		//obj.model = glm::rotate(obj.model, glm::radians(-90.f), glm::vec3(1, 0, 0));
-		glm::mat4 lightPos = glm::translate(glm::mat4(1.0f), { 0, -5, 0 });
 
-		light_manager::add_light({ 0,  5, 0 }, { 1,0,0 });
-		light_manager::add_light({ -2,  3, 0 }, { 0,1,0 });
-		light_manager::add_light({ 2,  3, 0 }, { 0,0,1 });
+		LightManager::AddLight({ 0,  5, 0 }, { 1,0,0 });
+		LightManager::AddLight({ -2,  3, 0 }, { 0,1,0 });
+		LightManager::AddLight({ 2,  3, 0 }, { 0,0,1 });
 
 		const glm::vec3 upWorld(0, 1, 0);
 		const glm::vec3 rightWorld(1, 0, 0);
@@ -174,13 +174,13 @@ int main(void)
 			output = true;
 
 			obj.GetShader().Bind();
-			obj.GetShader().setVec3("viewPos", *camera.Position());
-			obj.GetShader().setVec3("lightPos", light_manager::GetLight(0).get_position());
-			obj.Draw(camera);
-			cube.Draw(camera);
-			plane.Draw(camera);
+			obj.GetShader().setVec3("viewPos", *Camera::GetMain()->Position());
+			obj.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			obj.Draw(*Camera::GetMain());
+			cube.Draw(*Camera::GetMain());
+			plane.Draw(*Camera::GetMain());
 
-			light_manager::debug_render(camera);
+			LightManager::debug_render(camera);
 
 			glDisable(GL_DEPTH_TEST);
 
@@ -190,7 +190,7 @@ int main(void)
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
 
-			///	timer += 0.01f
+
 			postProcessShader.Bind();
 
 			glBindVertexArray(quadVAO);

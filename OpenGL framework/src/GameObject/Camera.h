@@ -5,23 +5,28 @@ class Cube;
 class Camera
 {
 public:
+	Camera() : fov(70), aspectRatio((float)SCREENWIDTH / (float)SCREENHEIGHT),
+		pos(glm::vec3(0, 0, 0)), forward(glm::vec3(0, 0, -1)),
+		up(glm::vec3(0, 1, 0)), projection(glm::perspective(70.f, aspectRatio, 0.1f, 200.0f)) {};
+
 	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 	void MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo);
 	glm::vec3 RayFromMouse(float mouseX, float mouseY) const;
 	void SetOrthographic();
 
 
-	static Camera& m_mainCam;
 
-	static void SetMainCamera(const Camera& cam) 
+	static void SetMainCamera(Camera* cam)
 	{
-		m_mainCam = cam;
+		Camera* maincam = GetMain();
+		maincam = cam;
 	}
 
 
-	static Camera& GetMain()
+	static Camera* GetMain()
 	{
-		return  m_mainCam;
+		static   Camera* m_mainCam = new Camera();
+		return   m_mainCam;
 	}
 
 	inline glm::mat4 GetViewProjectionMatrix() const
@@ -78,7 +83,6 @@ public:
 
 	glm::vec3 GetUp() const;
 
-protected:
 private:
 	float fov;
 	float aspectRatio;
