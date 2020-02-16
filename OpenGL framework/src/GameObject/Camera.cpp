@@ -1,14 +1,11 @@
 #include "precomp.h"
 
-Camera::Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar)
+Camera::Camera(const glm::vec3& p_pos, float p_fov, float p_aspect, float p_zNear, float p_zFar)
+	:
+	fov(p_fov), aspectRatio(p_aspect), pos(p_pos), forward(glm::vec3(0, 0, -1)),
+	up(glm::vec3(0, 1, 0)), projection(glm::perspective(p_fov, p_aspect, p_zNear, p_zFar))
 {
-	this->pos = pos;
-	this->forward = glm::vec3(0.0f, 0.0f, -1.0f);
-	this->up = glm::vec3(0.0f, 1.0f, 0.0f);
-	this->projection = glm::perspective(fov, aspect, zNear, zFar);
 
-	this->aspectRatio = aspect;
-	this->fov = fov;
 }
 
 void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo)

@@ -92,6 +92,7 @@
     <None Include="res\shaders\singledotshader.glsl" />
     <None Include="res\shaders\testshader.glsl" />
     <None Include="src\fbo test.cpp" />
+    <ClCompile Include="src\misc\InputManager.cpp" />
     <ClCompile Include="src\Light\LightManager.cpp" />
     <ClCompile Include="src\Light\Light.cpp" />
     <ClCompile Include="src\Animation\AnimationChannel.cpp" />
@@ -100,7 +101,6 @@
     <ClCompile Include="src\Animation\Keyframe.cpp" />
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\Joint.cpp" />
-    <ClCompile Include="src\InputProcessing.cpp" />
     <ClCompile Include="src\Rendering\Buffer\FrameBuffer.cpp" />
     <ClCompile Include="src\Rendering\Buffer\RenderBufferObject.cpp" />
     <ClCompile Include="src\Rendering\ShaderManager.cpp" />
@@ -275,6 +275,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\misc\InputManager.h" />
     <ClInclude Include="src\Light\LightManager.h" />
     <ClInclude Include="src\Light\Light.h" />
     <ClInclude Include="src\Animation\AnimationChannel.h" />

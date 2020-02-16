@@ -88,4 +88,5 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include "GameObject/Components/Mesh.h"
 #include "GameObject/Components/MeshNew.h"
 #include "GameObject/Components/Model.h"
+#include "misc/InputManager.h"
 //#include "InputProcessing.cpp"

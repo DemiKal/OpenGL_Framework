@@ -129,13 +129,13 @@
     <ClCompile Include="src\Animation\AnimationChannel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\InputProcessing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Light\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Light\LightManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\misc\InputManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1075,6 +1075,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Light\LightManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

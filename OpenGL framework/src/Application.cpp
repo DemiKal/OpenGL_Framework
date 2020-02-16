@@ -12,14 +12,14 @@ int main(void)
 
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
-
+	
 	if (!window)
 	{
 		glfwTerminate();
 		return -1;
 	}
 
-
+	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 
@@ -36,11 +36,11 @@ int main(void)
 
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");
-		cube.meshes[0].m_textures.emplace_back(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
+		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
 		Model plane = Model::CreatePlane();
 		plane.SetShader("plane");
-		plane.meshes[0].m_textures.emplace_back(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
 		float quadVertices[] = {
 			// positions   // texCoords
@@ -65,7 +65,7 @@ int main(void)
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-		float lineverts[] = { 0,0, 1,1 };
+		float lineverts[] = { 0, 0, 1, 1 };
 
 		unsigned int lineVao, lineVBO;
 		glGenVertexArrays(1, &lineVao);
@@ -106,9 +106,7 @@ int main(void)
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 		Texture back("res/textures/uvtest.png");
 
@@ -119,31 +117,15 @@ int main(void)
 		ImGui::CreateContext();
 		ImGui_ImplGlfwGL3_Init(window, true);
 		ImGui::StyleColorsDark();
-		float rot = 0;
-
-		//game loop
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
 
 		glEnable(GL_DEPTH_TEST);
 
-		double mouseXold = 0, mouseYold = 0;
-		double mouseXnew = 0, mouseYnew = 0;
-		//std::clock_t start;
-		//double duration;
-		//Camera cam;
-		Transform t;
-		t.SetPos({ 0, 0, 0 });
-		t.SetRot({ 0, 0, 0 });
-		t.SetScale({ 1, 1,1 });
-		int i = 0;
 		std::vector<float>  frametimes;
 
 		glm::vec3 lightpos(1.0f, 2.0f, 3.0f);
 		glm::mat4 pp = glm::translate(glm::mat4(1.0f), lightpos);
 		glm::vec4 s = pp[3];
 		glm::vec4  override_color(0.3f, 0.5, 0.1, 0.5f);
-
 
 		auto& singledotshader = ShaderManager::GetShader("singledotshader");
 		//
@@ -163,78 +145,15 @@ int main(void)
 
 		double prevFrameTime = glfwGetTime();
 
-
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
 			double currentFrameTime = glfwGetTime();
 			ImGui_ImplGlfwGL3_NewFrame();
-			glfwGetCursorPos(window, &mouseXnew, &mouseYnew);
 
 #pragma region input
-			i++;
-			rot += 0.005f;
 
-			float camSpeed = 0.05f;
-			glm::vec3 camMovement = glm::vec3();
-			const glm::vec3 forward = camera.GetForward();
-			const glm::vec3 up = camera.GetUp();
-
-
-
-			int mb = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
-			ImGui::Text("mouse click %s", mb ? "true" : "false");
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-				camMovement += camSpeed * forward;
-			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-				camMovement -= camSpeed * forward;
-			if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-				camMovement += camSpeed * up;
-			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-				camMovement -= camSpeed * up;
-			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-				camMovement -= glm::normalize(glm::cross(forward, up)) * camSpeed;
-			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-				camMovement += glm::normalize(glm::cross(forward, up)) * camSpeed;
-			if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-				camera.RotateYlocal(.01f);
-			if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-				camera.RotateYlocal(-.01f);
-			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-				camera.RotateXlocal(.01f);
-			if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-				camera.RotateXlocal(-.01f);
-			if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-				light_manager::get_lights()[0].get_position() += (2 * camSpeed * upWorld);
-			if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-				light_manager::get_lights()[0].get_position() += 2 * camSpeed * -upWorld;
-			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-				light_manager::get_lights()[0].get_position() += 2 * camSpeed * -rightWorld;
-			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-				light_manager::get_lights()[0].get_position() += 2 * camSpeed * rightWorld;
-			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-				light_manager::get_lights()[0].get_position() += 2 * camSpeed * forwardWorld;
-			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-				light_manager::get_lights()[0].get_position() += 2 * camSpeed * -forwardWorld;
-			if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-				light_manager::get_lights()[0].get_position() += 2 * camSpeed * upWorld;
-			if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-				light_manager::get_lights()[0].get_position() += 2 * camSpeed * -upWorld;
-
-
-			*camera.Position() += camMovement;
-
-			const float signX = (float)glm::sign(mouseXnew - mouseXold);
-			const float signY = (float)glm::sign(mouseYold - mouseYnew);
-			glm::vec2 mDiff = glm::vec2(signX, signY);
-			glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
-
-			const glm::mat4 mvp = t.GetMVP(camera);
-
-			ImGui::Text("mouse pos {x:%.2f, y:%.2f}", mDiff.x, mDiff.y);
-
-			mouseXold = mouseXnew;
-			mouseYold = mouseYnew;
+			InputManager::Update(camera);
 
 			const float average = (float)std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
 			const float avgfps = 1000.0f * float(1.0f / average);
@@ -256,17 +175,12 @@ int main(void)
 
 			obj.GetShader().Bind();
 			obj.GetShader().setVec3("viewPos", *camera.Position());
-			obj.GetShader().setVec3("lightPos", light_manager::get_lights()[0].get_position());
+			obj.GetShader().setVec3("lightPos", light_manager::GetLight(0).get_position());
 			obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);
 
 			light_manager::debug_render(camera);
-			//
-			//singledotshader.Bind();
-			//singledotshader.SetUniformMat4f("view", camera.GetViewMatrix());
-			//singledotshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-			//singledotshader.SetUniformMat4f("model", glm::translate(glm::mat4(1.0f), lightpos));
 
 			glDisable(GL_DEPTH_TEST);
 

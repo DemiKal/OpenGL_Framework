@@ -45,9 +45,13 @@ public:
 	inline bool HasFaceIndices() { return indices.size() > 0; }
 	inline unsigned int GetVertexCount() { return vertices.size(); }
 
-	void SetVAO(unsigned int val) { VAO = val; }
-	void SetVBO(unsigned int val) { VBO = val; }
-	void SetEBO(unsigned int val) { EBO = val; }
+	//void SetVAO(unsigned int val) { VAO = val; }
+	//void SetVBO(unsigned int val) { VBO = val; }
+	//void SetEBO(unsigned int val) { EBO = val; }
+	void addTexture(const Texture2D& tex) 
+	{
+		m_textures.emplace_back(tex);
+	}
 
 	//void AddWeight(std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
 	//	GLuint bone_id, GLfloat weight);

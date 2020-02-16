@@ -46,7 +46,7 @@ public:
 		unsigned int bone_index, GLuint bone_id, GLfloat weight);
 
 	MeshNew processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr <Armature> armature);
-
+	MeshNew& getMesh(const unsigned int idx) { return meshes[idx]; }
 	std::vector<Texture2D> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
 };
 
