@@ -12,7 +12,7 @@ int main(void)
 
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
-	
+
 	if (!window)
 	{
 		glfwTerminate();
@@ -113,9 +113,12 @@ int main(void)
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
 		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 200.0f);
-		Camera::SetMainCamera(&camera);
-		Camera* cam = Camera::GetMain(); //??
-
+		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
+		cam2.RotateYlocal(glm::radians(-90.0f));
+		
+		Camera::SetMainCamera(&cam2);
+		//Camera* cam = Camera::GetMain(); //??
+		//* cam->Position()   += glm::vec3(2, 0, 3);
 		ImGui::CreateContext();
 		ImGui_ImplGlfwGL3_Init(window, true);
 		ImGui::StyleColorsDark();
@@ -176,9 +179,9 @@ int main(void)
 			obj.GetShader().Bind();
 			obj.GetShader().setVec3("viewPos", *Camera::GetMain()->Position());
 			obj.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			obj.Draw(*Camera::GetMain());
-			cube.Draw(*Camera::GetMain());
-			plane.Draw(*Camera::GetMain());
+			obj.Draw(camera);
+			cube.Draw(camera);
+			plane.Draw(camera);
 
 			LightManager::debug_render(camera);
 

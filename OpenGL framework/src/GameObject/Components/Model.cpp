@@ -60,7 +60,7 @@ void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlag
 	const auto standardFlags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenNormals;
 	const auto flagsComposed = standardFlags | LoadFlags;
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
-	 
+
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
@@ -78,7 +78,7 @@ void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlag
 	CreateHierarchy(armature, scene->mRootNode);
 
 	processNode(scene->mRootNode, scene, armature);
-	
+
 }
 
 
@@ -456,8 +456,14 @@ void Model::Draw(const Camera& cam)
 
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();
+	static float r = 1.0f;
+	r += 0.01f;
 
-	shader.SetUniformMat4f("model", model);
+	Camera* camera = Camera::GetMain();
+	glm::mat4 proj2 = camera->GetProjectionMatrix();
+	glm::mat4 view2 = camera->GetViewMatrix();
+
+	shader.SetUniformMat4f("model", model );
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", proj);
 

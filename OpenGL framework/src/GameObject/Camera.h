@@ -15,17 +15,15 @@ public:
 	void SetOrthographic();
 
 
-
 	static void SetMainCamera(Camera* cam)
 	{
-		Camera* maincam = GetMain();
-		maincam = cam;
+		//Camera* maincam = GetMain();
+		m_mainCam = cam;
 	}
 
 
 	static Camera* GetMain()
 	{
-		static   Camera* m_mainCam = new Camera();
 		return   m_mainCam;
 	}
 
@@ -90,5 +88,6 @@ private:
 	glm::vec3 forward{};
 	glm::vec3 up{};
 	glm::mat4 projection{};
+	static Camera* m_mainCam;// = new Camera();
 };
 

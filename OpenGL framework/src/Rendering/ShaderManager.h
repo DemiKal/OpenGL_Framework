@@ -33,9 +33,9 @@ public:
 
 	ShaderManager() = default;
 	static GPUShader& GetShader(const std::string& name);
-	static GPUShader& GetShader(const unsigned int idx); 
+	static GPUShader& GetShader(const unsigned int idx);
 	static unsigned int GetShaderIdx(const std::string& _name);
-	
+
 	static void Init(const std::string& shaderDirectory = "res/shaders")
 	{
 		auto& instance = getInstance();
@@ -45,8 +45,8 @@ public:
 
 	static ShaderManager& getInstance()
 	{
-		static  ShaderManager instance;
-		return instance;
+		static std::unique_ptr< ShaderManager > instance = std::make_unique<ShaderManager>();
+		return *instance;
 	}
 	static void Destroy();
 

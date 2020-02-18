@@ -1,4 +1,5 @@
 #include "precomp.h"
+Camera* Camera::m_mainCam;
 
 Camera::Camera(const glm::vec3& p_pos, float p_fov, float p_aspect, float p_zNear, float p_zFar)
 	:
