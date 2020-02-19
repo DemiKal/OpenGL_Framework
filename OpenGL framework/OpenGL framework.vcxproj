@@ -89,6 +89,7 @@
     </None>
     <None Include="res\shaders\lineshader.glsl" />
     <None Include="res\shaders\plane.glsl" />
+    <None Include="res\shaders\singlecolor.glsl" />
     <None Include="res\shaders\singledotshader.glsl" />
     <None Include="res\shaders\testshader.glsl" />
     <None Include="src\fbo test.cpp" />

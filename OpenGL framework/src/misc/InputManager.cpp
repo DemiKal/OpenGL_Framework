@@ -23,8 +23,8 @@ void InputManager::Update(Camera& camera )
 
 	float camSpeed = 0.05f;
 	glm::vec3 camMovement = glm::vec3();
-	const glm::vec3 forward = camera.GetForward();
-	const glm::vec3 up = camera.GetUp();
+	const glm::vec3 forward = camera.GetForwardVector();
+	const glm::vec3 up = camera.GetUpVector();
 
 	const glm::vec3 upWorld = glm::vec3(0, 1, 0);
 	const glm::vec3 rightWorld = glm::vec3(1, 0, 0);
@@ -77,5 +77,5 @@ void InputManager::Update(Camera& camera )
 	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
 		LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
 
-	*camera.Position() += camMovement;
+	camera.GetPosition() += camMovement;
 }

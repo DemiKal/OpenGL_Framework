@@ -480,6 +480,13 @@ Model Model::CreateCube() {
 	return model;
 }
 
+Model Model::CreateCubeWireframe() {
+	Model model;
+	MeshNew mesh = MeshNew::CreateCubeWireframe();
+	model.meshes.emplace_back(mesh);
+	return model;
+}
+
 Model Model::CreatePlane()
 {
 	Model model;

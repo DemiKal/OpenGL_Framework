@@ -30,9 +30,9 @@ int main(void)
 		renderer.SetAlphaBlending(true);
 		ShaderManager::Init(); //init before any model
 
-		Model obj = Model();
-		obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
-		obj.SetShader("normalmapshader");
+		//Model obj = Model();
+		//obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
+		//obj.SetShader("normalmapshader");
 
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");
@@ -42,6 +42,9 @@ int main(void)
 		plane.SetShader("plane");
 		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
+		Model cube2 = Model::CreateCubeWireframe();
+		cube2.SetShader("singlecolor");
+		
 		float quadVertices[] = {
 			// positions   // texCoords
 			-1.0f,  1.0f,  0.0f, 1.0f,
@@ -176,12 +179,23 @@ int main(void)
 			float deltaTime = currentFrameTime - prevFrameTime;
 			output = true;
 
-			obj.GetShader().Bind();
-			obj.GetShader().setVec3("viewPos", *Camera::GetMain()->Position());
-			obj.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			obj.Draw(camera);
+			//glPolygonMode(GL_FRONT, GL_LINE);
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			//obj.GetShader().Bind();
+			//obj.GetShader().setVec3("viewPos", Camera::GetMain()->GetPosition());
+			//obj.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			//obj.Draw(camera);
 			cube.Draw(camera);
 			plane.Draw(camera);
+
+			cube2.model = glm::rotate(cube2.model, 0.1f,  glm::vec3(0, 1, 0));
+			cube2.GetShader().Bind();
+			cube2.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
+			cube2.Draw(camera);
+
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//glPolygonMode(GL_FRONT, GL_FILL);
+			//glPolygonMode(GL_BACK, GL_FILL);
 
 			LightManager::debug_render(camera);
 
@@ -192,7 +206,6 @@ int main(void)
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-
 
 			postProcessShader.Bind();
 

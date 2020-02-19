@@ -38,6 +38,7 @@ public:
 	void Draw(const Camera& cam);
 	GPUShader& GetShader() const { return   ShaderManager::GetShader(shaderIdx); }
 	static Model CreateCube();
+	static Model CreateCubeWireframe();
 	void loadModel(const std::string& path, const aiPostProcessSteps LoadFlags);
 	static Model CreatePlane();
 	void processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature>  armature);

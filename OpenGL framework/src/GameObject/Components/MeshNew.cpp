@@ -27,8 +27,6 @@ void MeshNew::Draw(GPUShader& shader)
 		//GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
 		// and finally bind the texture
 		GLCall(glBindTexture(GL_TEXTURE_2D, tex.GetID()));
-
-	
 	}
 
 	if (!m_animator.m_bones.empty()) {
@@ -44,9 +42,9 @@ void MeshNew::Draw(GPUShader& shader)
 	glBindVertexArray(VAO);
 	if (!indices.empty())
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
-	else glDrawArrays(GL_TRIANGLES, 0, GetVertexCount()); //plane!
-	glBindVertexArray(0);
+	else glDrawArrays(GetElemDrawType(), 0, GetVertexCount()); //plane!
 
+	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
 }
 
@@ -95,7 +93,68 @@ void MeshNew::setupMesh()
 	glBindVertexArray(0);
 }
 
-MeshNew MeshNew::CreateCube() {
+MeshNew MeshNew::CreateCubeWireframe()
+{
+	MeshNew mesh;
+	mesh.SetElemDrawType(GL_LINES);
+
+	float cubeVertices[] = {
+		//front face
+		-0.5f, -0.5f, -0.5f, //ll-          
+		0.5f, -0.5f, -0.5f,	 //lr-
+		0.5f, -0.5f, -0.5f,	//lr-
+		0.5f,  0.5f, -0.5f,	//tr-
+		0.5f,  0.5f, -0.5f, //tr-
+		-0.5f,  0.5f, -0.5f, //tl-
+		-0.5f,  0.5f, -0.5f, //tl-
+		-0.5f, -0.5f, -0.5f, //ll-
+
+		//back face
+		-0.5f, -0.5f, 0.5f,   //ll+          
+		0.5f, -0.5f,  0.5f,	   //lr+
+		0.5f, -0.5f,  0.5f,	   //tr+
+		0.5f,  0.5f,  0.5f,	   //tr+
+		0.5f,  0.5f,  0.5f,    //lr+
+		-0.5f,  0.5f, 0.5f,   //tl+
+		-0.5f,  0.5f, 0.5f,   //tl+
+		-0.5f, -0.5f, 0.5f,   //ll+
+
+		//connecting edges
+		 -0.5f, -0.5f,  -0.5f,	//ll-
+		 -0.5f, -0.5f,  0.5f,	//ll+
+		 0.5f, -0.5f, -0.5f,		//lr-
+		 0.5f, -0.5f,  0.5f,		//lr+
+		 0.5f,  0.5f, -0.5f,		//tr-
+		 0.5f,  0.5f, 0.5f,		//tr+
+		 -0.5f,  0.5f,  -0.5f,	//tl-
+		 -0.5f,  0.5f,  0.5f		//tl+
+	}; //8*3*3
+
+	int size = sizeof(cubeVertices) / sizeof(float);
+	std::copy(cubeVertices, cubeVertices + size, std::back_inserter(mesh.vertices));
+
+	VertexBufferLayout vbl;
+	vbl.Push<float>(3, VertexType::POSITION);
+
+	mesh.m_VertexBufferLayout = vbl;
+	// cube VAO
+	unsigned int cubeVAO, cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &cubeVBO);
+	glBindVertexArray(cubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.vertices.size(), &mesh.vertices[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr);
+
+	mesh.VAO = cubeVAO;
+	mesh.VAO = cubeVAO;
+
+	return mesh;
+}
+
+MeshNew MeshNew::CreateCube()
+{
 	MeshNew mesh;
 	float cubeVertices[] = {
 		// positions          // texture Coords

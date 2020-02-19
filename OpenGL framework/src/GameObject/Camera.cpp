@@ -1,6 +1,10 @@
 #include "precomp.h"
 Camera* Camera::m_mainCam;
 
+Camera::Camera() : fov(70), aspectRatio((float)SCREENWIDTH / (float)SCREENHEIGHT),
+pos(glm::vec3(0, 0, 0)), forward(glm::vec3(0, 0, -1)),
+up(glm::vec3(0, 1, 0)), projection(glm::perspective(70.f, aspectRatio, 0.1f, 200.0f)) {}
+
 Camera::Camera(const glm::vec3& p_pos, float p_fov, float p_aspect, float p_zNear, float p_zFar)
 	:
 	fov(p_fov), aspectRatio(p_aspect), pos(p_pos), forward(glm::vec3(0, 0, -1)),
@@ -8,6 +12,8 @@ Camera::Camera(const glm::vec3& p_pos, float p_fov, float p_aspect, float p_zNea
 {
 
 }
+
+Camera::~Camera() = default;
 
 void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo)
 {
@@ -19,6 +25,7 @@ void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo)
 	}
 }
 
+//TODO: use a screenmanager to get SCREENWIDTH dynamically!
 glm::vec3 Camera::RayFromMouse(float mouseX, float mouseY) const
 {
 	float x = (2.0f * mouseX) / SCREENWIDTH - 1.0f;
@@ -44,9 +51,15 @@ glm::vec3 Camera::RayFromMouse(float mouseX, float mouseY) const
 	return ray_world;
 }
 
+//TODO: set screenwidht and other vars dynamically!
 void Camera::SetOrthographic()
 {
-	this->projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -10.0f, 100.0f);
+	projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -10.0f, 100.0f);
+}
+
+inline glm::mat4 Camera::GetViewProjectionMatrix() const
+{
+	return projection * glm::lookAt(pos, pos + forward, up);
 }
 
 void Camera::meme(Cube& cyb)
@@ -57,17 +70,17 @@ void Camera::meme(Cube& cyb)
 void Camera::CheckMouseHover(const float mX, const float mY, const Cube& cube)
 {
 	auto tris = cube.GetMeshTriangles();
-	glm::vec3 const campos = *Position();
-	glm::vec3 const  dir = RayFromMouse(mX, mY);
+	const glm::vec3  campos = GetPosition();
+	const   glm::vec3 dir = RayFromMouse(mX, mY);
 
 	bool cubeIntersect = false;
-	for (const auto tri : tris)
+	for (const auto& tri : tris)
 	{
 		glm::vec2 baryCoords{ 0,0 };
 		float t;
 
 		const bool intersect = glm::intersectRayTriangle(campos,
-			dir, (&tri)->v1, (&tri)->v2, (&tri)->v3, baryCoords, t);
+			dir, tri.v1, (&tri)->v2, (&tri)->v3, baryCoords, t);
 
 		if (intersect)
 		{
@@ -76,7 +89,6 @@ void Camera::CheckMouseHover(const float mX, const float mY, const Cube& cube)
 		}
 	}
 
-
 	std::string name = "none";
 
 	name = cubeIntersect ? cube.Name().c_str() : "none";
@@ -84,21 +96,47 @@ void Camera::CheckMouseHover(const float mX, const float mY, const Cube& cube)
 	ImGui::Text("Hovered obj: %s", name.c_str());
 }
 
+inline glm::mat4 Camera::GetViewMatrix() const
+{
+	return glm::lookAt(pos, pos + forward, up);
+}
+
+inline glm::mat4 Camera::GetProjectionMatrix() const
+{
+	return projection;
+}
+
 void Camera::SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar)
 {
-	this->projection = glm::perspective(fov, aspect, zNear, zFar);
-}
-Camera::~Camera() = default;
-
-
-glm::vec3 Camera::GetForward() const
-{
-	return this->forward;
+	projection = glm::perspective(fov, aspect, zNear, zFar);
 }
 
-glm::vec3 Camera::GetUp() const
+
+//yaw 
+inline void Camera::RotateXlocal(const float angle)
 {
-	return this->up;
+	const glm::vec3 right = glm::normalize(glm::cross(up, forward));
+	const glm::mat4 rot = glm::rotate(glm::mat4(1), angle, right);
+
+	forward = glm::vec3(glm::normalize(rot * glm::vec4(forward, 0.0)));
+	up = glm::normalize(glm::cross(forward, right));
+}
+
+
+//rotate around the y axis, its own up vector
+
+inline void Camera::RotateYlocal(const float angle)
+{
+	static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, up);
+	forward = glm::vec3(glm::normalize(rotation * glm::vec4(forward, 0.0)));
+
+	up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
+}
+
+glm::vec3 Camera::GetUpVector() const
+{
+	return up;
 }
 
 

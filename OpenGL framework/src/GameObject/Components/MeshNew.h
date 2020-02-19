@@ -6,12 +6,17 @@ protected:
 	unsigned int VAO, VBO, EBO;
 	//vertex bools
 	bool animation_loaded = false;
-
+	GLenum elemDrawType = GL_TRIANGLES;
+	
 	/*  Functions    */
 	void setupMesh();
 
-public:
 
+public:
+	static MeshNew CreateCubeWireframe();
+	inline GLenum GetElemDrawType() { return elemDrawType; };
+	void SetElemDrawType(const GLenum enm) { elemDrawType = enm; }
+	
 	std::vector<float> vertices; //TODO make it dynamic for ints and others
 	std::vector<unsigned int> indices;
 	std::vector<Texture2D> m_textures;
