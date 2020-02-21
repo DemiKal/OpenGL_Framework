@@ -53,14 +53,15 @@ MeshNew::MeshNew(
 	const std::vector<unsigned>& indices,
 	const std::vector<Texture2D>& textures,
 	const Animator& animator,
-	const VertexBufferLayout& vbl)
+	const VertexBufferLayout& vbl,
+	const AABB& aabb)
 {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->m_textures = textures;
 	this->m_animator = animator;
 	this->m_VertexBufferLayout = vbl;
-
+	this->m_aabb = aabb;
 	setupMesh();
 }
 
@@ -200,8 +201,26 @@ MeshNew MeshNew::CreateCube()
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-
+	
 	std::copy(cubeVertices, cubeVertices + 6 * 5 * 6, std::back_inserter(mesh.vertices));
+
+	AABB aabb;
+	glm::vec3 minVec(9999999999);
+	glm::vec3 maxVec(-9999999999);
+	
+	for (size_t i = 0; i < mesh.vertices.size(); i += 5)
+	{
+		float x = mesh.vertices[i + 0];
+		float y = mesh.vertices[i + 1];
+		float z = mesh.vertices[i + 2];
+		glm::vec3 vec(x,y,z);
+		minVec = AABB::MinimizeVec(minVec, vec);
+		maxVec = AABB::MaximizeVec(maxVec, vec);
+	}
+
+	aabb.minVec = minVec;
+	aabb.maxVec = maxVec;
+	mesh.m_aabb = aabb;
 
 	VertexBufferLayout vbl;
 	vbl.Push<float>(3, VertexType::POSITION);

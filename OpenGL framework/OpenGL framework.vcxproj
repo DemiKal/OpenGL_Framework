@@ -93,6 +93,9 @@
     <None Include="res\shaders\singledotshader.glsl" />
     <None Include="res\shaders\testshader.glsl" />
     <None Include="src\fbo test.cpp" />
+    <ClCompile Include="src\Geometry\AxisAlignedBB.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\misc\InputManager.cpp" />
     <ClCompile Include="src\Light\LightManager.cpp" />
     <ClCompile Include="src\Light\Light.cpp" />
@@ -147,8 +150,6 @@
     <ClCompile Include="src\Rendering\Buffer\VertexBufferLayout.cpp" />
     <ClCompile Include="src\Working tut.cpp" />
     <ClCompile Include="src\Rendering\Texture.cpp" />
-    <ClCompile Include="src\tests\Test.cpp" />
-    <ClCompile Include="src\tests\TestClearColor.cpp" />
     <ClCompile Include="src\GameObject\Components\Transform.cpp" />
     <ClCompile Include="src\Rendering\Buffer\VertexArraySub.cpp" />
     <ClCompile Include="src\GameObject\Components\Texture2D.cpp" />
@@ -276,6 +277,9 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Geometry\AxisAlignedBB.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\misc\InputManager.h" />
     <ClInclude Include="src\Light\LightManager.h" />
     <ClInclude Include="src\Light\Light.h" />
@@ -461,8 +465,6 @@
     <ClInclude Include="src\Rendering\Buffer\VertexBuffer.h" />
     <ClInclude Include="src\Rendering\Buffer\VertexBufferLayout.h" />
     <ClInclude Include="src\Rendering\Texture.h" />
-    <ClInclude Include="src\tests\Test.h" />
-    <ClInclude Include="src\tests\TestClearColor.h" />
     <ClInclude Include="src\Rendering\Buffer\VertexArraySub.h" />
     <ClInclude Include="src\GameObject\Components\Texture2D.h" />
   </ItemGroup>

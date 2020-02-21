@@ -55,8 +55,8 @@ bool GLLogCall(const char* function, const char* file, int line);
 
 #include "Rendering/Buffer/IndexBuffer.h"
 
-#include "tests/Test.h"
-#include "tests/TestClearColor.h"
+//#include "tests/Test.h"
+//#include "tests/TestClearColor.h"
 
 #include "GameObject/Components/Texture2D.h"
 #include "Rendering/GPUShader.h"
@@ -76,6 +76,7 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+
 #include "Animation/AnimationChannel.h"
 #include "Animation/Joint.h"
 #include "Animation/Keyframe.h"
@@ -83,6 +84,7 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include "Animation/JointTransform.h"
 #include "Animation/Animator.h"
 
+#include "Geometry/AxisAlignedBB.h"
 #include "Light/Light.h"
 #include "Light/LightManager.h"
 #include "GameObject/Components/Mesh.h"

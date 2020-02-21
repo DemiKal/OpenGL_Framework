@@ -22,6 +22,8 @@ public:
 	std::vector<Texture2D> m_textures;
 	Animator m_animator;
 	VertexBufferLayout m_VertexBufferLayout;
+	AABB m_aabb;
+
 	MeshNew() : indices(), m_textures(), VAO(0), VBO(0), EBO(0) {};
 
 	~MeshNew() = default;
@@ -31,7 +33,8 @@ public:
 		const std::vector <unsigned int>& indices,
 		const std::vector <Texture2D>& textures,
 		const Animator& animator,
-		const VertexBufferLayout& vbl);
+		const VertexBufferLayout& vbl,
+		const AABB& aabb);
 
 	void Draw(GPUShader& shader);
 	//bool hasPositions() const { return pos_loaded; }
@@ -48,7 +51,7 @@ public:
 	static MeshNew CreateCube();
 
 	inline bool HasFaceIndices() { return indices.size() > 0; }
-	inline unsigned int GetVertexCount() { return vertices.size(); }
+	inline size_t GetVertexCount() { return vertices.size(); }
 
 	//void SetVAO(unsigned int val) { VAO = val; }
 	//void SetVBO(unsigned int val) { VBO = val; }

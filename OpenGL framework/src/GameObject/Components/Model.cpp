@@ -19,7 +19,6 @@ void Model::SetShader(const std::string& shadername)
 	shaderIdx = ShaderManager::GetShaderIdx(shadername);
 }
 
-
 void CreateHierarchy(std::shared_ptr<Model::Armature> parentArmature, aiNode* node)
 {
 	//Model::Armature* arma = new Model::Armature; //ptr?
@@ -38,10 +37,6 @@ void CreateHierarchy(std::shared_ptr<Model::Armature> parentArmature, aiNode* no
 	{
 		CreateHierarchy(me, node->mChildren[i]);
 	}
-
-
-
-
 }
 
 aiNode* FindRootNode(aiNode* node, const std::string& name) {
@@ -51,7 +46,6 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 		for (int i = 0; i < node->mNumChildren; i++)
 			FindRootNode(node->mChildren[i], name);
 	}
-
 }
 
 void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags = (aiPostProcessSteps)0)
@@ -84,16 +78,6 @@ void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlag
 
 void Model::processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature> armature)
 {
-	//auto mat = node->mTransformation;
-	//auto glmmat = AI2GLMMAT(mat);
-	//auto name = node->mName;
-
-	//Armature new_armature;
-	//new_armature.name = name.C_Str();
-
-	//armature.children.emplace_back(new_armature);
-
-	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -105,7 +89,6 @@ void Model::processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Arma
 		processNode(node->mChildren[i], scene, armature);
 	}
 }
-
 
 void Model::AddWeight(
 	std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
@@ -133,6 +116,7 @@ void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
 	for (int i = 0; i < arma->children.size(); i++)
 		FindChildren(arma->children[i], joint, bonesDict);
 }
+
 void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 {
 	if (armature->name == joint.Name)
@@ -142,8 +126,17 @@ void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 	}
 	else for (auto& children : armature->children)	AssignMatrices(children, joint);
 }
+
 MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
 {
+	aiAABB _aiAABB = mesh->mAABB;
+	glm::vec3 minVec(_aiAABB.mMin.x, _aiAABB.mMin.y, _aiAABB.mMin.z);
+	glm::vec3 maxVec(_aiAABB.mMax.x, _aiAABB.mMax.y, _aiAABB.mMax.z);
+
+	AABB aabb;
+	aabb.minVec = minVec;
+	aabb.maxVec = maxVec;
+
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
 	const unsigned int BONESPERVERTEX = 3;
@@ -409,7 +402,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, textures, animator, vbLayout);
+	return MeshNew(vertices, indices, textures, animator, vbLayout, aabb );
 }
 
 
@@ -463,7 +456,7 @@ void Model::Draw(const Camera& cam)
 	glm::mat4 proj2 = camera->GetProjectionMatrix();
 	glm::mat4 view2 = camera->GetViewMatrix();
 
-	shader.SetUniformMat4f("model", model );
+	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", proj);
 
