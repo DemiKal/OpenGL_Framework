@@ -1,22 +1,5 @@
 #include "precomp.h"
 
-std::vector < glm::vec3 > GetVerts(Model& cube)
-{
-	int vCount = cube.getMesh(0).GetVertexCount();
-	auto v_stride = cube.getMesh(0).m_VertexBufferLayout.GetStride();
-	std::vector<glm::vec3> vecs;
-	//get pos
-	for (int i = 0; i < vCount; i += v_stride / 4)
-	{
-		glm::vec3 vec(cube.getMesh(0).vertices[i + 0],
-			cube.getMesh(0).vertices[i + 1],
-			cube.getMesh(0).vertices[i + 2]);
-		glm::vec3 tvec = cube.model * glm::vec4(vec, 1.0f);
-		vecs.emplace_back(tvec);
-	}
-
-	return vecs;
-}
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -54,20 +37,14 @@ int main(void)
 		Model cube = Model::CreateCube();
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
-		Model cube2 = Model::CreateCube();
-		cube2.SetShader("framebuffers");
-		cube2.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
-		cube2.model = glm::translate(glm::mat4(1.0f), { 3.5,4.5,0 });
-
-
 
 		Model plane = Model::CreatePlane();
 		plane.SetShader("plane");
 		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
-		Model wireCube = Model::CreateCubeWireframe();
-		wireCube.SetShader("singlecolor");
-
+		Model cube2 = Model::CreateCubeWireframe();
+		cube2.SetShader("singlecolor");
+		
 		float quadVertices[] = {
 			// positions   // texCoords
 			-1.0f,  1.0f,  0.0f, 1.0f,
@@ -110,7 +87,6 @@ int main(void)
 		GPUShader& lineshader = ShaderManager::GetShader("lineshader");
 		GPUShader& boneshader = ShaderManager::GetShader("bones");
 
-
 		// framebuffer configuration
 		// -------------------------
 		////////////////////////////
@@ -142,7 +118,7 @@ int main(void)
 		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 200.0f);
 		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
 		cam2.RotateYlocal(glm::radians(-90.0f));
-
+		
 		Camera::SetMainCamera(&cam2);
 		//Camera* cam = Camera::GetMain(); //??
 		//* cam->Position()   += glm::vec3(2, 0, 3);
@@ -173,89 +149,8 @@ int main(void)
 		const glm::vec3 forwardWorld(0, 0, -1);
 
 
-
-
-
-		std::vector<glm::vec3> verts1 = GetVerts(cube);
-		std::vector<glm::vec3> verts2 = GetVerts(cube2);
-
-		std::vector<glm::vec3> verts;
-		verts.insert(verts.begin(), verts1.begin(), verts1.end());
-		verts.insert(verts.end(), verts2.begin(), verts2.end());
-
-		struct Size { int width, height; };
-		std::vector<Size> sizes = { {4, 1}, {2, 3}, {1, 2} };
-
-
-		decltype(sizes)::iterator minElWidth, maxElWidth;
-		std::tie(minElWidth, maxElWidth) = std::minmax_element(begin(sizes), end(sizes),
-			[](Size const& s1, Size const& s2)
-			{
-				return s1.width < s2.width;
-			});
-
-		auto compX = [](const glm::vec3& L, const glm::vec3& R) {return L.x < L.x; };
-		auto compY = [](const glm::vec3& L, const glm::vec3& R) {return L.y < L.y; };
-		auto compZ = [](const glm::vec3& L, const glm::vec3& R) {return L.z < L.z; };
-		//decltype(verts)::iterator minXvec, maxXvec;
-		//decltype(verts)::iterator minYvec, maxYvec;
-		//decltype(verts)::iterator minZvec, maxZvec;
-		auto [minXvec, maxXvec] = std::minmax_element(begin(verts), end(verts), compX);
-		auto [minYvec, maxYvec] = std::minmax_element(begin(verts), end(verts), compY);
-		auto [minZvec, maxZvec] = std::minmax_element(begin(verts), end(verts), compZ);
-
-
-
-		float maxX = -1, maxY = -1, maxZ = -1;
-		float minX = 9999999, minY = 999999, minZ = 9999999;
-
-		for (auto& v : verts) maxX = std::max(maxX, v.x), minX = std::min(minX, v.x);
-		for (auto& v : verts) maxY = std::max(maxY, v.y), minY = std::min(minY, v.y);
-		for (auto& v : verts) maxZ = std::max(maxZ, v.z), minZ = std::min(minZ, v.z);
-
-		auto mxz = std::max_element(begin(verts), end(verts), [](const auto& L, const auto& R) {return L.z < L.z; });
-		float mxzzz = mxz->z;
-
-
-		//float lengthX = maxXvec->x - minXvec->x;
-		//float lengthY = maxYvec->y - minYvec->y;
-		//float lengthZ = maxZvec->z - minZvec->z;
-
-
-		float lengthX = maxX - minX;
-		float lengthY = maxY - minY;
-		float lengthZ = maxZ - minZ;
-
-
-		glm::vec3  scale(lengthX, lengthY, lengthZ);
-		glm::vec3 center(
-			(maxX + minX) *0.5f,
-			(maxY + minY) *0.5f,
-			(maxZ + minZ) *0.5f	
-		);
-
-
-		//glm::vec3 center = {
-		//	(maxXvec->x + minXvec->x) / 2.0f,
-		//	(maxYvec->y + minYvec->y) / 2.0f,
-		//	(maxZvec->z + minZvec->z) / 2.0f };
-		glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
-		glm::mat4 centerMat = glm::translate(glm::mat4(1.0f), center);
-		glm::mat4 mat = glm::translate(scaleMat, center);
-
-		wireCube.model = glm::scale(centerMat, scale);
-
-		std::vector<int> test;
-		for (int i = 0; i < 1999; i++) test.emplace_back(i);
-
-		auto [minI, maxI] = std::minmax_element(begin(test), end(test),
-			[](int a, int b) { return a < b; });
-
-
-
-
-
 		double prevFrameTime = glfwGetTime();
+
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -291,15 +186,12 @@ int main(void)
 			//obj.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
 			//obj.Draw(camera);
 			cube.Draw(camera);
-			cube2.Draw(camera);
 			plane.Draw(camera);
 
-			//cube2.model = glm::rotate(cube2.model, 0.1f,  glm::vec3(0, 1, 0));
-
-
-			wireCube.GetShader().Bind();
-			wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
-			wireCube.Draw(camera);
+			cube2.model = glm::rotate(cube2.model, 0.1f,  glm::vec3(0, 1, 0));
+			cube2.GetShader().Bind();
+			cube2.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
+			cube2.Draw(camera);
 
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			//glPolygonMode(GL_FRONT, GL_FILL);

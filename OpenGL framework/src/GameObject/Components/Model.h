@@ -1,5 +1,5 @@
 #pragma once
-
+//uniform sampler2D u_Texture;
 class Model
 {
 public:
@@ -10,8 +10,8 @@ public:
 		std::vector<std::shared_ptr<Armature>> children;
 		std::shared_ptr< Armature> parent;
 		glm::mat4 mat;
-	};
 
+	};
 	std::shared_ptr <Armature > armature;
 	glm::mat4 model;
 	std::vector<MeshNew> meshes;
