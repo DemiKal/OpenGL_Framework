@@ -14,7 +14,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
  
-out vec2 z;
+out vec2 v_TexCoord;
 
 void main() {
 	v_TexCoord = texCoord;

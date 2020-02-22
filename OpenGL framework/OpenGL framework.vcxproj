@@ -93,6 +93,7 @@
     <None Include="res\shaders\singledotshader.glsl" />
     <None Include="res\shaders\testshader.glsl" />
     <None Include="src\fbo test.cpp" />
+    <ClCompile Include="src\GameObject\Components\AABB.cpp" />
     <ClCompile Include="src\misc\InputManager.cpp" />
     <ClCompile Include="src\Light\LightManager.cpp" />
     <ClCompile Include="src\Light\Light.cpp" />
@@ -276,6 +277,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\GameObject\Components\AABB.h" />
     <ClInclude Include="src\misc\InputManager.h" />
     <ClInclude Include="src\Light\LightManager.h" />
     <ClInclude Include="src\Light\Light.h" />

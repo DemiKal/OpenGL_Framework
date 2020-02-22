@@ -61,6 +61,14 @@ MeshNew::MeshNew(
 	this->m_animator = animator;
 	this->m_VertexBufferLayout = vbl;
 
+	//get aabb
+	if (!positionVertices.empty())
+		for (int i = 0; i < vertices.size(); i += vbl.GetStride())
+		{
+			positionVertices.emplace_back(glm::vec3{ vertices[i], vertices[i + 1], vertices[i + 2] });
+			//m_aabb.CalcBounds(positionVertices);
+		}
+
 	setupMesh();
 }
 
@@ -136,7 +144,18 @@ MeshNew MeshNew::CreateCubeWireframe()
 	VertexBufferLayout vbl;
 	vbl.Push<float>(3, VertexType::POSITION);
 
+	for (int i = 0; i < size; i += 3)
+	{
+		mesh.positionVertices.emplace_back(
+			glm::vec3(cubeVertices[i], cubeVertices[i + 1], cubeVertices[i + 2]));
+	}
+	 
+	//AABB aabb;
+	mesh.m_aabb.CalcBounds(mesh.positionVertices);
+	mesh.m_aabb.InitOriginal();
+	
 	mesh.m_VertexBufferLayout = vbl;
+
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
@@ -148,7 +167,7 @@ MeshNew MeshNew::CreateCubeWireframe()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr);
 
 	mesh.VAO = cubeVAO;
-	mesh.VAO = cubeVAO;
+	mesh.VBO = cubeVBO;
 
 	return mesh;
 }
@@ -201,7 +220,16 @@ MeshNew MeshNew::CreateCube()
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
+	const unsigned int size = sizeof(cubeVertices) / sizeof(float);
 	std::copy(cubeVertices, cubeVertices + 6 * 5 * 6, std::back_inserter(mesh.vertices));
+
+	for (int i = 0; i < mesh.vertices.size(); i += 5)
+		mesh.positionVertices.emplace_back(glm::vec3(
+			mesh.vertices[i], mesh.vertices[i + 1], mesh.vertices[i + 2]));
+
+	mesh.m_aabb.CalcBounds(mesh.positionVertices);
+	mesh.m_aabb.InitOriginal();
+
 
 	VertexBufferLayout vbl;
 	vbl.Push<float>(3, VertexType::POSITION);
@@ -240,6 +268,15 @@ MeshNew MeshNew::CreatePlane() {
 	};
 
 	std::copy(planeVertices, planeVertices + 30, std::back_inserter(mesh.vertices));
+
+	for (int i = 0; i < mesh.vertices.size(); i += 5)
+	{
+		const glm::vec3 v(mesh.vertices[i], mesh.vertices[i + 1], mesh.vertices[i + 2]);
+		mesh.positionVertices.emplace_back(v);
+	}
+
+	mesh.m_aabb.CalcBounds(mesh.positionVertices);
+	mesh.m_aabb.InitOriginal();
 
 	VertexBufferLayout vbl;
 	vbl.Push<float>(3, VertexType::POSITION);

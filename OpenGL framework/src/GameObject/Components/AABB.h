@@ -1,0 +1,106 @@
+#pragma once
+struct Max {
+	glm::vec3 v;
+	Max() : v(0) {};
+	Max(const  Max& m) : v(m.v) {};
+	Max(const glm::vec3& _max) : v(_max) {}
+};
+
+struct Min {
+	glm::vec3 v;
+	Min() : v(0) {};
+	Min(const Min& m) : v(m.v) {};
+	Min(const glm::vec3& _min) : v(_min) {}
+};
+
+class AABB
+{
+	Min m_min, m_min_OG;
+	Max m_max, m_max_OG;
+public:
+
+	AABB() : m_min(), m_min_OG(), m_max(), m_max_OG() {}
+
+	AABB(const glm::vec3& _min, const glm::vec3& _max)
+		: m_min(_min), m_min_OG(_min), m_max(_max), m_max_OG(_max) {}
+
+	AABB(Min _min, Max _max) : m_min(_min), m_min_OG(_min), m_max(_max), m_max_OG(_max) {};
+
+	void InitOriginal() { m_min_OG = m_min; m_max_OG = m_max; } //set original
+	Max GetMax() { return m_max; }
+	Min GetMin() { return m_min; }
+
+	Min minimize(const Min& minA, const Min& minB)
+	{
+		glm::vec3 vmin(
+			std::min(minA.v.x, minB.v.x),
+			std::min(minA.v.y, minB.v.y),
+			std::min(minA.v.z, minB.v.z));
+		return vmin;
+	}
+
+	Max maximize(const Max& maxA, const Max& maxB)
+	{
+		return glm::vec3(
+			std::max(maxA.v.x, maxB.v.x),
+			std::max(maxA.v.y, maxB.v.y),
+			std::max(maxA.v.z, maxB.v.z));
+	}
+
+	AABB Union(const AABB& a)
+	{
+		Min minV = minimize(a.m_min, m_min);
+		Max maxV = maximize(a.m_max, m_max);
+
+		return AABB(minV, maxV);
+	}
+
+	inline std::vector<glm::vec4> GetVerticesLocal()
+	{
+		return
+		{   //front plane
+			{m_min_OG.v.x, m_min_OG.v.y, m_max_OG.v.z, 1.0f}, {m_max_OG.v.x, m_min_OG.v.y, m_max_OG.v.z, 1.0f},
+			{m_max_OG.v.x, m_max_OG.v.y, m_max_OG.v.z, 1.0f}, {m_min_OG.v.x, m_max_OG.v.y, m_max_OG.v.z, 1.0f},
+
+			{m_min_OG.v.x, m_min_OG.v.y, m_min_OG.v.z, 1.0f}, {m_max_OG.v.x, m_min_OG.v.y, m_min_OG.v.z, 1.0f},
+			{m_max_OG.v.x, m_max_OG.v.y, m_min_OG.v.z, 1.0f}, {m_min_OG.v.x, m_max_OG.v.y, m_min_OG.v.z, 1.0f},
+		};
+	}
+
+	void RecalcBounds(const glm::mat4& transform)
+	{
+		const std::vector<glm::vec4> verts_local = GetVerticesLocal();
+		std::vector<glm::vec3> verts_world;
+		std::transform(verts_local.begin(), verts_local.end(),
+			std::back_inserter(verts_world),
+			[transform](const glm::vec4& v) { return glm::vec3(transform * v); });
+
+		CalcBounds(verts_world);
+	}
+
+	void CalcBounds(const std::vector<glm::vec3>& posVector)
+	{
+		Min vmin(glm::vec3((float)std::numeric_limits<float>::infinity()));
+		Max vmax(glm::vec3((float)-std::numeric_limits<float>::infinity()));
+
+		for (const glm::vec3& v : posVector)
+		{
+			vmin = minimize(vmin, v);
+			vmax = maximize(vmax, v);
+		}
+
+		m_min = vmin;
+		m_max = vmax;
+	}
+
+	glm::mat4 GetTransform()
+	{
+		glm::vec3 scale = m_max.v - m_min.v;
+		glm::vec3 center = 0.5f * (m_max.v + m_min.v);
+
+		return glm::scale(glm::translate(glm::mat4(1.0f), center), scale);
+
+	}
+
+};
+

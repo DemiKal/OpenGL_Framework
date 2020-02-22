@@ -42,9 +42,9 @@ int main(void)
 		plane.SetShader("plane");
 		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
-		Model cube2 = Model::CreateCubeWireframe();
-		cube2.SetShader("singlecolor");
-		
+		Model wireCube = Model::CreateCubeWireframe();
+		wireCube.SetShader("singlecolor");
+
 		float quadVertices[] = {
 			// positions   // texCoords
 			-1.0f,  1.0f,  0.0f, 1.0f,
@@ -118,7 +118,7 @@ int main(void)
 		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 200.0f);
 		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
 		cam2.RotateYlocal(glm::radians(-90.0f));
-		
+
 		Camera::SetMainCamera(&cam2);
 		//Camera* cam = Camera::GetMain(); //??
 		//* cam->Position()   += glm::vec3(2, 0, 3);
@@ -148,7 +148,10 @@ int main(void)
 		const glm::vec3 rightWorld(1, 0, 0);
 		const glm::vec3 forwardWorld(0, 0, -1);
 
-
+		//auto tt = glm::rotate(plane.model, glm::radians(45.0f+90.0f), { 0,0,1 });
+		//plane.getMesh(0).m_aabb.RecalcBounds(tt);
+		//wireCube.model = plane.getMesh(0).m_aabb.GetTransform();
+		//plane.model *= tt;
 		double prevFrameTime = glfwGetTime();
 
 		//Game Loop
@@ -179,20 +182,32 @@ int main(void)
 			float deltaTime = currentFrameTime - prevFrameTime;
 			output = true;
 
-			//glPolygonMode(GL_FRONT, GL_LINE);
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			//obj.GetShader().Bind();
-			//obj.GetShader().setVec3("viewPos", Camera::GetMain()->GetPosition());
-			//obj.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			//obj.Draw(camera);
+
+			cube.model = glm::rotate(cube.model, 0.01f, {1,1,0});
+			cube.meshes[0].m_aabb.RecalcBounds(cube.model);
+			wireCube.model = cube.meshes[0].m_aabb.GetTransform();
+			wireCube.GetShader().Bind();
+			wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 1.0f, 1.0f, 0.6f));
+			wireCube.Draw(camera);
 			cube.Draw(camera);
+
+
+			//wireCube.model = glm::rotate(wireCube.model, 0.1f,  glm::vec3(0, 1, 0));
+
+			plane.model = glm::rotate(plane.model, 0.001f, { 0  , 0, 1 });
+			plane.getMesh(0).m_aabb.RecalcBounds(plane.model);
+			
+			wireCube.model = plane.getMesh(0).m_aabb.GetTransform();
+			wireCube.GetShader().Bind();
+			wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
+			wireCube.Draw(camera);
+
+			//wireCube.model = glm::mat4(1.0f);
+			
+
+			
+			
 			plane.Draw(camera);
-
-			cube2.model = glm::rotate(cube2.model, 0.1f,  glm::vec3(0, 1, 0));
-			cube2.GetShader().Bind();
-			cube2.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
-			cube2.Draw(camera);
-
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			//glPolygonMode(GL_FRONT, GL_FILL);
 			//glPolygonMode(GL_BACK, GL_FILL);

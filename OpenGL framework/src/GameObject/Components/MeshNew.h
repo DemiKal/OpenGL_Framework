@@ -8,9 +8,7 @@ protected:
 	bool animation_loaded = false;
 	GLenum elemDrawType = GL_TRIANGLES;
 	
-	/*  Functions    */
 	void setupMesh();
-
 
 public:
 	static MeshNew CreateCubeWireframe();
@@ -22,6 +20,9 @@ public:
 	std::vector<Texture2D> m_textures;
 	Animator m_animator;
 	VertexBufferLayout m_VertexBufferLayout;
+	std::vector<glm::vec3> positionVertices; //vertices, but only the positions for other purposes
+	AABB m_aabb;
+	
 	MeshNew() : indices(), m_textures(), VAO(0), VBO(0), EBO(0) {};
 
 	~MeshNew() = default;
@@ -34,10 +35,6 @@ public:
 		const VertexBufferLayout& vbl);
 
 	void Draw(GPUShader& shader);
-	//bool hasPositions() const { return pos_loaded; }
-	//bool hasNormals() const { return normals_loaded; }
-	//bool hasUVs() const { return UVs_loaded; }
-	//bool hasTangents() const { return tangents_loaded; }
 	bool hasAnimation() const { return animation_loaded; }
 	unsigned int GetVAO() { return VAO; }
 	unsigned int GetVBO() { return VBO; }

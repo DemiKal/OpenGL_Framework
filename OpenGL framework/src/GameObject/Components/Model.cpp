@@ -409,7 +409,14 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return MeshNew(vertices, indices, textures, animator, vbLayout);
+	MeshNew meshnew(vertices, indices, textures, animator, vbLayout);
+
+	aiAABB& ai_aabb = mesh->mAABB;
+
+	meshnew.m_aabb = AABB({ai_aabb.mMin.x, ai_aabb.mMin.y, ai_aabb.mMin.z}, 
+						  {ai_aabb.mMax.x, ai_aabb.mMax.y, ai_aabb.mMax.z});
+
+	return	 meshnew;
 }
 
 

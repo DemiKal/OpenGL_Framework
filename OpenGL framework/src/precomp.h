@@ -85,6 +85,7 @@ bool GLLogCall(const char* function, const char* file, int line);
 
 #include "Light/Light.h"
 #include "Light/LightManager.h"
+#include "GameObject/Components/AABB.h"
 #include "GameObject/Components/Mesh.h"
 #include "GameObject/Components/MeshNew.h"
 #include "GameObject/Components/Model.h"
