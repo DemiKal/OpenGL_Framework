@@ -12,12 +12,18 @@ public:
 		glm::mat4 mat;
 
 	};
+	
 	std::shared_ptr <Armature > armature;
 	glm::mat4 model;
 	std::vector<MeshNew> meshes;
 	std::string directory;
 	std::vector<Texture2D> textures_loaded;
 	glm::mat4 inverse_root;
+	glm::vec3 m_velocity = { 0.001f,0,0 };
+	glm::vec3 m_position = { 0,0,0 };
+	glm::vec3 m_rotation = { 0,0,0 };
+	glm::vec3 m_scale = { 1,1,1 };
+
 	unsigned int shaderIdx;
 
 	//VertexBufferLayout vbl;
@@ -42,6 +48,7 @@ public:
 	void loadModel(const std::string& path, const aiPostProcessSteps LoadFlags);
 	static Model CreatePlane();
 	void processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature>  armature);
+	void Update(float deltaTime);
 
 	void AddWeight(std::vector<float>& vertices, unsigned int vertex_index,
 		unsigned int bone_index, GLuint bone_id, GLfloat weight);
@@ -49,6 +56,9 @@ public:
 	MeshNew processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr <Armature> armature);
 	inline MeshNew& getMesh(const unsigned int idx) { return meshes[idx]; }
 	std::vector<Texture2D> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
+
+
+
 };
 
 

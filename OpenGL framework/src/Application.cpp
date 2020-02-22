@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include "Application.h"
 
 int main(void)
 {
@@ -180,34 +181,44 @@ int main(void)
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			float deltaTime = currentFrameTime - prevFrameTime;
-			output = true;
+			
+			//cube.m_position += glm::vec3{0.01f, 0, 0};
+			
+			cube.Update(deltaTime);
+			//plane.m_position += glm::vec3{0.01f, 0, 0};
+			
+			plane.Update(deltaTime);
+			wireCube.Update(deltaTime);
 
-
-			cube.model = glm::rotate(cube.model, 0.01f, {1,1,0});
-			cube.meshes[0].m_aabb.RecalcBounds(cube.model);
-			wireCube.model = cube.meshes[0].m_aabb.GetTransform();
-			wireCube.GetShader().Bind();
-			wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 1.0f, 1.0f, 0.6f));
-			wireCube.Draw(camera);
 			cube.Draw(camera);
+			plane.Draw(camera);
+			wireCube.Draw(camera);
+		
 
+			//cube.model = glm::rotate(cube.model, 0.01f, {1,1,0});
+			//cube.meshes[0].m_aabb.RecalcBounds(cube.model);
+			//wireCube.model = cube.meshes[0].m_aabb.GetTransform();
+			//wireCube.GetShader().Bind();
+			//wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 1.0f, 1.0f, 0.6f));
+			//wireCube.Draw(camera);
+			//cube.Draw(camera);
 
 			//wireCube.model = glm::rotate(wireCube.model, 0.1f,  glm::vec3(0, 1, 0));
 
-			plane.model = glm::rotate(plane.model, 0.001f, { 0  , 0, 1 });
-			plane.getMesh(0).m_aabb.RecalcBounds(plane.model);
+			//plane.model = glm::rotate(plane.model, 0.001f, { 0  , 0, 1 });
+			//plane.getMesh(0).m_aabb.RecalcBounds(plane.model);
 			
-			wireCube.model = plane.getMesh(0).m_aabb.GetTransform();
-			wireCube.GetShader().Bind();
-			wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
-			wireCube.Draw(camera);
+			//wireCube.model = plane.getMesh(0).m_aabb.GetTransform();
+			//wireCube.GetShader().Bind();
+			//wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
+			//wireCube.Draw(camera);
 
 			//wireCube.model = glm::mat4(1.0f);
 			
 
 			
 			
-			plane.Draw(camera);
+			//plane.Draw(camera);
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			//glPolygonMode(GL_FRONT, GL_FILL);
 			//glPolygonMode(GL_BACK, GL_FILL);
@@ -221,7 +232,10 @@ int main(void)
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-
+			ImGui::SliderFloat3("Position", &plane.m_position[0], -100.0f, 100.0f);
+			ImGui::SliderFloat3("Rotation", &plane.m_rotation[0], 0, 360);
+			ImGui::SliderFloat3("Scale", &plane.m_scale[0], 0, 10);
+			
 			postProcessShader.Bind();
 
 			glBindVertexArray(quadVAO);

@@ -9,6 +9,8 @@ const int SCREENHEIGHT = 720;
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+
 //#include <glm/gtx/matrix_interpolation.hpp>
 
 #include <iostream>

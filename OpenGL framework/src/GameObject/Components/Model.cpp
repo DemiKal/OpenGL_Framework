@@ -106,6 +106,29 @@ void Model::processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Arma
 	}
 }
 
+void Model::Update(float deltaTime)
+{
+	//glm::vec3 prevPos = m_position
+	//position = velocity * deltaTime;
+	glm::mat4 id = glm::mat4(1.0f);
+	glm::mat4 scale = glm::scale(id, m_scale);
+
+	glm::mat4 rotationX = glm::rotate(id, glm::radians(m_rotation.x), glm::vec3{ 1,0,0 });
+	glm::mat4 rotationY = glm::rotate(id, glm::radians(m_rotation.y), glm::vec3{ 0,1,0 });
+	glm::mat4 rotationZ = glm::rotate(id, glm::radians(m_rotation.z), glm::vec3{ 0,0,1 });
+	//glm::mat4 rotation = rotationX * rotationY * rotationZ;
+	//glm::mat4 rotation = glm::orientate4(m_rotation);
+	glm::mat4 rotation = glm::eulerAngleYXZ(
+		glm::radians(m_rotation.y),
+		glm::radians(m_rotation.x),
+		glm::radians(m_rotation.z));
+
+	glm::mat4 translation = glm::translate(id, m_position);
+
+	glm::mat4 mat = translation * rotation * scale;
+	model = mat;
+}
+
 
 void Model::AddWeight(
 	std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
@@ -413,8 +436,8 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 
 	aiAABB& ai_aabb = mesh->mAABB;
 
-	meshnew.m_aabb = AABB({ai_aabb.mMin.x, ai_aabb.mMin.y, ai_aabb.mMin.z}, 
-						  {ai_aabb.mMax.x, ai_aabb.mMax.y, ai_aabb.mMax.z});
+	meshnew.m_aabb = AABB({ ai_aabb.mMin.x, ai_aabb.mMin.y, ai_aabb.mMin.z },
+		{ ai_aabb.mMax.x, ai_aabb.mMax.y, ai_aabb.mMax.z });
 
 	return	 meshnew;
 }
@@ -470,7 +493,7 @@ void Model::Draw(const Camera& cam)
 	glm::mat4 proj2 = camera->GetProjectionMatrix();
 	glm::mat4 view2 = camera->GetViewMatrix();
 
-	shader.SetUniformMat4f("model", model );
+	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", proj);
 
