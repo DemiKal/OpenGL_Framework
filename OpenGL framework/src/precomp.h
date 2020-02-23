@@ -68,6 +68,7 @@ bool GLLogCall(const char* function, const char* file, int line);
 #include "Rendering/Texture.h"
 #include "GameObject/Camera.h"
 #include "GameObject/VertexNew.h"
+#include "TriangleBuffer.h"
 
 #include "GameObject/Components/Transform.h"
 

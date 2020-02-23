@@ -39,33 +39,43 @@ int main(void)
 
 		
 		Model cube = Model::CreateCube();
+		cube.name = "cube";
+		
 		EntityManager::AddEntity(cube);
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
 		EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
 
-		Model plane = Model::CreatePlane();
+		Model plane = Model ::CreatePlane();
+		plane.name = "plane";
 		EntityManager::AddEntity(plane);
+		
+		//TriangleBuffer::AddTriangles(plane);
 
 		plane.SetShader("plane");
 		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
 		Model wireCube = Model::CreateCubeWireframe();
+		wireCube.name = "wirecube";
 		EntityManager::AddEntity(wireCube);
 
 		wireCube.SetShader("singlecolor");
 
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		spyro.SetShader("basic");
+		spyro.name = "spyro";
 		EntityManager::AddEntity(spyro);
 
-		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		artisans.SetShader("basic");
-		EntityManager::AddEntity(artisans);
+		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		//artisans.SetShader("basic");
+		//artisans.name = "name";
+		//EntityManager::AddEntity(artisans);
 
-		Model nanosuit("res/meshes/nanosuit/nanosuit.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		nanosuit.SetShader("normalmapshader");
+		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		//nanosuit.name = "nanosuit";
+		//EntityManager::AddEntity(nanosuit);
+		//nanosuit.SetShader("normalmapshader");
 
 		float quadVertices[] = {
 			// positions   // texCoords
@@ -206,33 +216,48 @@ int main(void)
 			cube.Update(deltaTime);
 			plane.Update(deltaTime);
 			spyro.Update(deltaTime);
-			nanosuit.Update(deltaTime);
+			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
 
 			cube.Draw(camera);
 			plane.Draw(camera);
 			spyro.Draw(camera);
-			artisans.Draw(camera);
+			//artisans.Draw(camera);
 
-			nanosuit.GetShader().Bind();
-			nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+			//nanosuit.GetShader().Bind();
+			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+			//nanosuit.Draw(camera);
+			
+			double mouseX, mouseY;
+			glfwGetCursorPos(window, &mouseX, &mouseY);
 
+			auto[hit , selected ] = camera.MousePick(mouseX, mouseY);
+			
+			std::string selectedStr = "None";
+			if(hit)
+			{
+				selectedStr = selected->name;
+			}
+			
+			ImGui::LabelText("label", selectedStr.c_str());
 
-			nanosuit.Draw(camera);
 
 			LightManager::debug_render(camera);
 
-			glDisable(GL_DEPTH_TEST);
 
-			prevFrameTime = currentFrameTime;
 
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
 			ImGui::SliderFloat3("Position", &plane.m_position[0], -100.0f, 100.0f);
 			ImGui::SliderFloat3("Rotation", &plane.m_rotation[0], 0, 360);
 			ImGui::SliderFloat3("Scale", &plane.m_scale[0], 0, 10);
+
+
+
+			prevFrameTime = currentFrameTime;
+			glDisable(GL_DEPTH_TEST);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			postProcessShader.Bind();
 

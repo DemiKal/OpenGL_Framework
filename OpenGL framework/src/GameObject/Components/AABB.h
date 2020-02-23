@@ -21,9 +21,9 @@ struct Min {
 
 class AABB
 {
+public:
 	Min m_min; // m_min_OG;
 	Max m_max; //m_max_OG;*/
-public:
 
 	AABB() : m_min(), m_max() {}
 

@@ -15,7 +15,7 @@ Camera::Camera(const glm::vec3& p_pos, float p_fov, float p_aspect, float p_zNea
 
 Camera::~Camera() = default;
 
-void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo)
+void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mvelo)
 {
 	mDiff = glm::normalize(mDiff);
 	if (glm::abs(mDiff.x) < 10 || glm::abs(mDiff.y) < 10)
@@ -28,7 +28,7 @@ void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo)
 //TODO: use a screenmanager to get SCREENWIDTH dynamically!
 glm::vec3 Camera::RayFromMouse(float mouseX, float mouseY) const
 {
-	float x = (2.0f * mouseX) / SCREENWIDTH - 1.0f;
+	float x = (2.0f * mouseX) / SCREENWIDTH - 1.0f; //TODO: FIX WITH DYNAMIC SCREENWIDTH!
 	float y = 1.0f - (2.0f * mouseY) / SCREENHEIGHT;
 	float z = 1.0f;
 	const glm::mat4 proj_mat = GetProjectionMatrix();
@@ -62,12 +62,67 @@ inline glm::mat4 Camera::GetViewProjectionMatrix() const
 	return projection * glm::lookAt(pos, pos + forward, up);
 }
 
-void Camera::meme(Cube& cyb)
+void Camera::meme(Cube & cyb)
 {
 	std::string s = cyb.Name();
 }
 
-void Camera::CheckMouseHover(const float mX, const float mY, const Cube& cube)
+bool intersectAABB(const glm::vec3 & origin, const glm::vec3 & direction, float& tCurrent, const AABB & aabb)
+{
+	const glm::vec3 d = glm::vec3(1.0f / direction.x,
+		1.0f / direction.y,
+		1.0f / direction.z);
+
+	const float t = 99999.0f;
+	const float tx1 = (aabb.m_min.v.x - origin.x) * d.x;
+	const float tx2 = (aabb.m_max.v.x - origin.x) * d.x;
+
+	float tmin = std::min(tx1, tx2);
+	float tmax = std::max(tx1, tx2);
+
+	const float ty1 = (aabb.m_min.v.y - origin.y) * d.y;
+	const float ty2 = (aabb.m_max.v.y - origin.y) * d.y;
+
+	tmin = std::max(tmin, std::min(ty1, ty2));
+	tmax = std::min(tmax, std::max(ty1, ty2));
+
+	const float tz1 = (aabb.m_min.v.z - origin.z) * d.z;
+	const float tz2 = (aabb.m_max.v.z - origin.z) * d.z;
+
+	tmin = std::max(tmin, std::min(tz1, tz2));
+	tmax = std::min(tmax, std::max(tz1, tz2));
+	tCurrent = tmin;
+	return tmax >= std::max(0.0f, tmin) && tmin < t;
+}
+
+std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY)
+{
+	glm::vec3 dir = RayFromMouse(MouseX, MouseY);
+	glm::vec3 origin = GetPosition();
+	std::vector < std::pair<Model*, float>> hits;
+	float t_min = 99999999;
+	Model* m_current = nullptr;
+	bool totalHit = false;
+	for (Model* mdl : EntityManager::GetEntities())
+	{
+		float tCurrent = -1111;
+		bool hit = intersectAABB(origin, dir, tCurrent, mdl->meshes[0].m_aabb);
+		totalHit |= hit;
+		if (hit && tCurrent < t_min)
+		{
+			m_current = mdl;
+			t_min = tCurrent;
+		}
+	}
+
+	return { totalHit , m_current };
+	//model = m_current;
+	//
+	//return totalHit;
+	//std::min_element(hits.begin(), hits.end())
+}
+
+void Camera::CheckMouseHover(const float mX, const float mY, const Cube & cube)
 {
 	auto tris = cube.GetMeshTriangles();
 	const glm::vec3  campos = GetPosition();
@@ -106,7 +161,7 @@ inline glm::mat4 Camera::GetProjectionMatrix() const
 	return projection;
 }
 
-void Camera::SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar)
+void Camera::SetPerspective(const glm::vec3 & pos, float fov, float aspect, float zNear, float zFar)
 {
 	projection = glm::perspective(fov, aspect, zNear, zFar);
 }

@@ -14,6 +14,12 @@ glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
 	return result;
 }
 
+Model::Model(const std::string& path, const aiPostProcessSteps loadFlags) :
+	model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0)
+{
+	loadModel(path, loadFlags);
+}
+
 void Model::SetShader(const std::string& shadername)
 {
 	shaderIdx = ShaderManager::GetShaderIdx(shadername);
@@ -49,10 +55,10 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 	}
 }
 
-void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags =aiProcess_Triangulate)
+void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags = aiProcess_Triangulate)
 {
 	Assimp::Importer import;
-	const auto standardFlags = aiProcess_Triangulate  | aiProcess_GenNormals | aiProcess_GenBoundingBoxes;
+	const auto standardFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenBoundingBoxes;
 	const auto flagsComposed = standardFlags | LoadFlags;
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
 
@@ -114,14 +120,14 @@ void Model::UpdateModelMatrix()
 
 void Model::Update(float deltaTime)
 {
-	m_rotation += glm::vec3(1, 1, 1) * 30.0f  * deltaTime;
-	
+	//m_rotation += glm::vec3(1, 1, 1) * 30.0f * deltaTime;
+
 	UpdateModelMatrix();
 
 	for (MeshNew& mesh : meshes)
 	{
 
-		mesh.m_aabb.Update(model,  mesh.m_aabb_OG);
+		mesh.m_aabb.Update(model, mesh.m_aabb_OG);
 	}
 
 }
@@ -138,7 +144,7 @@ void Model::AddWeight(
 }
 
 void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
-	std::unordered_map<std::string, unsigned int > bonesDict) 
+	std::unordered_map<std::string, unsigned int > bonesDict)
 {
 	if (arma->name == joint.GetName())
 	{
@@ -435,6 +441,11 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	meshnew.m_aabb = AABB({ ai_aabb.mMin.x, ai_aabb.mMin.y, ai_aabb.mMin.z },
 		{ ai_aabb.mMax.x, ai_aabb.mMax.y, ai_aabb.mMax.z });
 	meshnew.m_aabb_OG = meshnew.m_aabb;
+
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+		meshnew.positionVertices.emplace_back(
+			glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
+
 	return	 meshnew;
 }
 

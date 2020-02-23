@@ -1,6 +1,7 @@
 #pragma once
 
-class Model;
+class Model; 
+class TriangleBuffer;
 
 class EntityManager
 {
@@ -16,6 +17,7 @@ public:
 	{
 		auto& instance = GetInstance();
 		instance.Entities.emplace_back(&model);
+		TriangleBuffer::AddTriangles(model);
 	}
 
 private:

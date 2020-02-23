@@ -23,20 +23,15 @@ public:
 	glm::vec3 m_position = { 0,0,0 };
 	glm::vec3 m_rotation = { 0,0,0 };
 	glm::vec3 m_scale = { 1,1,1 };
-
+	std::string name;
 	unsigned int shaderIdx;
 
 	//VertexBufferLayout vbl;
-	Model() : model(glm::mat4(1.0f)), meshes(), directory(""),
-		textures_loaded(), shaderIdx(0), inverse_root(glm::mat4(1.0f)) {}
+	Model() : model(glm::mat4(1.0f)), meshes(), directory(""),	textures_loaded(), shaderIdx(0), inverse_root(glm::mat4(1.0f)) {}
 
 	~Model() = default;
 
-	Model(const std::string& path, const aiPostProcessSteps loadFlags) :
-		model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0)
-	{
-		loadModel(path, loadFlags);
-	}
+	Model(const std::string& path, const aiPostProcessSteps loadFlags);
 
 	glm::mat4 GetModelMatrix() { return model; }
 	void SetModelMatrix(const glm::mat4& mat) { model = mat; }

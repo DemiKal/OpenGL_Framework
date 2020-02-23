@@ -11,6 +11,7 @@ void InputManager::SetWindow(GLFWwindow* window)
 	GetInstance().m_window = window;
 }
 
+
 void InputManager::Update(Camera& camera )
 {
 	//Camera& camera = Camera::GetMain();

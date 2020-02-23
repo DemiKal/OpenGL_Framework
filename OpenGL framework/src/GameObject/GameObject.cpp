@@ -179,7 +179,7 @@ void GameObject::CalcMeshTriangles()
 		glm::vec3 v2(v2_x, v2_y, v2_z);
 		glm::vec3 v3(v3_x, v3_y, v3_z);
 
-		Triangle tri(v1, v2, v3);
+		Triangle_old tri(v1, v2, v3);
 		mesh_triangles.emplace_back(tri);
 	}
 }

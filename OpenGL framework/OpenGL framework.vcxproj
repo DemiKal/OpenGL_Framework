@@ -80,6 +80,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\TriangleBuffer.cpp" />
     <None Include="res\shaders\anim.glsl" />
     <None Include="res\shaders\bones.glsl" />
     <None Include="res\shaders\framebuffers.glsl" />
@@ -469,6 +470,7 @@
     <ClInclude Include="src\tests\TestClearColor.h" />
     <ClInclude Include="src\Rendering\Buffer\VertexArraySub.h" />
     <ClInclude Include="src\GameObject\Components\Texture2D.h" />
+    <ClInclude Include="src\TriangleBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\ChernoLogo.png" />

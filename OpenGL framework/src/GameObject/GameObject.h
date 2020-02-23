@@ -3,21 +3,23 @@
 
 class GameObject
 {
-protected: class Triangle
+protected: 
+
+class Triangle_old
 {
 public: glm::vec3  v1 ;
 		glm::vec3  v2 ;
 		glm::vec3  v3 ;
 
-		Triangle() = default;
-		Triangle(glm::vec3& v1_, glm::vec3& v2_, glm::vec3& v3_)
+		Triangle_old() = default;
+		Triangle_old(glm::vec3& v1_, glm::vec3& v2_, glm::vec3& v3_)
 		{
 			v1 = v1_;
 			v2 = v2_;
 			v3 = v3_;
 		}
 
-		Triangle operator*(const glm::mat4& mat)  const
+		Triangle_old operator*(const glm::mat4& mat)  const
 		{
 			auto v1_ = glm::vec3(mat * glm::vec4(v1, 1));
 			auto v2_ = glm::vec3(mat * glm::vec4(v2, 1));
@@ -54,7 +56,7 @@ private:
 protected:
 	std::vector<float> mesh_vertices;
 	std::vector<unsigned int> mesh_indices;
-	std::vector<Triangle> mesh_triangles;
+	std::vector<Triangle_old> mesh_triangles;
 public:
 	Renderer renderer;
 	VertexArray* m_va;
@@ -66,14 +68,14 @@ public:
 	Transform* m_transform;
 	IndexedModel idxmdl;
 	void LoadMesh(const std::string& filename);
-	inline std::vector<Triangle> GetMeshTriangles() const
+	inline std::vector<Triangle_old> GetMeshTriangles() const
 	{
 		glm::mat4 model_matrix = m_transform->GetModelMatrix();
-		std::vector<Triangle> world_space_triangles;
+		std::vector<Triangle_old> world_space_triangles;
 
-		for (Triangle t : mesh_triangles)
+		for (Triangle_old t : mesh_triangles)
 		{
-			Triangle t2 = t * model_matrix;
+			Triangle_old t2 = t * model_matrix;
 			world_space_triangles.emplace_back(t2);
 		}
 
