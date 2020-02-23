@@ -144,7 +144,7 @@
     <ClCompile Include="src\GameObject\EntityManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\TriangleBuffer.cpp">
+    <ClCompile Include="src\Geometry\TriangleBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1096,7 +1096,7 @@
     <ClInclude Include="src\GameObject\EntityManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\TriangleBuffer.h">
+    <ClInclude Include="src\Geometry\TriangleBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

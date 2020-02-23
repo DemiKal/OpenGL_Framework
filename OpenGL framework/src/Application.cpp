@@ -72,10 +72,10 @@ int main(void)
 		//artisans.name = "name";
 		//EntityManager::AddEntity(artisans);
 
-		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		//nanosuit.name = "nanosuit";
-		//EntityManager::AddEntity(nanosuit);
-		//nanosuit.SetShader("normalmapshader");
+		Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
+		nanosuit.name = "nanosuit";
+		EntityManager::AddEntity(nanosuit);
+		nanosuit.SetShader("normalmapshader");
 
 		float quadVertices[] = {
 			// positions   // texCoords
@@ -224,10 +224,10 @@ int main(void)
 			spyro.Draw(camera);
 			//artisans.Draw(camera);
 
-			//nanosuit.GetShader().Bind();
-			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
-			//nanosuit.Draw(camera);
+			nanosuit.GetShader().Bind();
+			nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+			nanosuit.Draw(camera);
 			
 			double mouseX, mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
