@@ -22,6 +22,7 @@ public:
 	VertexBufferLayout m_VertexBufferLayout;
 	std::vector<glm::vec3> positionVertices; //vertices, but only the positions for other purposes
 	AABB m_aabb;
+	AABB m_aabb_OG;
 	
 	MeshNew() : indices(), m_textures(), VAO(0), VBO(0), EBO(0) {};
 

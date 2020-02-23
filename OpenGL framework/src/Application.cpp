@@ -64,7 +64,7 @@ int main(void)
 		artisans.SetShader("basic");
 		EntityManager::AddEntity(artisans);
 
-		Model nanosuit("res/meshes/nanosuit/nanosuit.obj", aiPostProcessSteps::aiProcess_CalcTangentSpace);
+		Model nanosuit("res/meshes/nanosuit/nanosuit.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		nanosuit.SetShader("normalmapshader");
 
 		float quadVertices[] = {
@@ -206,6 +206,8 @@ int main(void)
 			cube.Update(deltaTime);
 			plane.Update(deltaTime);
 			spyro.Update(deltaTime);
+			nanosuit.Update(deltaTime);
+			//artisans.Update(deltaTime);
 
 			cube.Draw(camera);
 			plane.Draw(camera);

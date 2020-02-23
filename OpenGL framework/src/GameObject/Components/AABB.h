@@ -21,18 +21,17 @@ struct Min {
 
 class AABB
 {
-	Min m_min, m_min_OG;
-	Max m_max, m_max_OG;
+	Min m_min; // m_min_OG;
+	Max m_max; //m_max_OG;*/
 public:
 
-	AABB() : m_min(), m_min_OG(), m_max(), m_max_OG() {}
+	AABB() : m_min(), m_max() {}
 
-	AABB(const glm::vec3& _min, const glm::vec3& _max)
-		: m_min(_min), m_min_OG(_min), m_max(_max), m_max_OG(_max) {}
+	AABB(const glm::vec3& _min, const glm::vec3& _max) : m_min(_min), m_max(_max) {}
 
-	AABB(Min _min, Max _max) : m_min(_min), m_min_OG(_min), m_max(_max), m_max_OG(_max) {};
+	AABB(Min _min, Max _max) : m_min(_min), m_max(_max) {};
 
-	void InitOriginal() { m_min_OG = m_min; m_max_OG = m_max; } //set original
+	//void InitOriginal() { m_min_OG = m_min; m_max_OG = m_max; } //set original
 	Max GetMax() { return m_max; }
 	Min GetMin() { return m_min; }
 
@@ -61,21 +60,21 @@ public:
 		return AABB(minV, maxV);
 	}
 
-	inline std::vector<glm::vec4> GetVerticesLocal()
+	inline std::vector<glm::vec4> GetVerticesLocal() const
 	{
 		return
 		{   //front plane
-			{m_min_OG.v.x, m_min_OG.v.y, m_max_OG.v.z, 1.0f}, {m_max_OG.v.x, m_min_OG.v.y, m_max_OG.v.z, 1.0f},
-			{m_max_OG.v.x, m_max_OG.v.y, m_max_OG.v.z, 1.0f}, {m_min_OG.v.x, m_max_OG.v.y, m_max_OG.v.z, 1.0f},
+			{m_min.v.x, m_min.v.y, m_max.v.z, 1.0f}, {m_max.v.x, m_min.v.y, m_max.v.z, 1.0f},
+			{m_max.v.x, m_max.v.y, m_max.v.z, 1.0f}, {m_min.v.x, m_max.v.y, m_max.v.z, 1.0f},
 
-			{m_min_OG.v.x, m_min_OG.v.y, m_min_OG.v.z, 1.0f}, {m_max_OG.v.x, m_min_OG.v.y, m_min_OG.v.z, 1.0f},
-			{m_max_OG.v.x, m_max_OG.v.y, m_min_OG.v.z, 1.0f}, {m_min_OG.v.x, m_max_OG.v.y, m_min_OG.v.z, 1.0f},
+			{m_min.v.x, m_min.v.y, m_min.v.z, 1.0f}, {m_max.v.x, m_min.v.y, m_min.v.z, 1.0f},
+			{m_max.v.x, m_max.v.y, m_min.v.z, 1.0f}, {m_min.v.x, m_max.v.y, m_min.v.z, 1.0f},
 		};
 	}
 
-	void RecalcBounds(const glm::mat4& transform)
+	void RecalcBounds(const glm::mat4& transform, const AABB& original)
 	{
-		const std::vector<glm::vec4> verts_local = GetVerticesLocal();
+		const std::vector<glm::vec4> verts_local = original.GetVerticesLocal();
 		std::vector<glm::vec3> verts_world;
 		std::transform(verts_local.begin(), verts_local.end(),
 			std::back_inserter(verts_world),
@@ -108,9 +107,9 @@ public:
 
 	}
 
-	void Update(const glm::mat4& transform)
+	void Update(const glm::mat4& transform, const AABB& original)
 	{
-		RecalcBounds(transform);
+		RecalcBounds(transform, original);
 	}
 
 	void Draw(const Camera& camera);

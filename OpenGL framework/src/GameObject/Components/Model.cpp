@@ -114,12 +114,14 @@ void Model::UpdateModelMatrix()
 
 void Model::Update(float deltaTime)
 {
+	m_rotation += glm::vec3(1, 1, 1) * 30.0f  * deltaTime;
+	
 	UpdateModelMatrix();
 
 	for (MeshNew& mesh : meshes)
 	{
-		//mesh.m_aabb.RecalcBounds(model);
-		mesh.m_aabb.Update(model);
+
+		mesh.m_aabb.Update(model,  mesh.m_aabb_OG);
 	}
 
 }
@@ -432,7 +434,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 
 	meshnew.m_aabb = AABB({ ai_aabb.mMin.x, ai_aabb.mMin.y, ai_aabb.mMin.z },
 		{ ai_aabb.mMax.x, ai_aabb.mMax.y, ai_aabb.mMax.z });
-
+	meshnew.m_aabb_OG = meshnew.m_aabb;
 	return	 meshnew;
 }
 

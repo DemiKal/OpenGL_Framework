@@ -152,7 +152,7 @@ MeshNew MeshNew::CreateCubeWireframe()
 	 
 	//AABB aabb;
 	mesh.m_aabb.CalcBounds(mesh.positionVertices);
-	mesh.m_aabb.InitOriginal();
+	mesh.m_aabb_OG = mesh.m_aabb;
 	
 	mesh.m_VertexBufferLayout = vbl;
 
@@ -228,8 +228,7 @@ MeshNew MeshNew::CreateCube()
 			mesh.vertices[i], mesh.vertices[i + 1], mesh.vertices[i + 2]));
 
 	mesh.m_aabb.CalcBounds(mesh.positionVertices);
-	mesh.m_aabb.InitOriginal();
-
+	mesh.m_aabb_OG = mesh.m_aabb;
 
 	VertexBufferLayout vbl;
 	vbl.Push<float>(3, VertexType::POSITION);
@@ -276,7 +275,7 @@ MeshNew MeshNew::CreatePlane() {
 	}
 
 	mesh.m_aabb.CalcBounds(mesh.positionVertices);
-	mesh.m_aabb.InitOriginal();
+	mesh.m_aabb_OG = mesh.m_aabb;
 
 	VertexBufferLayout vbl;
 	vbl.Push<float>(3, VertexType::POSITION);
