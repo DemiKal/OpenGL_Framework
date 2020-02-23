@@ -38,10 +38,6 @@ void CreateHierarchy(std::shared_ptr<Model::Armature> parentArmature, aiNode* no
 	{
 		CreateHierarchy(me, node->mChildren[i]);
 	}
-
-
-
-
 }
 
 aiNode* FindRootNode(aiNode* node, const std::string& name) {
@@ -53,12 +49,13 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 	}
 }
 
-void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags = (aiPostProcessSteps)0)
+void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags =aiProcess_Triangulate)
 {
 	Assimp::Importer import;
-	const auto standardFlags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenNormals;
+	const auto standardFlags = aiProcess_Triangulate  | aiProcess_GenNormals | aiProcess_GenBoundingBoxes;
 	const auto flagsComposed = standardFlags | LoadFlags;
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
+
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -77,22 +74,11 @@ void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlag
 	CreateHierarchy(armature, scene->mRootNode);
 
 	processNode(scene->mRootNode, scene, armature);
-
 }
 
 
 void Model::processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature> armature)
 {
-	//auto mat = node->mTransformation;
-	//auto glmmat = AI2GLMMAT(mat);
-	//auto name = node->mName;
-
-	//Armature new_armature;
-	//new_armature.name = name.C_Str();
-
-	//armature.children.emplace_back(new_armature);
-
-	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -138,7 +124,6 @@ void Model::Update(float deltaTime)
 
 }
 
-
 void Model::AddWeight(
 	std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
 	GLuint bone_id, GLfloat weight)
@@ -151,8 +136,8 @@ void Model::AddWeight(
 }
 
 void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
-	std::unordered_map<std::string, unsigned int > bonesDict) {
-
+	std::unordered_map<std::string, unsigned int > bonesDict) 
+{
 	if (arma->name == joint.GetName())
 	{
 		for (int i = 0; i < arma->children.size(); i++)
@@ -495,8 +480,6 @@ void Model::Draw(const Camera& cam)
 
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();
-	static float r = 1.0f;
-	r += 0.01f;
 
 	Camera* camera = Camera::GetMain();
 	glm::mat4 proj2 = camera->GetProjectionMatrix();
@@ -511,9 +494,8 @@ void Model::Draw(const Camera& cam)
 
 	shader.Unbind();
 
-	//for (auto& mesh : meshes)
-	//	mesh.m_aabb.Draw(cam);
-
+	for (auto& mesh : meshes)
+		mesh.m_aabb.Draw(cam);
 }
 
 GPUShader& Model::GetShader() const { return   ShaderManager::GetShader(shaderIdx); }

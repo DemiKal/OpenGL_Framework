@@ -37,7 +37,7 @@ int main(void)
 
 
 
-
+		
 		Model cube = Model::CreateCube();
 		EntityManager::AddEntity(cube);
 		cube.SetShader("framebuffers");
@@ -55,6 +55,17 @@ int main(void)
 		EntityManager::AddEntity(wireCube);
 
 		wireCube.SetShader("singlecolor");
+
+		Model spyro("res/meshes/Spyro/Spyro.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		spyro.SetShader("basic");
+		EntityManager::AddEntity(spyro);
+
+		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		artisans.SetShader("basic");
+		EntityManager::AddEntity(artisans);
+
+		Model nanosuit("res/meshes/nanosuit/nanosuit.obj", aiPostProcessSteps::aiProcess_CalcTangentSpace);
+		nanosuit.SetShader("normalmapshader");
 
 		float quadVertices[] = {
 			// positions   // texCoords
@@ -192,57 +203,21 @@ int main(void)
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-
 			cube.Update(deltaTime);
 			plane.Update(deltaTime);
-			//wireCube.Update(deltaTime);
+			spyro.Update(deltaTime);
 
 			cube.Draw(camera);
 			plane.Draw(camera);
+			spyro.Draw(camera);
+			artisans.Draw(camera);
+
+			nanosuit.GetShader().Bind();
+			nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
 
 
-			cube.meshes[0].m_aabb.Draw(camera);
-			plane.meshes[0].m_aabb.Draw(camera);
-
-			//wireCube.GetShader().Bind();
-			//wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 1.0f, 1.0f, 0.6f));
-
-
-			//wireCube.model = cube.meshes[0].m_aabb.GetTransform();
-			//wireCube.Draw(camera);
-
-			//wireCube.model = plane.meshes[0].m_aabb.GetTransform();
-			//wireCube.Draw(camera);
-
-
-			//cube.model = glm::rotate(cube.model, 0.01f, {1,1,0});
-			//cube.meshes[0].m_aabb.RecalcBounds(cube.model);
-			//wireCube.model = cube.meshes[0].m_aabb.GetTransform();
-			//wireCube.GetShader().Bind();
-			//wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 1.0f, 1.0f, 0.6f));
-			//wireCube.Draw(camera);
-			//cube.Draw(camera);
-
-			//wireCube.model = glm::rotate(wireCube.model, 0.1f,  glm::vec3(0, 1, 0));
-
-			//plane.model = glm::rotate(plane.model, 0.001f, { 0  , 0, 1 });
-			//plane.getMesh(0).m_aabb.RecalcBounds(plane.model);
-
-			//wireCube.model = plane.getMesh(0).m_aabb.GetTransform();
-			//wireCube.GetShader().Bind();
-			//wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
-			//wireCube.Draw(camera);
-
-			//wireCube.model = glm::mat4(1.0f);
-
-
-
-
-			//plane.Draw(camera);
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			//glPolygonMode(GL_FRONT, GL_FILL);
-			//glPolygonMode(GL_BACK, GL_FILL);
+			nanosuit.Draw(camera);
 
 			LightManager::debug_render(camera);
 
