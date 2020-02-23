@@ -42,12 +42,13 @@ public:
 	void SetModelMatrix(const glm::mat4& mat) { model = mat; }
 	void SetShader(const std::string& shadername);
 	void Draw(const Camera& cam);
-	GPUShader& GetShader() const { return   ShaderManager::GetShader(shaderIdx); }
+	GPUShader& GetShader() const;
 	static Model CreateCube();
 	static Model CreateCubeWireframe();
 	void loadModel(const std::string& path, const aiPostProcessSteps LoadFlags);
 	static Model CreatePlane();
 	void processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature>  armature);
+	void UpdateModelMatrix();
 	void Update(float deltaTime);
 
 	void AddWeight(std::vector<float>& vertices, unsigned int vertex_index,

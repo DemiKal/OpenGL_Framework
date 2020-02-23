@@ -35,15 +35,25 @@ int main(void)
 		//obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
 		//obj.SetShader("normalmapshader");
 
+
+
+
 		Model cube = Model::CreateCube();
+		EntityManager::AddEntity(cube);
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
+		EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
+
 		Model plane = Model::CreatePlane();
+		EntityManager::AddEntity(plane);
+
 		plane.SetShader("plane");
 		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
 		Model wireCube = Model::CreateCubeWireframe();
+		EntityManager::AddEntity(wireCube);
+
 		wireCube.SetShader("singlecolor");
 
 		float quadVertices[] = {
@@ -159,6 +169,8 @@ int main(void)
 		while (!glfwWindowShouldClose(window))
 		{
 			double currentFrameTime = glfwGetTime();
+			float deltaTime = currentFrameTime - prevFrameTime;
+
 			ImGui_ImplGlfwGL3_NewFrame();
 
 #pragma region input
@@ -180,20 +192,29 @@ int main(void)
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			float deltaTime = currentFrameTime - prevFrameTime;
-			
-			//cube.m_position += glm::vec3{0.01f, 0, 0};
-			
+
+
 			cube.Update(deltaTime);
-			//plane.m_position += glm::vec3{0.01f, 0, 0};
-			
 			plane.Update(deltaTime);
-			wireCube.Update(deltaTime);
+			//wireCube.Update(deltaTime);
 
 			cube.Draw(camera);
 			plane.Draw(camera);
-			wireCube.Draw(camera);
-		
+
+
+			cube.meshes[0].m_aabb.Draw(camera);
+			plane.meshes[0].m_aabb.Draw(camera);
+
+			//wireCube.GetShader().Bind();
+			//wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 1.0f, 1.0f, 0.6f));
+
+
+			//wireCube.model = cube.meshes[0].m_aabb.GetTransform();
+			//wireCube.Draw(camera);
+
+			//wireCube.model = plane.meshes[0].m_aabb.GetTransform();
+			//wireCube.Draw(camera);
+
 
 			//cube.model = glm::rotate(cube.model, 0.01f, {1,1,0});
 			//cube.meshes[0].m_aabb.RecalcBounds(cube.model);
@@ -207,17 +228,17 @@ int main(void)
 
 			//plane.model = glm::rotate(plane.model, 0.001f, { 0  , 0, 1 });
 			//plane.getMesh(0).m_aabb.RecalcBounds(plane.model);
-			
+
 			//wireCube.model = plane.getMesh(0).m_aabb.GetTransform();
 			//wireCube.GetShader().Bind();
 			//wireCube.GetShader().SetVec4f("u_color", glm::vec4(1.0f, 0, 0, 0.6f));
 			//wireCube.Draw(camera);
 
 			//wireCube.model = glm::mat4(1.0f);
-			
 
-			
-			
+
+
+
 			//plane.Draw(camera);
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			//glPolygonMode(GL_FRONT, GL_FILL);
@@ -235,7 +256,7 @@ int main(void)
 			ImGui::SliderFloat3("Position", &plane.m_position[0], -100.0f, 100.0f);
 			ImGui::SliderFloat3("Rotation", &plane.m_rotation[0], 0, 360);
 			ImGui::SliderFloat3("Scale", &plane.m_scale[0], 0, 10);
-			
+
 			postProcessShader.Bind();
 
 			glBindVertexArray(quadVAO);
@@ -247,6 +268,7 @@ int main(void)
 
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
+
 
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currentFrameTime);

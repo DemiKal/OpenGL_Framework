@@ -51,7 +51,6 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 		for (int i = 0; i < node->mNumChildren; i++)
 			FindRootNode(node->mChildren[i], name);
 	}
-
 }
 
 void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags = (aiPostProcessSteps)0)
@@ -106,10 +105,8 @@ void Model::processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Arma
 	}
 }
 
-void Model::Update(float deltaTime)
+void Model::UpdateModelMatrix()
 {
-	//glm::vec3 prevPos = m_position
-	//position = velocity * deltaTime;
 	glm::mat4 id = glm::mat4(1.0f);
 	glm::mat4 scale = glm::scale(id, m_scale);
 
@@ -125,8 +122,20 @@ void Model::Update(float deltaTime)
 
 	glm::mat4 translation = glm::translate(id, m_position);
 
-	glm::mat4 mat = translation * rotation * scale;
-	model = mat;
+	model = translation * rotation * scale;
+
+}
+
+void Model::Update(float deltaTime)
+{
+	UpdateModelMatrix();
+
+	for (MeshNew& mesh : meshes)
+	{
+		//mesh.m_aabb.RecalcBounds(model);
+		mesh.m_aabb.Update(model);
+	}
+
 }
 
 
@@ -501,7 +510,13 @@ void Model::Draw(const Camera& cam)
 		mesh.Draw(shader);
 
 	shader.Unbind();
+
+	//for (auto& mesh : meshes)
+	//	mesh.m_aabb.Draw(cam);
+
 }
+
+GPUShader& Model::GetShader() const { return   ShaderManager::GetShader(shaderIdx); }
 
 Model Model::CreateCube() {
 	Model model;

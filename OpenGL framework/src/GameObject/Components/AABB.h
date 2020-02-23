@@ -1,4 +1,10 @@
 #pragma once
+
+//Model  aabb_mesh = Model::CreateCubeWireframe();
+
+class Model;
+//class GPUShader;
+
 struct Max {
 	glm::vec3 v;
 	Max() : v(0) {};
@@ -101,6 +107,13 @@ public:
 		return glm::scale(glm::translate(glm::mat4(1.0f), center), scale);
 
 	}
+
+	void Update(const glm::mat4& transform)
+	{
+		RecalcBounds(transform);
+	}
+
+	void Draw(const Camera& camera);
 
 };
 
