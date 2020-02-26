@@ -1,9 +1,28 @@
 #include "precomp.h"
 #include "Model.h"
 //#include "ShaderManager.h"
-
+#include <glm/gtc/matrix_access.hpp>
 
 class Model;
+
+//from Jim arvo 1990, gpu gems 
+void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
+{
+	glm::vec3 t = glm::column(m, 3);
+	for (int i = 0; i < 3; i++)
+	{
+		m_min.v[i] = t[i];
+		m_max.v[i] = t[i];
+
+		for (int j = 0; j < 3; j++)
+		{
+			float e = m[j][i] * orig.m_min.v[j];
+			float f = m[j][i] * orig.m_max.v[j];
+			m_min.v[i] += e < f ? e : f;
+			m_max.v[i] += e < f ? f : e;
+		}
+	}
+}
 
 void AABB::Draw(const Camera& camera)
 {

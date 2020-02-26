@@ -113,6 +113,6 @@ public:
 	}
 
 	void Draw(const Camera& camera);
-
+	void UpdateArvo(const glm::mat4& m, const AABB& orig);
 };
 
