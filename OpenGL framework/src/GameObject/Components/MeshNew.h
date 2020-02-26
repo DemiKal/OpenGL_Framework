@@ -8,9 +8,11 @@ protected:
 	bool animation_loaded = false;
 	GLenum elemDrawType = GL_TRIANGLES;
 	
+	unsigned int m_wireVAO, m_wireVBO;
 	void setupMesh();
 
 public:
+	float lineThickness = 0.1f;
 	static MeshNew CreateCubeWireframe();
 	inline GLenum GetElemDrawType() { return elemDrawType; };
 	void SetElemDrawType(const GLenum enm) { elemDrawType = enm; }
@@ -40,6 +42,9 @@ public:
 	unsigned int GetVAO() { return VAO; }
 	unsigned int GetVBO() { return VBO; }
 	unsigned int GetEBO() { return EBO; }
+
+	void MakeWireFrame();
+	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix);
 
 	static MeshNew CreatePlane();
 

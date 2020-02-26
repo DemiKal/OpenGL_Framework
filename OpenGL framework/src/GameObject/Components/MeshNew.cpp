@@ -253,6 +253,62 @@ MeshNew MeshNew::CreateCube()
 	return mesh;
 }
 
+void MeshNew::MakeWireFrame()
+{
+	if (positionVertices.empty()) { std::cout << "no position vertices!" << std::endl; return; }
+
+	glm::vec3 A(1, 0, 0);
+	glm::vec3 B(0, 1, 0);
+	glm::vec3 C(0, 0, 1);
+	glm::vec3 bary[] = { A, B, C };
+	std::vector<glm::vec3> newBuffer;
+	int barycentricIdx = 0;
+	for (auto& v : positionVertices)
+	{
+		//this->indices
+		newBuffer.emplace_back(v);
+		newBuffer.emplace_back(bary[barycentricIdx]);
+		barycentricIdx = (barycentricIdx + 1) % 3; 
+	}
+
+	unsigned int wireVAO, wireVBO;
+	glGenVertexArrays(1, &wireVAO);
+	glGenBuffers(1, &wireVBO);
+	glBindVertexArray(wireVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, wireVBO);
+	glBufferData(GL_ARRAY_BUFFER, newBuffer.size() * 2 * sizeof(glm::vec3), &newBuffer[0], GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);					 
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	m_wireVAO = wireVAO;
+	m_wireVBO = wireVBO;
+
+
+
+
+}
+
+void MeshNew::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix)
+{
+	glm::mat4 model = model_matrix;
+	glm::mat4 view = camera.GetViewMatrix();
+	glm::mat4 projection = camera.GetProjectionMatrix();
+
+	auto& shader = ShaderManager::GetShader("wireframe");
+	shader.Bind();
+	shader.SetFloat("lineThickness", lineThickness);
+	shader.SetUniformMat4f("model", model);
+	shader.SetUniformMat4f("view", view);
+	shader.SetUniformMat4f("projection", projection);
+
+	glBindVertexArray(m_wireVAO);
+
+	GLCall(glDrawArrays(GL_TRIANGLES, 0, positionVertices.size()));
+
+}
+
 MeshNew MeshNew::CreatePlane() {
 	MeshNew mesh;
 	float planeVertices[] = {

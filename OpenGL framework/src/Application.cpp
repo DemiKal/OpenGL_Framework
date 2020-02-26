@@ -37,20 +37,20 @@ int main(void)
 
 
 
-		
+
 		Model cube = Model::CreateCube();
 		cube.name = "cube";
-		
+
 		EntityManager::AddEntity(cube);
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
 		EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
 
-		Model plane = Model ::CreatePlane();
+		Model plane = Model::CreatePlane();
 		plane.name = "plane";
 		EntityManager::AddEntity(plane);
-		
+
 		//TriangleBuffer::AddTriangles(plane);
 
 		plane.SetShader("plane");
@@ -66,16 +66,41 @@ int main(void)
 		spyro.SetShader("basic");
 		spyro.name = "spyro";
 		EntityManager::AddEntity(spyro);
-
+		spyro.getMesh(0).MakeWireFrame();
 		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		//artisans.SetShader("basic");
 		//artisans.name = "name";
 		//EntityManager::AddEntity(artisans);
 
-		Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
-		nanosuit.name = "nanosuit";
-		EntityManager::AddEntity(nanosuit);
-		nanosuit.SetShader("normalmapshader");
+		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
+		//nanosuit.name = "nanosuit";
+		//EntityManager::AddEntity(nanosuit);
+		//nanosuit.SetShader("normalmapshader");
+
+		constexpr float half = 0.5f;
+		float triVerts[] =
+		{
+			-half, -half, 1, 0, 0,
+			half, -half, 0, 1, 0,
+			half,	half, 0, 0, 1
+		};
+
+		// screen quad VAO
+		unsigned int triVAO, triVBO;
+		glGenVertexArrays(1, &triVAO);
+		glGenBuffers(1, &triVBO);
+		glBindVertexArray(triVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, triVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(triVerts), &triVerts, GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+
+
+
+
+
 
 		float quadVertices[] = {
 			// positions   // texCoords
@@ -185,6 +210,7 @@ int main(void)
 		//wireCube.model = plane.getMesh(0).m_aabb.GetTransform();
 		//plane.model *= tt;
 		double prevFrameTime = glfwGetTime();
+		float lineThickness = 0.5f;
 
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
@@ -221,25 +247,25 @@ int main(void)
 
 			cube.Draw(camera);
 			plane.Draw(camera);
-			spyro.Draw(camera);
+			 spyro.Draw(camera);
 			//artisans.Draw(camera);
 
-			nanosuit.GetShader().Bind();
-			nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
-			nanosuit.Draw(camera);
-			
+			//nanosuit.GetShader().Bind();
+			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+			//nanosuit.Draw(camera);
+			//
 			double mouseX, mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
-			auto[hit , selected ] = camera.MousePick(mouseX, mouseY);
-			
+			auto [hit, selected] = camera.MousePick(mouseX, mouseY);
+
 			std::string selectedStr = "None";
-			if(hit)
+			if (hit)
 			{
 				selectedStr = selected->name;
 			}
-			
+
 			ImGui::LabelText("label", selectedStr.c_str());
 
 
@@ -249,9 +275,18 @@ int main(void)
 
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-			ImGui::SliderFloat3("Position", &plane.m_position[0], -100.0f, 100.0f);
-			ImGui::SliderFloat3("Rotation", &plane.m_rotation[0], 0, 360);
-			ImGui::SliderFloat3("Scale", &plane.m_scale[0], 0, 10);
+			ImGui::SliderFloat3("Position", &spyro.m_position[0], -100.0f, 100.0f);
+			ImGui::SliderFloat3("Rotation", &spyro.m_rotation[0], 0, 360);
+			ImGui::SliderFloat3("Scale", &spyro.m_scale[0], 0, 10);
+
+
+			ImGui::SliderFloat("line thickness", &spyro.getMesh(0).lineThickness, 0, 0.5f);
+			//auto triS = ShaderManager::GetShader("polygonlines");
+			//triS.Bind();
+			//triS.SetFloat("lineThickness", lineThickness);
+			spyro.getMesh(0).DrawWireFrame(camera, glm::scale(spyro.model, glm::vec3{ 1.01f }));
+			//glBindVertexArray(triVAO);
+			//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
 
