@@ -239,6 +239,7 @@ int main(void)
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 			cube.Update(deltaTime);
 			plane.Update(deltaTime);
 			spyro.Update(deltaTime);
@@ -247,7 +248,7 @@ int main(void)
 
 			cube.Draw(camera);
 			plane.Draw(camera);
-			 spyro.Draw(camera);
+			spyro.Draw(camera);
 			//artisans.Draw(camera);
 
 			//nanosuit.GetShader().Bind();
@@ -255,32 +256,23 @@ int main(void)
 			//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
 			//nanosuit.Draw(camera);
 			//
-			double mouseX, mouseY;
-			glfwGetCursorPos(window, &mouseX, &mouseY);
 
-			auto [hit, selected] = camera.MousePick(mouseX, mouseY);
 
-			std::string selectedStr = "None";
-			if (hit)
-			{
-				selectedStr = selected->name;
-			}
-
-			ImGui::LabelText("label", selectedStr.c_str());
 
 
 			LightManager::debug_render(camera);
 
+			Model* selection = InputManager::GetSelectedModel();
+			if (selection != nullptr)
+			{
+				//ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
+				ImGui::SliderFloat3("Position",  &selection->m_position[0], -100.0f, 100.0f);
+				ImGui::SliderFloat3("Rotation",  &selection->m_rotation[0], 0, 360);
+				ImGui::SliderFloat3("Scale",  &selection->m_scale[0], 0, 10);
 
+			}
 
-			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
-			ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-			ImGui::SliderFloat3("Position", &spyro.m_position[0], -100.0f, 100.0f);
-			ImGui::SliderFloat3("Rotation", &spyro.m_rotation[0], 0, 360);
-			ImGui::SliderFloat3("Scale", &spyro.m_scale[0], 0, 10);
-
-
-			ImGui::SliderFloat("line thickness", &spyro.getMesh(0).lineThickness, 0, 0.5f);
+			//ImGui::SliderFloat("line thickness", &spyro.getMesh(0).lineThickness, 0, 0.5f);
 			//auto triS = ShaderManager::GetShader("polygonlines");
 			//triS.Bind();
 			//triS.SetFloat("lineThickness", lineThickness);
