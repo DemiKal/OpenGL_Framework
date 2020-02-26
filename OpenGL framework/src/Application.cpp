@@ -1,5 +1,6 @@
 #include "precomp.h"
 #include "Application.h"
+#include <glm/gtc/matrix_access.hpp>
 
 int main(void)
 {
@@ -35,22 +36,21 @@ int main(void)
 		//obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
 		//obj.SetShader("normalmapshader");
 
-
-
-		
-		Model cube = Model::CreateCube();
+		Model cube = Model("res/meshes/Crash Bandicoot/Spike/SpikeHero.obj", aiProcess_Triangulate);
 		cube.name = "cube";
-		
+
 		EntityManager::AddEntity(cube);
-		cube.SetShader("framebuffers");
-		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
+		cube.SetShader("basic");
+		//cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
 		EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
+		glm::mat4 trans = glm::translate(glm::mat4(1.0f), { 4,5,6 });
+		glm::vec4 col1 = glm::column(trans, 3);
 
-		Model plane = Model ::CreatePlane();
+		Model plane = Model::CreatePlane();
 		plane.name = "plane";
 		EntityManager::AddEntity(plane);
-		
+
 		//TriangleBuffer::AddTriangles(plane);
 
 		plane.SetShader("plane");
@@ -72,10 +72,10 @@ int main(void)
 		//artisans.name = "name";
 		//EntityManager::AddEntity(artisans);
 
-		Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
-		nanosuit.name = "nanosuit";
-		EntityManager::AddEntity(nanosuit);
-		nanosuit.SetShader("normalmapshader");
+		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
+		//nanosuit.name = "nanosuit";
+		//EntityManager::AddEntity(nanosuit);
+		//nanosuit.SetShader("normalmapshader");
 
 		float quadVertices[] = {
 			// positions   // texCoords
@@ -186,6 +186,51 @@ int main(void)
 		//plane.model *= tt;
 		double prevFrameTime = glfwGetTime();
 
+		glm::vec3 ll(-1, -1, -1);	glm::vec3 ll2(-1, -1, 1);
+		glm::vec3 lr(1, -1, -1);	glm::vec3 lr2(1, -1, 1);
+		glm::vec3 ur(1, 1, -1);		glm::vec3 ur2(1, 1, 1);
+		glm::vec3 ul(-1, 1, -1);	glm::vec3 ul2(-1, 1, 1);
+
+		std::vector<glm::vec3> aabbVerts = {
+			ll,		//0
+			lr,		//1
+			ur,		//2
+			ul,		//3
+			ll2,	//4
+			lr2,	//5
+			ur2,	//6
+			ul2		//7  
+		};
+
+
+
+
+		unsigned int aabbVAO, aabbVBO;
+		glGenVertexArrays(1, &aabbVAO);
+		glGenBuffers(1, &aabbVBO);
+		glBindVertexArray(aabbVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, aabbVBO);
+		glBufferData(GL_ARRAY_BUFFER, aabbVerts.size() * sizeof(glm::vec3), &aabbVerts[0], GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+		std::vector<unsigned int> indices =
+		{
+			 0, 1, 1, 2, 2, 3, 3, 0,
+			 4, 5, 5, 6, 6, 7, 7, 4,
+			 0, 4, 1, 5, 2, 6, 3, 7
+		};
+
+		GLuint elementbuffer;
+		glGenBuffers(1, &elementbuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+
+
+
+
+
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -224,22 +269,22 @@ int main(void)
 			spyro.Draw(camera);
 			//artisans.Draw(camera);
 
-			nanosuit.GetShader().Bind();
-			nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
-			nanosuit.Draw(camera);
-			
+			//nanosuit.GetShader().Bind();
+			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+			//nanosuit.Draw(camera);
+
 			double mouseX, mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
-			auto[hit , selected ] = camera.MousePick(mouseX, mouseY);
-			
+			auto [hit, selected] = camera.MousePick(mouseX, mouseY);
+
 			std::string selectedStr = "None";
-			if(hit)
+			if (hit)
 			{
 				selectedStr = selected->name;
 			}
-			
+
 			ImGui::LabelText("label", selectedStr.c_str());
 
 
@@ -249,9 +294,98 @@ int main(void)
 
 			// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-			ImGui::SliderFloat3("Position", &plane.m_position[0], -100.0f, 100.0f);
-			ImGui::SliderFloat3("Rotation", &plane.m_rotation[0], 0, 360);
-			ImGui::SliderFloat3("Scale", &plane.m_scale[0], 0, 10);
+			ImGui::SliderFloat3("Position", &spyro.m_position[0], -100.0f, 100.0f);
+			ImGui::SliderFloat3("Rotation", &spyro.m_rotation[0], 0, 360);
+			ImGui::SliderFloat3("Scale", &spyro.m_scale[0], 0, 10);
+
+			glm::vec3 minV(std::numeric_limits<float>::infinity());
+			glm::vec3 maxV(-std::numeric_limits<float>::infinity());
+
+
+
+			for (auto& v_l : spyro.getMesh(0).positionVertices)
+			{
+				glm::vec3 v_w = spyro.model * glm::vec4(v_l, 1.0f);
+				minV = glm::vec3(std::min(v_w.x, minV.x), std::min(v_w.y, minV.y), std::min(v_w.z, minV.z));
+				maxV = glm::vec3(std::max(v_w.x, maxV.x), std::max(v_w.y, maxV.y), std::max(v_w.z, maxV.z));
+			}
+
+			auto& aabb = spyro.getMesh(0).m_aabb;
+			ImGui::Text("Recalc min: %f, %f, %f", minV.x, minV.y, minV.z);
+			ImGui::Text("AABB min: %f, %f, %f", aabb.m_min.v.x, aabb.m_min.v.y, aabb.m_min.v.z);
+			ImGui::Text("Recalc max: %f, %f, %f", maxV.x, maxV.y, maxV.z);
+			ImGui::Text("AABB max: %f, %f, %f", aabb.m_max.v.x, aabb.m_max.v.y, aabb.m_max.v.z);
+
+
+			//aabbVerts[0] = { minV.x, minV.y, minV.z };	//ll
+			//aabbVerts[1] = { maxV.x, minV.y, minV.z };	//lr
+			//aabbVerts[2] = aabbVerts[1];				 
+			//aabbVerts[3] = { maxV.x, maxV.y, minV.z };	//ur
+			//aabbVerts[4] = aabbVerts[3];				 
+			//aabbVerts[5] = { minV.x, maxV.y, minV.z };	//ul
+			//aabbVerts[6] = aabbVerts[0];				 
+			//
+			//aabbVerts[7] = aabbVerts[0];   aabbVerts[7].z = maxV.z;
+			//aabbVerts[8] = aabbVerts[1];   aabbVerts[8].z = maxV.z;
+			//aabbVerts[9] = aabbVerts[2];   aabbVerts[9].z = maxV.z;
+			//aabbVerts[10] = aabbVerts[3];	aabbVerts[10].z = maxV.z;
+			//aabbVerts[11] = aabbVerts[4];	aabbVerts[11].z = maxV.z;
+			//aabbVerts[12] = aabbVerts[5];	aabbVerts[12].z = maxV.z;
+			//aabbVerts[13] = aabbVerts[6];	aabbVerts[13].z = maxV.z;
+			//
+			//aabbVerts[14] = aabbVerts[0]; aabbVerts[15] = aabbVerts[7];
+			//aabbVerts[16] = aabbVerts[1]; aabbVerts[17] = aabbVerts[8];
+			//aabbVerts[18] = aabbVerts[3]; aabbVerts[19] = aabbVerts[10];
+			//aabbVerts[20] = aabbVerts[5]; aabbVerts[21] = aabbVerts[7];
+
+			auto& ogAABB = spyro.getMesh(0).m_aabb_OG;
+			glm::vec3 minVOOB = ogAABB.m_min;
+			glm::vec3 maxVOOB = ogAABB.m_max;
+
+			aabbVerts[0] =   glm::vec4{ minV.x, minV.y, minV.z, 1.0f };
+			aabbVerts[1] =   glm::vec4{ maxV.x, minV.y, minV.z, 1.0f };
+			aabbVerts[2] =   glm::vec4{ maxV.x, maxV.y, minV.z, 1.0f };
+			aabbVerts[3] =   glm::vec4{ minV.x, maxV.y, minV.z, 1.0f };
+						    
+			aabbVerts[4] =   glm::vec4{ minV.x, minV.y, maxV.z, 1.0f };
+			aabbVerts[5] =   glm::vec4{ maxV.x, minV.y, maxV.z, 1.0f };
+			aabbVerts[6] =   glm::vec4{ maxV.x, maxV.y, maxV.z, 1.0f };
+			aabbVerts[7] =   glm::vec4{ minV.x, maxV.y, maxV.z, 1.0f };
+
+
+			glBindBuffer(GL_ARRAY_BUFFER, aabbVBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, aabbVerts.size() * sizeof(glm::vec3), (void*)&aabbVerts[0]);
+
+
+
+			auto& aabbshader = ShaderManager::GetShader("aabb");
+			aabbshader.Bind();
+			aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
+			aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+
+			glBindVertexArray(aabbVAO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
+			// Draw the triangles !
+			glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT,	(void*)0);
+
+			aabbVerts[0] = spyro.model * glm::vec4{ minVOOB.x, minVOOB.y, minVOOB.z, 1.0f };
+			aabbVerts[1] = spyro.model * glm::vec4{ maxVOOB.x, minVOOB.y, minVOOB.z, 1.0f };
+			aabbVerts[2] = spyro.model * glm::vec4{ maxVOOB.x, maxVOOB.y, minVOOB.z, 1.0f };
+			aabbVerts[3] = spyro.model * glm::vec4{ minVOOB.x, maxVOOB.y, minVOOB.z, 1.0f };
+
+			aabbVerts[4] = spyro.model * glm::vec4{ minVOOB.x, minVOOB.y, maxVOOB.z, 1.0f };
+			aabbVerts[5] = spyro.model * glm::vec4{ maxVOOB.x, minVOOB.y, maxVOOB.z, 1.0f };
+			aabbVerts[6] = spyro.model * glm::vec4{ maxVOOB.x, maxVOOB.y, maxVOOB.z, 1.0f };
+			aabbVerts[7] = spyro.model * glm::vec4{ minVOOB.x, maxVOOB.y, maxVOOB.z, 1.0f };
+			glBindBuffer(GL_ARRAY_BUFFER, aabbVBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, aabbVerts.size() * sizeof(glm::vec3), (void*)&aabbVerts[0]);
+
+			glBindVertexArray(aabbVAO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+			glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+
+
 
 
 

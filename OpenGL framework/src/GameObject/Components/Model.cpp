@@ -126,8 +126,15 @@ void Model::Update(float deltaTime)
 
 	for (MeshNew& mesh : meshes)
 	{
+		double t0 = glfwGetTime();
+		mesh.m_aabb.UpdateArvo(model, mesh.m_aabb_OG);
+		double t1 = glfwGetTime();
 
-		mesh.m_aabb.Update(model, mesh.m_aabb_OG);
+		double diff = 1000 * (t1 - t0);
+		std::cout << "diff ms: " << diff << "\n";
+
+
+
 	}
 
 }

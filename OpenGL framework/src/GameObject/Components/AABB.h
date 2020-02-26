@@ -10,6 +10,8 @@ struct Max {
 	Max() : v(0) {};
 	Max(const  Max& m) : v(m.v) {};
 	Max(const glm::vec3& _max) : v(_max) {}
+	operator glm::vec3() const { return v; }
+
 };
 
 struct Min {
@@ -17,7 +19,14 @@ struct Min {
 	Min() : v(0) {};
 	Min(const Min& m) : v(m.v) {};
 	Min(const glm::vec3& _min) : v(_min) {}
+	//glm::vec3 GetV() {
+	//	return v;
+	//};
+
+	operator glm::vec3() const { return v; }
 };
+
+
 
 class AABB
 {
@@ -112,7 +121,41 @@ public:
 		RecalcBounds(transform, original);
 	}
 
-	void Draw(const Camera& camera);
+	void UpdateArvo(const glm::mat4& transform, const AABB& orig);
 
+	void UpdateNew(const glm::mat4& transform, const AABB& original);
+
+	void Draw(const Camera& camera);
+	//void TransformNew(const glm::mat4& M)
+	//{
+	//	glm::vec3 AMin, AMax;
+	//	float     a, b;
+	//	int      i, j;
+
+	//	// Copy box A into min and max array.   
+	//	AMin = m_min.v;    AMax = m_max.v;
+	//	// Begin at T.   
+	//	m_min.v = glm::column(M, 3);
+	//	m_max.v = glm::column(M, 3);
+	//	
+	//	// Find extreme points by considering product of     
+	//	// min and max with each component of M.  
+	//	for (j = 0; j < 3; j++) {
+	//		for (i = 0; i < 3; i++) {
+	//			a =  M[i][j] * AMin;
+	//			b = M[i, j] * AMax;
+	//			if (a < b)
+	//			{
+	//				Min[j] += a;
+	//				Max[j] += b;
+	//			}
+	//			else
+	//			{
+	//				Min[j] += b;
+	//				Max[j] += a;
+	//			}
+	//		}
+	//	}
+	//}
 };
 
