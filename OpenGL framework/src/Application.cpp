@@ -15,75 +15,12 @@
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/MeshNew.h"
 #include "GameObject/Components/Model.h"
-#include "misc/InputManager.h"
+#include "misc/InputManager.h"	
 
 
-///glfw
-//shadermanager
-//renderer
-//entitymanager
-//model
-//framebuffer
-//gpushader
-//inputmanager
-//shadermanager
-//lightmanager
-
-
-struct vertex
-{
-	enum v_type
-	{
-		POSITION, UV, NORMAL
-	};
-	unsigned int GetSize(v_type u)
-	{
-		switch (u)
-		{
-		case POSITION: return 4 * sizeof(float);
-		case UV: return 2 * sizeof(float);
-		case NORMAL: return 3 * sizeof(float);
-		}
-	}
-	auto GetType()
-	{
-
-	}
-	unsigned int m_stride = 0;
-	std::vector<std::tuple<v_type, unsigned int>> m_types;
-	std::vector < char> v_buffer;
-	template  <v_type T, int size>
-	void AddType()
-	{
-		m_types.emplace_back(std::make_tuple(T, size));
-		m_stride += size * GetSize(T);
-	}
-	//template <  v_type v>
-	//auto enum/*toType(v_type v)
-	//{
-	//	switch(v)
-	//	{
-	//	case POSITION: return typeof(glm::vec3);
-	//	}
-	//}*/
-	auto GetValue(unsigned int idx)
-	{
-		int realIdx = m_stride * idx;
-		reinterpret_cast<glm::vec3*>(&v_buffer[realIdx]);
-	}
-};
 
 int main(void)
 {
-	vertex v;
-	v.AddType<vertex::POSITION, 2>();
-
-	std::vector<char> vb = { 1,2,3,4,5,6 };
-
-	glm::vec3* ptr = (glm::vec3*)(&vb[0]);
-
-	*ptr += glm::vec3{ 2, 3, 4 };
-
 	if (!glfwInit()) return -1;
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -177,37 +114,6 @@ int main(void)
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
-
-		const GLuint nrParticles = 4000;
-		std::vector < glm::vec3> particlesPosCurrent, particlesPosPrev, particlesVel;
-		const float sqrWidth = 5.0f;
-		for (unsigned int i = 0; i < sqrt(nrParticles); i++)
-			for (unsigned int j = 0; j < sqrt(nrParticles); j++)
-			{
-				float xPos = float(i * i) * (sqrWidth / nrParticles);
-				float zPos = float(j * j) * (sqrWidth / nrParticles);
-				const glm::vec3 pos = { xPos, 3.0f, zPos };
-				const glm::vec3 vel = {
-					((double)rand() / (RAND_MAX)),
-					((double)rand() / (RAND_MAX)) ,
-					  ((double)rand() / (RAND_MAX)) };
-				const glm::vec3 posprev = pos + vel;
-				particlesPosCurrent.emplace_back(pos);
-				particlesPosPrev.emplace_back(posprev);
-				//particlesVel.emplace_back(vel);
-			}
-
-
-		unsigned int particlesVAO, particlesVBO;
-		glGenVertexArrays(1, &particlesVAO);
-		glGenBuffers(1, &particlesVBO);
-		glBindVertexArray(particlesVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, particlesVBO);
-		glBufferData(GL_ARRAY_BUFFER, particlesPosCurrent.size() * sizeof(glm::vec3), &particlesPosCurrent[0], GL_DYNAMIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-
-
 
 		float quadVertices[] = {
 			// positions   // texCoords
@@ -312,14 +218,10 @@ int main(void)
 		const glm::vec3 rightWorld(1, 0, 0);
 		const glm::vec3 forwardWorld(0, 0, -1);
 
-		//auto tt = glm::rotate(plane.model, glm::radians(45.0f+90.0f), { 0,0,1 });
-		//plane.getMesh(0).m_aabb.RecalcBounds(tt);
-		//wireCube.model = plane.getMesh(0).m_aabb.GetTransform();
-		//plane.model *= tt;
-		double prevFrameTime = glfwGetTime();
-		float lineThickness = 0.5f;
 
+		double prevFrameTime = glfwGetTime();
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -356,7 +258,7 @@ int main(void)
 
 			//cube.Draw(camera);
 			plane.Draw(camera);
-			//spyro.Draw(camera);
+			spyro.Draw(camera);
 			//artisans.Draw(camera);
 
 			//nanosuit.GetShader().Bind();
@@ -379,89 +281,6 @@ int main(void)
 				ImGui::SliderFloat3("Scale", &selection->m_scale[0], 0, 10);
 
 			}
-
-			//ImGui::SliderFloat("line thickness", &spyro.getMesh(0).lineThickness, 0, 0.5f);
-			//auto triS = ShaderManager::GetShader("polygonlines");
-			//triS.Bind();
-			//triS.SetFloat("lineThickness", lineThickness);
-			//spyro.getMesh(0).DrawWireFrame(camera, glm::scale(spyro.model, glm::vec3{ 1.01f }));
-			//glBindVertexArray(triVAO);
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-			glPointSize(5.0f);
-			ImGui::ColorPicker4("particle color", &particleColor[0]);
-
-
-			glm::vec3 acc = { 0, -9.81, 0 };// gravity
-			glm::vec3 mass = { 0, 10, 0 };// gravity
-
-			for (unsigned int i = 0; i < nrParticles; i++)
-			{
-				glm::vec3& prev = particlesPosPrev[i];
-				glm::vec3& current = particlesPosCurrent[i];
-				glm::vec3 old = current;
-				//glm::vec3 vel = (prev - old) * 0.02f;
-				//
-				//particlesPosPrev[i] = old;
-				//current += vel;
-				current = 1.99f * current - 0.99f * prev + (acc)*deltaTime * deltaTime;
-				prev = old;
-			}
-
-
-			for (unsigned int i = 0; i < nrParticles; i++)
-			{
-				glm::vec3& prev = particlesPosPrev[i];
-				glm::vec3& current = particlesPosCurrent[i];
-				const auto old = current;
-				//current = {
-				//   std::min(std::max(current.x, 0.0f),5.0f),
-				//   std::min(std::max(current.y, 0.0f),5.0f),
-				//   std::min(std::max(current.z, 0.0f),5.0f)
-				//};
-				//
-
-				constexpr const float dimmin[] = { -10,0,-10 }; //minmax xyz
-				constexpr const float dimmax[] = { 10, 15, 10 }; //minmax xyz
-				for(int i = 0; i < 3; i++)
-					if (current[i] < dimmin[i] || current[i] > dimmax[i + 1])
-					{
-						std::swap(current[i], prev[i]);
-						//float y = current[i];
-						//current[i] = prev[i];
-						//prev[i] = y;
-					}
-
-				//const int a = current.x < dimmin[0] || current.x > dimmax[0];
-				//const int b = current.y < dimmin[1] || current.y > dimmax[1];
-				//const int c = current.z < dimmin[2] || current.z > dimmax[2];
-				//current.x = a ? prev.x : current.x;
-				//current.y = b ? prev.y : current.y;
-				//current.z = c ? prev.z : current.z;
-				//
-				//prev.x = a ? prev.x : old.x;
-				//prev.y = b ? prev.y : old.y;
-				//prev.z = c ? prev.z : old.z;
-
-
-			}
-
-
-
-			glBindBuffer(GL_ARRAY_BUFFER, particlesVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, particlesPosCurrent.size() * sizeof(glm::vec3),
-				(void*)&particlesPosCurrent[0]);
-
-
-			auto& particleShader = ShaderManager::GetShader("singledotshader");
-			particleShader.Bind();
-			particleShader.SetUniformMat4f("model", glm::mat4(1.0f));
-			particleShader.SetUniformMat4f("view", camera.GetViewMatrix());
-			particleShader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-			particleShader.SetVec4f("color", particleColor);
-
-			glBindVertexArray(particlesVAO);
-			glDrawArrays(GL_POINTS, 0, particlesPosCurrent.size());
-
 
 			prevFrameTime = currentFrameTime;
 			glDisable(GL_DEPTH_TEST);
