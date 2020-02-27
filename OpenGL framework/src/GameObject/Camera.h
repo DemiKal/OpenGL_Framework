@@ -1,7 +1,7 @@
 #pragma once
 
-class Cube;
 class Model;
+
 class Camera
 {
 public:
@@ -17,10 +17,8 @@ public:
 
 	inline glm::mat4 GetViewProjectionMatrix() const;
 
-	void meme(Cube& cyb);
 	std::pair<bool, Model*> MousePick(double MouseX, double MouseY);
 	
-	void CheckMouseHover(float mX, float mY, const Cube& cube);
 
 	inline glm::mat4 GetViewMatrix() const;
 

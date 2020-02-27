@@ -48,7 +48,7 @@ uniform mat4 projection;
 
 out vec3 idxColor;
 
-
+uniform sampler2D vertexTex;
 
 void main() {
 	//mat4 BoneTransform = mat4(1.0f) * mBones[];

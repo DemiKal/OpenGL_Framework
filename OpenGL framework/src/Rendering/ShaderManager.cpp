@@ -1,4 +1,7 @@
 #include "precomp.h"
+#include "ShaderManager.h"
+
+#include "GPUShader.h"
 
 
 //ShaderManager::ShaderManager()

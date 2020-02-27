@@ -1,5 +1,5 @@
 #include "precomp.h"
-
+#include "IndexBuffer.h"
 
 IndexBuffer::IndexBuffer(): m_rendererID(-1)
 {

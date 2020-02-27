@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include "Texture2D.h"
 
 GLuint Texture2D::TextureFromFile(const std::string& fullpath/*, Texture& texture*/)
 {

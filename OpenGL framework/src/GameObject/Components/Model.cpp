@@ -1,5 +1,18 @@
 #include "precomp.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "GameObject/Components/Model.h"
+
+#include "Rendering/Buffer/VertexBufferLayout.h"
+#include "GameObject/Components/Texture2D.h"
+#include "Rendering/GPUShader.h"
+#include "Rendering/ShaderManager.h"
+#include "GameObject/Camera.h"
+#include "Animation/AnimationChannel.h"
+#include "Animation/Joint.h"
+#include "Animation/Animation.h"
+#include "Animation/Animator.h"
+#include "GameObject/Components/AABB.h"
+#include "GameObject/Components/MeshNew.h"
+
 
 //from assimpviewer
 glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
@@ -28,10 +41,6 @@ void Model::SetShader(const std::string& shadername)
 
 void CreateHierarchy(std::shared_ptr<Model::Armature> parentArmature, aiNode* node)
 {
-	//Model::Armature* arma = new Model::Armature; //ptr?
-	//arma.name = node->mName.C_Str();
-	//arma.mat =	AI2GLMMAT(node->mTransformation);
-
 	std::shared_ptr<Model::Armature> me = std::make_shared<Model::Armature>();
 	me->name = node->mName.C_Str();
 	me->mat = AI2GLMMAT(node->mTransformation);
@@ -99,23 +108,22 @@ void Model::processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Arma
 
 void Model::UpdateModelMatrix()
 {
-	glm::mat4 id = glm::mat4(1.0f);
-	glm::mat4 scale = glm::scale(id, m_scale);
+	const auto id = glm::mat4(1.0f);
+	const auto scale = glm::scale(id, m_scale);
 
-	glm::mat4 rotationX = glm::rotate(id, glm::radians(m_rotation.x), glm::vec3{ 1,0,0 });
-	glm::mat4 rotationY = glm::rotate(id, glm::radians(m_rotation.y), glm::vec3{ 0,1,0 });
-	glm::mat4 rotationZ = glm::rotate(id, glm::radians(m_rotation.z), glm::vec3{ 0,0,1 });
+	//glm::mat4 rotationX = glm::rotate(id, glm::radians(m_rotation.x), glm::vec3{ 1,0,0 });
+	//glm::mat4 rotationY = glm::rotate(id, glm::radians(m_rotation.y), glm::vec3{ 0,1,0 });
+	//glm::mat4 rotationZ = glm::rotate(id, glm::radians(m_rotation.z), glm::vec3{ 0,0,1 });
 	//glm::mat4 rotation = rotationX * rotationY * rotationZ;
 	//glm::mat4 rotation = glm::orientate4(m_rotation);
-	glm::mat4 rotation = glm::eulerAngleYXZ(
+	const glm::mat4 rotation = glm::eulerAngleYXZ(
 		glm::radians(m_rotation.y),
 		glm::radians(m_rotation.x),
 		glm::radians(m_rotation.z));
 
-	glm::mat4 translation = glm::translate(id, m_position);
+	const glm::mat4 translation = glm::translate(id, m_position);
 
 	model = translation * rotation * scale;
-
 }
 
 void Model::Update(float deltaTime)
@@ -126,12 +134,8 @@ void Model::Update(float deltaTime)
 
 	for (MeshNew& mesh : meshes)
 	{
-		double t0 = glfwGetTime();
 		mesh.m_aabb.UpdateArvo(model, mesh.m_aabb_OG);
-		double t1 = glfwGetTime();
-		std::cout << "arvo ms: " << 1000 * (t0 - t1) << "\n";
 	}
-
 }
 
 void Model::AddWeight(

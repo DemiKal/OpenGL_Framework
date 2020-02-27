@@ -12,10 +12,15 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform vec4 color;
+
+out vec4 f_col;
+
 void main()
 {
 	///TexCoords = aTexCoords;
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);
+	f_col =  color;
 }
 
 ///#########################\\\
@@ -28,12 +33,12 @@ void main()
 #shader fragment
 #version 330 core
 out vec4 FragColor;
-
+in vec4 f_col;
 //in vec2 TexCoords;
 
 //uniform sampler2D texture1;
 
 void main()
 {
-	FragColor = vec4(1, 1, 1, 1);// texture(texture1, TexCoords);
+	FragColor = f_col;// texture(texture1, TexCoords);
 }

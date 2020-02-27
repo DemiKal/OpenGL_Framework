@@ -1,4 +1,9 @@
 #include "precomp.h"
+#include "Light.h"
+
+#include "GameObject/Camera.h"
+#include "Rendering/ShaderManager.h"
+#include "Rendering/GPUShader.h"
 
 void Light::create_buffer_object()
 {

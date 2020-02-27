@@ -1,14 +1,18 @@
 #include "precomp.h"
-#include "Model.h"
-//#include "ShaderManager.h"
 #include <glm/gtc/matrix_access.hpp>
+#include "Model.h"
+#include "Rendering/GPUShader.h"
+#include "GameObject/Camera.h"
+#include "GameObject/EntityManager.h"
+#include "GameObject/Components/AABB.h"
+#include "GameObject/Components/MeshNew.h"
 
 class Model;
 
 //from Jim arvo 1990, gpu gems 
 void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 {
-	glm::vec3 t = glm::column(m, 3);
+	const glm::vec3 t = glm::column(m, 3);
 	for (int i = 0; i < 3; i++)
 	{
 		m_min.v[i] = t[i];

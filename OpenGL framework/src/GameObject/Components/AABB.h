@@ -1,9 +1,8 @@
 #pragma once
+ 
 
-//Model  aabb_mesh = Model::CreateCubeWireframe();
-
-class Model;
-//class GPUShader;
+class Camera;
+class Model; 
 
 struct Max {
 	glm::vec3 v;

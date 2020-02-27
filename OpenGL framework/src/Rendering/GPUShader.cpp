@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include "GPUShader.h"
 
 GPUShader::GPUShader(const std::string& filepath)
 	: m_FilePath(filepath), name("not yet loaded"), m_RendererID(0),

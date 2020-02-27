@@ -1,4 +1,8 @@
 #pragma once
+
+class Camera;
+class Model;
+
 class InputManager
 {
 public:

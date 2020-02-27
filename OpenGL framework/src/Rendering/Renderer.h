@@ -1,5 +1,9 @@
 #pragma once
 
+class GPUShader;
+class IndexBuffer;
+class VertexArray;
+
 class Renderer
 {
 private: bool alphaBlending = true;

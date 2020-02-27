@@ -1,7 +1,10 @@
 #include "precomp.h"
+#include "VertexBufferLayout.h"
+#include "VertexArraySub.h"
+#include "VertexArray.h"
+#include "VertexBuffer.h"
 
-
-VertexArraySub::VertexArraySub() : VertexArray()
+VertexArraySub::VertexArraySub() : ::VertexArray()
 {
 
 }

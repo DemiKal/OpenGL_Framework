@@ -1,4 +1,9 @@
 #include "precomp.h"
+#include "Camera.h"
+#include "Components/AABB.h"
+#include "GameObject/EntityManager.h"
+#include "GameObject/Components/Model.h"
+
 Camera* Camera::m_mainCam;
 
 Camera::Camera() : fov(70), aspectRatio((float)SCREENWIDTH / (float)SCREENHEIGHT),
@@ -62,10 +67,6 @@ inline glm::mat4 Camera::GetViewProjectionMatrix() const
 	return projection * glm::lookAt(pos, pos + forward, up);
 }
 
-void Camera::meme(Cube & cyb)
-{
-	std::string s = cyb.Name();
-}
 
 bool intersectAABB(const glm::vec3 & origin, const glm::vec3 & direction, float& tCurrent, const AABB & aabb)
 {
@@ -122,34 +123,34 @@ std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY)
 	//std::min_element(hits.begin(), hits.end())
 }
 
-void Camera::CheckMouseHover(const float mX, const float mY, const Cube & cube)
-{
-	auto tris = cube.GetMeshTriangles();
-	const glm::vec3  campos = GetPosition();
-	const   glm::vec3 dir = RayFromMouse(mX, mY);
-
-	bool cubeIntersect = false;
-	for (const auto& tri : tris)
-	{
-		glm::vec2 baryCoords{ 0,0 };
-		float t;
-
-		const bool intersect = glm::intersectRayTriangle(campos,
-			dir, tri.v1, (&tri)->v2, (&tri)->v3, baryCoords, t);
-
-		if (intersect)
-		{
-			cubeIntersect = true;
-			break;
-		}
-	}
-
-	std::string name = "none";
-
-	name = cubeIntersect ? cube.Name().c_str() : "none";
-
-	ImGui::Text("Hovered obj: %s", name.c_str());
-}
+//void Camera::CheckMouseHover(const float mX, const float mY, const Cube & cube)
+//{
+//	auto tris = cube.GetMeshTriangles();
+//	const glm::vec3  campos = GetPosition();
+//	const   glm::vec3 dir = RayFromMouse(mX, mY);
+//
+//	bool cubeIntersect = false;
+//	for (const auto& tri : tris)
+//	{
+//		glm::vec2 baryCoords{ 0,0 };
+//		float t;
+//
+//		const bool intersect = glm::intersectRayTriangle(campos,
+//			dir, tri.v1, (&tri)->v2, (&tri)->v3, baryCoords, t);
+//
+//		if (intersect)
+//		{
+//			cubeIntersect = true;
+//			break;
+//		}
+//	}
+//
+//	std::string name = "none";
+//
+//	name = cubeIntersect ? cube.Name().c_str() : "none";
+//
+//	ImGui::Text("Hovered obj: %s", name.c_str());
+//}
 
 inline glm::mat4 Camera::GetViewMatrix() const
 {

@@ -1,4 +1,7 @@
 #pragma once
+//#include "GameObject/Camera.h"
+class Camera;
+
 class Light
 {
 private:

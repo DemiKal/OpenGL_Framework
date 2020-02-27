@@ -1,4 +1,9 @@
 #include "precomp.h"
+#include "Rendering/ShaderManager.h"
+#include "Animation/AnimationChannel.h"
+#include "Animation/Joint.h"
+#include "Animation/Animation.h"
+#include "Animation/Animator.h"
 
 void UpdateHierarchy(Joint& current, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverse_root)
 {

@@ -1,5 +1,8 @@
 #pragma once
-//uniform sampler2D u_Texture;
+#include "GameObject/Components/Texture2D.h"
+#include "GameObject/Components/MeshNew.h" 
+#include "Rendering/GPUShader.h"
+
 class Model
 {
 public:
@@ -12,7 +15,7 @@ public:
 		glm::mat4 mat;
 
 	};
-	
+
 	std::shared_ptr <Armature > armature;
 	glm::mat4 model;
 	std::vector<MeshNew> meshes;
@@ -27,7 +30,7 @@ public:
 	unsigned int shaderIdx;
 
 	//VertexBufferLayout vbl;
-	Model() : model(glm::mat4(1.0f)), meshes(), directory(""),	textures_loaded(), shaderIdx(0), inverse_root(glm::mat4(1.0f)) {}
+	Model() : model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0), inverse_root(glm::mat4(1.0f)) {}
 
 	~Model() = default;
 

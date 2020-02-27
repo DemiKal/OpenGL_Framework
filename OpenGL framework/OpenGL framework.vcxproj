@@ -53,6 +53,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\assimp\lib;$(SolutionDir)Dependencies\GLEW\lib\Release\x64;$(SolutionDir)Dependencies\GLFW\lib-vc2015</AdditionalLibraryDirectories>
@@ -76,7 +77,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\assimp\lib;$(SolutionDir)Dependencies\GLEW\lib\Release\x64;$(SolutionDir)Dependencies\GLFW\lib-vc2015</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;assimp-vc140-mt.lib</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;assimp-vc141-mtd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -94,7 +95,6 @@
     <None Include="res\shaders\singlecolor.glsl" />
     <None Include="res\shaders\singledotshader.glsl" />
     <None Include="res\shaders\testshader.glsl" />
-    <None Include="src\fbo test.cpp" />
     <ClCompile Include="src\GameObject\EntityManager.cpp" />
     <ClCompile Include="src\GameObject\Components\AABB.cpp" />
     <ClCompile Include="src\misc\InputManager.cpp" />
@@ -112,16 +112,10 @@
     <ClCompile Include="src\GameObject\Components\Model.cpp" />
     <ClCompile Include="src\GameObject\Components\MeshNew.cpp" />
     <ClCompile Include="src\GameObject\Camera.cpp" />
-    <ClCompile Include="src\GameObject\Cube.cpp" />
-    <ClCompile Include="src\GameObject\GameObject.cpp" />
-    <ClCompile Include="src\GameObject\Components\Mesh.cpp" />
-    <ClCompile Include="src\misc\obj_loader.cpp" />
     <ClCompile Include="src\Rendering\GPUShader.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Rendering\Buffer\IndexBuffer.cpp" />
     <ClCompile Include="src\Rendering\Renderer.cpp" />
-    <ClCompile Include="src\misc\util.cpp" />
-    <None Include="src\sobel.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -149,11 +143,6 @@
     <ClCompile Include="src\Rendering\Buffer\VertexArray.cpp" />
     <ClCompile Include="src\Rendering\Buffer\VertexBuffer.cpp" />
     <ClCompile Include="src\Rendering\Buffer\VertexBufferLayout.cpp" />
-    <ClCompile Include="src\Working tut.cpp" />
-    <ClCompile Include="src\Rendering\Texture.cpp" />
-    <ClCompile Include="src\tests\Test.cpp" />
-    <ClCompile Include="src\tests\TestClearColor.cpp" />
-    <ClCompile Include="src\GameObject\Components\Transform.cpp" />
     <ClCompile Include="src\Rendering\Buffer\VertexArraySub.cpp" />
     <ClCompile Include="src\GameObject\Components\Texture2D.cpp" />
     <None Include="src\vendor\glm\util\autoexp.vc2010.dat" />
@@ -299,17 +288,11 @@
     <ClInclude Include="src\GameObject\Components\MeshNew.h" />
     <ClInclude Include="src\GameObject\Camera.h" />
     <ClInclude Include="src\GameObject\VertexNew.cpp" />
-    <ClInclude Include="src\GameObject\Cube.h" />
-    <ClInclude Include="src\GameObject\GameObject.h" />
-    <ClInclude Include="src\GameObject\Components\Mesh.h" />
     <ClInclude Include="src\GameObject\VertexNew.h" />
-    <ClInclude Include="src\misc\obj_loader.h" />
     <ClInclude Include="src\precomp.h" />
     <ClInclude Include="src\Rendering\GPUShader.h" />
     <ClInclude Include="src\Rendering\Buffer\IndexBuffer.h" />
     <ClInclude Include="src\Rendering\Renderer.h" />
-    <ClInclude Include="src\GameObject\Components\Transform.h" />
-    <ClInclude Include="src\misc\util.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_vector_relational.hpp" />
     <ClInclude Include="src\vendor\glm\detail\qualifier.hpp" />
@@ -466,9 +449,6 @@
     <ClInclude Include="src\Rendering\Buffer\VertexArray.h" />
     <ClInclude Include="src\Rendering\Buffer\VertexBuffer.h" />
     <ClInclude Include="src\Rendering\Buffer\VertexBufferLayout.h" />
-    <ClInclude Include="src\Rendering\Texture.h" />
-    <ClInclude Include="src\tests\Test.h" />
-    <ClInclude Include="src\tests\TestClearColor.h" />
     <ClInclude Include="src\Rendering\Buffer\VertexArraySub.h" />
     <ClInclude Include="src\GameObject\Components\Texture2D.h" />
     <ClInclude Include="src\Geometry\TriangleBuffer.h" />

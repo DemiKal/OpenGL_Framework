@@ -1,4 +1,7 @@
 #pragma once
+#include <Animation\Animation.h>
+#include <Animation\Joint.h>
+
 class Animator
 {
 public:

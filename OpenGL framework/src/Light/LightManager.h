@@ -1,4 +1,6 @@
 #pragma once
+#include "Light.h"
+
 class LightManager
 {
 private:

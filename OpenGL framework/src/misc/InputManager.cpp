@@ -1,4 +1,10 @@
 #include "precomp.h"
+#include "InputManager.h"
+
+#include "GameObject/Camera.h"
+#include "GameObject/Components/Model.h"
+#include "Light/Light.h"
+#include "Light/LightManager.h"
 
 InputManager& InputManager::GetInstance()
 {

@@ -1,4 +1,7 @@
 #pragma once
+#include "Animation/Keyframe.h"
+#include "AnimationChannel.h"
+
 class Animation
 {
 public:

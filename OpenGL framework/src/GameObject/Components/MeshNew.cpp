@@ -1,4 +1,13 @@
 #include "precomp.h"
+#include "Rendering/Buffer/VertexBufferLayout.h"
+#include "GameObject/Components/Texture2D.h"
+#include "Rendering/GPUShader.h"
+#include "Rendering/ShaderManager.h"
+#include "GameObject/Camera.h"
+#include "Animation/Joint.h"
+#include "Animation/Animator.h"
+#include "GameObject/Components/AABB.h"
+#include "GameObject/Components/MeshNew.h"
 
 void MeshNew::Draw(GPUShader& shader)
 {

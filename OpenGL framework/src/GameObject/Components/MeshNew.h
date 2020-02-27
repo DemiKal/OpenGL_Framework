@@ -1,22 +1,28 @@
 #pragma once
+
+#include "Animation/Animator.h"
+#include "GameObject/Components/AABB.h"
+#include "Rendering/Buffer/VertexBufferLayout.h"
+#include "Rendering/GPUShader.h"
+
+
 class MeshNew
 {
-
 protected:
 	unsigned int VAO, VBO, EBO;
 	//vertex bools
 	bool animation_loaded = false;
-	GLenum elemDrawType = GL_TRIANGLES;
-	
+	GLenum m_elemDrawType = GL_TRIANGLES;
+
 	unsigned int m_wireVAO, m_wireVBO;
 	void setupMesh();
-
+	float xxxxxxxxxxxxxxxxxxxxx = 1;
 public:
 	float lineThickness = 0.1f;
 	static MeshNew CreateCubeWireframe();
-	inline GLenum GetElemDrawType() { return elemDrawType; };
-	void SetElemDrawType(const GLenum enm) { elemDrawType = enm; }
-	
+	inline GLenum GetElemDrawType() const { return m_elemDrawType; };
+	void SetElemDrawType(const GLenum enm) { m_elemDrawType = enm; }
+
 	std::vector<float> vertices; //TODO make it dynamic for ints and others
 	std::vector<unsigned int> indices;
 	std::vector<Texture2D> m_textures;
@@ -25,8 +31,8 @@ public:
 	std::vector<glm::vec3> positionVertices; //vertices, but only the positions for other purposes
 	AABB m_aabb;
 	AABB m_aabb_OG;
-	
-	MeshNew() : indices(), m_textures(), VAO(0), VBO(0), EBO(0) {};
+
+	MeshNew() : VAO(0), VBO(0), EBO(0), indices(), m_textures() {};
 
 	~MeshNew() = default;
 	//MeshNew(MeshNew& a) = default;
@@ -56,7 +62,7 @@ public:
 	//void SetVAO(unsigned int val) { VAO = val; }
 	//void SetVBO(unsigned int val) { VBO = val; }
 	//void SetEBO(unsigned int val) { EBO = val; }
-	void addTexture(const Texture2D& tex) 
+	void addTexture(const Texture2D& tex)
 	{
 		m_textures.emplace_back(tex);
 	}

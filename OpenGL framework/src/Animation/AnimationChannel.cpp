@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include "AnimationChannel.h"
 
 struct _CompareKeys
 {
