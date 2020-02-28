@@ -147,7 +147,7 @@ MeshNew MeshNew::CreateCubeWireframe()
 		 -0.5f,  0.5f,  0.5f		//tl+
 	}; //8*3*3
 
-	int size = sizeof(cubeVertices) / sizeof(float);
+	const int size = sizeof(cubeVertices) / sizeof(float);
 	std::copy(cubeVertices, cubeVertices + size, std::back_inserter(mesh.vertices));
 
 	VertexBufferLayout vbl;

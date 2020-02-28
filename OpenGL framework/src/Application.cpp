@@ -1,14 +1,10 @@
 #include "precomp.h"
 #include "Application.h"
-
-
 #include "Rendering/Buffer/RenderBufferObject.h"
 #include "Rendering/Buffer/FrameBuffer.h"
-
 #include "GameObject/Components/Texture2D.h"
 #include "Rendering/GPUShader.h"
 #include "Rendering/ShaderManager.h"
-
 #include "Rendering/Renderer.h"
 #include "GameObject/Camera.h"
 #include "Light/LightManager.h"
@@ -19,6 +15,11 @@
 #include "Geometry/BVH/BVH.h"
 #include "Geometry/BVH/BVHNode.h"
 
+
+void drawAABBs(const BVH& bvh, const Camera& camera, const std::vector<glm::mat4> matrices, Model& wirecube)
+{
+
+}
 
 int main(void)
 {
@@ -66,58 +67,92 @@ int main(void)
 
 		//EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
 
-		 Model plane = Model::CreatePlane();
-		 plane.name = "plane";
-		 EntityManager::AddEntity(plane);
+		Model plane = Model::CreatePlane();
+		plane.name = "plane";
+		//plane.SetShader("framebuffers");
+		plane.SetShader("plane");
+		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+		EntityManager::AddEntity(plane);
 
 
 		//bvh.m_pool[0].m_bounds.Draw(camera)
 
 		//TriangleBuffer::AddTriangles(plane);
 
-		//plane.SetShader("plane");
-		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "wirecube";
 		EntityManager::AddEntity(wireCube);
 
-		wireCube.SetShader("singlecolor");
+		wireCube.SetShader("AABB_instanced");
 
-		Model spyro("res/meshes/Spyro/Spyro.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("basic");
 		spyro.name = "spyro";
 		EntityManager::AddEntity(spyro);
 		//spyro.getMesh(0).MakeWireFrame();
 
+		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		//artisans.SetShader("basic");
+		//EntityManager::AddEntity(artisans);
+
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		artisans.SetShader("basic");
+		artisans.name = "name";
 		EntityManager::AddEntity(artisans);
 
 
-		
-		 std::vector<AABB> triAABBs;
-		 const std::vector<Triangle>& tris = TriangleBuffer::GetTriangleBuffer();
-		 triAABBs.reserve(tris.size());
-		 for (auto& tri : tris)
-		 	triAABBs.emplace_back(
-		 		AABB(
-		 			std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
-		 			std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
-		 			std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
-		 			std::max(std::max(tri.A.x, tri.B.x), tri.C.x),
-		 			std::max(std::max(tri.A.y, tri.B.y), tri.C.y),
-		 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
-		 		));
-		 
-		 
-		 
+		std::vector<AABB> triAABBs;
+		const std::vector<Triangle>& tris = TriangleBuffer::GetTriangleBuffer();
+		triAABBs.reserve(tris.size());
+		for (auto& tri : tris)
+			triAABBs.emplace_back(
+				AABB(
+					std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
+					std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
+					std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
+					std::max(std::max(tri.A.x, tri.B.x), tri.C.x),
+					std::max(std::max(tri.A.y, tri.B.y), tri.C.y),
+					std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
+				));
+
+
+
 		BVH bvh;
-		 bvh.BuildBVH(tris, triAABBs);
-		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		//artisans.SetShader("basic");
-		//artisans.name = "name";
-		//EntityManager::AddEntity(artisans);
+		bvh.BuildBVH(tris, triAABBs);
+
+		std::vector<glm::mat4> aabbMatrices;
+		aabbMatrices.reserve(bvh.m_localBounds.size());
+		for (auto& b : bvh.m_localBounds)
+			aabbMatrices.emplace_back(b.GetTransform());
+
+		// -------------------------
+		unsigned int AABB_matBuffer;
+		glGenBuffers(1, &AABB_matBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, AABB_matBuffer);
+		glBufferData(GL_ARRAY_BUFFER, aabbMatrices.size() * sizeof(glm::mat4), &aabbMatrices[0], GL_STATIC_DRAW);
+
+		const unsigned int cubeVAO = wireCube.getMesh(0).GetVAO();
+		glBindVertexArray(cubeVAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(1, 1);
+		glVertexAttribDivisor(2, 1);
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+
+		glBindVertexArray(0);
+
+
+
 
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
 		//nanosuit.name = "nanosuit";
@@ -279,30 +314,46 @@ int main(void)
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-			//cube.Update(deltaTime);
-			//plane.Update(deltaTime);
+			cube.Update(deltaTime);
+			plane.Update(deltaTime);
 			spyro.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			artisans.Update(deltaTime);
+			//artisans.Update(deltaTime);
 
 			cube.Draw(camera);
 			plane.Draw(camera);
 			spyro.Draw(camera);
 			artisans.Draw(camera);
 
-			//nanosuit.GetShader().Bind();
-			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
-			//nanosuit.Draw(camera);
-			//
+		//nanosuit.GetShader().Bind();
+		//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+		//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+		//nanosuit.Draw(camera);
+		//
 
 
-			//bvh.m_pool[0].m_bounds.Draw(camera);
-			//bvh.m_pool[1].m_bounds.Draw(camera);
-			//bvh.m_pool[2].m_bounds.Draw(camera);
-			//for (auto& aabb : bvh.m_localBounds)
-			//	aabb.Draw(camera);
-			bvh.m_localBounds[0].Draw(camera);
+		//bvh.m_pool[0].m_bounds.Draw(camera);
+		//bvh.m_pool[1].m_bounds.Draw(camera);
+		//bvh.m_pool[2].m_bounds.Draw(camera);
+		//for (auto& aabb : bvh.m_localBounds)
+		//	aabb.Draw(camera);
+		//bvh.m_localBounds[0].Draw(camera);
+		//drawAABBs(bvh, camera, aabbMats, wireCube);
+		//bvh.m_localBounds[0].Draw(camera);
+
+			auto& aabbshader = wireCube.GetShader();
+			aabbshader.Bind();
+			aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
+			aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+
+			const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
+			glBindVertexArray(wireCube.getMesh(0).GetVAO());
+			glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
+			glBindVertexArray(0);
+
+
+
+
 			LightManager::debug_render(camera);
 
 			Model* selection = InputManager::GetSelectedModel();

@@ -84,6 +84,7 @@
     <ClCompile Include="src\Geometry\BVH\BVHNode.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVH.cpp" />
     <ClCompile Include="src\Geometry\TriangleBuffer.cpp" />
+    <None Include="res\shaders\AABB_instanced.glsl" />
     <None Include="res\shaders\anim.glsl" />
     <None Include="res\shaders\bones.glsl" />
     <None Include="res\shaders\framebuffers.glsl" />

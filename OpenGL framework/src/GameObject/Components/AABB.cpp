@@ -30,24 +30,24 @@ void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 
 void AABB::Draw(const Camera& camera)
 {
-	glm::mat4 model = GetTransform();
-	glm::mat4 view = camera.GetViewMatrix();
-	glm::mat4 projection = camera.GetProjectionMatrix();
+	const glm::mat4 model = GetTransform();
+	const glm::mat4 view = camera.GetViewMatrix();
+	const glm::mat4 projection = camera.GetProjectionMatrix();
 
 	Model* wirecube = nullptr;
 	for (auto& e : EntityManager::GetEntities())
 		if (e->name == "wirecube") wirecube = e; //TODO: FIX GETTING WIRECUBE! 
 
-	if(wirecube==nullptr)
+	if (wirecube == nullptr)
 	{
 		std::cout << "wirecube not initialized!\n";
 		return;
 	}
-	
+
 	wirecube->model = model;
 	GPUShader& shader = wirecube->GetShader();
 	shader.Bind();
-	shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
+	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
