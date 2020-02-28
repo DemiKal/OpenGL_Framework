@@ -513,8 +513,8 @@ void Model::Draw(const Camera& cam)
 
 	shader.Unbind();
 
-	for (auto& mesh : meshes)
-		mesh.m_aabb.Draw(cam);
+//	for (auto& mesh : meshes)
+//		mesh.m_aabb.Draw(cam);
 }
 
 GPUShader& Model::GetShader() const { return   ShaderManager::GetShader(shaderIdx); }

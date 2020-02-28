@@ -120,7 +120,7 @@
     <ClCompile Include="src\Geometry\BVH\BVH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BVHNode.cpp">
+    <ClCompile Include="src\Geometry\BVH\BVHNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1046,7 +1046,7 @@
     <ClInclude Include="src\Geometry\BVH\BVH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BVHNode.h">
+    <ClInclude Include="src\Geometry\BVH\BVHNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

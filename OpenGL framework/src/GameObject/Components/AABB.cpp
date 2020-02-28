@@ -34,7 +34,16 @@ void AABB::Draw(const Camera& camera)
 	glm::mat4 view = camera.GetViewMatrix();
 	glm::mat4 projection = camera.GetProjectionMatrix();
 
-	Model* wirecube = EntityManager::GetEntities()[2]; //TODO: FIX GETTING WIRECUBE! 
+	Model* wirecube = nullptr;
+	for (auto& e : EntityManager::GetEntities())
+		if (e->name == "wirecube") wirecube = e; //TODO: FIX GETTING WIRECUBE! 
+
+	if(wirecube==nullptr)
+	{
+		std::cout << "wirecube not initialized!\n";
+		return;
+	}
+	
 	wirecube->model = model;
 	GPUShader& shader = wirecube->GetShader();
 	shader.Bind();

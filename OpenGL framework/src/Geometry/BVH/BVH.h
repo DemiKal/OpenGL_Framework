@@ -17,10 +17,11 @@ struct Triangle;
 //};
 class BVH
 {
+public:
 	std::vector<unsigned int> m_indices;
-	BVHNode* m_pool;
-	BVHNode* m_root;
-	int m_poolPtr;
+	BVHNode* m_pool{};
+	BVHNode* m_root{};
+	int m_poolPtr{};
 	std::vector<AABB> m_localBounds;
 
 	BVH() = default;

@@ -1,8 +1,8 @@
 #pragma once
- 
+
 
 class Camera;
-class Model; 
+class Model;
 
 struct Max {
 	glm::vec3 v;
@@ -27,6 +27,10 @@ public:
 	AABB() : m_min(), m_max() {}
 
 	AABB(const glm::vec3& _min, const glm::vec3& _max) : m_min(_min), m_max(_max) {}
+	AABB(const float minX, const float minY, const float minZ,
+		const float maxX, const float maxY, const float maxZ)
+		: m_min({ minX,minY,minZ }), m_max({ maxX,maxY,maxZ }) {};
+
 
 	AABB(Min _min, Max _max) : m_min(_min), m_max(_max) {};
 
@@ -110,7 +114,7 @@ public:
 	{
 		RecalcBounds(transform, original);
 	}
-
+	
 	void Draw(const Camera& camera);
 	void UpdateArvo(const glm::mat4& m, const AABB& orig);
 };

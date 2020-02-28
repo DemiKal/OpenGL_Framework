@@ -6,7 +6,7 @@ struct Triangle
 	glm::vec3 A, B, C;
 	Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C) : A(_A), B(_B), C(_C) {}
 
-	bool intersect(const glm::vec3& orign, glm::vec3& direction, glm::vec2 bary_coords)
+	bool intersect(const glm::vec3& orign, glm::vec3& direction, glm::vec2& bary_coords)
 	{
 
 	}
@@ -23,19 +23,20 @@ struct IndexPair
 class TriangleBuffer
 {
 	//buffer of sequential vertices, every three verts = 1 Triangle
-	std::vector<glm::vec3> m_PositionBuffer;
+	std::vector<Triangle> m_TriangleBuffer;
 	//every mesh has a start and end idx.
 	std::vector<IndexPair> m_IndexRangeBuffer;
 
 	TriangleBuffer() {}
-	TriangleBuffer operator=(TriangleBuffer& other) = delete;
+	
 
 	static TriangleBuffer& GetInstance();
 
 	void AddTriangles_I(Model& model);;
 
 public:
-	static std::vector<glm::vec3>& GetTriangleBuffer();
+	TriangleBuffer operator=(TriangleBuffer& other) = delete;
+	static std::vector<Triangle>& GetTriangleBuffer();
 
 	static void AddTriangles(Model& model);
 

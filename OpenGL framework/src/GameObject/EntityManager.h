@@ -1,5 +1,6 @@
 #pragma once
-#include  "Geometry/TriangleBuffer.h"
+#include "Components/Model.h"
+#include "Geometry/TriangleBuffer.h"
 
 class Model; 
 class TriangleBuffer;
@@ -18,7 +19,8 @@ public:
 	{
 		auto& instance = GetInstance();
 		instance.Entities.emplace_back(&model);
-		TriangleBuffer::AddTriangles(model);
+		if(model.name != "wirecube") 
+			TriangleBuffer::AddTriangles(model);
 	}
 
 private:

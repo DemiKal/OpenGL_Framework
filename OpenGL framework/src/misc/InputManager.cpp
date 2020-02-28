@@ -51,7 +51,7 @@ void InputManager::Update(Camera& camera)
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		camMovement -= camSpeed * forward;
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		camMovement += camSpeed * up;
+		camMovement += camSpeed * 4* up;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 		camMovement -= camSpeed * up;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)

@@ -16,7 +16,8 @@
 #include "GameObject/Components/MeshNew.h"
 #include "GameObject/Components/Model.h"
 #include "misc/InputManager.h"	
-
+#include "Geometry/BVH/BVH.h"
+#include "Geometry/BVH/BVHNode.h"
 
 
 int main(void)
@@ -63,16 +64,19 @@ int main(void)
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
-		EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
+		//EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
 
-		Model plane = Model::CreatePlane();
-		plane.name = "plane";
-		EntityManager::AddEntity(plane);
+		 Model plane = Model::CreatePlane();
+		 plane.name = "plane";
+		 EntityManager::AddEntity(plane);
+
+
+		//bvh.m_pool[0].m_bounds.Draw(camera)
 
 		//TriangleBuffer::AddTriangles(plane);
 
-		plane.SetShader("plane");
-		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+		//plane.SetShader("plane");
+		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "wirecube";
@@ -84,7 +88,32 @@ int main(void)
 		spyro.SetShader("basic");
 		spyro.name = "spyro";
 		EntityManager::AddEntity(spyro);
-		spyro.getMesh(0).MakeWireFrame();
+		//spyro.getMesh(0).MakeWireFrame();
+
+		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		artisans.SetShader("basic");
+		EntityManager::AddEntity(artisans);
+
+
+		
+		 std::vector<AABB> triAABBs;
+		 const std::vector<Triangle>& tris = TriangleBuffer::GetTriangleBuffer();
+		 triAABBs.reserve(tris.size());
+		 for (auto& tri : tris)
+		 	triAABBs.emplace_back(
+		 		AABB(
+		 			std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
+		 			std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
+		 			std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
+		 			std::max(std::max(tri.A.x, tri.B.x), tri.C.x),
+		 			std::max(std::max(tri.A.y, tri.B.y), tri.C.y),
+		 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
+		 		));
+		 
+		 
+		 
+		BVH bvh;
+		 bvh.BuildBVH(tris, triAABBs);
 		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		//artisans.SetShader("basic");
 		//artisans.name = "name";
@@ -250,16 +279,16 @@ int main(void)
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-			cube.Update(deltaTime);
-			plane.Update(deltaTime);
+			//cube.Update(deltaTime);
+			//plane.Update(deltaTime);
 			spyro.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			//artisans.Update(deltaTime);
+			artisans.Update(deltaTime);
 
-			//cube.Draw(camera);
+			cube.Draw(camera);
 			plane.Draw(camera);
 			spyro.Draw(camera);
-			//artisans.Draw(camera);
+			artisans.Draw(camera);
 
 			//nanosuit.GetShader().Bind();
 			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
@@ -268,8 +297,12 @@ int main(void)
 			//
 
 
-
-
+			//bvh.m_pool[0].m_bounds.Draw(camera);
+			//bvh.m_pool[1].m_bounds.Draw(camera);
+			//bvh.m_pool[2].m_bounds.Draw(camera);
+			//for (auto& aabb : bvh.m_localBounds)
+			//	aabb.Draw(camera);
+			bvh.m_localBounds[0].Draw(camera);
 			LightManager::debug_render(camera);
 
 			Model* selection = InputManager::GetSelectedModel();

@@ -81,7 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BVHNode.cpp" />
+    <ClCompile Include="src\Geometry\BVH\BVHNode.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVH.cpp" />
     <ClCompile Include="src\Geometry\TriangleBuffer.cpp" />
     <None Include="res\shaders\anim.glsl" />
@@ -271,7 +271,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BVHNode.h" />
+    <ClInclude Include="src\Geometry\BVH\BVHNode.h" />
     <ClInclude Include="src\Geometry\BVH\BVH.h" />
     <ClInclude Include="src\GameObject\EntityManager.h" />
     <ClInclude Include="src\GameObject\Components\AABB.h" />
