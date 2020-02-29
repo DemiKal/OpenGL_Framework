@@ -47,9 +47,9 @@ int main(void)
 		renderer.SetAlphaBlending(true);
 		ShaderManager::Init(); //init before any model
 
-		//Model obj = Model();
-		//obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
-		//obj.SetShader("normalmapshader");
+		Model obj = Model();
+		obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
+		obj.SetShader("normalmapshader");
 
 		Model cube = Model::CreateCube();
 		cube.name = "cube";
@@ -57,6 +57,11 @@ int main(void)
 		EntityManager::AddEntity(cube);
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
+
+		Model duck = Model("res/meshes/bvhtest/rubber-ducky.obj", aiProcess_Triangulate);
+		duck.name = "duck";
+		duck.SetShader("framebuffers");
+		EntityManager::AddEntity(duck);
 
 		//EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
 
@@ -66,11 +71,6 @@ int main(void)
 		plane.SetShader("plane");
 		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 		EntityManager::AddEntity(plane);
-
-
-		//bvh.m_pool[0].m_bounds.Draw(camera)
-
-		//TriangleBuffer::AddTriangles(plane);
 
 
 		Model wireCube = Model::CreateCubeWireframe();
@@ -88,11 +88,11 @@ int main(void)
 		//artisans.SetShader("basic");
 		//EntityManager::AddEntity(artisans);
 
-		  Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		  artisans.SetShader("basic");
-		  artisans.name = "name";
-		  EntityManager::AddEntity(artisans);
-		  artisans.getMesh(0).MakeWireFrame();
+		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		artisans.SetShader("basic");
+		artisans.name = "artisans";
+		EntityManager::AddEntity(artisans);
+		artisans.getMesh(0).MakeWireFrame();
 
 		std::vector<AABB> triAABBs;
 		const std::vector<Triangle>& tris = TriangleBuffer::GetTriangleBuffer();
@@ -277,10 +277,10 @@ int main(void)
 
 		double prevFrameTime = glfwGetTime();
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		 // enable depth testing (is disabled for rendering screen-space quad)
-		
+		// enable depth testing (is disabled for rendering screen-space quad)
 
-		//Game Loop
+
+	   //Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
 
@@ -310,49 +310,51 @@ int main(void)
 			cube.Update(deltaTime);
 			plane.Update(deltaTime);
 			spyro.Update(deltaTime);
+			duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			 //artisans.Update(deltaTime);
+			artisans.Update(deltaTime);
 
-			 cube.Draw(camera);
-			 plane.Draw(camera);
-			 spyro.Draw(camera);
+			cube.Draw(camera);
+			plane.Draw(camera);
+			spyro.Draw(camera);
+			duck.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
-			// artisans.Draw(camera);
-			 artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
+			artisans.Draw(camera);
+			//artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
 
-			//nanosuit.GetShader().Bind();
-			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
-			//nanosuit.Draw(camera);
-			//
-
-
+		   //nanosuit.GetShader().Bind();
+		   //nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+		   //nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+		   //nanosuit.Draw(camera);
+		   //
 
 
 
 
 
-			//bvh.m_pool[0].m_bounds.Draw(camera);
-			//bvh.m_pool[1].m_bounds.Draw(camera);
-			//bvh.m_pool[2].m_bounds.Draw(camera);
-			 //for (auto& aabb : bvh.m_localBounds)
-			 //	aabb.Draw(camera);
-
-			//bvh.m_localBounds[0].Draw(camera);
-			//drawAABBs(bvh, camera, aabbMats, wireCube);
-			//bvh.m_localBounds[0].Draw(camera);
 
 
-			// draw AABB instanced
-			  auto& aabbshader = wireCube.GetShader();
-			  aabbshader.Bind();
-			  aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
-			  aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-			  const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
-			  glBindVertexArray(wireCube.getMesh(0).GetVAO());
-			  glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
-			  glBindVertexArray(0);
+		   //bvh.m_pool[0].m_bounds.Draw(camera);
+		   //bvh.m_pool[1].m_bounds.Draw(camera);
+		   //bvh.m_pool[2].m_bounds.Draw(camera);
+			//for (auto& aabb : bvh.m_localBounds)
+			//	aabb.Draw(camera);
+
+		   //bvh.m_localBounds[0].Draw(camera);
+		   //drawAABBs(bvh, camera, aabbMats, wireCube);
+		   //bvh.m_localBounds[0].Draw(camera);
+
+
+		   // draw AABB instanced
+			auto& aabbshader = wireCube.GetShader();
+			aabbshader.Bind();
+			aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
+			aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+			const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
+			glBindVertexArray(wireCube.getMesh(0).GetVAO());
+			glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
+			glBindVertexArray(0);
 
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);

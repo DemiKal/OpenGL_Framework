@@ -37,7 +37,7 @@ class TriangleBuffer
 public:
 	TriangleBuffer operator=(TriangleBuffer& other) = delete;
 	static std::vector<Triangle>& GetTriangleBuffer();
-
+	static std::vector<IndexPair>& GetIndexRangeBuffer();
 	static void AddTriangles(Model& model);
 
 };

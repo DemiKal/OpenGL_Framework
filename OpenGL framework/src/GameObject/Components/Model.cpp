@@ -1,6 +1,5 @@
 #include "precomp.h"
 #include "GameObject/Components/Model.h"
-
 #include "Rendering/Buffer/VertexBufferLayout.h"
 #include "GameObject/Components/Texture2D.h"
 #include "Rendering/GPUShader.h"

@@ -13,7 +13,7 @@ void TriangleBuffer::AddTriangles_I(Model& model)
 {
 	std::vector<glm::vec3>& posVerts = model.getMesh(0).positionVertices;
 	const size_t currentIdx = m_TriangleBuffer.size();			//global StartIdx
-	const size_t endIdx = currentIdx + posVerts.size();	//global EndIdx
+	const size_t endIdx = currentIdx + posVerts.size() / 3;	//global EndIdx
 	m_TriangleBuffer.reserve(currentIdx + posVerts.size());
 	const int maxx = m_TriangleBuffer.max_size();
 
@@ -35,6 +35,11 @@ void TriangleBuffer::AddTriangles_I(Model& model)
 std::vector<Triangle>& TriangleBuffer::GetTriangleBuffer()
 {
 	return GetInstance().m_TriangleBuffer;
+}
+
+std::vector<IndexPair>& TriangleBuffer::GetIndexRangeBuffer()
+{
+	return GetInstance().m_IndexRangeBuffer;
 }
 
 void TriangleBuffer::AddTriangles(Model& model)
