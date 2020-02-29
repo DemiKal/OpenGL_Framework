@@ -23,6 +23,7 @@ const int SCREENHEIGHT = 720;
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
+//#include <glm/gtx/intersect.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 

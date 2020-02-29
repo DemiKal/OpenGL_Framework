@@ -7,6 +7,8 @@
 #include "GameObject/Components/AABB.h"
 #include "GameObject/Components/MeshNew.h"
 #include "Geometry/Ray.h"
+#include "glm/detail/_noise.hpp"
+#include "glm/detail/_noise.hpp"
 #include "Rendering/ShaderManager.h"
 
 class Model;
@@ -30,7 +32,7 @@ void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 	}
 }
 
-void AABB::Draw(const Camera& camera)
+void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f })
 {
 	const glm::mat4 model = GetTransform();
 	const glm::mat4 view = camera.GetViewMatrix();
@@ -53,7 +55,7 @@ void AABB::Draw(const Camera& camera)
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
-	shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
+	shader.SetUniform4f("u_color", color.x,color.y,color.z,color.w);
 
 	MeshNew& mesh = wirecube->getMesh(0);
 

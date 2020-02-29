@@ -9,6 +9,8 @@ struct Triangle;
 
 struct HitData
 {
+	HitData(/*unsigned int _triangleIdx,*/ float _distance, unsigned int _nodeIdx) :
+	/*	triangleIdx(_triangleIdx),*/ distance(_distance), nodeIdx(_nodeIdx) {}
 	unsigned int triangleIdx;
 	float distance;
 	unsigned int nodeIdx;
@@ -29,5 +31,10 @@ public:
 
 	void BuildBVH(const std::vector<Triangle>& triangles, const std::vector<AABB>& aabbs);
 	void TraceRay(const Ray& ray);
+	void DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) const;
+	void InitTriangleRenderer();
+private:
+	unsigned int m_triangleVAO;
+	unsigned int m_triangleVBO;
 };
 

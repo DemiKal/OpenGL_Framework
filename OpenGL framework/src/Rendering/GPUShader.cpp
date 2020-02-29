@@ -75,7 +75,12 @@ void GPUShader::SetUniform4f(const std::string& name, float v0, float v1, float 
 	GLCall(int loc = GetUniformLocation(name));
 	GLCall(glUniform4f(loc, v0, v1, v2, v3));
 }
-
+//TODO: ADD 4fv!
+//void GPUShader::SetUniform4V(const std::string& name, float v0, float v1, float v2, float v3)
+//{
+//	GLCall(int loc = GetUniformLocation(name));
+//	GLCall(glUniform4f(loc, v0, v1, v2, v3));
+//}
 int GPUShader::GetUniformLocation(const std::string&  name)
 {
 	if (m_uniformsInfo.find(name) != m_uniformsInfo.end())

@@ -299,7 +299,7 @@ void MeshNew::MakeWireFrame()
 
 }
 
-void MeshNew::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix)
+void MeshNew::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const
 {
 	glm::mat4 model = model_matrix;
 	glm::mat4 view = camera.GetViewMatrix();

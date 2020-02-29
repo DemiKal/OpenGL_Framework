@@ -18,7 +18,7 @@ public:
 
 	[[nodiscard]] inline glm::mat4 GetViewProjectionMatrix() const;
 
-	std::pair<bool, Model*> MousePick(double MouseX, double MouseY);
+	std::pair<bool, Model*> MousePick(double MouseX, double MouseY) const;
 
 	[[nodiscard]] inline glm::mat4 GetViewMatrix() const;
 

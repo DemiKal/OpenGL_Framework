@@ -50,7 +50,7 @@ public:
 	unsigned int GetEBO() { return EBO; }
 
 	void MakeWireFrame();
-	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix);
+	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const;
 
 	static MeshNew CreatePlane();
 

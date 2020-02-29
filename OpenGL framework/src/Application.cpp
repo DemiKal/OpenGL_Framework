@@ -91,8 +91,7 @@ int main(void)
 		spyro.SetShader("basic");
 		spyro.name = "spyro";
 		EntityManager::AddEntity(spyro);
-		//spyro.getMesh(0).MakeWireFrame();
-
+		spyro.getMesh(0).MakeWireFrame();
 		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		//artisans.SetShader("basic");
 		//EntityManager::AddEntity(artisans);
@@ -197,7 +196,7 @@ int main(void)
 		glGenBuffers(1, &quadVBO);
 		glBindVertexArray(quadVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_DYNAMIC_DRAW); //TODO: static?
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
@@ -251,10 +250,10 @@ int main(void)
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
 		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 200.0f);
-		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
-		cam2.RotateYlocal(glm::radians(-90.0f));
+		//Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
+		//cam2.RotateYlocal(glm::radians(-90.0f));
 
-		Camera::SetMainCamera(&cam2);
+		Camera::SetMainCamera(&camera);
 		//Camera* cam = Camera::GetMain(); //??
 		//* cam->Position()   += glm::vec3(2, 0, 3);
 		ImGui::CreateContext();
@@ -308,7 +307,7 @@ int main(void)
 
 			framebuffer.Bind();
 			glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
-
+			glDepthFunc(GL_LEQUAL);
 			// make sure we clear the framebuffer's content
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -320,9 +319,11 @@ int main(void)
 			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
 
-			cube.Draw(camera);
-			plane.Draw(camera);
-			spyro.Draw(camera);
+			 cube.Draw(camera);
+			 plane.Draw(camera);
+			 spyro.Draw(camera);
+			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
+
 			//artisans.Draw(camera);
 
 			//nanosuit.GetShader().Bind();
@@ -340,23 +341,24 @@ int main(void)
 			//bvh.m_pool[0].m_bounds.Draw(camera);
 			//bvh.m_pool[1].m_bounds.Draw(camera);
 			//bvh.m_pool[2].m_bounds.Draw(camera);
-			//for (auto& aabb : bvh.m_localBounds)
-			//	aabb.Draw(camera);
+			 //for (auto& aabb : bvh.m_localBounds)
+			 //	aabb.Draw(camera);
 
 			//bvh.m_localBounds[0].Draw(camera);
 			//drawAABBs(bvh, camera, aabbMats, wireCube);
 			//bvh.m_localBounds[0].Draw(camera);
 
 
-			//draw AABB instanced
-			auto& aabbshader = wireCube.GetShader();
-			aabbshader.Bind();
-			aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
-			aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-			const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
-			glBindVertexArray(wireCube.getMesh(0).GetVAO());
-			glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
-			glBindVertexArray(0);
+			// draw AABB instanced
+			 auto& aabbshader = wireCube.GetShader();
+			 aabbshader.Bind();
+			 aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
+			 aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+			 const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
+			 glBindVertexArray(wireCube.getMesh(0).GetVAO());
+			 glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
+			 glBindVertexArray(0);
+
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);
 

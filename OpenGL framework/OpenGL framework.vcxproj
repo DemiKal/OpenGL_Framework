@@ -98,6 +98,7 @@
     </None>
     <None Include="res\shaders\lineshader.glsl" />
     <None Include="res\shaders\plane.glsl" />
+    <None Include="res\shaders\singleTriangle.glsl" />
     <None Include="res\shaders\wireframe.glsl" />
     <None Include="res\shaders\singlecolor.glsl" />
     <None Include="res\shaders\singledotshader.glsl" />

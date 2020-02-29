@@ -72,7 +72,7 @@ inline glm::mat4 Camera::GetViewProjectionMatrix() const
 
 
 
-std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY)
+std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 {
 	const Ray ray = RayFromMouse(MouseX, MouseY);
 	//glm::vec3 origin = GetPosition();

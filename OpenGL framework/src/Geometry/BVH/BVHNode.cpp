@@ -47,8 +47,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, 
 		//leaf
 		if (m_count < 3)
 		{
-
-			hitdata.emplace_back(HitData{}); //TODO COMPOSE HIT DATA
+			hitdata.emplace_back(HitData(tCurrent, nodeIdx)); //TODO COMPOSE HIT DATA
 			return true;
 		}
 
