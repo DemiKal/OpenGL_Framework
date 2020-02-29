@@ -31,7 +31,7 @@ void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mvelo)
 }
 
 //TODO: use a screenmanager to get SCREENWIDTH dynamically!
-glm::vec3 Camera::RayFromMouse(float mouseX, float mouseY) const
+Ray Camera::RayFromMouse(const double mouseX, const double mouseY) const
 {
 	float x = (2.0f * mouseX) / SCREENWIDTH - 1.0f; //TODO: FIX WITH DYNAMIC SCREENWIDTH!
 	float y = 1.0f - (2.0f * mouseY) / SCREENHEIGHT;
@@ -53,7 +53,9 @@ glm::vec3 Camera::RayFromMouse(float mouseX, float mouseY) const
 	glm::vec3 ray_world = glm::vec3(glm::inverse(view_matrix) * ray_eye);
 	ray_world = glm::normalize(ray_world);
 
-	return ray_world;
+	Ray ray(this->PositionRead(), ray_world);
+
+	return ray;
 }
 
 //TODO: set screenwidht and other vars dynamically!
@@ -68,46 +70,22 @@ inline glm::mat4 Camera::GetViewProjectionMatrix() const
 }
 
 
-bool intersectAABB(const glm::vec3 & origin, const glm::vec3 & direction, float& tCurrent, const AABB & aabb)
-{
-	const glm::vec3 d = glm::vec3(1.0f / direction.x,
-		1.0f / direction.y,
-		1.0f / direction.z);
 
-	const float t = 99999.0f;
-	const float tx1 = (aabb.m_min.v.x - origin.x) * d.x;
-	const float tx2 = (aabb.m_max.v.x - origin.x) * d.x;
-
-	float tmin = std::min(tx1, tx2);
-	float tmax = std::max(tx1, tx2);
-
-	const float ty1 = (aabb.m_min.v.y - origin.y) * d.y;
-	const float ty2 = (aabb.m_max.v.y - origin.y) * d.y;
-
-	tmin = std::max(tmin, std::min(ty1, ty2));
-	tmax = std::min(tmax, std::max(ty1, ty2));
-
-	const float tz1 = (aabb.m_min.v.z - origin.z) * d.z;
-	const float tz2 = (aabb.m_max.v.z - origin.z) * d.z;
-
-	tmin = std::max(tmin, std::min(tz1, tz2));
-	tmax = std::min(tmax, std::max(tz1, tz2));
-	tCurrent = tmin;
-	return tmax >= std::max(0.0f, tmin) && tmin < t;
-}
 
 std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY)
 {
-	glm::vec3 dir = RayFromMouse(MouseX, MouseY);
-	glm::vec3 origin = GetPosition();
+	const Ray ray = RayFromMouse(MouseX, MouseY);
+	//glm::vec3 origin = GetPosition();
 	std::vector < std::pair<Model*, float>> hits;
 	float t_min = 99999999;
 	Model* m_current = nullptr;
 	bool totalHit = false;
+
 	for (Model* mdl : EntityManager::GetEntities())
 	{
 		float tCurrent = -1111;
-		bool hit = intersectAABB(origin, dir, tCurrent, mdl->meshes[0].m_aabb);
+		bool hit = mdl->meshes[0].m_aabb.IntersectAABB(ray, tCurrent);
+		///bool hit = intersectAABB(origin, dir, tCurrent, mdl->meshes[0].m_aabb);
 		totalHit |= hit;
 		if (hit && tCurrent < t_min)
 		{

@@ -2,19 +2,18 @@
 //#include "Geometry/BVHNode.h"
 #include "Geometry/TriangleBuffer.h"
 #include "GameObject/Components/AABB.h"
+#include "Geometry/Ray.h"
 
 class BVHNode;
 struct Triangle;
 
-//struct BVHNode
-//{
-//	int start = -1;
-//	int end = -1;
-//	int leftFirst;
-//	int count = -1;
-//	bool init = false;
-//	AABB bounds;
-//};
+struct HitData
+{
+	unsigned int triangleIdx;
+	float distance;
+	unsigned int nodeIdx;
+};
+
 class BVH
 {
 public:
@@ -29,6 +28,6 @@ public:
 		: m_indices(indices), m_pool(pool), m_root(root), m_poolPtr(poolPtr) {};
 
 	void BuildBVH(const std::vector<Triangle>& triangles, const std::vector<AABB>& aabbs);
-	
+	void TraceRay(const Ray& ray);
 };
 

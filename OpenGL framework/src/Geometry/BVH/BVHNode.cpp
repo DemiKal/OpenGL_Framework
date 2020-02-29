@@ -36,6 +36,34 @@ void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
 	r.Subdivide(bvh, aabbs, triangles, split, end);
 }
 
+bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, const unsigned nodeIdx = 0) const
+{
+	float tCurrent = std::numeric_limits<float>::infinity();
+	const bool i = m_bounds.IntersectAABB(ray, tCurrent);
+
+	//return i;
+	if (i)
+	{
+		//leaf
+		if (m_count < 3)
+		{
+
+			hitdata.emplace_back(HitData{}); //TODO COMPOSE HIT DATA
+			return true;
+		}
+
+		else //traverse children
+		{
+			const int leftChild = m_leftFirst;
+			const int rightChild = m_leftFirst + 1;
+			const bool l = bvh.m_pool[leftChild].Traverse(bvh, ray, hitdata, leftChild);
+			const bool r = bvh.m_pool[rightChild].Traverse(bvh, ray, hitdata, rightChild);
+			return l | r;
+		}
+	}
+	return false;
+}
+
 
 AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const int first, const int last)
 {

@@ -51,7 +51,7 @@ void InputManager::Update(Camera& camera)
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		camMovement -= camSpeed * forward;
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		camMovement += camSpeed * 4* up;
+		camMovement += camSpeed * 4 * up;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 		camMovement -= camSpeed * up;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -83,23 +83,23 @@ void InputManager::Update(Camera& camera)
 	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
 		LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
 
- 
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+
+	//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	//{
+	double mouseX, mouseY;
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+	auto [hit, selected] = camera.MousePick(mouseX, mouseY);
+
+	std::string selectedStr = "None";
+	if (hit)
 	{
-		double mouseX, mouseY;
-		glfwGetCursorPos(window, &mouseX, &mouseY);
-		auto [hit, selected] = camera.MousePick(mouseX, mouseY);
-
-		std::string selectedStr = "None";
-		if (hit)
-		{
-			selectedStr = selected->name;
-			instance.SelectedModel = selected;
-		}
-
-		//ImGui::LabelText("label", selectedStr.c_str());
-
+		selectedStr = selected->name;
+		instance.SelectedModel = selected;
 	}
+
+	ImGui::LabelText("label", selectedStr.c_str());
+
+	//}
 
 	camera.GetPosition() += camMovement;
 }

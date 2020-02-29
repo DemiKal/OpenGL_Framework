@@ -14,6 +14,7 @@
 #include "misc/InputManager.h"	
 #include "Geometry/BVH/BVH.h"
 #include "Geometry/BVH/BVHNode.h"
+#include "Geometry/Ray.h"
 
 
 void drawAABBs(const BVH& bvh, const Camera& camera, const std::vector<glm::mat4> matrices, Model& wirecube)
@@ -96,10 +97,10 @@ int main(void)
 		//artisans.SetShader("basic");
 		//EntityManager::AddEntity(artisans);
 
-		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		artisans.SetShader("basic");
-		artisans.name = "name";
-		EntityManager::AddEntity(artisans);
+		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		//artisans.SetShader("basic");
+		//artisans.name = "name";
+		//EntityManager::AddEntity(artisans);
 
 
 		std::vector<AABB> triAABBs;
@@ -295,7 +296,6 @@ int main(void)
 			ImGui_ImplGlfwGL3_NewFrame();
 
 #pragma region input
-
 			InputManager::Update(camera);
 
 			const float average = (float)std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
@@ -323,36 +323,45 @@ int main(void)
 			cube.Draw(camera);
 			plane.Draw(camera);
 			spyro.Draw(camera);
-			artisans.Draw(camera);
+			//artisans.Draw(camera);
 
-		//nanosuit.GetShader().Bind();
-		//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-		//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
-		//nanosuit.Draw(camera);
-		//
+			//nanosuit.GetShader().Bind();
+			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			//nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+			//nanosuit.Draw(camera);
+			//
 
 
-		//bvh.m_pool[0].m_bounds.Draw(camera);
-		//bvh.m_pool[1].m_bounds.Draw(camera);
-		//bvh.m_pool[2].m_bounds.Draw(camera);
-		//for (auto& aabb : bvh.m_localBounds)
-		//	aabb.Draw(camera);
-		//bvh.m_localBounds[0].Draw(camera);
-		//drawAABBs(bvh, camera, aabbMats, wireCube);
-		//bvh.m_localBounds[0].Draw(camera);
 
+
+
+
+
+			//bvh.m_pool[0].m_bounds.Draw(camera);
+			//bvh.m_pool[1].m_bounds.Draw(camera);
+			//bvh.m_pool[2].m_bounds.Draw(camera);
+			//for (auto& aabb : bvh.m_localBounds)
+			//	aabb.Draw(camera);
+
+			//bvh.m_localBounds[0].Draw(camera);
+			//drawAABBs(bvh, camera, aabbMats, wireCube);
+			//bvh.m_localBounds[0].Draw(camera);
+
+
+			//draw AABB instanced
 			auto& aabbshader = wireCube.GetShader();
 			aabbshader.Bind();
 			aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
 			aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-
 			const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
 			glBindVertexArray(wireCube.getMesh(0).GetVAO());
 			glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
 			glBindVertexArray(0);
+			double MouseX, MouseY;
+			glfwGetCursorPos(window, &MouseX, &MouseY);
 
-
-
+			const Ray ray = camera.RayFromMouse(MouseX, MouseY);
+			bvh.TraceRay(ray);
 
 			LightManager::debug_render(camera);
 
@@ -365,6 +374,7 @@ int main(void)
 				ImGui::SliderFloat3("Scale", &selection->m_scale[0], 0, 10);
 
 			}
+
 
 			prevFrameTime = currentFrameTime;
 			glDisable(GL_DEPTH_TEST);

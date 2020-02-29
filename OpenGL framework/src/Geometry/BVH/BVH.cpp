@@ -28,3 +28,11 @@ void BVH::BuildBVH(const std::vector<Triangle>& triangles, const std::vector<AAB
 
 
 }
+
+void BVH::TraceRay(const Ray& ray)
+{
+	std::vector<HitData> hitData;
+	m_root->Traverse(*this, ray, hitData, 0);
+	if (!hitData.empty()) std::cout << "Hit leaf of BVH!\n";
+	
+}

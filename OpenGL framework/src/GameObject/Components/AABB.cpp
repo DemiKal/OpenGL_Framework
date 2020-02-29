@@ -6,6 +6,8 @@
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/AABB.h"
 #include "GameObject/Components/MeshNew.h"
+#include "Geometry/Ray.h"
+#include "Rendering/ShaderManager.h"
 
 class Model;
 
@@ -45,12 +47,13 @@ void AABB::Draw(const Camera& camera)
 	}
 
 	wirecube->model = model;
-	GPUShader& shader = wirecube->GetShader();
+	GPUShader& shader = ShaderManager::GetShader("AABB_single");
 	shader.Bind();
 	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
+	shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
 
 	MeshNew& mesh = wirecube->getMesh(0);
 
@@ -66,4 +69,35 @@ void AABB::Draw(const Camera& camera)
 	//wirecube->Draw(camera);
 
 
+}
+
+bool AABB::IntersectAABB(const Ray& ray, float& tCurrent) const
+{
+	const glm::vec3& direction = ray.m_direction;
+	const glm::vec3& origin = ray.m_origin;
+
+	const glm::vec3 d = glm::vec3(1.0f / direction.x,
+		1.0f / direction.y,
+		1.0f / direction.z);
+
+	const float t = 99999.0f;
+	const float tx1 = ( m_min.v.x - origin.x) * d.x;
+	const float tx2 = ( m_max.v.x - origin.x) * d.x;
+					    
+	float tmin = std::min(tx1, tx2);
+	float tmax = std::max(tx1, tx2);
+
+	const float ty1 = ( m_min.v.y - origin.y) * d.y;
+	const float ty2 = ( m_max.v.y - origin.y) * d.y;
+
+	tmin = std::max(tmin, std::min(ty1, ty2));
+	tmax = std::min(tmax, std::max(ty1, ty2));
+
+	const float tz1 = ( m_min.v.z - origin.z) * d.z;
+	const float tz2 = ( m_max.v.z - origin.z) * d.z;
+
+	tmin = std::max(tmin, std::min(tz1, tz2));
+	tmax = std::min(tmax, std::max(tz1, tz2));
+	tCurrent = tmin;
+	return tmax >= std::max(0.0f, tmin) && tmin < t;
 }

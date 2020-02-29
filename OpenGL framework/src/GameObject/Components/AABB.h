@@ -1,4 +1,5 @@
 #pragma once
+#include "Geometry/Ray.h"
 
 
 class Camera;
@@ -116,6 +117,7 @@ public:
 	}
 	
 	void Draw(const Camera& camera);
+	bool IntersectAABB(const Ray& ray, float& tCurrent) const;
 	void UpdateArvo(const glm::mat4& m, const AABB& orig);
 };
 
