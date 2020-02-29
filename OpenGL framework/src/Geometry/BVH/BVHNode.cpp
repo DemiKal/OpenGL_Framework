@@ -88,10 +88,6 @@ AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const int firs
 }
 
 
-
-
-
-
 int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
 	const std::vector<AABB>& aabbs, int start, int end)
 {
@@ -131,7 +127,7 @@ int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& tria
 
 	//get lowest SAH
 	float bestSAH = sahParent;
-	int splitIdx = -1;
+	int splitIdx = start + 1;
 	for (int i = start + 1; i < end; i++)
 	{
 		const float SAH_left = combine_sah(bvh, aabbs, start, i);
@@ -144,8 +140,13 @@ int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& tria
 			splitIdx = i;
 		}
 	}
+	if (start == 1397)
+	{
+		int assada = 1;
+	}
 	if (splitIdx < 0)
 	{
+		ASSERT(false);
 		int asdasd = 1;
 	}
 	return splitIdx;
@@ -209,12 +210,12 @@ glm::vec3 GetCenterAABB(const AABB& aabb)
 
 }
 
-glm::vec3 GetCenterTriangle(const Triangle& a1)
+glm::vec3 GetCenterTriangle(const Triangle& tri)
 {
 	const float t = 1.0f / 3.0f;
-	const glm::vec3 aa = glm::vec3(a1.A.x / 3.0f, a1.A.x / 3, a1.A.z / 3.0f);
-	const glm::vec3 ab = glm::vec3(a1.B.x / 3.0f, a1.B.x / 3, a1.B.z / 3.0f);
-	const glm::vec3 ac = glm::vec3(a1.C.x / 3.0f, a1.C.x / 3, a1.C.z / 3.0f);
+	const glm::vec3 aa = glm::vec3(tri.A.x / 3.0f, tri.A.x / 3, tri.A.z / 3.0f);
+	const glm::vec3 ab = glm::vec3(tri.B.x / 3.0f, tri.B.x / 3, tri.B.z / 3.0f);
+	const glm::vec3 ac = glm::vec3(tri.C.x / 3.0f, tri.C.x / 3, tri.C.z / 3.0f);
 
 	//vec3 c = ( a1.A * t ) + ( a1.B * t ) + a1.C * t;
 	glm::vec3 c = aa + ab + ac;

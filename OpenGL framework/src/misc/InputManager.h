@@ -9,6 +9,7 @@ public:
 	static void SetWindow(GLFWwindow* window);
 	static void Update(Camera& camera);
 	static Model* GetSelectedModel() { return GetInstance().SelectedModel; }
+	static bool m_isClicked;
 private:
 	InputManager() {}
 	GLFWwindow* m_window;
@@ -16,7 +17,6 @@ private:
 	glm::mediump_f64vec2 m_mouseOld;
 	glm::mediump_f64vec2 m_mouseNew;
 	Model* SelectedModel;
-
 
 };
 

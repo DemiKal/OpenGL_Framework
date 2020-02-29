@@ -17,11 +17,6 @@
 #include "Geometry/Ray.h"
 
 
-void drawAABBs(const BVH& bvh, const Camera& camera, const std::vector<glm::mat4> matrices, Model& wirecube)
-{
-
-}
-
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -56,9 +51,6 @@ int main(void)
 		//obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
 		//obj.SetShader("normalmapshader");
 
-
-
-
 		Model cube = Model::CreateCube();
 		cube.name = "cube";
 
@@ -91,16 +83,16 @@ int main(void)
 		spyro.SetShader("basic");
 		spyro.name = "spyro";
 		EntityManager::AddEntity(spyro);
-		spyro.getMesh(0).MakeWireFrame();
+		//spyro.getMesh(0).MakeWireFrame();
 		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		//artisans.SetShader("basic");
 		//EntityManager::AddEntity(artisans);
 
-		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		//artisans.SetShader("basic");
-		//artisans.name = "name";
-		//EntityManager::AddEntity(artisans);
-
+		  Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		  artisans.SetShader("basic");
+		  artisans.name = "name";
+		  EntityManager::AddEntity(artisans);
+		  artisans.getMesh(0).MakeWireFrame();
 
 		std::vector<AABB> triAABBs;
 		const std::vector<Triangle>& tris = TriangleBuffer::GetTriangleBuffer();
@@ -285,11 +277,15 @@ int main(void)
 
 		double prevFrameTime = glfwGetTime();
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		 // enable depth testing (is disabled for rendering screen-space quad)
+		
 
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
-			double currentFrameTime = glfwGetTime();
+
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LEQUAL);	double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 
 			ImGui_ImplGlfwGL3_NewFrame();
@@ -306,8 +302,6 @@ int main(void)
 #pragma endregion input
 
 			framebuffer.Bind();
-			glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
-			glDepthFunc(GL_LEQUAL);
 			// make sure we clear the framebuffer's content
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -317,14 +311,15 @@ int main(void)
 			plane.Update(deltaTime);
 			spyro.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			//artisans.Update(deltaTime);
+			 //artisans.Update(deltaTime);
 
 			 cube.Draw(camera);
 			 plane.Draw(camera);
 			 spyro.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
-			//artisans.Draw(camera);
+			// artisans.Draw(camera);
+			 artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
 
 			//nanosuit.GetShader().Bind();
 			//nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
@@ -350,14 +345,14 @@ int main(void)
 
 
 			// draw AABB instanced
-			 auto& aabbshader = wireCube.GetShader();
-			 aabbshader.Bind();
-			 aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
-			 aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-			 const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
-			 glBindVertexArray(wireCube.getMesh(0).GetVAO());
-			 glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
-			 glBindVertexArray(0);
+			  auto& aabbshader = wireCube.GetShader();
+			  aabbshader.Bind();
+			  aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
+			  aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+			  const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
+			  glBindVertexArray(wireCube.getMesh(0).GetVAO());
+			  glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
+			  glBindVertexArray(0);
 
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);

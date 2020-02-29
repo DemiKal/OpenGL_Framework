@@ -5,6 +5,7 @@
 #include "GameObject/Components/Model.h"
 #include "Light/Light.h"
 #include "Light/LightManager.h"
+bool  InputManager::m_isClicked;
 
 InputManager& InputManager::GetInstance()
 {
@@ -84,8 +85,12 @@ void InputManager::Update(Camera& camera)
 		LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
 
 
-	//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-	//{
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		m_isClicked = true;
+	}
+	else m_isClicked = false;
+
 	double mouseX, mouseY;
 	glfwGetCursorPos(window, &mouseX, &mouseY);
 	auto [hit, selected] = camera.MousePick(mouseX, mouseY);

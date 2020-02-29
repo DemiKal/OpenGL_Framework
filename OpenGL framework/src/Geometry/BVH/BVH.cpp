@@ -3,6 +3,7 @@
 
 #include "GameObject/Camera.h"
 #include "Geometry/BVH/BVHNode.h"
+#include "misc/InputManager.h"
 #include "Rendering/ShaderManager.h"
 //#include "Camera"
 //class Camera;
@@ -39,11 +40,11 @@ void BVH::BuildBVH(const std::vector<Triangle>& triangles, const std::vector<AAB
 void BVH::TraceRay(const Ray& ray)
 {
 
-
 	std::vector<HitData> hitData;
 	m_root->Traverse(*this, ray, hitData, 0);
 	float minDistance = std::numeric_limits<float>::infinity();
 	int nearestTriIdx = -1;
+	int triangleAABBidx = -1;
 	if (!hitData.empty())
 	{
 		//std::cout << "Hit leaf of BVH!\n";
@@ -52,7 +53,7 @@ void BVH::TraceRay(const Ray& ray)
 		{
 			BVHNode& node = m_pool[hd.nodeIdx];
 			const int nrTris = node.m_count;
-			node.m_bounds.Draw(*Camera::GetMain(), { 1.0f, 1.0f, 1.0f, 1.0f });
+			//node.m_bounds.Draw(*Camera::GetMain(), { 1.0f, 1.0f, 1.0f, 1.0f });
 
 			for (int i = 0; i < nrTris; i++)
 			{
@@ -71,14 +72,19 @@ void BVH::TraceRay(const Ray& ray)
 				{
 					minDistance = std::min(minDistance, distance);
 					nearestTriIdx = triIdx;
+					triangleAABBidx = hd.nodeIdx;
 				}
 			}
 		}
 
 		if (nearestTriIdx > -1)
 		{
-			Triangle& tri = triangles[nearestTriIdx];
-			DrawTriangle(tri.A, tri.B, tri.C);
+			if (InputManager::m_isClicked)
+			{
+				Triangle& tri = triangles[nearestTriIdx];
+				DrawTriangle(tri.A, tri.B, tri.C);
+				m_pool[triangleAABBidx].m_bounds.Draw(*Camera::GetMain(), { 1.0f,0.2f,0.8f, 1.0f });
+			}
 		}
 	}
 }

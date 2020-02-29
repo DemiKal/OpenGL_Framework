@@ -448,9 +448,15 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 		{ ai_aabb.mMax.x, ai_aabb.mMax.y, ai_aabb.mMax.z });
 	meshnew.m_aabb_OG = meshnew.m_aabb;
 
-	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-		meshnew.positionVertices.emplace_back(
-			glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
+	//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	//	meshnew.positionVertices.emplace_back(
+	//		glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
+	for (const int v_idx : indices)
+	{
+		auto& ai_v = mesh->mVertices[v_idx];
+		glm::vec3   v = { ai_v.x, ai_v.y, ai_v.z };
+		meshnew.positionVertices.emplace_back(v);
+	}
 
 	return	 meshnew;
 }

@@ -71,12 +71,12 @@ MeshNew::MeshNew(
 	this->m_VertexBufferLayout = vbl;
 
 	//get aabb
-	if (!positionVertices.empty())
-		for (int i = 0; i < vertices.size(); i += vbl.GetStride())
-		{
-			positionVertices.emplace_back(glm::vec3{ vertices[i], vertices[i + 1], vertices[i + 2] });
-			//m_aabb.CalcBounds(positionVertices);
-		}
+	//if (!positionVertices.empty())
+	//	for (int i = 0; i < vertices.size(); i += vbl.GetStride())
+	//	{
+	//		positionVertices.emplace_back(glm::vec3{ vertices[i], vertices[i + 1], vertices[i + 2] });
+	//		//m_aabb.CalcBounds(positionVertices);
+	//	}
 
 	setupMesh();
 }
@@ -285,7 +285,7 @@ void MeshNew::MakeWireFrame()
 	glGenBuffers(1, &wireVBO);
 	glBindVertexArray(wireVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, wireVBO);
-	glBufferData(GL_ARRAY_BUFFER, newBuffer.size() * 2 * sizeof(glm::vec3), &newBuffer[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, newBuffer.size() *  sizeof(glm::vec3), &newBuffer[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);					 

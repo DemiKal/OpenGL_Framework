@@ -16,7 +16,6 @@ protected:
 
 	unsigned int m_wireVAO, m_wireVBO;
 	void setupMesh();
-	float xxxxxxxxxxxxxxxxxxxxx = 1;
 public:
 	float lineThickness = 0.1f;
 	static MeshNew CreateCubeWireframe();
