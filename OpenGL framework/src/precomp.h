@@ -1,5 +1,5 @@
 #define GLM_ENABLE_EXPERIMENTAL 
-#define GLEW_STATIC
+//#define GLEW_STATIC
 
 const int SCREENWIDTH = 1280;
 const int SCREENHEIGHT = 720;
@@ -28,8 +28,12 @@ const int SCREENHEIGHT = 720;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw_gl3.h>
+#include <vendor/imgui/imgui.h>
+#include <vendor/imgui/imgui_impl_glfw.h>
+#include <vendor/imgui/imgui_impl_opengl3.h> 
+
+//#include <imgui/imgui.h>
+//#include <imgui/imgui_impl_glfw_gl3.h>
 
 #include <stb_image/stb_image.h>
 #include <assimp/Importer.hpp>

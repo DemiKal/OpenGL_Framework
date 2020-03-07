@@ -58,10 +58,10 @@ int main(void)
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
-		Model duck = Model("res/meshes/bvhtest/rubber-ducky.obj", aiProcess_Triangulate);
-		duck.name = "duck";
-		duck.SetShader("framebuffers");
-		EntityManager::AddEntity(duck);
+		//Model duck = Model("res/meshes/bvhtest/rubber-ducky.obj", aiProcess_Triangulate);
+		//duck.name = "duck";
+		//duck.SetShader("framebuffers");
+		//EntityManager::AddEntity(duck);
 
 		//EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
 
@@ -79,20 +79,20 @@ int main(void)
 
 		wireCube.SetShader("AABB_instanced");
 
-		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
-		spyro.SetShader("basic");
-		spyro.name = "spyro";
-		EntityManager::AddEntity(spyro);
+		 Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
+		 spyro.SetShader("basic");
+		 spyro.name = "spyro";
+		 EntityManager::AddEntity(spyro);
 		//spyro.getMesh(0).MakeWireFrame();
 		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		//artisans.SetShader("basic");
 		//EntityManager::AddEntity(artisans);
 
-		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		artisans.SetShader("basic");
-		artisans.name = "artisans";
-		EntityManager::AddEntity(artisans);
-		artisans.getMesh(0).MakeWireFrame();
+		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		//artisans.SetShader("basic");
+		//artisans.name = "artisans";
+		//EntityManager::AddEntity(artisans);
+		//artisans.getMesh(0).MakeWireFrame();
 
 		std::vector<AABB> triAABBs;
 		const std::vector<Triangle>& tris = TriangleBuffer::GetTriangleBuffer();
@@ -248,9 +248,20 @@ int main(void)
 		Camera::SetMainCamera(&camera);
 		//Camera* cam = Camera::GetMain(); //??
 		//* cam->Position()   += glm::vec3(2, 0, 3);
+		
+		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGui_ImplGlfwGL3_Init(window, true);
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
+		//ImGui::StyleColorsClassic();
+		const char* glsl_version = "#version 130";
+		// Setup Platform/Renderer bindings
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		glEnable(GL_DEPTH_TEST);
 
@@ -288,7 +299,9 @@ int main(void)
 			glDepthFunc(GL_LEQUAL);	double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 
-			ImGui_ImplGlfwGL3_NewFrame();
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
 
 #pragma region input
 			InputManager::Update(camera);
@@ -310,17 +323,17 @@ int main(void)
 			cube.Update(deltaTime);
 			plane.Update(deltaTime);
 			spyro.Update(deltaTime);
-			duck.Update(deltaTime);
+			//duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			artisans.Update(deltaTime);
+			//artisans.Update(deltaTime);
 
 			cube.Draw(camera);
 			plane.Draw(camera);
 			spyro.Draw(camera);
-			duck.Draw(camera);
+			//duck.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
-			artisans.Draw(camera);
+			//artisans.Draw(camera);
 			//artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
 
 		   //nanosuit.GetShader().Bind();
@@ -384,9 +397,9 @@ int main(void)
 			glBindVertexArray(quadVAO);
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
-
+			
 			ImGui::Render();
-			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
@@ -399,9 +412,12 @@ int main(void)
 	}
 
 	ShaderManager::Destroy();
-	ImGui_ImplGlfwGL3_Shutdown();
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
+	glfwDestroyWindow(window);
 
 	glfwTerminate();
 	return 0;
