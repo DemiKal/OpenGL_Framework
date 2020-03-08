@@ -31,9 +31,6 @@ const int SCREENHEIGHT = 720;
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h> 
 
-//#include <imgui/imgui.h>
-//#include <imgui/imgui_impl_glfw_gl3.h>
-
 #include <stb_image/stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
