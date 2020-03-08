@@ -5,8 +5,7 @@
 #include "Rendering/Buffer/VertexBufferLayout.h"
 #include "Rendering/GPUShader.h"
 
-
-class MeshNew
+class Mesh
 {
 protected:
 	unsigned int VAO, VBO, EBO;
@@ -18,7 +17,7 @@ protected:
 	void setupMesh();
 public:
 	float lineThickness = 0.1f;
-	static MeshNew CreateCubeWireframe();
+	static Mesh CreateCubeWireframe();
 	inline GLenum GetElemDrawType() const { return m_elemDrawType; };
 	void SetElemDrawType(const GLenum enm) { m_elemDrawType = enm; }
 
@@ -31,11 +30,11 @@ public:
 	AABB m_aabb;
 	AABB m_aabb_OG;
 
-	MeshNew() : VAO(0), VBO(0), EBO(0), indices(), m_textures() {};
+	Mesh() : VAO(0), VBO(0), EBO(0), indices(), m_textures() {};
 
-	~MeshNew() = default;
-	//MeshNew(MeshNew& a) = default;
-	MeshNew(
+	~Mesh() = default;
+	//Mesh(Mesh& a) = default;
+	Mesh(
 		const std::vector<float>& vertices,
 		const std::vector <unsigned int>& indices,
 		const std::vector <Texture2D>& textures,
@@ -51,9 +50,9 @@ public:
 	void MakeWireFrame();
 	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const;
 
-	static MeshNew CreatePlane();
+	static Mesh CreatePlane();
 
-	static MeshNew CreateCube();
+	static Mesh CreateCube();
 
 	inline bool HasFaceIndices() { return indices.size() > 0; }
 	inline unsigned int GetVertexCount() { return vertices.size(); }

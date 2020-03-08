@@ -1,6 +1,6 @@
 #pragma once
 #include "GameObject/Components/Texture2D.h"
-#include "GameObject/Components/MeshNew.h" 
+#include "GameObject/Components/mesh.h" 
 #include "Rendering/GPUShader.h"
 
 class Model
@@ -18,7 +18,7 @@ public:
 
 	std::shared_ptr <Armature > armature;
 	glm::mat4 model;
-	std::vector<MeshNew> meshes;
+	std::vector<Mesh> meshes;
 	std::string directory;
 	std::vector<Texture2D> textures_loaded;
 	glm::mat4 inverse_root;
@@ -52,8 +52,8 @@ public:
 	void AddWeight(std::vector<float>& vertices, unsigned int vertex_index,
 		unsigned int bone_index, GLuint bone_id, GLfloat weight);
 
-	MeshNew processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr <Armature> armature);
-	inline MeshNew& getMesh(const unsigned int idx) { return meshes[idx]; }
+	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr <Armature> armature);
+	inline Mesh& getMesh(const unsigned int idx) { return meshes[idx]; }
 	std::vector<Texture2D> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
 
 

@@ -121,7 +121,7 @@
     <ClCompile Include="src\Rendering\Buffer\RenderBufferObject.cpp" />
     <ClCompile Include="src\Rendering\ShaderManager.cpp" />
     <ClCompile Include="src\GameObject\Components\Model.cpp" />
-    <ClCompile Include="src\GameObject\Components\MeshNew.cpp" />
+    <ClCompile Include="src\GameObject\Components\Mesh.cpp" />
     <ClCompile Include="src\GameObject\Camera.cpp" />
     <ClCompile Include="src\Rendering\GPUShader.cpp" />
     <ClCompile Include="src\Application.cpp">
@@ -191,7 +191,7 @@
     <ClInclude Include="src\Rendering\Buffer\RenderBufferObject.h" />
     <ClInclude Include="src\Rendering\ShaderManager.h" />
     <ClInclude Include="src\GameObject\Components\Model.h" />
-    <ClInclude Include="src\GameObject\Components\MeshNew.h" />
+    <ClInclude Include="src\GameObject\Components\Mesh.h" />
     <ClInclude Include="src\GameObject\Camera.h" />
     <ClInclude Include="src\GameObject\VertexNew.cpp" />
     <ClInclude Include="src\GameObject\VertexNew.h" />

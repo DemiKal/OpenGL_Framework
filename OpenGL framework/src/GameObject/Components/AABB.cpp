@@ -5,7 +5,7 @@
 #include "GameObject/Camera.h"
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/AABB.h"
-#include "GameObject/Components/MeshNew.h"
+#include "GameObject/Components/mesh.h"
 #include "Geometry/Ray.h"
 #include "glm/detail/_noise.hpp"
 #include "glm/detail/_noise.hpp"
@@ -57,7 +57,7 @@ void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0
 	shader.SetUniformMat4f("projection", projection);
 	shader.SetUniform4f("u_color", color.x,color.y,color.z,color.w);
 
-	MeshNew& mesh = wirecube->getMesh(0);
+	Mesh& mesh = wirecube->getMesh(0);
 
 	glBindVertexArray(mesh.GetVAO());
 	if (!mesh.indices.empty())

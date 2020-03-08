@@ -10,7 +10,7 @@
 #include "Animation/Animation.h"
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
-#include "GameObject/Components/MeshNew.h"
+#include "GameObject/Components/mesh.h"
 
 
 //from assimpviewer
@@ -131,7 +131,7 @@ void Model::Update(float deltaTime)
 
 	UpdateModelMatrix();
 
-	for (MeshNew& mesh : meshes)
+	for (Mesh& mesh : meshes)
 	{
 		mesh.m_aabb.UpdateArvo(model, mesh.m_aabb_OG);
 	}
@@ -172,7 +172,7 @@ void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 	}
 	else for (auto& children : armature->children)	AssignMatrices(children, joint);
 }
-MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
 {
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
@@ -439,7 +439,7 @@ MeshNew Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<A
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	MeshNew meshnew(vertices, indices, textures, animator, vbLayout);
+	Mesh meshnew(vertices, indices, textures, animator, vbLayout);
 
 	aiAABB& ai_aabb = mesh->mAABB;
 
@@ -526,14 +526,14 @@ GPUShader& Model::GetShader() const { return   ShaderManager::GetShader(shaderId
 
 Model Model::CreateCube() {
 	Model model;
-	MeshNew mesh = MeshNew::CreateCube();
+	Mesh mesh = Mesh::CreateCube();
 	model.meshes.emplace_back(mesh);
 	return model;
 }
 
 Model Model::CreateCubeWireframe() {
 	Model model;
-	MeshNew mesh = MeshNew::CreateCubeWireframe();
+	Mesh mesh = Mesh::CreateCubeWireframe();
 	model.meshes.emplace_back(mesh);
 	return model;
 }
@@ -541,7 +541,7 @@ Model Model::CreateCubeWireframe() {
 Model Model::CreatePlane()
 {
 	Model model;
-	MeshNew mesh = MeshNew::CreatePlane();
+	Mesh mesh = Mesh::CreatePlane();
 
 	model.meshes.emplace_back(mesh);
 	return model;

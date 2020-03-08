@@ -7,9 +7,9 @@
 #include "Animation/Joint.h"
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
-#include "GameObject/Components/MeshNew.h"
+#include "GameObject/Components/mesh.h"
 
-void MeshNew::Draw(GPUShader& shader)
+void Mesh::Draw(GPUShader& shader)
 {
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
@@ -57,7 +57,7 @@ void MeshNew::Draw(GPUShader& shader)
 	glActiveTexture(GL_TEXTURE0);
 }
 
-MeshNew::MeshNew(
+Mesh::Mesh(
 	const std::vector<float>& vertices,
 	const std::vector<unsigned>& indices,
 	const std::vector<Texture2D>& textures,
@@ -81,7 +81,7 @@ MeshNew::MeshNew(
 	setupMesh();
 }
 
-void MeshNew::setupMesh()
+void Mesh::setupMesh()
 {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -110,9 +110,9 @@ void MeshNew::setupMesh()
 	glBindVertexArray(0);
 }
 
-MeshNew MeshNew::CreateCubeWireframe()
+Mesh Mesh::CreateCubeWireframe()
 {
-	MeshNew mesh;
+	Mesh mesh;
 	mesh.SetElemDrawType(GL_LINES);
 
 	float cubeVertices[] = {
@@ -181,9 +181,9 @@ MeshNew MeshNew::CreateCubeWireframe()
 	return mesh;
 }
 
-MeshNew MeshNew::CreateCube()
+Mesh Mesh::CreateCube()
 {
-	MeshNew mesh;
+	Mesh mesh;
 	float cubeVertices[] = {
 		// positions          // texture Coords
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -262,7 +262,7 @@ MeshNew MeshNew::CreateCube()
 	return mesh;
 }
 
-void MeshNew::MakeWireFrame()
+void Mesh::MakeWireFrame()
 {
 	if (positionVertices.empty()) { std::cout << "no position vertices!" << std::endl; return; }
 
@@ -299,7 +299,7 @@ void MeshNew::MakeWireFrame()
 
 }
 
-void MeshNew::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const
+void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const
 {
 	glm::mat4 model = model_matrix;
 	glm::mat4 view = camera.GetViewMatrix();
@@ -318,8 +318,8 @@ void MeshNew::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix)
 
 }
 
-MeshNew MeshNew::CreatePlane() {
-	MeshNew mesh;
+Mesh Mesh::CreatePlane() {
+	Mesh mesh;
 	float planeVertices[] = {
 		// positions          // texture Coords 
 		 5.0f, -0.5f,  5.0f,  1.0f, 0.0f,

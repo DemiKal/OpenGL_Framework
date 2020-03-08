@@ -9,7 +9,7 @@
 #include "GameObject/Camera.h"
 #include "Light/LightManager.h"
 #include "GameObject/EntityManager.h"
-#include "GameObject/Components/MeshNew.h"
+#include "GameObject/Components/mesh.h"
 #include "GameObject/Components/Model.h"
 #include "misc/InputManager.h"	
 #include "Geometry/BVH/BVH.h"
