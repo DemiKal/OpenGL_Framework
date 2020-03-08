@@ -6,17 +6,32 @@
 #include "Geometry/BVH/BVHNode.h"
 #include "misc/InputManager.h"
 #include "Rendering/ShaderManager.h" 
-//#include "Camera"
-//class Camera;
 
-void BVH::BuildBVH(const std::vector<Triangle>& triangles, const std::vector<AABB>& aabbs)
+void BVH::BuildBVH()
 {
 	InitTriangleRenderer();
 
+	std::vector<AABB> triAABBs;
+	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
+
+	triAABBs.reserve(triangles.size());
+	for (auto& tri : triangles)
+		triAABBs.emplace_back(
+			AABB(
+				std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
+				std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
+				std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
+				std::max(std::max(tri.A.x, tri.B.x), tri.C.x),
+				std::max(std::max(tri.A.y, tri.B.y), tri.C.y),
+				std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
+			));
+
 	const int N = triangles.size();
 	//create index array
-	for (int i = 0; i < N; i++)
-		m_indices.push_back(i);
+	//for (int i = 0; i < N; i++)
+	//	m_indices.push_back(i);
+	m_indices.resize(N);
+	std::iota(m_indices.begin(), m_indices.end(), 0);
 
 	m_pool = new BVHNode[N * 2 - 1];
 	m_root = &m_pool[0];
@@ -28,16 +43,63 @@ void BVH::BuildBVH(const std::vector<Triangle>& triangles, const std::vector<AAB
 	m_root->m_count = N;
 	//root->bounds = CalculateBB( AABBs, 0, N );
 	m_root->m_init = true;
-	m_root->Subdivide(*this, aabbs, triangles, 0, N);
+	m_root->Subdivide(*this, triAABBs, triangles, 0, N);
 
 	for (int i = 0; i < m_poolPtr; i++)
 	{
 		m_localBounds.emplace_back(m_pool[i].m_bounds);
 	}
 
+	InitBVHRenderer();
+}
+
+
+void BVH::InitBVHRenderer()
+{
+	m_aabbMatrices.reserve(m_localBounds.size());
+	for (auto& b : m_localBounds)
+		m_aabbMatrices.emplace_back(b.GetTransform());
+
+	unsigned int AABB_matBuffer;
+	glGenBuffers(1, &AABB_matBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, AABB_matBuffer);
+	glBufferData(GL_ARRAY_BUFFER, m_aabbMatrices.size() * sizeof(glm::mat4), &m_aabbMatrices[0], GL_STATIC_DRAW);
+	m_wireCube = &EntityManager::GetEntity("wirecube");
+
+	const unsigned int cubeVAO = m_wireCube->getMesh(0).GetVAO();
+	glBindVertexArray(cubeVAO);
+	// set attribute pointers for matrix (4 times vec4)
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+	glVertexAttribDivisor(1, 1);
+	glVertexAttribDivisor(2, 1);
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+
+	glBindVertexArray(0);
+
 
 }
 
+void BVH::Draw(const Camera& camera)
+{
+	auto& aabbshader = m_wireCube->GetShader();
+	aabbshader.Bind();
+	aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
+	aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+	const unsigned int vcount = m_wireCube->getMesh(0).GetVertexCount();
+	glBindVertexArray(m_wireCube->getMesh(0).GetVAO());
+	glDrawArraysInstanced(GL_LINES, 0, vcount, m_localBounds.size());
+	glBindVertexArray(0);
+
+}
 void BVH::TraceRay(const Ray& ray)
 {
 
@@ -88,8 +150,8 @@ void BVH::TraceRay(const Ray& ray)
 				for (auto& rangeIdx : TriangleBuffer::GetIndexRangeBuffer())
 				{
 					if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx <= rangeIdx.endIdx)
-					{ 
-						ImGui::LabelText("selected object is: " , rangeIdx.modelPtr->name.c_str());
+					{
+						ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->name.c_str());
 					}
 				}
 			}

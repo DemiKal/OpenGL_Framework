@@ -23,6 +23,7 @@ public:
 			TriangleBuffer::AddTriangles(model);
 	}
 
+	static Model& GetEntity(const std::string& ent_name);
 private:
 	static EntityManager& GetInstance()
 	{

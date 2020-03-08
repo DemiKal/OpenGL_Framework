@@ -24,12 +24,15 @@ public:
 	BVHNode* m_root{};
 	int m_poolPtr{};
 	std::vector<AABB> m_localBounds;
-
+	std::vector<glm::mat4> m_aabbMatrices;
+	Model* m_wireCube;
 	BVH() = default;
 	BVH(std::vector<unsigned int>& indices, BVHNode* pool, BVHNode* root, int poolPtr)
 		: m_indices(indices), m_pool(pool), m_root(root), m_poolPtr(poolPtr) {};
 
-	void BuildBVH(const std::vector<Triangle>& triangles, const std::vector<AABB>& aabbs);
+	void BuildBVH();
+	void InitBVHRenderer();
+	void Draw(const Camera& camera);
 	void TraceRay(const Ray& ray);
 	void DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) const;
 	void InitTriangleRenderer();

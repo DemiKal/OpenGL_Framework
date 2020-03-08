@@ -79,14 +79,14 @@ int main(void)
 
 		wireCube.SetShader("AABB_instanced");
 
-		 Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
-		 spyro.SetShader("basic");
-		 spyro.name = "spyro";
-		 EntityManager::AddEntity(spyro);
+		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
+		spyro.SetShader("basic");
+		spyro.name = "spyro";
+		EntityManager::AddEntity(spyro);
 		//spyro.getMesh(0).MakeWireFrame();
-		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		//artisans.SetShader("basic");
-		//EntityManager::AddEntity(artisans);
+		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		artisans.SetShader("basic");
+		EntityManager::AddEntity(artisans);
 
 		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		//artisans.SetShader("basic");
@@ -94,54 +94,15 @@ int main(void)
 		//EntityManager::AddEntity(artisans);
 		//artisans.getMesh(0).MakeWireFrame();
 
-		std::vector<AABB> triAABBs;
-		const std::vector<Triangle>& tris = TriangleBuffer::GetTriangleBuffer();
-		triAABBs.reserve(tris.size());
-		for (auto& tri : tris)
-			triAABBs.emplace_back(
-				AABB(
-					std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
-					std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
-					std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
-					std::max(std::max(tri.A.x, tri.B.x), tri.C.x),
-					std::max(std::max(tri.A.y, tri.B.y), tri.C.y),
-					std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
-				));
 
 
 
 		BVH bvh;
-		bvh.BuildBVH(tris, triAABBs);
+		bvh.BuildBVH();
 
-		std::vector<glm::mat4> aabbMatrices;
-		aabbMatrices.reserve(bvh.m_localBounds.size());
-		for (auto& b : bvh.m_localBounds)
-			aabbMatrices.emplace_back(b.GetTransform());
 
 		// -------------------------
-		unsigned int AABB_matBuffer;
-		glGenBuffers(1, &AABB_matBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, AABB_matBuffer);
-		glBufferData(GL_ARRAY_BUFFER, aabbMatrices.size() * sizeof(glm::mat4), &aabbMatrices[0], GL_STATIC_DRAW);
 
-		const unsigned int cubeVAO = wireCube.getMesh(0).GetVAO();
-		glBindVertexArray(cubeVAO);
-		// set attribute pointers for matrix (4 times vec4)
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-		glVertexAttribDivisor(1, 1);
-		glVertexAttribDivisor(2, 1);
-		glVertexAttribDivisor(3, 1);
-		glVertexAttribDivisor(4, 1);
-
-		glBindVertexArray(0);
 
 
 
@@ -248,7 +209,7 @@ int main(void)
 		Camera::SetMainCamera(&camera);
 		//Camera* cam = Camera::GetMain(); //??
 		//* cam->Position()   += glm::vec3(2, 0, 3);
-		
+
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -333,8 +294,8 @@ int main(void)
 			//duck.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
-			//artisans.Draw(camera);
-			//artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
+			// artisans.Draw(camera);
+			// artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
 
 		   //nanosuit.GetShader().Bind();
 		   //nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
@@ -360,14 +321,7 @@ int main(void)
 
 
 		   // draw AABB instanced
-			auto& aabbshader = wireCube.GetShader();
-			aabbshader.Bind();
-			aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
-			aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-			const unsigned int vcount = wireCube.getMesh(0).GetVertexCount();
-			glBindVertexArray(wireCube.getMesh(0).GetVAO());
-			glDrawArraysInstanced(GL_LINES, 0, vcount, bvh.m_localBounds.size());
-			glBindVertexArray(0);
+			bvh.Draw(camera);
 
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);
@@ -397,7 +351,7 @@ int main(void)
 			glBindVertexArray(quadVAO);
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
-			
+
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
