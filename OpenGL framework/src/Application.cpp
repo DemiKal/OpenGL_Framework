@@ -273,7 +273,7 @@ int main(void)
 			//artisans.Update(deltaTime);
 
 			cube.Draw(camera);
-			//plane.Draw(camera);
+			plane.Draw(camera);
 			spyro.Draw(camera);
 			//duck.Draw(camera);
 			//artisans.Draw(camera);

@@ -176,9 +176,10 @@ void BVH::TraceRay(const Ray& ray)
 			Triangle& tri = triangles[nearestTriIdx];
 			DrawTriangle(tri.A, tri.B, tri.C);
 			m_pool[triangleAABBidx].m_bounds.Draw(*Camera::GetMain(), { 1.0f,0.2f,0.8f, 1.0f });
-			for (auto& rangeIdx : TriangleBuffer::GetIndexRangeBuffer())
+			auto& triangleMap = TriangleBuffer::GetIndexRangeBuffer();
+			for (auto& rangeIdx : triangleMap)
 			{
-				if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx <= rangeIdx.endIdx)
+				if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx <  rangeIdx.endIdx)
 				{
 					ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->name.c_str());
 					ImGui::LabelText("Tri Idx: ", std::to_string(nearestTriIdx).c_str());
