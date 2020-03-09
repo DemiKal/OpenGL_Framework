@@ -45,11 +45,10 @@ int main(void)
 	{
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
-		ShaderManager::Init(); //init before any model
+		
+		//init before any model
+		ShaderManager::Init(); 
 
-		Model obj = Model();
-		obj.loadModel("res/meshes/nanosuit/nanosuit.obj", aiProcess_Triangulate);
-		obj.SetShader("normalmapshader");
 
 		Model cube = Model::CreateCube();
 		cube.name = "cube";
@@ -57,13 +56,6 @@ int main(void)
 		EntityManager::AddEntity(cube);
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
-
-		//Model duck = Model("res/meshes/bvhtest/rubber-ducky.obj", aiProcess_Triangulate);
-		//duck.name = "duck";
-		//duck.SetShader("framebuffers");
-		//EntityManager::AddEntity(duck);
-
-		//EntityManager::GetEntities()[0]->m_position = { 0,5,0 };
 
 		Model plane = Model::CreatePlane();
 		plane.name = "plane";
@@ -74,7 +66,7 @@ int main(void)
 
 
 		Model wireCube = Model::CreateCubeWireframe();
-		wireCube.name = "wirecube";
+		wireCube.name = "WireCube";
 		EntityManager::AddEntity(wireCube);
 
 		wireCube.SetShader("AABB_instanced");
@@ -84,33 +76,25 @@ int main(void)
 		spyro.name = "spyro";
 		EntityManager::AddEntity(spyro);
 		//spyro.getMesh(0).MakeWireFrame();
-		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
-		artisans.SetShader("basic");
-		EntityManager::AddEntity(artisans);
+
+		//Model duck = Model("res/meshes/bvhtest/rubber-ducky.obj", aiProcess_Triangulate);
+		//duck.name = "duck";
+		//duck.SetShader("framebuffers");
+		//EntityManager::AddEntity(duck);
 
 		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
 		//artisans.SetShader("basic");
 		//artisans.name = "artisans";
 		//EntityManager::AddEntity(artisans);
-		//artisans.getMesh(0).MakeWireFrame();
-
-
-
-
-		BVH bvh;
-		bvh.BuildBVH();
-
-
-		// -------------------------
-
-
-
-
-
+		////artisans.getMesh(0).MakeWireFrame();
+		//
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
 		//nanosuit.name = "nanosuit";
 		//EntityManager::AddEntity(nanosuit);
 		//nanosuit.SetShader("normalmapshader");
+		
+		BVH bvh;
+		bvh.BuildBVH();
 
 		constexpr float half = 0.5f;
 		float triVerts[] =
@@ -292,35 +276,19 @@ int main(void)
 			plane.Draw(camera);
 			spyro.Draw(camera);
 			//duck.Draw(camera);
+			//artisans.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
 			// artisans.Draw(camera);
 			// artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
 
-		   //nanosuit.GetShader().Bind();
-		   //nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-		   //nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
-		   //nanosuit.Draw(camera);
-		   //
+			// nanosuit.GetShader().Bind();
+			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
+			// nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
+			// nanosuit.Draw(camera);
+			 
 
-
-
-
-
-
-
-		   //bvh.m_pool[0].m_bounds.Draw(camera);
-		   //bvh.m_pool[1].m_bounds.Draw(camera);
-		   //bvh.m_pool[2].m_bounds.Draw(camera);
-			//for (auto& aabb : bvh.m_localBounds)
-			//	aabb.Draw(camera);
-
-		   //bvh.m_localBounds[0].Draw(camera);
-		   //drawAABBs(bvh, camera, aabbMats, wireCube);
-		   //bvh.m_localBounds[0].Draw(camera);
-
-
-		   // draw AABB instanced
+			// draw AABB instanced
 			bvh.Draw(camera);
 
 			double MouseX, MouseY;

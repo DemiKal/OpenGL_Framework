@@ -64,7 +64,7 @@ void BVH::InitBVHRenderer()
 	glGenBuffers(1, &AABB_matBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, AABB_matBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_aabbMatrices.size() * sizeof(glm::mat4), &m_aabbMatrices[0], GL_STATIC_DRAW);
-	m_wireCube = &EntityManager::GetEntity("wirecube");
+	m_wireCube = &EntityManager::GetEntity("WireCube");
 
 	const unsigned int cubeVAO = m_wireCube->getMesh(0).GetVAO();
 	glBindVertexArray(cubeVAO);
