@@ -45,9 +45,9 @@ int main(void)
 	{
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
-		
+
 		//init before any model
-		ShaderManager::Init(); 
+		ShaderManager::Init();
 
 
 		Model cube = Model::CreateCube();
@@ -57,12 +57,12 @@ int main(void)
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
-		//Model plane = Model::CreatePlane();
-		//plane.name = "plane";
-		////plane.SetShader("framebuffers");
-		//plane.SetShader("plane");
-		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
-		//EntityManager::AddEntity(plane);
+		Model plane = Model::CreatePlane();
+		plane.name = "plane";
+		//plane.SetShader("framebuffers");
+		plane.SetShader("plane");
+		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+		EntityManager::AddEntity(plane);
 
 
 		Model wireCube = Model::CreateCubeWireframe();
@@ -71,10 +71,10 @@ int main(void)
 
 		wireCube.SetShader("AABB_instanced");
 
-		 Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
-		 spyro.SetShader("basic");
-		 spyro.name = "spyro";
-		 EntityManager::AddEntity(spyro);
+		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
+		spyro.SetShader("basic");
+		spyro.name = "spyro";
+		EntityManager::AddEntity(spyro);
 		// spyro.getMesh(0).MakeWireFrame();
 
 		//Model duck = Model("res/meshes/bvhtest/rubber-ducky.obj", aiProcess_Triangulate);
@@ -92,7 +92,7 @@ int main(void)
 		//nanosuit.name = "nanosuit";
 		//EntityManager::AddEntity(nanosuit);
 		//nanosuit.SetShader("normalmapshader");
-		
+
 		BVH bvh;
 		bvh.BuildBVH();
 
@@ -274,7 +274,7 @@ int main(void)
 
 			cube.Draw(camera);
 			//plane.Draw(camera);
-			 spyro.Draw(camera);
+			spyro.Draw(camera);
 			//duck.Draw(camera);
 			//artisans.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
@@ -286,10 +286,10 @@ int main(void)
 			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
 			// nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
 			// nanosuit.Draw(camera);
-			 
+
 
 			// draw AABB instanced
-			//bvh.Draw(camera);
+			bvh.Draw(camera);
 
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);

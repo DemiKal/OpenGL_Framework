@@ -104,33 +104,34 @@ void BVH::TraceRay(const Ray& ray)
 {
 	if (!InputManager::m_isClicked) return;
 
-	auto& triangles = TriangleBuffer::GetTriangleBuffer();
-	float minDist = 9999999.0f;
-	int minIdx = -1;
-	for (int i = 0; i < triangles.size(); i++)
-	{
-		Triangle& triangle = triangles[i];
-		glm::vec2 baryCentric;
-		float distance;
-		const bool doesIntrsct = glm::intersectRayTriangle(ray.Origin(), ray.Direction(),
-			triangle.A, triangle.B, triangle.C, baryCentric, distance);
+	//auto& triangles = TriangleBuffer::GetTriangleBuffer();
+	//float minDist = 9999999.0f;
+	//int minIdx = -1;
+	//for (int i = 0; i < triangles.size(); i++)
+	//{
+	//	Triangle& triangle = triangles[i];
+	//	glm::vec2 baryCentric;
+	//	float distance;
+	//	const bool doesIntrsct = glm::intersectRayTriangle(ray.Origin(), ray.Direction(),
+	//		triangle.A, triangle.B, triangle.C, baryCentric, distance);
+	//
+	//	if (doesIntrsct && distance < minDist && distance >= 0)
+	//	{
+	//		minIdx = i;
+	//		minDist = distance;
+	//	}
+	//}
+	//
+	//if (minIdx > -1)
+	//{
+	//	Triangle& tri = triangles[minIdx];
+	//	DrawTriangle(tri.A, tri.B, tri.C);
+	//	ImGui::LabelText("triIdx: ", std::to_string(minIdx).c_str());
+	//}
+	//
+	//
+	//return;
 
-		if (doesIntrsct && distance < minDist && distance >= 0)
-		{
-			minIdx = i;
-			minDist = distance;
-		}
-	}
-
-	if (minIdx > -1)
-	{
-		Triangle& tri = triangles[minIdx];
-		DrawTriangle(tri.A, tri.B, tri.C);
-		ImGui::LabelText("triIdx: ", std::to_string(minIdx).c_str());
-	}
-
-
-	return;
 	std::vector<HitData> hitData;
 	m_root->Traverse(*this, ray, hitData, 0);
 	//const glm::vec3 norm = glm::normalize(ray.Direction());
@@ -161,9 +162,9 @@ void BVH::TraceRay(const Ray& ray)
 				const bool doesIntrsct = glm::intersectRayTriangle(ray.Origin(), ray.Direction(),
 					triangle.A, triangle.B, triangle.C, baryCentric, distance);
 
-				if (doesIntrsct)
+				if (doesIntrsct && distance < minDistance && distance > 0)
 				{
-					minDistance = std::min(minDistance, distance);
+					minDistance = distance;
 					nearestTriIdx = triIdx;
 					triangleAABBidx = hd.nodeIdx;
 				}
@@ -193,15 +194,15 @@ void BVH::TraceRay(const Ray& ray)
 void BVH::DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) const
 {
 	Camera* cam = Camera::GetMain();
-	glm::vec3 normal = glm::normalize(glm::cross(A-C, B-C));
+	glm::vec3 normal = glm::normalize(glm::cross(A - C, B - C));
 	glm::vec3 toScreen = glm::normalize(cam->GetPosition() - (A + B + C) / 3.0f);
 
 	const  float dot = glm::dot(normal, toScreen);
 	ImGui::Text("Dot: %f", dot);
 	ImGui::Text("Normal: {%f.3, %f.3, %f.3)", normal.x, normal.y, normal.z);
-	 if (dot < 0)
-	 	normal = -normal;
-	 normal *= 0.01f;
+	if (dot < 0)
+		normal = -normal;
+	normal *= 0.01f;
 	auto& shader = ShaderManager::GetShader("singleTriangle");
 	shader.Bind();
 	//shader.SetUniformMat4f("model", model);
