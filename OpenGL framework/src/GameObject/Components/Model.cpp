@@ -11,6 +11,7 @@
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
 #include "GameObject/Components/mesh.h"
+#include <Light\LightManager.h>
 
 
 //from assimpviewer
@@ -66,7 +67,7 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags = aiProcess_Triangulate)
 {
 	Assimp::Importer import;
-	const auto standardFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenBoundingBoxes;
+	const auto standardFlags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes;
 	const auto flagsComposed = standardFlags | LoadFlags;
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
 
@@ -512,14 +513,25 @@ void Model::Draw(const Camera& cam)
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", proj);
+	auto itt = shader.m_uniformsInfo.find("directionalLight");
+	
+	if (itt != shader.m_uniformsInfo.end());
+	{
+		glm::vec3 l = LightManager::GetDirectionalLight();
+		shader.setVec3("directionalLight", l);
+	}
+
+	if (shader.m_uniformsInfo.find("ambientLight")!= shader.m_uniformsInfo.end())
+		shader.SetFloat("ambientLight",LightManager::GetAmbientLight() );
+
 
 	for (auto& mesh : meshes)
 		mesh.Draw(shader);
 
 	shader.Unbind();
 
-//	for (auto& mesh : meshes)
-//		mesh.m_aabb.Draw(cam);
+	//	for (auto& mesh : meshes)
+	//		mesh.m_aabb.Draw(cam);
 }
 
 GPUShader& Model::GetShader() const { return   ShaderManager::GetShader(shaderIdx); }

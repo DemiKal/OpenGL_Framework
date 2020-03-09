@@ -23,8 +23,6 @@ void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
 	m_leftFirst = bvh.m_poolPtr++;
 	BVHNode& l = bvh.m_pool[m_leftFirst];
 	BVHNode& r = bvh.m_pool[bvh.m_poolPtr++];
-	l.m_init = true;
-	r.m_init = true;
 
 	const int split = partition(*this, bvh, triangles, aabbs, start, end);
 	l.m_start = start;

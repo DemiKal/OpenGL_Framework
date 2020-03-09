@@ -27,9 +27,6 @@ void BVH::BuildBVH()
 			));
 
 	const int N = triangles.size();
-	//create index array
-	//for (int i = 0; i < N; i++)
-	//	m_indices.push_back(i);
 	m_indices.resize(N);
 	std::iota(m_indices.begin(), m_indices.end(), 0);
 
@@ -41,8 +38,8 @@ void BVH::BuildBVH()
 	m_root->m_start = 0;
 	m_root->m_end = N;
 	m_root->m_count = N;
-	//root->bounds = CalculateBB( AABBs, 0, N );
-	m_root->m_init = true;
+
+	//actually  build now
 	m_root->Subdivide(*this, triAABBs, triangles, 0, N);
 
 	for (int i = 0; i < m_poolPtr; i++)
@@ -84,8 +81,6 @@ void BVH::InitBVHRenderer()
 	glVertexAttribDivisor(4, 1);
 
 	glBindVertexArray(0);
-
-
 }
 
 void BVH::Draw(const Camera& camera)
@@ -103,34 +98,6 @@ void BVH::Draw(const Camera& camera)
 void BVH::TraceRay(const Ray& ray)
 {
 	if (!InputManager::m_isClicked) return;
-
-	//auto& triangles = TriangleBuffer::GetTriangleBuffer();
-	//float minDist = 9999999.0f;
-	//int minIdx = -1;
-	//for (int i = 0; i < triangles.size(); i++)
-	//{
-	//	Triangle& triangle = triangles[i];
-	//	glm::vec2 baryCentric;
-	//	float distance;
-	//	const bool doesIntrsct = glm::intersectRayTriangle(ray.Origin(), ray.Direction(),
-	//		triangle.A, triangle.B, triangle.C, baryCentric, distance);
-	//
-	//	if (doesIntrsct && distance < minDist && distance >= 0)
-	//	{
-	//		minIdx = i;
-	//		minDist = distance;
-	//	}
-	//}
-	//
-	//if (minIdx > -1)
-	//{
-	//	Triangle& tri = triangles[minIdx];
-	//	DrawTriangle(tri.A, tri.B, tri.C);
-	//	ImGui::LabelText("triIdx: ", std::to_string(minIdx).c_str());
-	//}
-	//
-	//
-	//return;
 
 	std::vector<HitData> hitData;
 	m_root->Traverse(*this, ray, hitData, 0);

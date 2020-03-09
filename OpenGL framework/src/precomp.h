@@ -1,7 +1,7 @@
 #define GLM_ENABLE_EXPERIMENTAL 
 
-const int SCREENWIDTH = 1280;
-const int SCREENHEIGHT = 720;
+const int SCREENWIDTH = 1920;
+const int SCREENHEIGHT = 1080;
 
 #include <filesystem>
 #include <iostream>
@@ -30,7 +30,7 @@ const int SCREENHEIGHT = 720;
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h> 
-
+	
 #include <stb_image/stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

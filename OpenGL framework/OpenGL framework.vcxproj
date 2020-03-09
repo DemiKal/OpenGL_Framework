@@ -83,6 +83,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\misc\UserInterface.cpp" />
     <None Include="imgui.ini" />
     <None Include="res\shaders\AABB_single.glsl">
       <FileType>CppCode</FileType>
@@ -219,6 +220,7 @@
     <ClInclude Include="src\Rendering\Buffer\VertexArraySub.h" />
     <ClInclude Include="src\GameObject\Components\Texture2D.h" />
     <ClInclude Include="src\Geometry\TriangleBuffer.h" />
+    <ClInclude Include="src\misc\UserInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\ChernoLogo.png" />

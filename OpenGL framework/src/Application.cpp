@@ -15,6 +15,7 @@
 #include "Geometry/BVH/BVH.h"
 #include "Geometry/BVH/BVHNode.h"
 #include "Geometry/Ray.h"
+#include "misc/UserInterface.h"
 
 
 int main(void)
@@ -25,6 +26,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	/* Create a windowed mode window and its OpenGL context */
@@ -48,11 +50,11 @@ int main(void)
 
 		//init before any model
 		ShaderManager::Init();
-
+		UserInterface userInterface;
 
 		Model cube = Model::CreateCube();
 		cube.name = "cube";
-
+		//
 		EntityManager::AddEntity(cube);
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
@@ -68,7 +70,6 @@ int main(void)
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "WireCube";
 		EntityManager::AddEntity(wireCube);
-
 		wireCube.SetShader("AABB_instanced");
 
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
@@ -82,19 +83,21 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiPostProcessSteps::aiProcess_Triangulate);
+		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		//artisans.SetShader("basic");
 		//artisans.name = "artisans";
 		//EntityManager::AddEntity(artisans);
-		////artisans.getMesh(0).MakeWireFrame();
-		//
+	   //
+
+
+		//artisans.getMesh(0).MakeWireFrame();
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
 		//nanosuit.name = "nanosuit";
 		//EntityManager::AddEntity(nanosuit);
 		//nanosuit.SetShader("normalmapshader");
 
 		BVH bvh;
-		bvh.BuildBVH();
+		//bvh.BuildBVH();
 
 		constexpr float half = 0.5f;
 		float triVerts[] =
@@ -217,7 +220,7 @@ int main(void)
 		glm::vec4 s = pp[3];
 		glm::vec4  override_color(0.3f, 0.5, 0.1, 0.5f);
 
-		auto& singledotshader = ShaderManager::GetShader("singledotshader");
+		//auto& singledotshader = ShaderManager::GetShader("singledotshader");
 		//
 		// Render loop
 		//
@@ -235,20 +238,23 @@ int main(void)
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		// enable depth testing (is disabled for rendering screen-space quad)
 
-
-	   //Game Loop
+		bool showDemo = true;
+		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
-
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LEQUAL);	double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
+
+
+			//ImGui::ShowDemoWindow(&showDemo);
+
+
+
 
 #pragma region input
+			userInterface.Update();
 			InputManager::Update(camera);
 
 			const float average = (float)std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
@@ -264,10 +270,15 @@ int main(void)
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			glm::vec3& lightDir = LightManager::GetDirectionalLight();
+			ImGui::SliderFloat3("directional light", &lightDir[0], -1, 1);
+
+			float& ambientLight = LightManager::GetAmbientLight();
+			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
 
 			cube.Update(deltaTime);
-			//plane.Update(deltaTime);
-			//spyro.Update(deltaTime);
+			plane.Update(deltaTime);
+			spyro.Update(deltaTime);
 			//duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
@@ -279,7 +290,7 @@ int main(void)
 			//artisans.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
-			// artisans.Draw(camera);
+			//artisans.Draw(camera);
 			// artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
 
 			// nanosuit.GetShader().Bind();
@@ -289,25 +300,15 @@ int main(void)
 
 
 			// draw AABB instanced
-			bvh.Draw(camera);
+			//bvh.Draw(camera);
 
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);
 
 			const Ray ray = camera.RayFromMouse(MouseX, MouseY);
-			bvh.TraceRay(ray);
+			//bvh.TraceRay(ray);
 
 			LightManager::debug_render(camera);
-
-			Model* selection = InputManager::GetSelectedModel();
-			if (selection != nullptr)
-			{
-				//ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-				ImGui::SliderFloat3("Position", &selection->m_position[0], -100.0f, 100.0f);
-				ImGui::SliderFloat3("Rotation", &selection->m_rotation[0], 0, 360);
-				ImGui::SliderFloat3("Scale", &selection->m_scale[0], 0, 10);
-
-			}
 
 
 			prevFrameTime = currentFrameTime;
@@ -320,8 +321,7 @@ int main(void)
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			userInterface.Draw();
 
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());

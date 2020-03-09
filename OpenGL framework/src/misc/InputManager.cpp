@@ -98,11 +98,11 @@ void InputManager::Update(Camera& camera)
 	std::string selectedStr = "None";
 	if (hit)
 	{
-		selectedStr = selected->name;
-		instance.SelectedModel = selected;
+	//selectedStr = selected->name;
+	//instance.SelectedModel = selected;
 	}
 
-	ImGui::LabelText("label", selectedStr.c_str());
+	//ImGui::LabelText("label", selectedStr.c_str());
 
 	//}
 

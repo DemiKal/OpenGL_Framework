@@ -9,6 +9,7 @@ public:
 	static void SetWindow(GLFWwindow* window);
 	static void Update(Camera& camera);
 	static Model* GetSelectedModel() { return GetInstance().SelectedModel; }
+	static void SetSelectedModel(Model* model) { GetInstance().SelectedModel = model; }
 	static bool m_isClicked;
 private:
 	InputManager() {}
