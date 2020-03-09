@@ -39,8 +39,8 @@ void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0
 	const glm::mat4 projection = camera.GetProjectionMatrix();
 
 	Model* wirecube = nullptr;
-	for (auto& e : EntityManager::GetEntities())
-		if (e->name == "wirecube") wirecube = e; //TODO: FIX GETTING WIRECUBE! 
+	wirecube = &EntityManager::GetEntity("WireCube");
+	
 
 	if (wirecube == nullptr)
 	{

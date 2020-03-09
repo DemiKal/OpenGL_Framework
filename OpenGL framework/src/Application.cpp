@@ -57,12 +57,12 @@ int main(void)
 		cube.SetShader("framebuffers");
 		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
-		Model plane = Model::CreatePlane();
-		plane.name = "plane";
-		//plane.SetShader("framebuffers");
-		plane.SetShader("plane");
-		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
-		EntityManager::AddEntity(plane);
+		//Model plane = Model::CreatePlane();
+		//plane.name = "plane";
+		////plane.SetShader("framebuffers");
+		//plane.SetShader("plane");
+		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+		//EntityManager::AddEntity(plane);
 
 
 		Model wireCube = Model::CreateCubeWireframe();
@@ -71,11 +71,11 @@ int main(void)
 
 		wireCube.SetShader("AABB_instanced");
 
-		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
-		spyro.SetShader("basic");
-		spyro.name = "spyro";
-		EntityManager::AddEntity(spyro);
-		//spyro.getMesh(0).MakeWireFrame();
+		 Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
+		 spyro.SetShader("basic");
+		 spyro.name = "spyro";
+		 EntityManager::AddEntity(spyro);
+		// spyro.getMesh(0).MakeWireFrame();
 
 		//Model duck = Model("res/meshes/bvhtest/rubber-ducky.obj", aiProcess_Triangulate);
 		//duck.name = "duck";
@@ -266,15 +266,15 @@ int main(void)
 
 
 			cube.Update(deltaTime);
-			plane.Update(deltaTime);
-			spyro.Update(deltaTime);
+			//plane.Update(deltaTime);
+			//spyro.Update(deltaTime);
 			//duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
 
 			cube.Draw(camera);
-			plane.Draw(camera);
-			spyro.Draw(camera);
+			//plane.Draw(camera);
+			 spyro.Draw(camera);
 			//duck.Draw(camera);
 			//artisans.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
@@ -289,7 +289,7 @@ int main(void)
 			 
 
 			// draw AABB instanced
-			bvh.Draw(camera);
+			//bvh.Draw(camera);
 
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);
