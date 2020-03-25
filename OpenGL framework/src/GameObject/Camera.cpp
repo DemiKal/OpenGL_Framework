@@ -5,6 +5,7 @@
 #include "GameObject/Components/Model.h"
 
 Camera* Camera::m_mainCam;
+Camera* Camera::m_cam2;
 
 Camera::Camera() : fov(70), aspectRatio((float)SCREENWIDTH / (float)SCREENHEIGHT),
 pos(glm::vec3(0, 0, 0)), forward(glm::vec3(0, 0, -1)),

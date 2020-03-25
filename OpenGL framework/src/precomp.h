@@ -30,6 +30,13 @@ const int SCREENHEIGHT = 1080;
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h> 
+
+ #include <imgui/extensions/imGuIZMOquat.h> 
+//#//include <imgui/extensions/vGizmo.h> 
+//#include <imgui/extensions/vgConfig.h> 
+//#include <imgui/extensions/vGizmoMath.h> 
+//#include <imgui/extensions/vgMath.h> 
+//#include <imgui/extensions/> 
 	
 #include <stb_image/stb_image.h>
 #include <assimp/Importer.hpp>

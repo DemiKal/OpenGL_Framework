@@ -132,6 +132,9 @@
     <ClCompile Include="src\misc\UserInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\vendor\imgui\extensions\imGuIZMOquat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vendor\glm\detail\type_gentype.inl">

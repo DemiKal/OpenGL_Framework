@@ -506,23 +506,41 @@ void Model::Draw(const Camera& cam)
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();
 
-	Camera* camera = Camera::GetMain();
-	glm::mat4 proj2 = camera->GetProjectionMatrix();
-	glm::mat4 view2 = camera->GetViewMatrix();
+	Camera* cam2 = Camera::GetCam2();
+	glm::mat4 proj2 = cam2->GetProjectionMatrix();
+	glm::mat4 view2 = cam2->GetViewMatrix();
+
+
+	static float interp = 0;
+
+	ImGui::SliderFloat("interpolate", &interp, 0, 1);
+
+
+
+	//auto viewCombined =    * interp * view + (1 - interp) * view2;
+	//														    
+	//auto projCombined =   interp * proj + (1 - interp) * proj2;
+	auto viewCombined = view * (view2);
+	auto projCombined = proj * (proj2);
+
+	auto interpView = viewCombined * interp + (1 - interp) * view;
+	auto interpProj = projCombined * interp + (1 - interp) * proj;
 
 	shader.SetUniformMat4f("model", model);
-	shader.SetUniformMat4f("view", view);
-	shader.SetUniformMat4f("projection", proj);
+	shader.SetUniformMat4f("view", interpView);
+	shader.SetUniformMat4f("projection", interpProj);
+
+
 	auto itt = shader.m_uniformsInfo.find("directionalLight");
-	
+
 	if (itt != shader.m_uniformsInfo.end());
 	{
 		glm::vec3 l = LightManager::GetDirectionalLight();
 		shader.setVec3("directionalLight", l);
 	}
 
-	if (shader.m_uniformsInfo.find("ambientLight")!= shader.m_uniformsInfo.end())
-		shader.SetFloat("ambientLight",LightManager::GetAmbientLight() );
+	if (shader.m_uniformsInfo.find("ambientLight") != shader.m_uniformsInfo.end())
+		shader.SetFloat("ambientLight", LightManager::GetAmbientLight());
 
 
 	for (auto& mesh : meshes)

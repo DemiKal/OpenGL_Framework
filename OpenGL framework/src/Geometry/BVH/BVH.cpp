@@ -85,7 +85,9 @@ void BVH::InitBVHRenderer()
 
 void BVH::Draw(const Camera& camera)
 {
-	auto& aabbshader = m_wireCube->GetShader();
+	if (m_localBounds.size() <= 0) return;
+
+	auto& aabbshader = EntityManager::GetEntity("WireCube").GetShader();
 	aabbshader.Bind();
 	aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
 	aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());

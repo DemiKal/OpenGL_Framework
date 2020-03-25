@@ -6,15 +6,17 @@ class Model;
 class Camera
 {
 public:
-	Camera();;
+	Camera();
 	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 	void MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo);
 	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
 	void SetOrthographic();
 
+	static void SetCamera2(Camera* camera) { m_cam2 =  camera; }
 	static void SetMainCamera(Camera* cam) { m_mainCam = cam; }
 
 	static Camera* GetMain() { return   m_mainCam; }
+	static Camera* GetCam2() { return   m_cam2; }
 
 	[[nodiscard]] inline glm::mat4 GetViewProjectionMatrix() const;
 
@@ -54,5 +56,6 @@ private:
 	glm::vec3 up{};
 	glm::mat4 projection{};
 	static Camera* m_mainCam;
+	static Camera* m_cam2;
 };
 

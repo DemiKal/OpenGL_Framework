@@ -16,6 +16,8 @@
 #include "Geometry/BVH/BVHNode.h"
 #include "Geometry/Ray.h"
 #include "misc/UserInterface.h"
+#include <exception>
+//#include <CL/opencl.h>
 
 
 int main(void)
@@ -27,7 +29,11 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+	glfwWindowHint(GLFW_DECORATED, GL_TRUE);
+
+	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	// glfwGetPrimaryMonitor() ;
 
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
@@ -35,13 +41,15 @@ int main(void)
 	if (!window)
 	{
 		glfwTerminate();
+		throw std::exception("ERROR: Could not create GLFW window!");
 		return -1;
 	}
 
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
-
+	float aa = ((1.0f * 10.0f - 1.0f / 0.1f + (2.0f - 0.5f * 4.0f) - 0.000f));
+	float xx = 1.0f / aa;
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	{
@@ -83,11 +91,11 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		//artisans.SetShader("basic");
-		//artisans.name = "artisans";
-		//EntityManager::AddEntity(artisans);
-	   //
+		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		artisans.SetShader("basic");
+		artisans.name = "artisans";
+		EntityManager::AddEntity(artisans);
+
 
 
 		//artisans.getMesh(0).MakeWireFrame();
@@ -97,8 +105,9 @@ int main(void)
 		//nanosuit.SetShader("normalmapshader");
 
 		BVH bvh;
-		//bvh.BuildBVH();
-
+		bvh.BuildBVH();
+		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr << "\n";
+//
 		constexpr float half = 0.5f;
 		float triVerts[] =
 		{
@@ -190,10 +199,11 @@ int main(void)
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
 		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 200.0f);
-		//Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
-		//cam2.RotateYlocal(glm::radians(-90.0f));
+		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
+		cam2.RotateYlocal(glm::radians(-90.0f));
 
 		Camera::SetMainCamera(&camera);
+		Camera::SetCamera2(&cam2);
 		//Camera* cam = Camera::GetMain(); //??
 		//* cam->Position()   += glm::vec3(2, 0, 3);
 
@@ -271,7 +281,21 @@ int main(void)
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
-			ImGui::SliderFloat3("directional light", &lightDir[0], -1, 1);
+			//glm::vec3 light(-lightDir);
+			vgm::Vec3 light(-lightDir.x, -lightDir.y, -lightDir.z);
+			// get/setLigth are helper funcs that you have ideally 
+			//defined to manage your global/member objs
+			//if (ImGui::gizmo3D("##Dir1", light /*, size,  mode */)  setLight(-light);
+			//	// or explicitly
+			
+			if (ImGui::gizmo3D("##Dir1", light))
+				lightDir = glm::vec3(-light.x, -light.y, -light.z);
+
+
+			//ImGui::SliderFloat3("directional light", &lightDir[0], -1, 1);
+
+
+
 
 			float& ambientLight = LightManager::GetAmbientLight();
 			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
@@ -283,11 +307,11 @@ int main(void)
 			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
 
-			cube.Draw(camera);
-			plane.Draw(camera);
+			//cube.Draw(camera);
+			//plane.Draw(camera);
 			spyro.Draw(camera);
 			//duck.Draw(camera);
-			//artisans.Draw(camera);
+			artisans.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
 			//artisans.Draw(camera);
@@ -300,7 +324,7 @@ int main(void)
 
 
 			// draw AABB instanced
-			//bvh.Draw(camera);
+			bvh.Draw(camera);
 
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);
@@ -316,13 +340,17 @@ int main(void)
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			postProcessShader.Bind();
-
+			postProcessShader.setVec3("u_cameraPos", camera.GetPosition());
+			postProcessShader.setVec3("u_viewDir", camera.GetForwardVector());
+			postProcessShader.setVec3("u_cameraUp", camera.GetUpVector());
+			
 			glBindVertexArray(quadVAO);
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
-			userInterface.Draw();
 
+
+			userInterface.Draw();
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 
