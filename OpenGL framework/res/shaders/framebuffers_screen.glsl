@@ -94,37 +94,44 @@ void main()
 
 	vec4 albedo4 = vec4(albedo3, 1);
 	vec4 black = vec4(0, 0, 0, 1.0f);
-	
-	vec4 triangleColor = vec4( texture( u_triangleTexture, TexCoords.xy).rgb, 1.0f);
-	vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
-	FragColor = mixedColor;
+	vec4 finalColor = albedo4;
+	vec4 triangleColor = vec4(texture(u_triangleTexture, vec2(0.26f, 0)).rgb, 1.0f);
+	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
 
-	//vec3 A = vec3(-5.0f, -0.5f, -5.0f);
-	//vec3 B = vec3(5.0f, -0.5f, 5.0f);
-	//vec3 C = vec3(-5.0f, -0.5f, 5.0f);
+	vec3 A =  texture(u_triangleTexture, vec2(0.0f, 0)  ).rgb;
+	vec3 B =  texture(u_triangleTexture, vec2(0.26f, 0) ).rgb;
+	vec3 C =  texture(u_triangleTexture, vec2(0.52f, 0) ).rgb;
+
+	vec3 intrs = triIntersect(rayOrigin, rayDir, A, B, C);
+
+	if (intrs.x > 0)
+		finalColor = vec4(intrs.y, intrs.z, 1.0f, 1.0f);
+
+	FragColor = finalColor;
+
 	//bool intrsects = false;
-	//for (int i = 0; i < 10; i++)
-	//{
-	//	vec3 A = texture(u_triangleTexture, 3 * i + 0).rgb;
-	//	vec3 B = texture(u_triangleTexture, 3 * i + 1).rgb;
-	//	vec3 C = texture(u_triangleTexture, 3 * i + 2).rgb;
-	//	vec3 intrs = triIntersect(rayOrigin, rayDir, A, B, C);
-	//	if (intrs.x > 0 ) intrsects |= true;
-	//}
-	//
-	//
-	//if (intrsects)
-	//	color = vec4(1.0f,0,0,1);
-	//else color = vec4(intrs.y, intrs.z, 1, 1);
+   //for (int i = 0; i < 10; i++)
+   //{
+   //	vec3 A = texture(u_triangleTexture, 3 * i + 0).rgb;
+   //	vec3 B = texture(u_triangleTexture, 3 * i + 1).rgb;
+   //	vec3 C = texture(u_triangleTexture, 3 * i + 2).rgb;
+   //	vec3 intrs = triIntersect(rayOrigin, rayDir, A, B, C);
+   //	if (intrs.x > 0 ) intrsects |= true;
+   //}
+   //
+   //
+   //if (intrsects)
+   //	color = vec4(1.0f,0,0,1);
+   //else color = vec4(intrs.y, intrs.z, 1, 1);
 
 
-	//color = vec4(rayDir, 1.0f);
+   //color = vec4(rayDir, 1.0f);
 
 
-	//if (dist < 0.5)	color = mix(blacktrans, vec4(col, 1.0f), 0.5f);
-	// FragColor = color;//vec4(dist,dist,0, 1.0f);
-	//vec4 col4 = vec4(TexCoords.xy, 0.0f,  1.0f);
-	//FragColor = mix(vec4(col,1.0f),col4,0.5f)  ;//vec4(dist,dist,0, 1.0f); weird interpolation vagueness
+   //if (dist < 0.5)	color = mix(blacktrans, vec4(col, 1.0f), 0.5f);
+   // FragColor = color;//vec4(dist,dist,0, 1.0f);
+   //vec4 col4 = vec4(TexCoords.xy, 0.0f,  1.0f);
+   //FragColor = mix(vec4(col,1.0f),col4,0.5f)  ;//vec4(dist,dist,0, 1.0f); weird interpolation vagueness
 
 
 }

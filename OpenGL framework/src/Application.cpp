@@ -105,12 +105,15 @@ int main(void)
 		}*/
 
 		unsigned int triCount = triBuffer.size();
-		std::vector<glm::vec3> triverts(256 * 256);
-		for (int i = 0; i < 256 * 256; i += 1)
+		std::vector<glm::vec3> triverts(4);
+		//for (int i = 0; i < 3; i += 1)
 		{
-			triverts[i + 0] = { 1,0,0 };
+			triverts[  0] = { 1,0,0 };
+			 triverts[   1] = { 0,1,0 };
+			 triverts[  2] = { 0,0,1 };
+			 triverts[  3] = { 1,1,1 };
 			//{
-			//	i / float(256 * 256),
+			//	i / float(256 * 256),		  ð
 			//	i / float(256 * 256),
 			//	i / float(256 * 256)
 			//};//float(i + 0) / float(256 * 256);
@@ -121,7 +124,7 @@ int main(void)
 		unsigned int triTex;
 		GLCall(glGenTextures(1, &triTex));
 		GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
-		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0,
+		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4, 1, 0,
 			GL_RGB, GL_FLOAT, &triverts[0]));
 
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP));
