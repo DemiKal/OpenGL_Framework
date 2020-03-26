@@ -96,6 +96,43 @@ int main(void)
 		artisans.name = "artisans";
 		EntityManager::AddEntity(artisans);
 
+		//TriangleBuffer::GetTriangleBuffer();
+
+		std::vector<glm::vec3>& triBuffer = spyro.getMesh(0).positionVertices;
+		/*for (auto& v : spyro.getMesh(0).positionVertices)
+		{
+			 v  = (spyro.model * glm::vec4(v, 1.0f));
+		}*/
+
+		unsigned int triCount = triBuffer.size();
+		std::vector<glm::vec3> triverts(256 * 256);
+		for (int i = 0; i < 256 * 256; i += 1)
+		{
+			triverts[i + 0] = { 1,0,0 };
+			//{
+			//	i / float(256 * 256),
+			//	i / float(256 * 256),
+			//	i / float(256 * 256)
+			//};//float(i + 0) / float(256 * 256);
+			//triverts[i + 1] = 0;//float(i + 1) / float(256 * 256);
+			//triverts[i + 2] = 0;//float(i + 2) / float(256 * 256);
+		}
+
+		unsigned int triTex;
+		GLCall(glGenTextures(1, &triTex));
+		GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
+		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0,
+			GL_RGB, GL_FLOAT, &triverts[0]));
+
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+		//GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
+
+
+
 
 
 		//artisans.getMesh(0).MakeWireFrame();
@@ -105,9 +142,9 @@ int main(void)
 		//nanosuit.SetShader("normalmapshader");
 
 		BVH bvh;
-		bvh.BuildBVH();
+		//bvh.BuildBVH();
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr << "\n";
-//
+		//
 		constexpr float half = 0.5f;
 		float triVerts[] =
 		{
@@ -145,7 +182,8 @@ int main(void)
 		glGenBuffers(1, &quadVBO);
 		glBindVertexArray(quadVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_DYNAMIC_DRAW); //TODO: static?
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices),
+			&quadVertices, GL_STATIC_DRAW); //TODO: static?
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
@@ -166,6 +204,7 @@ int main(void)
 
 		postProcessShader.Bind();
 		postProcessShader.SetInt("screenTexture", 0);
+		postProcessShader.SetInt("u_triangleTexture", 1);
 
 		GPUShader& lineshader = ShaderManager::GetShader("lineshader");
 		GPUShader& boneshader = ShaderManager::GetShader("bones");
@@ -287,7 +326,7 @@ int main(void)
 			//defined to manage your global/member objs
 			//if (ImGui::gizmo3D("##Dir1", light /*, size,  mode */)  setLight(-light);
 			//	// or explicitly
-			
+
 			if (ImGui::gizmo3D("##Dir1", light))
 				lightDir = glm::vec3(-light.x, -light.y, -light.z);
 
@@ -343,9 +382,18 @@ int main(void)
 			postProcessShader.setVec3("u_cameraPos", camera.GetPosition());
 			postProcessShader.setVec3("u_viewDir", camera.GetForwardVector());
 			postProcessShader.setVec3("u_cameraUp", camera.GetUpVector());
-			
+			//glActiveTexture(GL_TEXTURE0);
+
 			glBindVertexArray(quadVAO);
-			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+			GLCall(glActiveTexture(GL_TEXTURE0 + 0);)
+				GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbuffer));
+			GLCall(glActiveTexture(GL_TEXTURE0 + 1);)
+				GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
+
+			//spyro.getMesh(0).m_textures[0].Bind();
+			//glBindTexture(GL_TEXTURE_2D, triTex);
+			//glBindTexture(GL_TEXTURE_2D, triTex);
+
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
 

@@ -32,6 +32,7 @@ void TriangleBuffer::AddTriangles_I(Model& model)
 		<< "verts at idx range [" << currentIdx << ", " << endIdx << "]\n";
 }
 
+[[nodiscard]]
 std::vector<Triangle>& TriangleBuffer::GetTriangleBuffer()
 {
 	return GetInstance().m_TriangleBuffer;
