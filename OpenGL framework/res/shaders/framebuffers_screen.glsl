@@ -40,7 +40,7 @@ uniform vec3 u_viewDir;
 uniform vec3 u_cameraUp;
 
 uniform sampler2D screenTexture;
-uniform sampler2D u_triangleTexture;
+uniform sampler1D u_triangleTexture;
 
 vec3 triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 {
@@ -95,17 +95,23 @@ void main()
 	vec4 albedo4 = vec4(albedo3, 1);
 	vec4 black = vec4(0, 0, 0, 1.0f);
 	vec4 finalColor = albedo4;
-	vec4 triangleColor = vec4(texture(u_triangleTexture, vec2(0.26f, 0)).rgb, 1.0f);
+	vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
 	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
 
-	vec3 A =  texture(u_triangleTexture, vec2(0.0f, 0)  ).rgb;
-	vec3 B =  texture(u_triangleTexture, vec2(0.26f, 0) ).rgb;
-	vec3 C =  texture(u_triangleTexture, vec2(0.52f, 0) ).rgb;
+	//vec3 A = texture(u_triangleTexture, 0. / 3.).rgb;
+	//vec3 A = texture(u_triangleTexture, 0. / 3.).rgb;
+	//vec3 B = texture(u_triangleTexture, 1. / 3.).rgb;
+	for (int i = 0; i < 20; i += 3)
+	{
+		vec3 A = texelFetch(u_triangleTexture, i + 0, 0).rgb;
+		vec3 B = texelFetch(u_triangleTexture, i + 1, 0).rgb;
+		vec3 C = texelFetch(u_triangleTexture, i + 2, 0).rgb;
 
-	vec3 intrs = triIntersect(rayOrigin, rayDir, A, B, C);
+		vec3 intrs = triIntersect(rayOrigin, rayDir, A, B, C);
+		if (intrs.x > 0)
+			finalColor = vec4(intrs.y, intrs.z, 1.0f, 1.0f);
 
-	if (intrs.x > 0)
-		finalColor = vec4(intrs.y, intrs.z, 1.0f, 1.0f);
+	}
 
 	FragColor = finalColor;
 

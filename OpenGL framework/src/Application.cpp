@@ -105,32 +105,37 @@ int main(void)
 		}*/
 
 		unsigned int triCount = triBuffer.size();
-		std::vector<glm::vec3> triverts(4);
+		//std::vector<glm::vec3> triverts(4);
 		//for (int i = 0; i < 3; i += 1)
-		{
-			triverts[  0] = { 1,0,0 };
-			 triverts[   1] = { 0,1,0 };
-			 triverts[  2] = { 0,0,1 };
-			 triverts[  3] = { 1,1,1 };
-			//{
-			//	i / float(256 * 256),		  ð
-			//	i / float(256 * 256),
-			//	i / float(256 * 256)
-			//};//float(i + 0) / float(256 * 256);
-			//triverts[i + 1] = 0;//float(i + 1) / float(256 * 256);
-			//triverts[i + 2] = 0;//float(i + 2) / float(256 * 256);
-		}
+		//{
+		//	triverts[0] = triBuffer[0];
+		//	triverts[1] = triBuffer[1];
+		//	triverts[2] = triBuffer[2];
+		//	triverts[3] = { 1,1,1 };
+		//
+		//
+		//	//{
+		//   //	i / float(256 * 256),		   
+		//   //	i / float(256 * 256),
+		//   //	i / float(256 * 256)
+		//   //};//float(i + 0) / float(256 * 256);
+		//   //triverts[i + 1] = 0;//float(i + 1) / float(256 * 256);
+		//   //triverts[i + 2] = 0;//float(i + 2) / float(256 * 256);
+		//}
 
 		unsigned int triTex;
 		GLCall(glGenTextures(1, &triTex));
-		GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
-		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4, 1, 0,
-			GL_RGB, GL_FLOAT, &triverts[0]));
+		GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
+		GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, triCount, 0,
+			GL_RGB, GL_FLOAT, &triBuffer[0]));
 
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP));
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP));
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+		//GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4, 1, 0,
+		//	GL_RGB, GL_FLOAT, &triverts[0]));
+
+		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
+		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
 		//GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
 
@@ -353,7 +358,7 @@ int main(void)
 			//plane.Draw(camera);
 			spyro.Draw(camera);
 			//duck.Draw(camera);
-			artisans.Draw(camera);
+			//artisans.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
 			//artisans.Draw(camera);
@@ -391,7 +396,7 @@ int main(void)
 			GLCall(glActiveTexture(GL_TEXTURE0 + 0);)
 				GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbuffer));
 			GLCall(glActiveTexture(GL_TEXTURE0 + 1);)
-				GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
+				GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
 
 			//spyro.getMesh(0).m_textures[0].Bind();
 			//glBindTexture(GL_TEXTURE_2D, triTex);
