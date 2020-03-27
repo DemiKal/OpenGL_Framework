@@ -34,13 +34,20 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-uniform vec4 u_overrideColor;
 uniform vec3 u_cameraPos;
 uniform vec3 u_viewDir;
 uniform vec3 u_cameraUp;
 
 uniform sampler2D screenTexture;
 uniform sampler1D u_triangleTexture;
+
+uniform float u_aspectRatio;
+uniform float u_screenWidth;
+uniform float u_screenHeight;
+
+uniform mat4 u_inv_projMatrix;
+uniform mat4 u_inv_viewMatrix;
+
 
 vec3 triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 {
@@ -73,24 +80,53 @@ vec3 triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 	return vec3(t, u, v);
 }
 
+vec3 RayFromCam(float mouseX, float mouseY)
+{
+	float x = (2.0f * mouseX) / u_screenWidth - 1.0f;
+	float y = 1.0f - (2.0f * mouseY) / u_screenHeight;
+	float z = 1.0f;
+	mat4 inv_proj_mat = u_inv_projMatrix;
+	mat4 inv_view_matrix = u_inv_viewMatrix;
+
+	//normalized device coordinates [-1:1, -1:1, -1:1]
+	vec3 ray_nds = vec3(x, y, z);
+
+	// clip space (4d homogenized) [-1:1, -1:1, -1:1, -1:1]
+	vec4 ray_clip = vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
+
+	// eye space [-x:x, -y:y, -z:z, -w:w]
+	vec4 ray_eye = inv_proj_mat * ray_clip;
+	ray_eye = vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
+
+	// world space [-x:x, -y:y, -z:z, -w:w]
+	vec3 ray_world = vec3(inv_view_matrix * ray_eye);
+	ray_world = normalize(ray_world);
+
+	//Ray ray(this->PositionRead(), ray_world);
+
+	return ray_world;
+}
+
 void main()
 {
-	vec2 aspectRatio = vec2(1920.0f / 1080.f, 1.0f);
+	vec2 aspectRatio = vec2(u_aspectRatio, 1.0f);
+	vec2 scrnCoords = vec2((0.5f - TexCoords.xy)) * aspectRatio;
 
-	vec2 scrnCoords = vec2((0.5f - TexCoords.xy) * aspectRatio);//, (0.5f - TexCoords.y));
-	//vec2 scrnCoords = vec2(0.5f - TexCoords.xy);// , (0.5f - TexCoords.y));
+	vec3 cameraUp = normalize(u_cameraUp);
+	vec3 viewDir = u_viewDir;
 
 	vec3 albedo3 = texture(screenTexture, TexCoords).rgb;
 
 	vec3 rayOrigin = u_cameraPos;
-	vec3 scrnPlane = normalize(cross(u_cameraUp, u_viewDir));
-	vec3 screenHoriz = scrnCoords.x * scrnPlane;
-	vec3 screenVert = scrnCoords.y * -u_cameraUp;
-	vec3 rayDir = normalize(u_viewDir + screenHoriz + screenVert);
+	vec3 scrnPlane = cross(cameraUp, viewDir);
 
-	//vec3 result = Intersect
-	//vec3 mixed = mix(col, override_color.rgb, override_color.a);
-	//float dist = length(scrnCoords);
+	vec3 screenHoriz = scrnCoords.x * scrnPlane;
+	vec3 screenVert = scrnCoords.y * -cameraUp;
+
+	vec2 pixelCoord = vec2(TexCoords.x, 1.0f - TexCoords.y) * vec2(u_screenWidth, u_screenHeight);
+	vec3 rayDir = RayFromCam(pixelCoord.x, pixelCoord.y);
+
+	//rayDir = normalize(viewDir + screenHoriz + screenVert); //old method
 
 	vec4 albedo4 = vec4(albedo3, 1);
 	vec4 black = vec4(0, 0, 0, 1.0f);
@@ -98,10 +134,7 @@ void main()
 	vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
 	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
 
-	//vec3 A = texture(u_triangleTexture, 0. / 3.).rgb;
-	//vec3 A = texture(u_triangleTexture, 0. / 3.).rgb;
-	//vec3 B = texture(u_triangleTexture, 1. / 3.).rgb;
-	for (int i = 0; i < 20; i += 3)
+	for (int i = 0; i < 38; i += 3)
 	{
 		vec3 A = texelFetch(u_triangleTexture, i + 0, 0).rgb;
 		vec3 B = texelFetch(u_triangleTexture, i + 1, 0).rgb;
@@ -109,8 +142,10 @@ void main()
 
 		vec3 intrs = triIntersect(rayOrigin, rayDir, A, B, C);
 		if (intrs.x > 0)
-			finalColor = vec4(intrs.y, intrs.z, 1.0f, 1.0f);
-
+		{
+			finalColor = vec4(intrs.y, intrs.z, 1.0f, intrs.x);
+			break;
+		}
 	}
 
 	FragColor = finalColor;

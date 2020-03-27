@@ -530,7 +530,6 @@ void Model::Draw(const Camera& cam)
 	shader.SetUniformMat4f("view", interpView);
 	shader.SetUniformMat4f("projection", interpProj);
 
-
 	auto itt = shader.m_uniformsInfo.find("directionalLight");
 
 	if (itt != shader.m_uniformsInfo.end());

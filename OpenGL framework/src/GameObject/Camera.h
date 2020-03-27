@@ -46,11 +46,17 @@ public:
 
 	//rotate around the y axis, its own up vector
 	void RotateYlocal(const float angle);
+	float GetNearPlaneDist();
+	float GetFarPlaneDist();
+	 
 
+	 
 
 private:
 	float fov;
 	float aspectRatio;
+	float m_nearPlane;
+	float m_farPlane;
 	glm::vec3 pos{};
 	glm::vec3 forward{};
 	glm::vec3 up{};

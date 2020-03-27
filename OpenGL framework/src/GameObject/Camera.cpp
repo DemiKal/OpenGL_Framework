@@ -7,14 +7,30 @@
 Camera* Camera::m_mainCam;
 Camera* Camera::m_cam2;
 
-Camera::Camera() : fov(70), aspectRatio((float)SCREENWIDTH / (float)SCREENHEIGHT),
-pos(glm::vec3(0, 0, 0)), forward(glm::vec3(0, 0, -1)),
-up(glm::vec3(0, 1, 0)), projection(glm::perspective(70.f, aspectRatio, 0.1f, 200.0f)) {}
+Camera::Camera() :
+	fov(70), 
+	aspectRatio((float)SCREENWIDTH / (float)SCREENHEIGHT), //TODO: fix scwidht!
+	pos(glm::vec3(0, 0, 0)), 
+	forward(glm::vec3(0, 0, -1)),
+	up(glm::vec3(0, 1, 0)), 
+	m_nearPlane(0.1f),
+	m_farPlane(200.0f),
+	projection(glm::perspective(fov, aspectRatio, m_nearPlane, m_farPlane)) {}
 
-Camera::Camera(const glm::vec3& p_pos, float p_fov, float p_aspect, float p_zNear, float p_zFar)
+Camera::Camera(const glm::vec3& p_pos,
+	const float p_fov,
+	const float p_aspect,
+	const float p_zNear,
+	const float p_zFar)
 	:
-	fov(p_fov), aspectRatio(p_aspect), pos(p_pos), forward(glm::vec3(0, 0, -1)),
-	up(glm::vec3(0, 1, 0)), projection(glm::perspective(p_fov, p_aspect, p_zNear, p_zFar))
+	fov(p_fov),
+	aspectRatio(p_aspect),
+	pos(p_pos),
+	forward(glm::vec3(0, 0, -1)),
+	up(glm::vec3(0, 1, 0)),
+	m_nearPlane(p_zNear),
+	m_farPlane(p_zFar),
+	projection(glm::perspective(p_fov, p_aspect, p_zNear, p_zFar))
 {
 
 }
@@ -34,9 +50,9 @@ void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mvelo)
 //TODO: use a screenmanager to get SCREENWIDTH dynamically!
 Ray Camera::RayFromMouse(const double mouseX, const double mouseY) const
 {
-	float x = (2.0f * mouseX) / SCREENWIDTH - 1.0f; //TODO: FIX WITH DYNAMIC SCREENWIDTH!
-	float y = 1.0f - (2.0f * mouseY) / SCREENHEIGHT;
-	float z = 1.0f;
+	const float x = (2.0f * mouseX) / SCREENWIDTH - 1.0f;
+	const float y = 1.0f - (2.0f * mouseY) / SCREENHEIGHT;
+	const float z = 1.0f;
 	const glm::mat4 proj_mat = GetProjectionMatrix();
 	const glm::mat4 view_matrix = GetViewMatrix();
 
@@ -102,35 +118,6 @@ std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 	//std::min_element(hits.begin(), hits.end())
 }
 
-//void Camera::CheckMouseHover(const float mX, const float mY, const Cube & cube)
-//{
-//	auto tris = cube.GetMeshTriangles();
-//	const glm::vec3  campos = GetPosition();
-//	const   glm::vec3 dir = RayFromMouse(mX, mY);
-//
-//	bool cubeIntersect = false;
-//	for (const auto& tri : tris)
-//	{
-//		glm::vec2 baryCoords{ 0,0 };
-//		float t;
-//
-//		const bool intersect = glm::intersectRayTriangle(campos,
-//			dir, tri.v1, (&tri)->v2, (&tri)->v3, baryCoords, t);
-//
-//		if (intersect)
-//		{
-//			cubeIntersect = true;
-//			break;
-//		}
-//	}
-//
-//	std::string name = "none";
-//
-//	name = cubeIntersect ? cube.Name().c_str() : "none";
-//
-//	ImGui::Text("Hovered obj: %s", name.c_str());
-//}
-
 inline glm::mat4 Camera::GetViewMatrix() const
 {
 	return glm::lookAt(pos, pos + forward, up);
@@ -167,6 +154,16 @@ inline void Camera::RotateYlocal(const float angle)
 	forward = glm::vec3(glm::normalize(rotation * glm::vec4(forward, 0.0)));
 
 	up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
+}
+
+float Camera::GetNearPlaneDist()
+{
+	return m_nearPlane;
+}
+
+float Camera::GetFarPlaneDist()
+{
+	return m_farPlane;
 }
 
 glm::vec3 Camera::GetUpVector() const

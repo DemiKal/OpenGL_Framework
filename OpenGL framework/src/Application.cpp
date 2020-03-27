@@ -36,7 +36,7 @@ int main(void)
 	// glfwGetPrimaryMonitor() ;
 
 	/* Create a windowed mode window and its OpenGL context */
-	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", glfwGetPrimaryMonitor(), NULL);
 
 	if (!window)
 	{
@@ -74,7 +74,6 @@ int main(void)
 		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 		EntityManager::AddEntity(plane);
 
-
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "WireCube";
 		EntityManager::AddEntity(wireCube);
@@ -98,30 +97,13 @@ int main(void)
 
 		//TriangleBuffer::GetTriangleBuffer();
 
-		std::vector<glm::vec3>& triBuffer = spyro.getMesh(0).positionVertices;
+		std::vector<glm::vec3>& triBuffer = cube.getMesh(0).positionVertices;
 		/*for (auto& v : spyro.getMesh(0).positionVertices)
 		{
 			 v  = (spyro.model * glm::vec4(v, 1.0f));
 		}*/
 
 		unsigned int triCount = triBuffer.size();
-		//std::vector<glm::vec3> triverts(4);
-		//for (int i = 0; i < 3; i += 1)
-		//{
-		//	triverts[0] = triBuffer[0];
-		//	triverts[1] = triBuffer[1];
-		//	triverts[2] = triBuffer[2];
-		//	triverts[3] = { 1,1,1 };
-		//
-		//
-		//	//{
-		//   //	i / float(256 * 256),		   
-		//   //	i / float(256 * 256),
-		//   //	i / float(256 * 256)
-		//   //};//float(i + 0) / float(256 * 256);
-		//   //triverts[i + 1] = 0;//float(i + 1) / float(256 * 256);
-		//   //triverts[i + 2] = 0;//float(i + 2) / float(256 * 256);
-		//}
 
 		unsigned int triTex;
 		GLCall(glGenTextures(1, &triTex));
@@ -138,10 +120,6 @@ int main(void)
 		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
 		//GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
-
-
-
-
 
 		//artisans.getMesh(0).MakeWireFrame();
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
@@ -309,7 +287,6 @@ int main(void)
 
 
 
-
 #pragma region input
 			userInterface.Update();
 			InputManager::Update(camera);
@@ -354,8 +331,8 @@ int main(void)
 			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
 
-			//cube.Draw(camera);
-			//plane.Draw(camera);
+			cube.Draw(camera);
+			plane.Draw(camera);
 			spyro.Draw(camera);
 			//duck.Draw(camera);
 			//artisans.Draw(camera);
@@ -386,30 +363,34 @@ int main(void)
 			glDisable(GL_DEPTH_TEST);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+			const glm::vec3 camPos = camera.GetPosition();
+			const float nearPlane = camera.GetNearPlaneDist();
+			const glm::vec3 camForward = (1.1f + nearPlane) * camera.GetForwardVector();
+			const glm::vec3 camUp = camera.GetUpVector();
+
 			postProcessShader.Bind();
-			postProcessShader.setVec3("u_cameraPos", camera.GetPosition());
-			postProcessShader.setVec3("u_viewDir", camera.GetForwardVector());
-			postProcessShader.setVec3("u_cameraUp", camera.GetUpVector());
-			//glActiveTexture(GL_TEXTURE0);
+			postProcessShader.setVec3("u_cameraPos", camPos);
+			postProcessShader.setVec3("u_viewDir", camForward);
+			postProcessShader.setVec3("u_cameraUp", camUp);
+			
+			postProcessShader.SetFloat("u_aspectRatio", float(SCREENWIDTH) / float(SCREENHEIGHT));
+			postProcessShader.SetFloat("u_screenWidth", float(SCREENWIDTH));
+			postProcessShader.SetFloat("u_screenHeight", float(SCREENHEIGHT));
+			postProcessShader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
+			postProcessShader.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(camera.GetViewMatrix()));
 
+
+			//draw final quad
 			glBindVertexArray(quadVAO);
-			GLCall(glActiveTexture(GL_TEXTURE0 + 0);)
-				GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbuffer));
-			GLCall(glActiveTexture(GL_TEXTURE0 + 1);)
-				GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
-
-			//spyro.getMesh(0).m_textures[0].Bind();
-			//glBindTexture(GL_TEXTURE_2D, triTex);
-			//glBindTexture(GL_TEXTURE_2D, triTex);
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-
-
+			GLCall(glActiveTexture(GL_TEXTURE0 + 0));
+			GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbuffer));
+			GLCall(glActiveTexture(GL_TEXTURE0 + 1));
+			GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
 			userInterface.Draw();
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
-
 
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currentFrameTime);
