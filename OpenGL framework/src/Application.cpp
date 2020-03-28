@@ -55,12 +55,11 @@ int main(void)
 	GLint  max_uniform_locations;
 	GLCall(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size));
 	GLCall(glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &max_uniform_locations));
-	
+
 	std::cout << "--- GPU Data ---\n";
 	std::cout << "max tex size: " << max_tex_size << "\n";
 	std::cout << "max uniform locations: " << max_uniform_locations << "\n";
 	std::cout << "----------------\n";
-
 
 	{
 		Renderer renderer;
@@ -83,7 +82,6 @@ int main(void)
 		//plane.SetShader("plane");
 		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
 		//EntityManager::AddEntity(plane);
-
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "WireCube";
 		EntityManager::AddEntity(wireCube);
@@ -363,9 +361,16 @@ int main(void)
 			// nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
 			// nanosuit.Draw(camera);
 
+			//set bvh node
+			ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr - 1);
+
+			GLCall(glDisable(GL_DEPTH_TEST));
+			bvh.DrawSingleAABB(camera, currentBbox);
+
+			GLCall(glEnable(GL_DEPTH_TEST));
 
 			// draw AABB instanced
-			bvh.Draw(camera);
+			//bvh.Draw(camera);
 
 			double MouseX, MouseY;
 			glfwGetCursorPos(window, &MouseX, &MouseY);
@@ -378,6 +383,7 @@ int main(void)
 
 			prevFrameTime = currentFrameTime;
 			glDisable(GL_DEPTH_TEST);
+
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			const glm::vec3 camPos = camera.GetPosition();
@@ -401,16 +407,10 @@ int main(void)
 			postProcessShader.setVec3("u_boundingBox.m_min", aabb.m_min.v);
 			postProcessShader.setVec3("u_boundingBox.m_max", aabb.m_max.v);
 
-
-			ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr);
-
 			postProcessShader.SetInt("u_bboxIdx", currentBbox);
-
-
 
 			//const int location = GetUniformLocation(name);
 			//GLCall(glUniform1f(location, value));
-
 
 			//draw final quad
 			glBindVertexArray(quadVAO);

@@ -81,6 +81,10 @@ void BVH::InitBVHRenderer()
 	glVertexAttribDivisor(4, 1);
 
 	glBindVertexArray(0);
+
+
+
+
 }
 
 void BVH::Draw(const Camera& camera)
@@ -208,7 +212,6 @@ void BVH::InitTriangleRenderer()
 	m_triangleVAO = triangleVAO;
 	m_triangleVBO = triangleVBO;
 
-
 	//glEnableVertexAttribArray(1);
 	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 }
@@ -292,4 +295,16 @@ void BVH::CreateBVHTextures()
 
 
 
+}
+
+void BVH::DrawSingleAABB(Camera& cam, const int index)
+{
+	if (index < 0 || index >= m_poolPtr)
+	{
+		std::cout << "Bvh draw index out of range!\n";
+		return;
+	}
+
+	AABB& mat = m_localBounds[index];
+	mat.Draw(cam, { 1.0f, 0.2f,0.3f,1.0f });
 }

@@ -43,10 +43,10 @@ uniform sampler1D u_triangleTexture;
 
 //bvh data
 uniform sampler1D u_indexTexture;	// 4 ints 
-//int m_start		x;r		
-//int m_end			y;g	
-//int m_leftFirst	z;b
-//int m_count		w;a	
+//int m_start		x ; r		
+//int m_end			y ; g	
+//int m_leftFirst	z ; b
+//int m_count		w ; a	
 
 uniform sampler1D u_minTexture;		// 3 floats for min bbox
 uniform sampler1D u_maxTexture;		// 3 floats
@@ -138,9 +138,7 @@ vec3 RayFromCam(float mouseX, float mouseY)
 	float x = (2.0f * mouseX) / u_screenWidth - 1.0f;
 	float y = 1.0f - (2.0f * mouseY) / u_screenHeight;
 	float z = 1.0f;
-	mat4 inv_proj_mat = u_inv_projMatrix;
-	mat4 inv_view_matrix = u_inv_viewMatrix;
-
+  
 	//normalized device coordinates [-1:1, -1:1, -1:1]
 	vec3 ray_nds = vec3(x, y, z);
 
@@ -148,11 +146,11 @@ vec3 RayFromCam(float mouseX, float mouseY)
 	vec4 ray_clip = vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
 
 	// eye space [-x:x, -y:y, -z:z, -w:w]
-	vec4 ray_eye = inv_proj_mat * ray_clip;
+	vec4 ray_eye = u_inv_projMatrix * ray_clip;
 	ray_eye = vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
 
 	// world space [-x:x, -y:y, -z:z, -w:w]
-	vec3 ray_world = vec3(inv_view_matrix * ray_eye);
+	vec3 ray_world = vec3(u_inv_viewMatrix * ray_eye);
 	ray_world = normalize(ray_world);
 
 	//Ray ray(this->PositionRead(), ray_world);
@@ -187,8 +185,10 @@ void main()
 	vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
 	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
 
-
-	vec3 idxVec = texelFetch(u_indexTexture, u_bboxIdx, 0).rgb;
+	 
+	ivec4 idxVec = ivec4(texelFetch(u_indexTexture, u_bboxIdx, 0));
+	
+	
 	vec3 minVec = texelFetch(u_minTexture, u_bboxIdx, 0).rgb;
 	vec3 maxVec = texelFetch(u_maxTexture, u_bboxIdx, 0).rgb;
 
@@ -207,8 +207,11 @@ void main()
 	if (boxIntersect)
 	{
 		//  = albedo4;
-		vec4 boxColor = vec4(0.4, 0.5, 0.35, 1.0f);
-		FragColor = mix(albedo4, boxColor, 0.6f);
+		vec4 boxColor = vec4(0.5, 0.3, 0.25, 1.0f);
+		if (idxVec.w > 2) //if child count > 0
+			boxColor = vec4(0.1, 1.0f, 0.2f, 1.0f);
+		
+		FragColor = mix(albedo4, boxColor, 0.7f);
 		return;
 	}
 

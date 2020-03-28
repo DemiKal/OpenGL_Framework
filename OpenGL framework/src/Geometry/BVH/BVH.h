@@ -48,7 +48,7 @@ public:
 	void DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) const;
 	void InitTriangleRenderer();
 	void CreateBVHTextures();
-
+	void DrawSingleAABB(Camera& cam, int index);
 private:
 	unsigned int m_triangleVAO;
 	unsigned int m_triangleVBO;
