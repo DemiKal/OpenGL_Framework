@@ -41,6 +41,16 @@ uniform vec3 u_cameraUp;
 uniform sampler2D screenTexture;
 uniform sampler1D u_triangleTexture;
 
+//bvh data
+uniform sampler1D u_indexTexture;	// 4 ints 
+//int m_start		x;r		
+//int m_end			y;g	
+//int m_leftFirst	z;b
+//int m_count		w;a	
+
+uniform sampler1D u_minTexture;		// 3 floats for min bbox
+uniform sampler1D u_maxTexture;		// 3 floats
+
 uniform float u_aspectRatio;
 uniform float u_screenWidth;
 uniform float u_screenHeight;
@@ -48,6 +58,15 @@ uniform float u_screenHeight;
 uniform mat4 u_inv_projMatrix;
 uniform mat4 u_inv_viewMatrix;
 
+uniform int u_bboxIdx;
+
+
+struct AABB {
+	vec3 m_min;
+	vec3 m_max;
+};
+
+uniform AABB u_boundingBox;
 
 vec3 triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 {
@@ -79,6 +98,40 @@ vec3 triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 
 	return vec3(t, u, v);
 }
+
+bool IntersectAABB(vec3 rayOrigin, vec3 rayDirection, AABB bbox)
+{
+	//vec3  direction rayDirection;
+	//vec3  origin = rayOrigin;
+
+	vec3 d = vec3(
+		1.0f / rayDirection.x,
+		1.0f / rayDirection.y,
+		1.0f / rayDirection.z);
+
+	float t = 99999999.f;
+	float tx1 = (bbox.m_min.x - rayOrigin.x) * d.x;
+	float tx2 = (bbox.m_max.x - rayOrigin.x) * d.x;
+
+	float tmin = min(tx1, tx2);
+	float tmax = max(tx1, tx2);
+
+	float ty1 = (bbox.m_min.y - rayOrigin.y) * d.y;
+	float ty2 = (bbox.m_max.y - rayOrigin.y) * d.y;
+
+	tmin = max(tmin, min(ty1, ty2));
+	tmax = min(tmax, max(ty1, ty2));
+
+	float tz1 = (bbox.m_min.z - rayOrigin.z) * d.z;
+	float tz2 = (bbox.m_max.z - rayOrigin.z) * d.z;
+
+	tmin = max(tmin, min(tz1, tz2));
+	tmax = min(tmax, max(tz1, tz2));
+	//tCurrent = tmin;
+	//return vec3(tmax, tmin)
+	return tmax >= max(0.0f, tmin) && tmin < t;
+}
+
 
 vec3 RayFromCam(float mouseX, float mouseY)
 {
@@ -134,19 +187,44 @@ void main()
 	vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
 	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
 
-	for (int i = 0; i < 38; i += 3)
-	{
-		vec3 A = texelFetch(u_triangleTexture, i + 0, 0).rgb;
-		vec3 B = texelFetch(u_triangleTexture, i + 1, 0).rgb;
-		vec3 C = texelFetch(u_triangleTexture, i + 2, 0).rgb;
 
-		vec3 intrs = triIntersect(rayOrigin, rayDir, A, B, C);
-		if (intrs.x > 0)
-		{
-			finalColor = vec4(intrs.y, intrs.z, 1.0f, intrs.x);
-			break;
-		}
+	vec3 idxVec = texelFetch(u_indexTexture, u_bboxIdx, 0).rgb;
+	vec3 minVec = texelFetch(u_minTexture, u_bboxIdx, 0).rgb;
+	vec3 maxVec = texelFetch(u_maxTexture, u_bboxIdx, 0).rgb;
+
+
+
+	//	u_indexTexture
+	//	u_minTexture;
+	//	u_maxTexture;
+
+	//AABB newaabb = AABB(minVec, maxVec);
+	AABB newaabb = AABB(minVec, maxVec);
+
+
+	bool boxIntersect = IntersectAABB(rayOrigin, rayDir, newaabb);
+
+	if (boxIntersect)
+	{
+		//  = albedo4;
+		vec4 boxColor = vec4(0.4, 0.5, 0.35, 1.0f);
+		FragColor = mix(albedo4, boxColor, 0.6f);
+		return;
 	}
+
+	//for (int i = 0; i < 38; i += 3)
+	//{
+	//	vec3 A = texelFetch(u_triangleTexture, i + 0, 0).rgb;
+	//	vec3 B = texelFetch(u_triangleTexture, i + 1, 0).rgb;
+	//	vec3 C = texelFetch(u_triangleTexture, i + 2, 0).rgb;
+	//
+	//	vec3 intrs = triIntersect(rayOrigin, rayDir, A, B, C);
+	//	if (intrs.x > 0)
+	//	{
+	//		finalColor = vec4(intrs.y, intrs.z, 1.0f, intrs.x);
+	//		break;
+	//	}
+	//}
 
 	FragColor = finalColor;
 

@@ -28,15 +28,15 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_TRUE);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// glfwGetPrimaryMonitor() ;
 
 	/* Create a windowed mode window and its OpenGL context */
-	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", glfwGetPrimaryMonitor(), NULL);
+	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, NULL);
 
 	if (!window)
 	{
@@ -44,6 +44,9 @@ int main(void)
 		throw std::exception("ERROR: Could not create GLFW window!");
 		return -1;
 	}
+	//GLint result;
+	//glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS,   &result);
+
 
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
@@ -60,19 +63,19 @@ int main(void)
 		ShaderManager::Init();
 		UserInterface userInterface;
 
-		Model cube = Model::CreateCube();
-		cube.name = "cube";
-		//
-		EntityManager::AddEntity(cube);
-		cube.SetShader("framebuffers");
-		cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
+		//Model cube = Model::CreateCube();
+		//cube.name = "cube";
+		////
+		//EntityManager::AddEntity(cube);
+		//cube.SetShader("framebuffers");
+		//cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
-		Model plane = Model::CreatePlane();
-		plane.name = "plane";
-		//plane.SetShader("framebuffers");
-		plane.SetShader("plane");
-		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
-		EntityManager::AddEntity(plane);
+		//Model plane = Model::CreatePlane();
+		//plane.name = "plane";
+		////plane.SetShader("framebuffers");
+		//plane.SetShader("plane");
+		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+		//EntityManager::AddEntity(plane);
 
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "WireCube";
@@ -90,14 +93,14 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		artisans.SetShader("basic");
-		artisans.name = "artisans";
-		EntityManager::AddEntity(artisans);
+		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		//artisans.SetShader("basic");
+		//artisans.name = "artisans";
+		//EntityManager::AddEntity(artisans);
 
 		//TriangleBuffer::GetTriangleBuffer();
 
-		std::vector<glm::vec3>& triBuffer = cube.getMesh(0).positionVertices;
+		std::vector<glm::vec3>& triBuffer = spyro.getMesh(0).positionVertices;
 		/*for (auto& v : spyro.getMesh(0).positionVertices)
 		{
 			 v  = (spyro.model * glm::vec4(v, 1.0f));
@@ -128,7 +131,9 @@ int main(void)
 		//nanosuit.SetShader("normalmapshader");
 
 		BVH bvh;
-		//bvh.BuildBVH();
+		bvh.BuildBVH();
+		bvh.CreateBVHTextures();
+
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr << "\n";
 		//
 		constexpr float half = 0.5f;
@@ -191,6 +196,9 @@ int main(void)
 		postProcessShader.Bind();
 		postProcessShader.SetInt("screenTexture", 0);
 		postProcessShader.SetInt("u_triangleTexture", 1);
+		postProcessShader.SetInt("u_indexTexture", 2); //bvh data
+		postProcessShader.SetInt("u_minTexture", 3);
+		postProcessShader.SetInt("u_maxTexture", 4);
 
 		GPUShader& lineshader = ShaderManager::GetShader("lineshader");
 		GPUShader& boneshader = ShaderManager::GetShader("bones");
@@ -273,7 +281,9 @@ int main(void)
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		// enable depth testing (is disabled for rendering screen-space quad)
 
-		bool showDemo = true;
+
+
+		int currentBbox = 0;
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -301,7 +311,7 @@ int main(void)
 
 			framebuffer.Bind();
 			// make sure we clear the framebuffer's content
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+			glClearColor(0.3f, 0.15f, 0.36f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
@@ -324,15 +334,15 @@ int main(void)
 			float& ambientLight = LightManager::GetAmbientLight();
 			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
 
-			cube.Update(deltaTime);
-			plane.Update(deltaTime);
-			spyro.Update(deltaTime);
+			//cube.Update(deltaTime);
+			//plane.Update(deltaTime);
+			//spyro.Update(deltaTime);
 			//duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
 
-			cube.Draw(camera);
-			plane.Draw(camera);
+		//	cube.Draw(camera);
+			//plane.Draw(camera);
 			spyro.Draw(camera);
 			//duck.Draw(camera);
 			//artisans.Draw(camera);
@@ -372,12 +382,27 @@ int main(void)
 			postProcessShader.setVec3("u_cameraPos", camPos);
 			postProcessShader.setVec3("u_viewDir", camForward);
 			postProcessShader.setVec3("u_cameraUp", camUp);
-			
+
 			postProcessShader.SetFloat("u_aspectRatio", float(SCREENWIDTH) / float(SCREENHEIGHT));
 			postProcessShader.SetFloat("u_screenWidth", float(SCREENWIDTH));
 			postProcessShader.SetFloat("u_screenHeight", float(SCREENHEIGHT));
 			postProcessShader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
 			postProcessShader.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(camera.GetViewMatrix()));
+
+			AABB& aabb = spyro.getMesh(0).m_aabb;
+
+			postProcessShader.setVec3("u_boundingBox.m_min", aabb.m_min.v);
+			postProcessShader.setVec3("u_boundingBox.m_max", aabb.m_max.v);
+			
+
+			ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr);
+
+			postProcessShader.SetInt("u_bboxIdx", currentBbox);
+
+
+
+			//const int location = GetUniformLocation(name);
+			//GLCall(glUniform1f(location, value));
 
 
 			//draw final quad
@@ -386,7 +411,24 @@ int main(void)
 			GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbuffer));
 			GLCall(glActiveTexture(GL_TEXTURE0 + 1));
 			GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
+
+			//bvh textures
+			//bind idx  texture
+			const GLuint idxTex = bvh.GetIndexTextureID();
+			GLCall(glActiveTexture(GL_TEXTURE0 + 2));
+			GLCall(glBindTexture(GL_TEXTURE_1D, idxTex));
+			//bind min
+			const GLuint minTex = bvh.GetMinTextureID();
+			GLCall(glActiveTexture(GL_TEXTURE0 + 3));
+			GLCall(glBindTexture(GL_TEXTURE_1D, minTex));
+			//bind max	
+			const GLuint maxTex = bvh.GetMaxTextureID();
+			GLCall(glActiveTexture(GL_TEXTURE0 + 4));
+			GLCall(glBindTexture(GL_TEXTURE_1D, maxTex));
+
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+
+
 
 			userInterface.Draw();
 			GLCall(glfwSwapBuffers(window));

@@ -169,6 +169,12 @@ void GPUShader::SetFloat(const std::string &name, float value)
 	GLCall(glUniform1f(location, value));
 }
 
+//void GPUShader::SetUniformStruct(const std::string& name, void* myStruct)
+//{
+//	const int location = GetUniformLocation(name);
+//	GLCall(glUniform4fv(location, 1, &value[0]));
+//}
+
 void GPUShader::Destroy()
 {
 	GLCall(glDeleteProgram(m_RendererID));

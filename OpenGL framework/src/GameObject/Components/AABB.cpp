@@ -82,7 +82,7 @@ bool AABB::IntersectAABB(const Ray& ray, float& tCurrent) const
 		1.0f / direction.y,
 		1.0f / direction.z);
 
-	const float t = 99999.0f;
+	const float t = std::numeric_limits<float>::infinity();
 	const float tx1 = ( m_min.v.x - origin.x) * d.x;
 	const float tx2 = ( m_max.v.x - origin.x) * d.x;
 					    

@@ -115,7 +115,7 @@ public:
 	{
 		RecalcBounds(transform, original);
 	}
-	
+
 	void Draw(const ::Camera& camera, const glm::vec4& color);
 	bool IntersectAABB(const Ray& ray, float& tCurrent) const;
 	void UpdateArvo(const glm::mat4& m, const AABB& orig);

@@ -24,7 +24,7 @@ void BVH::BuildBVH()
 				std::max(std::max(tri.A.x, tri.B.x), tri.C.x),
 				std::max(std::max(tri.A.y, tri.B.y), tri.C.y),
 				std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
-			));
+				));
 
 	const int N = triangles.size();
 	m_indices.resize(N);
@@ -148,7 +148,7 @@ void BVH::TraceRay(const Ray& ray)
 			auto& triangleMap = TriangleBuffer::GetIndexRangeBuffer();
 			for (auto& rangeIdx : triangleMap)
 			{
-				if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx <  rangeIdx.endIdx)
+				if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx < rangeIdx.endIdx)
 				{
 					ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->name.c_str());
 					ImGui::LabelText("Tri Idx: ", std::to_string(nearestTriIdx).c_str());
@@ -211,4 +211,85 @@ void BVH::InitTriangleRenderer()
 
 	//glEnableVertexAttribArray(1);
 	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+}
+
+
+void BVH::CreateBVHTextures()
+{
+	//split bvh node into 2 textures
+	//tex 1: indices:  4 ints
+	//tex  2: min vecs: 3 floats
+	//tex 3: max vecs : 3 floats
+	const unsigned int boxCount = m_poolPtr;
+	unsigned int intTexture;
+	std::vector<glm::ivec4> indicesPart;
+	//std::copy( m_pool ,std::)
+	for (int i = 0; i < m_poolPtr; i++)
+	{
+		const int start = m_pool[i].m_start;
+		const int end = m_pool[i].m_end;
+		const int leftFirst = m_pool[i].m_leftFirst;
+		const int count = m_pool[i].m_count;
+
+		indicesPart.emplace_back(glm::ivec4(start, end, leftFirst, count));
+	}
+
+	GLCall(glGenTextures(1, &intTexture));
+	GLCall(glBindTexture(GL_TEXTURE_1D, intTexture));
+	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, boxCount, 0,
+		GL_RGB, GL_INT, &indicesPart[0])); //fix nonnormalized ints!
+
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+
+	std::vector<glm::vec3> minvec;
+	auto GetMin = [](AABB& aabb) { return aabb.m_min.v; };
+
+	std::transform(std::begin(m_localBounds), std::end(m_localBounds),
+		std::back_inserter(minvec), GetMin);
+
+	unsigned int minVecTexture;
+	//minvec[0] = { 1,0,0 };
+	GLCall(glGenTextures(1, &minVecTexture));
+	GLCall(glBindTexture(GL_TEXTURE_1D, minVecTexture));
+	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, boxCount, 0,
+		GL_RGB, GL_FLOAT, &minvec[0]));
+
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+
+	//max bounds
+	std::vector<glm::vec3> maxVec;
+	auto Getmax = [](AABB& aabb) { return aabb.m_max.v; };
+
+	std::transform(std::begin(m_localBounds), std::end(m_localBounds),
+		std::back_inserter(maxVec), Getmax);
+	//maxVec[0] = { 10,8,15 };
+
+	unsigned int maxVecTexture;
+
+	GLCall(glGenTextures(1, &maxVecTexture));
+	GLCall(glBindTexture(GL_TEXTURE_1D, maxVecTexture));
+	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, boxCount, 0,
+		GL_RGB, GL_FLOAT, &maxVec[0]));
+
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+	m_indexTexture = intTexture;
+	m_minTexture = minVecTexture;
+	m_maxTexture = maxVecTexture;
+	///////
+
+
+
+
 }
