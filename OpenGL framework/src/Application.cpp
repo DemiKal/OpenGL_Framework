@@ -29,7 +29,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_TRUE);
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -364,8 +364,20 @@ int main(void)
 			//set bvh node
 			ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr - 1);
 
+			//for (int i = 0; i < bvh.m_poolPtr; i++)
+			//{
+			//	BVHNode& mynode = bvh.m_pool[i];
+			//	if (mynode.m_count <= 2)
+			//		mynode.m_bounds.Draw(camera, { 1.0f,1.0f,1.0f,1.0f });
+			//}
+
 			GLCall(glDisable(GL_DEPTH_TEST));
 			bvh.DrawSingleAABB(camera, currentBbox);
+			int leftfirst = bvh.m_pool[currentBbox].m_leftFirst;
+			int rightFirst = leftfirst + 1;
+
+			bvh.DrawSingleAABB(camera, leftfirst);
+			bvh.DrawSingleAABB(camera, rightFirst);
 
 			GLCall(glEnable(GL_DEPTH_TEST));
 

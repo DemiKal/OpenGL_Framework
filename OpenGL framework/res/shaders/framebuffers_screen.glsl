@@ -42,7 +42,7 @@ uniform sampler2D screenTexture;
 uniform sampler1D u_triangleTexture;
 
 //bvh data
-uniform sampler1D u_indexTexture;	// 4 ints 
+uniform isampler1D u_indexTexture;	// 4 ints 
 //int m_start		x ; r		
 //int m_end			y ; g	
 //int m_leftFirst	z ; b
@@ -138,7 +138,7 @@ vec3 RayFromCam(float mouseX, float mouseY)
 	float x = (2.0f * mouseX) / u_screenWidth - 1.0f;
 	float y = 1.0f - (2.0f * mouseY) / u_screenHeight;
 	float z = 1.0f;
-  
+
 	//normalized device coordinates [-1:1, -1:1, -1:1]
 	vec3 ray_nds = vec3(x, y, z);
 
@@ -185,10 +185,10 @@ void main()
 	vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
 	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
 
-	 
-	ivec4 idxVec = ivec4(texelFetch(u_indexTexture, u_bboxIdx, 0));
-	
-	
+
+	ivec4 idxVec = texelFetch(u_indexTexture, u_bboxIdx, 0).rgba;
+
+
 	vec3 minVec = texelFetch(u_minTexture, u_bboxIdx, 0).rgb;
 	vec3 maxVec = texelFetch(u_maxTexture, u_bboxIdx, 0).rgb;
 
@@ -202,16 +202,33 @@ void main()
 	AABB newaabb = AABB(minVec, maxVec);
 
 
-	bool boxIntersect = IntersectAABB(rayOrigin, rayDir, newaabb);
+	FragColor = albedo4;
 
+
+	bool boxIntersect = IntersectAABB(rayOrigin, rayDir, newaabb);
 	if (boxIntersect)
 	{
-		//  = albedo4;
-		vec4 boxColor = vec4(0.5, 0.3, 0.25, 1.0f);
-		if (idxVec.w > 2) //if child count > 0
-			boxColor = vec4(0.1, 1.0f, 0.2f, 1.0f);
-		
+		vec4 boxColor = vec4(0.1, 1.0f, 0.2f, 1.0f);
+
 		FragColor = mix(albedo4, boxColor, 0.7f);
+
+		//	return;
+	}
+
+	///	FragColor = albedo4;
+
+	int leftFirst = idxVec.b +1;
+
+	vec3 minVec2 = texelFetch(u_minTexture, leftFirst, 0).xyz;
+	vec3 maxVec2 = texelFetch(u_maxTexture, leftFirst, 0).xyz;
+
+	AABB aabb2 = AABB(minVec2, maxVec2);
+	boxIntersect = IntersectAABB(rayOrigin, rayDir, aabb2);
+	if (boxIntersect)
+	{
+		vec4 boxColor = vec4(0.5, 0.1f, 0.6f, 1.0f);
+
+		FragColor = mix(albedo4, boxColor, 0.5f);
 		return;
 	}
 

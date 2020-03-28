@@ -239,8 +239,8 @@ void BVH::CreateBVHTextures()
 
 	GLCall(glGenTextures(1, &intTexture));
 	GLCall(glBindTexture(GL_TEXTURE_1D, intTexture));
-	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, boxCount, 0,
-		GL_RGB, GL_INT, &indicesPart[0])); //fix nonnormalized ints!
+	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32I  , boxCount, 0,
+		GL_RGBA_INTEGER, GL_INT, &indicesPart[0])); //fix nonnormalized ints!
 
 	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
 	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
