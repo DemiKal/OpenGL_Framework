@@ -28,8 +28,8 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
-	glfwWindowHint(GLFW_DECORATED, GL_FALSE);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+	glfwWindowHint(GLFW_DECORATED, GL_TRUE);
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -44,9 +44,6 @@ int main(void)
 		throw std::exception("ERROR: Could not create GLFW window!");
 		return -1;
 	}
-	//GLint result;
-	//glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS,   &result);
-
 
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
@@ -54,6 +51,16 @@ int main(void)
 	float aa = ((1.0f * 10.0f - 1.0f / 0.1f + (2.0f - 0.5f * 4.0f) - 0.000f));
 	float xx = 1.0f / aa;
 	std::cout << glGetString(GL_VERSION) << std::endl;
+	GLint  max_tex_size;
+	GLint  max_uniform_locations;
+	GLCall(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size));
+	GLCall(glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &max_uniform_locations));
+	
+	std::cout << "--- GPU Data ---\n";
+	std::cout << "max tex size: " << max_tex_size << "\n";
+	std::cout << "max uniform locations: " << max_uniform_locations << "\n";
+	std::cout << "----------------\n";
+
 
 	{
 		Renderer renderer;
@@ -393,7 +400,7 @@ int main(void)
 
 			postProcessShader.setVec3("u_boundingBox.m_min", aabb.m_min.v);
 			postProcessShader.setVec3("u_boundingBox.m_max", aabb.m_max.v);
-			
+
 
 			ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr);
 
