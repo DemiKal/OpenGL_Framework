@@ -14,6 +14,14 @@ private:
 		{
 			std::cout << entry.path() << std::endl;
 			const std::string p = entry.path().string();
+
+			size_t dot  = p.find_last_of(".");
+			std::string extension;
+			if (dot != std::string::npos)
+				extension = p.substr(dot + 1);
+
+			if (extension != "glsl") continue;
+
 			shaders.emplace_back(GPUShader(p));
 		}
 	}

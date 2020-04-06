@@ -156,7 +156,6 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="res\shaders\framebuffers.glsl" />
-    <None Include="res\shaders\framebuffers_screen.glsl" />
     <None Include="res\shaders\lineshader.glsl" />
     <None Include="res\shaders\testshader.glsl" />
     <None Include="res\shaders\plane.glsl" />
@@ -172,6 +171,8 @@
     </None>
     <None Include="res\shaders\singleTriangle.glsl" />
     <None Include="imgui.ini" />
+    <None Include="res\shaders\testshader.vert" />
+    <None Include="res\shaders\framebuffers_screen.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">

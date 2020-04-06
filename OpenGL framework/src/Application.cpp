@@ -316,7 +316,7 @@ int main(void)
 
 			framebuffer.Bind();
 			// make sure we clear the framebuffer's content
-			glClearColor(0.3f, 0.15f, 0.36f, 1.0f);
+			glClearColor(0.12f, 0.2f, 0.13f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
@@ -388,7 +388,7 @@ int main(void)
 			glfwGetCursorPos(window, &MouseX, &MouseY);
 
 			const Ray ray = camera.RayFromMouse(MouseX, MouseY);
-			//bvh.TraceRay(ray);
+			bvh.TraceRay(ray);
 
 			LightManager::debug_render(camera);
 

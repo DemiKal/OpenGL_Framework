@@ -86,7 +86,7 @@
     <ClCompile Include="src\misc\UserInterface.cpp" />
     <None Include="imgui.ini" />
     <None Include="res\shaders\AABB_single.glsl">
-      <FileType>CppCode</FileType>
+      <FileType>Document</FileType>
     </None>
     <ClCompile Include="src\Geometry\Ray.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVHNode.cpp" />
@@ -96,13 +96,16 @@
     <None Include="res\shaders\anim.glsl" />
     <None Include="res\shaders\bones.glsl" />
     <None Include="res\shaders\framebuffers.glsl" />
-    <None Include="res\shaders\framebuffers_screen.glsl" />
+    <None Include="res\shaders\framebuffers_screen.glsl">
+      <FileType>Text</FileType>
+    </None>
     <None Include="res\shaders\lightShader.glsl">
       <FileType>CppCode</FileType>
     </None>
     <None Include="res\shaders\lineshader.glsl" />
     <None Include="res\shaders\plane.glsl" />
     <None Include="res\shaders\singleTriangle.glsl" />
+    <None Include="res\shaders\testshader.vert" />
     <None Include="res\shaders\wireframe.glsl" />
     <None Include="res\shaders\singlecolor.glsl" />
     <None Include="res\shaders\singledotshader.glsl" />
