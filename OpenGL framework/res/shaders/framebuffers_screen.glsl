@@ -23,6 +23,8 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
+const int StackSize = 64;
+
 uniform vec3 u_cameraPos;
 uniform vec3 u_viewDir;
 uniform vec3 u_cameraUp;
@@ -30,7 +32,7 @@ uniform vec3 u_cameraUp;
 uniform sampler2D screenTexture;
 uniform sampler1D u_triangleTexture;
 
-const int StackSize = 32;
+
 //uniform isampler1D u_trianglesTexture;	// 3 floats xyz 
 
 //bvh data int texture
@@ -51,7 +53,7 @@ uniform float u_screenHeight;
 uniform mat4 u_inv_projMatrix;
 uniform mat4 u_inv_viewMatrix;
 
-uniform int u_bboxIdx;
+uniform usampler1D u_triangleIdxTexture;
 
 
 struct AABB {
@@ -169,6 +171,7 @@ vec4 BoxColor(int index, vec3 rayOrigin, vec3 rayDir)
 
 	return vec4(0, 0, 0, 0);
 }
+
 bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 {
 	int size = textureSize(u_indexTexture, 0);
@@ -181,6 +184,7 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	//if( IntersectAABB(rayOrigin, rayDir, GetAABB(0) )) 
 	//	return true;
 	//else return false;
+	bool hasHit = false;
 
 	while (currentIdx > 0 && currentIdx < StackSize)
 	{
@@ -188,10 +192,11 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 		currentIdx--;
 
 		ivec4 idxVec = texelFetch(u_indexTexture, bboxIdx, 0);
-		bool  isInterior = idxVec.w > 2; //TODO: leaf check
+		int childCount = idxVec.w;
+		bool  isInterior = childCount > 2; //TODO: leaf check
 		AABB currentAABB = GetAABB(bboxIdx);
-		
-		if (IntersectAABB(rayOrigin, rayDir,   currentAABB))
+
+		if (IntersectAABB(rayOrigin, rayDir, currentAABB))
 		{
 			if (isInterior)
 			{
@@ -205,15 +210,28 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 			}
 			else //leaf node
 			{
-				return true;
-				//if (IntersectAABB(rayDir, rayOrigin, currentAABB))
-				//	return true;
-				//TODO: use 1D index texture to fetch triangles!
+				int nodeStart = idxVec.x;
+				//return true;
+				for (int i = 0; i < childCount; i++)
+				{
+					int j = nodeStart + i;
+					uint tIdx = texelFetch(u_triangleIdxTexture, j, 0).x;
+					vec3 v0 = texelFetch(u_triangleTexture, 3 * int(tIdx), 0).xyz;
+					vec3 v1 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 1, 0).xyz;
+					vec3 v2 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 2, 0).xyz;
+
+					vec3 Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
+					if (Thit.x > 0)
+						hasHit = true;
+					//if (IntersectAABB(rayDir, rayOrigin, currentAABB))
+					//	return true;
+					//TODO: use 1D index texture to fetch triangles!
+				}
 			}
 		}
 	}
 
-	return false;
+	return hasHit;
 	//vec4 boxhit = BoxColor(u_bboxIdx, rayOrigin, rayDir);
 	//
 	//if (boxhit.a > 0)	finalColor = vec4(boxhit.xyz, 1.0f);
@@ -231,6 +249,7 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 
 
 }
+
 void main()
 {
 	vec2 aspectRatio = vec2(u_aspectRatio, 1.0f);
@@ -255,11 +274,29 @@ void main()
 	vec4 albedo4 = vec4(albedo3, 1);
 	vec4 black = vec4(0, 0, 0, 1.0f);
 	vec4 finalColor = albedo4;
-	vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
+	//vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
 	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
+	//bool foundHit = false;
+	//bool foundHit = false;
+ //for (int i = 0; i < 1200 ; i += 3)
+ //{
+ //	 vec3 v0 = texelFetch(u_triangleTexture, i, 0).xyz;
+ //	 vec3 v1 = texelFetch(u_triangleTexture, i + 1, 0).xyz;
+ //	 vec3 v2 = texelFetch(u_triangleTexture, i + 2, 0).xyz;
+ //	
+ ////	  vec3 v0 = vec3(0, 0, 0);
+ ////	  vec3 v1 = vec3(0, 1, 0);
+ ////	  vec3 v2 = vec3(1, 0, 0);
+ //	// 
+ //	vec3 hitData = triIntersect(rayOrigin, rayDir, v0, v1, v2);
+ //	if( hitData.x > 0 ) foundHit = true;
+ //}
+  //
+	//
+	bool foundHit = TraverseBVH(rayOrigin, rayDir);
+	//finalColor = vec4(1, 1, 1, 1);
 
-	bool traverse = TraverseBVH(rayOrigin, rayDir);
-	if (traverse) finalColor = vec4(1, 1, 1, 1);
+	 finalColor = foundHit ? vec4(1, 0, 0, 1) : vec4(0, 1, 1, 1);
 	FragColor = finalColor;
 	//float mixAlpha = boxhit.a > 0 ? 0.4f : 0.0f;
 	//FragColor = mix(albedo4, boxhit, mixAlpha);

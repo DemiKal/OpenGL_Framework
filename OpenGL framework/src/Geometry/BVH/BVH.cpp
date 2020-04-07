@@ -239,7 +239,7 @@ void BVH::CreateBVHTextures()
 
 	GLCall(glGenTextures(1, &intTexture));
 	GLCall(glBindTexture(GL_TEXTURE_1D, intTexture));
-	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32I  , boxCount, 0,
+	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32I, boxCount, 0,
 		GL_RGBA_INTEGER, GL_INT, &indicesPart[0])); //fix nonnormalized ints!
 
 	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
@@ -287,18 +287,51 @@ void BVH::CreateBVHTextures()
 	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
+	//triangle texture
+	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
+	const unsigned int triangleCount = triangles.size();
+
+	std::vector<glm::vec3> triBuffer;
+
+	for (auto& t : triangles)
+	{
+		triBuffer.emplace_back(t.A);
+		triBuffer.emplace_back(t.B);
+		triBuffer.emplace_back(t.C);
+	}
+
+	unsigned int triangleTexture;
+	GLCall(glGenTextures(1, &triangleTexture));
+	GLCall(glBindTexture(GL_TEXTURE_1D, triangleTexture));
+	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, triBuffer.size(), 0,
+		GL_RGB, GL_FLOAT, &triBuffer[0]));
+
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+	unsigned int triangleIndexTexture;
+	GLCall(glGenTextures(1, &triangleIndexTexture));
+	GLCall(glBindTexture(GL_TEXTURE_1D, triangleIndexTexture));
+
+	//GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_R32UI, triangleCount, 0,
+	//	GL_RED, GL_UNSIGNED_INT, &m_indices[0]));
+	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_R32UI, triangleCount, 0,
+		GL_RED_INTEGER, GL_UNSIGNED_INT, &m_indices[0]));
+
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+
 	m_indexTexture = intTexture;
 	m_minTexture = minVecTexture;
 	m_maxTexture = maxVecTexture;
-	///////
 
-
-
-
-
-
-
-
+	m_triangleTexture = triangleTexture;
+	m_triangleIndexTexture = triangleIndexTexture;
 }
 
 void BVH::DrawSingleAABB(Camera& cam, const int index)

@@ -20,6 +20,8 @@ class BVH
 {
 
 private: //todo:: check if unsigned
+	unsigned int m_triangleIndexTexture;
+	unsigned int m_triangleTexture;
 	unsigned int m_indexTexture;
 	unsigned int m_minTexture;
 	unsigned int m_maxTexture;
@@ -40,6 +42,8 @@ public:
 	unsigned int GetIndexTextureID() const { return m_indexTexture; }
 	unsigned int GetMinTextureID() const { return m_minTexture; }
 	unsigned int GetMaxTextureID() const { return m_maxTexture; }
+	unsigned int GetTriangleTextureID() const { return m_triangleTexture; }
+	unsigned int GetTriangleIndexTextureID() const { return m_triangleIndexTexture; }
 
 	void BuildBVH();
 	void InitBVHRenderer();

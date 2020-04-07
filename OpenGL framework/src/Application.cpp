@@ -111,16 +111,16 @@ int main(void)
 			 v  = (spyro.model * glm::vec4(v, 1.0f));
 		}*/
 
-		unsigned int triCount = triBuffer.size();
+	unsigned int triCount = triBuffer.size();
+	
+	unsigned int triTex;
+	GLCall(glGenTextures(1, &triTex));
+	GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
+	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, triCount, 0,
+		GL_RGB, GL_FLOAT, &triBuffer[0]));
 
-		unsigned int triTex;
-		GLCall(glGenTextures(1, &triTex));
-		GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
-		GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, triCount, 0,
-			GL_RGB, GL_FLOAT, &triBuffer[0]));
-
-		//GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4, 1, 0,
-		//	GL_RGB, GL_FLOAT, &triverts[0]));
+		// GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4, 1, 0,
+		// 	GL_RGB, GL_FLOAT, &triverts[0]));
 
 		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
 		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
@@ -204,6 +204,7 @@ int main(void)
 		postProcessShader.SetInt("u_indexTexture", 2); //bvh data
 		postProcessShader.SetInt("u_minTexture", 3);
 		postProcessShader.SetInt("u_maxTexture", 4);
+		postProcessShader.SetInt("u_triangleIdxTexture", 5);
 
 		GPUShader& lineshader = ShaderManager::GetShader("lineshader");
 		GPUShader& boneshader = ShaderManager::GetShader("bones");
@@ -416,10 +417,10 @@ int main(void)
 
 			AABB& aabb = spyro.getMesh(0).m_aabb;
 
-			postProcessShader.setVec3("u_boundingBox.m_min", aabb.m_min.v);
-			postProcessShader.setVec3("u_boundingBox.m_max", aabb.m_max.v);
-
-			postProcessShader.SetInt("u_bboxIdx", currentBbox);
+			//postProcessShader.setVec3("u_boundingBox.m_min", aabb.m_min.v);
+			//postProcessShader.setVec3("u_boundingBox.m_max", aabb.m_max.v);
+			//
+			//postProcessShader.SetInt("u_bboxIdx", currentBbox);
 
 			//const int location = GetUniformLocation(name);
 			//GLCall(glUniform1f(location, value));
@@ -428,6 +429,8 @@ int main(void)
 			glBindVertexArray(quadVAO);
 			GLCall(glActiveTexture(GL_TEXTURE0 + 0));
 			GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbuffer));
+
+			//const GLuint triTex = bvh.GetTriangleTextureID();
 			GLCall(glActiveTexture(GL_TEXTURE0 + 1));
 			GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
 
@@ -445,6 +448,11 @@ int main(void)
 			GLCall(glActiveTexture(GL_TEXTURE0 + 4));
 			GLCall(glBindTexture(GL_TEXTURE_1D, maxTex));
 
+			const GLuint triIdxTex = bvh.GetTriangleIndexTextureID();
+			GLCall(glActiveTexture(GL_TEXTURE0 + 5));
+			GLCall(glBindTexture(GL_TEXTURE_1D, triIdxTex));
+
+			
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
 
