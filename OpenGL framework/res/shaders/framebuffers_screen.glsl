@@ -202,8 +202,32 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 			{
 				int leftChild = idxVec.z;
 				int rightChild = idxVec.z + 1;
-				stackPtr[currentIdx++] = leftChild;
-				stackPtr[currentIdx++] = rightChild;
+				
+				AABB leftAABB = GetAABB(leftChild);
+				vec3 centerL = 0.5f * leftAABB.m_min + 0.5f * leftAABB.m_max;
+								
+				AABB rightAABB = GetAABB(rightChild);
+				vec3 centerR = 0.5f * rightAABB.m_min + 0.5f * rightAABB.m_max;
+
+
+				//vec3 AABBcentroidLeft = 0.5f * vec3(); 
+
+				vec3 vecL =   ( rayOrigin - centerL)  ;
+				vec3 vecR =   ( rayOrigin - centerR)  ;
+				
+				float sqrDistL = dot(vecL,vecL); 
+				float sqrDistR = dot(vecR,vecR);
+
+				bool leftFirst = sqrDistL <= sqrDistR;
+				if(leftFirst)
+				{
+					 leftChild = leftChild ^ rightChild;
+					 rightChild = leftChild ^ rightChild;
+					 leftChild = leftChild ^ rightChild;
+				}				
+//atomicCompSwap(leftFir)
+				stackPtr[currentIdx++] =leftChild ;  //leftFirst ? leftChild  : rightChild;
+				stackPtr[currentIdx++] =rightChild;  //leftFirst ? rightChild : leftChild ;
 
 				if (currentIdx > StackSize) return false;
 
