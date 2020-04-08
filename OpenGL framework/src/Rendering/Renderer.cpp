@@ -1,7 +1,5 @@
 #include "precomp.h"
 #include "Renderer.h"
-
-
 #include "Buffer/IndexBuffer.h"
 #include "Buffer/VertexArray.h"
 #include "Shader.h"

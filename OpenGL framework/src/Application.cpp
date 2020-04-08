@@ -111,13 +111,13 @@ int main(void)
 			 v  = (spyro.model * glm::vec4(v, 1.0f));
 		}*/
 
-	unsigned int triCount = triBuffer.size();
-	
-	unsigned int triTex;
-	GLCall(glGenTextures(1, &triTex));
-	GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
-	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, triCount, 0,
-		GL_RGB, GL_FLOAT, &triBuffer[0]));
+		//unsigned int triCount = triBuffer.size();
+		//
+		//unsigned int triTex;
+		//GLCall(glGenTextures(1, &triTex));
+		//GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
+		//GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, triCount, 0,
+		//	GL_RGB, GL_FLOAT, &triBuffer[0]));
 
 		// GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4, 1, 0,
 		// 	GL_RGB, GL_FLOAT, &triverts[0]));
@@ -365,13 +365,6 @@ int main(void)
 			//set bvh node
 			ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr - 1);
 
-			//for (int i = 0; i < bvh.m_poolPtr; i++)
-			//{
-			//	BVHNode& mynode = bvh.m_pool[i];
-			//	if (mynode.m_count <= 2)
-			//		mynode.m_bounds.Draw(camera, { 1.0f,1.0f,1.0f,1.0f });
-			//}
-
 			GLCall(glDisable(GL_DEPTH_TEST));
 			bvh.DrawSingleAABB(camera, currentBbox);
 			int leftfirst = bvh.m_pool[currentBbox].m_leftFirst;
@@ -393,7 +386,6 @@ int main(void)
 
 			LightManager::debug_render(camera);
 
-
 			prevFrameTime = currentFrameTime;
 			glDisable(GL_DEPTH_TEST);
 
@@ -406,10 +398,6 @@ int main(void)
 
 			postProcessShader.Bind();
 			postProcessShader.setVec3("u_cameraPos", camPos);
-			postProcessShader.setVec3("u_viewDir", camForward);
-			postProcessShader.setVec3("u_cameraUp", camUp);
-
-			postProcessShader.SetFloat("u_aspectRatio", float(SCREENWIDTH) / float(SCREENHEIGHT));
 			postProcessShader.SetFloat("u_screenWidth", float(SCREENWIDTH));
 			postProcessShader.SetFloat("u_screenHeight", float(SCREENHEIGHT));
 			postProcessShader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
@@ -417,47 +405,21 @@ int main(void)
 
 			AABB& aabb = spyro.getMesh(0).m_aabb;
 
-			//postProcessShader.setVec3("u_boundingBox.m_min", aabb.m_min.v);
-			//postProcessShader.setVec3("u_boundingBox.m_max", aabb.m_max.v);
-			//
-			//postProcessShader.SetInt("u_bboxIdx", currentBbox);
-
-			//const int location = GetUniformLocation(name);
-			//GLCall(glUniform1f(location, value));
-
 			//draw final quad
 			glBindVertexArray(quadVAO);
 			GLCall(glActiveTexture(GL_TEXTURE0 + 0));
 			GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbuffer));
 
-			//const GLuint triTex = bvh.GetTriangleTextureID();
-			GLCall(glActiveTexture(GL_TEXTURE0 + 1));
-			GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
-
-			//bvh textures
-			//bind idx  texture
-			const GLuint idxTex = bvh.GetIndexTextureID();
-			GLCall(glActiveTexture(GL_TEXTURE0 + 2));
-			GLCall(glBindTexture(GL_TEXTURE_1D, idxTex));
-			//bind min
-			const GLuint minTex = bvh.GetMinTextureID();
-			GLCall(glActiveTexture(GL_TEXTURE0 + 3));
-			GLCall(glBindTexture(GL_TEXTURE_1D, minTex));
-			//bind max	
-			const GLuint maxTex = bvh.GetMaxTextureID();
-			GLCall(glActiveTexture(GL_TEXTURE0 + 4));
-			GLCall(glBindTexture(GL_TEXTURE_1D, maxTex));
-
-			const GLuint triIdxTex = bvh.GetTriangleIndexTextureID();
-			GLCall(glActiveTexture(GL_TEXTURE0 + 5));
-			GLCall(glBindTexture(GL_TEXTURE_1D, triIdxTex));
-
+			bvh.GetTriangleTexture().Bind(1);
+			bvh.GetAABBNodesTexture().Bind(2);
+			bvh.GetMinTexture().Bind(3);
+			bvh.GetMaxTexture().Bind(4);
+			bvh.GetTriangleIndexTexture().Bind(5);
 			
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
-
-
 			userInterface.Draw();
+
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 

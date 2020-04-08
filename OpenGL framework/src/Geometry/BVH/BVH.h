@@ -3,6 +3,7 @@
 #include "Geometry/TriangleBuffer.h"
 #include "GameObject/Components/AABB.h"
 #include "Geometry/Ray.h"
+#include "GameObject/Components/Texture1D.h"
 
 class BVHNode;
 struct Triangle;
@@ -20,11 +21,11 @@ class BVH
 {
 
 private: //todo:: check if unsigned
-	unsigned int m_triangleIndexTexture;
-	unsigned int m_triangleTexture;
-	unsigned int m_indexTexture;
-	unsigned int m_minTexture;
-	unsigned int m_maxTexture;
+	//unsigned int m_triangleIndexTexture;
+	//unsigned int m_triangleTexture;
+	//unsigned int m_indexTexture;
+	//unsigned int m_minTexture;
+	//unsigned int m_maxTexture;
 public:
 	std::vector<unsigned int> m_indices;
 	BVHNode* m_pool{};
@@ -34,16 +35,21 @@ public:
 	std::vector<glm::mat4> m_aabbMatrices;
 	Model* m_wireCube;
 
+	Texture1D  m_aabbNodesTexture;
+	Texture1D  m_minTexture;
+	Texture1D  m_maxTexture;
+	Texture1D  m_triangleTexture;
+	Texture1D  m_triangleIdxTexture;
 
 	BVH() = default;
 	BVH(std::vector<unsigned int>& indices, BVHNode* pool, BVHNode* root, int poolPtr)
 		: m_indices(indices), m_pool(pool), m_root(root), m_poolPtr(poolPtr) {};
 
-	unsigned int GetIndexTextureID() const { return m_indexTexture; }
-	unsigned int GetMinTextureID() const { return m_minTexture; }
-	unsigned int GetMaxTextureID() const { return m_maxTexture; }
-	unsigned int GetTriangleTextureID() const { return m_triangleTexture; }
-	unsigned int GetTriangleIndexTextureID() const { return m_triangleIndexTexture; }
+	Texture1D& GetAABBNodesTexture() { return  m_aabbNodesTexture; }
+	Texture1D& GetMinTexture() { return  m_minTexture; }
+	Texture1D& GetMaxTexture() { return  m_maxTexture; }
+	Texture1D& GetTriangleTexture() { return  m_triangleTexture; }
+	Texture1D& GetTriangleIndexTexture() { return  m_triangleIdxTexture; }
 
 	void BuildBVH();
 	void InitBVHRenderer();

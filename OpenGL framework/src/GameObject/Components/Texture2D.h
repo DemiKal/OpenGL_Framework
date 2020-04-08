@@ -18,6 +18,6 @@ public:
 	inline  std::string GetPath() const { return path; }
 	inline unsigned int GetWidth()  const { return width; }
 	inline unsigned int GetHeight()  const { return height; }
-	inline void Bind(){ }
+	inline void Bind() { throw new std::exception(); }
 };
 
