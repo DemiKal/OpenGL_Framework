@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "ShaderManager.h"
 
-#include "GPUShader.h"
+#include "Shader.h"
 
 
 //ShaderManager::ShaderManager()
@@ -18,7 +18,7 @@ void ShaderManager::Destroy()
 		s.Destroy();
 }
 
-GPUShader& ShaderManager::GetShader(const std::string& name)
+Shader& ShaderManager::GetShader(const std::string& name)
 {
 	const unsigned int idx = GetShaderIdx(name);
 	auto& inst = getInstance();
@@ -39,7 +39,7 @@ unsigned int ShaderManager::GetShaderIdx(const std::string& _name)
 	return 0;
 }
 
-GPUShader& ShaderManager::GetShader(const unsigned idx)
+Shader& ShaderManager::GetShader(const unsigned idx)
 {
 	auto& inst = getInstance();
 	return inst.shaders[idx];

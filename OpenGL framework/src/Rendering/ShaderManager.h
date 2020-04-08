@@ -3,7 +3,7 @@
 //#include <iostream>
 //#include <filesystem>
 
-#include "GPUShader.h"
+#include "Shader.h"
 
 class ShaderManager
 {
@@ -49,7 +49,7 @@ private:
 
 			//if (extension = "vert") type = ShaderType::VERTEX;
 			//ShaderSources.emplace_back(  );
-			//shaders.emplace_back(GPUShader(p, type));
+			//shaders.emplace_back(Shader(p, type));
 		}
 
 		for (auto& [vertKey, vertVal] : m_vertexShaderSources)
@@ -60,7 +60,7 @@ private:
 			{
 				auto& [name2, fragSrc] = m_fragmentShaderSources[vertKey];
 
-				shaders.emplace_back(GPUShader(vertKey, vertSrc, fragSrc));
+				shaders.emplace_back(Shader(vertKey, vertSrc, fragSrc));
 
 			}
 			else continue;
@@ -72,7 +72,7 @@ public:
 
 	std::string directory;
 	bool initialized = false;
-	std::vector< GPUShader > shaders;
+	std::vector< Shader > shaders;
 
 	enum shaderTypeFlags
 	{
@@ -84,8 +84,8 @@ public:
 	};
 
 	ShaderManager() = default;
-	static GPUShader& GetShader(const std::string& name);
-	static GPUShader& GetShader(const unsigned int idx);
+	static Shader& GetShader(const std::string& name);
+	static Shader& GetShader(const unsigned int idx);
 	static unsigned int GetShaderIdx(const std::string& _name);
 
 	static void Init(const std::string& shaderDirectory = "res/shaders")

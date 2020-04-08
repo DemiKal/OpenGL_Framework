@@ -12,7 +12,7 @@ enum class ShaderType
 	NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2, TESSELATION = 3
 };
 
-class GPUShader
+class Shader
 {
 public:
 	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
@@ -25,14 +25,14 @@ public:
 	std::string parseShader(const std::string& path) const;
 	void SetInt(const std::string& name, int value);
 
-	GPUShader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
+	Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
 
 	//Shader();
-	GPUShader(const std::string& filepath, const ShaderType shaderType);
+	Shader(const std::string& filepath, const ShaderType shaderType);
 
 	void SetupUniforms();
 
-	GPUShader();
+	Shader();
 	void Bind() const;
 	void Unbind() const;
 	unsigned int CompileShader(const unsigned int type, const std::string& source);

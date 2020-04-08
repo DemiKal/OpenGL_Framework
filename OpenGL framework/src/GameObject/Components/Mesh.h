@@ -3,7 +3,7 @@
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
 #include "Rendering/Buffer/VertexBufferLayout.h"
-#include "Rendering/GPUShader.h"
+#include "Rendering/Shader.h"
 
 class Mesh
 {
@@ -41,7 +41,7 @@ public:
 		const Animator& animator,
 		const VertexBufferLayout& vbl);
 
-	void Draw(GPUShader& shader);
+	void Draw(   Shader& shader);
 	bool hasAnimation() const { return animation_loaded; }
 	unsigned int GetVAO() { return VAO; }
 	unsigned int GetVBO() { return VBO; }

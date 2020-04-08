@@ -142,7 +142,7 @@
     <ClCompile Include="src\GameObject\Components\Model.cpp" />
     <ClCompile Include="src\GameObject\Components\Mesh.cpp" />
     <ClCompile Include="src\GameObject\Camera.cpp" />
-    <ClCompile Include="src\Rendering\GPUShader.cpp" />
+    <ClCompile Include="src\Rendering\Shader.cpp" />
     <ClCompile Include="src\Application.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -219,7 +219,7 @@
     <ClInclude Include="src\GameObject\VertexNew.cpp" />
     <ClInclude Include="src\GameObject\VertexNew.h" />
     <ClInclude Include="src\precomp.h" />
-    <ClInclude Include="src\Rendering\GPUShader.h" />
+    <ClInclude Include="src\Rendering\Shader.h" />
     <ClInclude Include="src\Rendering\Buffer\IndexBuffer.h" />
     <ClInclude Include="src\Rendering\Renderer.h" />
     <ClInclude Include="src\vendor\glm\detail\type_gentype.hpp" />

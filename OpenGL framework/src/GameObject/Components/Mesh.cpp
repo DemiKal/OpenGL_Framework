@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "Rendering/Buffer/VertexBufferLayout.h"
 #include "GameObject/Components/Texture2D.h"
-#include "Rendering/GPUShader.h"
+#include "Rendering/Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "GameObject/Camera.h"
 #include "Animation/Joint.h"
@@ -9,7 +9,7 @@
 #include "GameObject/Components/AABB.h"
 #include "GameObject/Components/mesh.h"
 
-void Mesh::Draw(GPUShader& shader)
+void Mesh::Draw(Shader& shader)
 {
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;

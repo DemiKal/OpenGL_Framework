@@ -2,7 +2,7 @@
 #include "GameObject/Components/Model.h"
 #include "Rendering/Buffer/VertexBufferLayout.h"
 #include "GameObject/Components/Texture2D.h"
-#include "Rendering/GPUShader.h"
+#include "Rendering/Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "GameObject/Camera.h"
 #include "Animation/AnimationChannel.h"
@@ -497,7 +497,7 @@ std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 void Model::Draw(const Camera& cam)
 {
 	//auto d = shader.get();
-	GPUShader& shader = ShaderManager::GetShader(shaderIdx);
+	Shader& shader = ShaderManager::GetShader(shaderIdx);
 	shader.Bind();
 	const unsigned int shaderID = shader.m_RendererID;
 
@@ -551,7 +551,7 @@ void Model::Draw(const Camera& cam)
 	//		mesh.m_aabb.Draw(cam);
 }
 
-GPUShader& Model::GetShader() const { return   ShaderManager::GetShader(shaderIdx); }
+Shader& Model::GetShader() const { return   ShaderManager::GetShader(shaderIdx); }
 
 Model Model::CreateCube() {
 	Model model;

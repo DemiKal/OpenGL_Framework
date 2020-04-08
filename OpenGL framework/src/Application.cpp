@@ -3,7 +3,7 @@
 #include "Rendering/Buffer/RenderBufferObject.h"
 #include "Rendering/Buffer/FrameBuffer.h"
 #include "GameObject/Components/Texture2D.h"
-#include "Rendering/GPUShader.h"
+#include "Rendering/Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "Rendering/Renderer.h"
 #include "GameObject/Camera.h"
@@ -196,7 +196,7 @@ int main(void)
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
-		GPUShader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
+		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
 		postProcessShader.Bind();
 		postProcessShader.SetInt("screenTexture", 0);
@@ -206,8 +206,8 @@ int main(void)
 		postProcessShader.SetInt("u_maxTexture", 4);
 		postProcessShader.SetInt("u_triangleIdxTexture", 5);
 
-		GPUShader& lineshader = ShaderManager::GetShader("lineshader");
-		GPUShader& boneshader = ShaderManager::GetShader("bones");
+		Shader& lineshader = ShaderManager::GetShader("lineshader");
+		Shader& boneshader = ShaderManager::GetShader("bones");
 
 		// framebuffer configuration
 		// -------------------------

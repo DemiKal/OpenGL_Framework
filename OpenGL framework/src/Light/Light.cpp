@@ -3,7 +3,7 @@
 
 #include "GameObject/Camera.h"
 #include "Rendering/ShaderManager.h"
-#include "Rendering/GPUShader.h"
+#include "Rendering/Shader.h"
 
 void Light::create_buffer_object()
 {
@@ -24,7 +24,7 @@ void Light::draw(const Camera& cam )
 	const glm::mat4  model = glm::translate(glm::mat4(1.0f), m_position);
 	const glm::mat4& view = cam.GetViewMatrix();
 	const glm::mat4& projection = cam.GetProjectionMatrix();
-	GPUShader& shader = ShaderManager::GetShader("lightShader");
+	Shader& shader = ShaderManager::GetShader("lightShader");
 	shader.Bind();
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);

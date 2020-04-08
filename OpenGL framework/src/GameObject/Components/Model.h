@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject/Components/Texture2D.h"
 #include "GameObject/Components/mesh.h" 
-#include "Rendering/GPUShader.h"
+#include "Rendering/Shader.h"
 
 class Model
 {
@@ -40,7 +40,7 @@ public:
 	void SetModelMatrix(const glm::mat4& mat) { model = mat; }
 	void SetShader(const std::string& shadername);
 	void Draw(const Camera& cam);
-	GPUShader& GetShader() const;
+	Shader& GetShader() const;
 	static Model CreateCube();
 	static Model CreateCubeWireframe();
 	void loadModel(const std::string& path, const aiPostProcessSteps LoadFlags);

@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include <glm/gtc/matrix_access.hpp>
 #include "Model.h"
-#include "Rendering/GPUShader.h"
+#include "Rendering/Shader.h"
 #include "GameObject/Camera.h"
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/AABB.h"
@@ -49,7 +49,7 @@ void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0
 	}
 
 	wirecube->model = model;
-	GPUShader& shader = ShaderManager::GetShader("AABB_single");
+	Shader& shader = ShaderManager::GetShader("AABB_single");
 	shader.Bind();
 	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
 	shader.SetUniformMat4f("model", model);
