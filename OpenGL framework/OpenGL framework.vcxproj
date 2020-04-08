@@ -85,31 +85,46 @@
   <ItemGroup>
     <ClCompile Include="src\misc\UserInterface.cpp" />
     <None Include="imgui.ini" />
-    <None Include="res\shaders\AABB_single.glsl">
+    <None Include="res\shaders\AABB_instanced.frag" />
+    <None Include="res\shaders\AABB_single.frag" />
+    <None Include="res\shaders\AABB_single.vert">
       <FileType>Document</FileType>
     </None>
     <ClCompile Include="src\Geometry\Ray.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVHNode.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVH.cpp" />
     <ClCompile Include="src\Geometry\TriangleBuffer.cpp" />
-    <None Include="res\shaders\AABB_instanced.glsl" />
-    <None Include="res\shaders\anim.glsl" />
-    <None Include="res\shaders\bones.glsl" />
-    <None Include="res\shaders\framebuffers.glsl" />
-    <None Include="res\shaders\framebuffers_screen.glsl">
+    <None Include="res\shaders\AABB_instanced.vert" />
+    <None Include="res\shaders\anim.frag" />
+    <None Include="res\shaders\anim.vert" />
+    <None Include="res\shaders\basic.frag" />
+    <None Include="res\shaders\bones.frag" />
+    <None Include="res\shaders\bones.vert" />
+    <None Include="res\shaders\framebuffers.frag" />
+    <None Include="res\shaders\framebuffers.vert" />
+    <None Include="res\shaders\framebuffers_screen.frag" />
+    <None Include="res\shaders\framebuffers_screen.vert">
       <FileType>Text</FileType>
     </None>
-    <None Include="res\shaders\lightShader.glsl">
-      <FileType>CppCode</FileType>
+    <None Include="res\shaders\lightShader.frag" />
+    <None Include="res\shaders\lightShader.vert">
+      <FileType>Document</FileType>
     </None>
-    <None Include="res\shaders\lineshader.glsl" />
+    <None Include="res\shaders\lineshader.frag" />
+    <None Include="res\shaders\lineshader.vert" />
+    <None Include="res\shaders\normalmapshader.frag" />
+    <None Include="res\shaders\plane.frag" />
     <None Include="res\shaders\plane.glsl" />
-    <None Include="res\shaders\singleTriangle.glsl" />
+    <None Include="res\shaders\singlecolor.frag" />
+    <None Include="res\shaders\singledotshader.frag" />
+    <None Include="res\shaders\singleTriangle.frag" />
+    <None Include="res\shaders\singleTriangle.vert" />
     <None Include="res\shaders\testshader.vert" />
-    <None Include="res\shaders\wireframe.glsl" />
-    <None Include="res\shaders\singlecolor.glsl" />
-    <None Include="res\shaders\singledotshader.glsl" />
-    <None Include="res\shaders\testshader.glsl" />
+    <None Include="res\shaders\wireframe.frag" />
+    <None Include="res\shaders\wireframe.vert" />
+    <None Include="res\shaders\singlecolor.vert" />
+    <None Include="res\shaders\singledotshader.vert" />
+    <None Include="res\shaders\testshader.frag" />
     <ClCompile Include="src\GameObject\EntityManager.cpp" />
     <ClCompile Include="src\GameObject\Components\AABB.cpp" />
     <ClCompile Include="src\misc\InputManager.cpp" />
@@ -172,7 +187,7 @@
     <ClCompile Include="src\GameObject\Components\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\basic.glsl" />
+    <None Include="res\shaders\basic.vert" />
     <None Include="src\vendor\glm\detail\type_gentype.inl" />
     <None Include="src\vendor\glm\detail\type_mat.inl" />
     <None Include="src\vendor\glm\detail\type_vec.inl" />
@@ -235,7 +250,7 @@
     <Image Include="res\textures\mario.png" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="res\shaders\normalmapshader.glsl" />
+    <Text Include="res\shaders\normalmapshader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

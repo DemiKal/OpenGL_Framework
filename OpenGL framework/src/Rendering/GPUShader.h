@@ -1,15 +1,15 @@
 #pragma once
 
-struct ShaderProgramSource
-{
-	std::string VertexSource;
-	std::string FragmentSource;
-};
 
 struct uniform_info_t
 {
 	GLint location;
 	GLsizei count;
+};
+
+enum class ShaderType
+{
+	NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2, TESSELATION = 3
 };
 
 class GPUShader
@@ -18,14 +18,17 @@ public:
 	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
 	std::string m_FilePath;
 	std::string name;
+	ShaderType m_shaderType;
 	unsigned int m_RendererID = 0;
 
 	int GetUniformLocation(const std::string& name);
-	ShaderProgramSource parseShader(const std::string& path) const;
+	std::string parseShader(const std::string& path) const;
 	void SetInt(const std::string& name, int value);
 
+	GPUShader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
+
 	//Shader();
-	GPUShader(const std::string& filepath);
+	GPUShader(const std::string& filepath, const ShaderType shaderType);
 
 	void SetupUniforms();
 

@@ -11,7 +11,6 @@
 //
 
 
-
 void ShaderManager::Destroy()
 {
 	auto& inst = getInstance();
@@ -44,4 +43,13 @@ GPUShader& ShaderManager::GetShader(const unsigned idx)
 {
 	auto& inst = getInstance();
 	return inst.shaders[idx];
+}
+
+std::string ShaderManager::ParseShader(const std::string& path) const
+{
+	std::ifstream stream(path);
+	std::string shaderString((std::istreambuf_iterator<char>(stream)),
+		(std::istreambuf_iterator<char>()));
+
+	return shaderString;
 }

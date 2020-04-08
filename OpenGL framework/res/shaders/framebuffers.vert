@@ -1,4 +1,4 @@
-#shader vertex
+
 #version 330 core
 ///#########################\\\
 ///							\\\
@@ -20,24 +20,4 @@ void main()
 {
 	TexCoords = aTexCoords;
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
-}
-
-///#########################\\\
-///							\\\
-///		FRAGMENT SHADER		\\\
-///							\\\
-///#########################\\\
-
-
-#shader fragment
-#version 330 core
-out vec4 FragColor;
-
-in vec2 TexCoords;
-
-uniform sampler2D texture_diffuse1;
-
-void main()
-{
-	FragColor = texture(texture_diffuse1, TexCoords);
 }

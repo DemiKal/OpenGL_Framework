@@ -1,22 +1,4 @@
-#shader vertex
-#version 330 core
-///#########################\\\
-///							\\\
-///		VERTEX SHADER		\\\
-///							\\\
-///#########################\\\
 
-layout(location = 0) in vec2 aPos;
-layout(location = 1) in vec2 aTexCoords;
-
-out vec2 TexCoords;
-
-void main()
-{
-	TexCoords = aTexCoords;
-	gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
-}
-#shader fragment
 #version 330 core
 
 out vec4 FragColor;
@@ -350,10 +332,7 @@ void main()
 	//finalColor = vec4(1, 1, 1, 1);
 	//vec3 spyrotex = texture(u_spyroTexture, vec2(u,v), 0).rgb;
 	
-	
-	finalColor = foundHit ? vec4(u,v,0.5f,1) : vec4(0, 1, 1, 1);
-	
-
+	finalColor = foundHit ? vec4(u, v, 0.5f, 1.0f) : vec4(0, 1, 1, 1);
 	FragColor = finalColor;
 	//float mixAlpha = boxhit.a > 0 ? 0.4f : 0.0f;
 	//FragColor = mix(albedo4, boxhit, mixAlpha);

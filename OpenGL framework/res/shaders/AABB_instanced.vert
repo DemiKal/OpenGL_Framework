@@ -1,4 +1,3 @@
-#shader vertex
 #version 330 core
 
 //shades a wired aabb with just the edges
@@ -22,23 +21,4 @@ out vec4 f_color;
 void main() {
 	gl_Position = projection * view * instance_mat * vec4(v_pos, 1.0f);
 	//f_color = u_color;
-};
-
-
-///#########################\\\
-///							\\\
-///		FRAGMENT SHADER		\\\
-///							\\\
-///#########################\\\
-
-
-#shader fragment
-#version 330 core
-
-//in vec4 f_color;
-out vec4 FragColor;
-
-void main()
-{
-	FragColor = vec4(1.0f, 0.0f, 0.0f, 0.4f);
 };

@@ -8,22 +8,64 @@
 class ShaderManager
 {
 private:
+
+	std::unordered_map<std::string, std::tuple<ShaderType, std::string>> m_vertexShaderSources;
+	std::unordered_map<std::string, std::tuple<ShaderType, std::string>> m_fragmentShaderSources;
+
 	void loadShaders(const std::string& shaderDirectory)
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(shaderDirectory))
 		{
 			std::cout << entry.path() << std::endl;
 			const std::string p = entry.path().string();
+			const  std::string name = std::filesystem::path(p).stem().string();
 
-			size_t dot  = p.find_last_of(".");
+
+			//get extension
+			std::string filePath = entry.path().string();
+			size_t dot = p.find_last_of(".");
 			std::string extension;
+
 			if (dot != std::string::npos)
 				extension = p.substr(dot + 1);
 
-			if (extension != "glsl") continue;
+			ShaderType type = ShaderType::NONE;
+			const std::string sourceCode = ParseShader(filePath);
 
-			shaders.emplace_back(GPUShader(p));
+			if (extension == "vert")
+			{
+				type = ShaderType::VERTEX;
+				m_vertexShaderSources[name] = std::tie(type, sourceCode);
+			}
+
+			if (extension == "frag")
+			{
+				type = ShaderType::FRAGMENT;
+				m_fragmentShaderSources[name] = std::tie(type, sourceCode);
+			}
+
+
+
+
+			//if (extension = "vert") type = ShaderType::VERTEX;
+			//ShaderSources.emplace_back(  );
+			//shaders.emplace_back(GPUShader(p, type));
 		}
+
+		for (auto& [vertKey, vertVal] : m_vertexShaderSources)
+		{
+			auto& [type, vertSrc] = vertVal;
+
+			if (m_fragmentShaderSources.find(vertKey) != m_fragmentShaderSources.end())
+			{
+				auto& [name2, fragSrc] = m_fragmentShaderSources[vertKey];
+
+				shaders.emplace_back(GPUShader(vertKey, vertSrc, fragSrc));
+
+			}
+			else continue;
+		}
+
 	}
 
 public:
@@ -58,8 +100,12 @@ public:
 		static std::unique_ptr< ShaderManager > instance = std::make_unique<ShaderManager>();
 		return *instance;
 	}
+
+
 	static void Destroy();
 
+
+	std::string ParseShader(const std::string& path) const;
 
 };
 
