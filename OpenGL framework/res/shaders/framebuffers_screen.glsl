@@ -61,6 +61,12 @@ struct AABB {
 	vec3 m_max;
 };
 
+struct HitData
+{
+	bool hasHit;
+	float u,v, dist;
+};
+
 AABB GetAABB(int index)
 {
 	vec3 minv = texelFetch(u_minTexture, index, 0).xyz;
@@ -70,7 +76,7 @@ AABB GetAABB(int index)
 
 uniform AABB u_boundingBox;
 
-vec3 triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
+HitData triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 {
 	vec3 v1v0 = v1 - v0;
 	vec3 v2v0 = v2 - v0;
@@ -98,7 +104,8 @@ vec3 triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 	if (u < 0.0 || v < 0.0 || (u + v) > 1.0)
 		t = -1.0;
 
-	return vec3(t, u, v);
+	return HitData(t > -1.0f, u , v, t); 
+	 //vec3(t, u, v); 
 }
 
 bool IntersectAABB(vec3 rayOrigin, vec3 rayDirection, AABB bbox)
@@ -172,7 +179,9 @@ vec4 BoxColor(int index, vec3 rayOrigin, vec3 rayDir)
 	return vec4(0, 0, 0, 0);
 }
 
-bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
+
+
+bool TraverseBVH(vec3 rayOrigin, vec3 rayDir, out float u, out float v)
 {
 	int size = textureSize(u_indexTexture, 0);
 	int currentIdx = 0;
@@ -185,6 +194,10 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	//	return true;
 	//else return false;
 	bool hasHit = false;
+
+	float t = 999999.f;
+	float _u = 0;
+	float _v = 0;
 
 	while (currentIdx > 0 && currentIdx < StackSize)
 	{
@@ -202,32 +215,32 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 			{
 				int leftChild = idxVec.z;
 				int rightChild = idxVec.z + 1;
-				
+
 				AABB leftAABB = GetAABB(leftChild);
 				vec3 centerL = 0.5f * leftAABB.m_min + 0.5f * leftAABB.m_max;
-								
+
 				AABB rightAABB = GetAABB(rightChild);
 				vec3 centerR = 0.5f * rightAABB.m_min + 0.5f * rightAABB.m_max;
 
 
 				//vec3 AABBcentroidLeft = 0.5f * vec3(); 
 
-				vec3 vecL =   ( rayOrigin - centerL)  ;
-				vec3 vecR =   ( rayOrigin - centerR)  ;
-				
-				float sqrDistL = dot(vecL,vecL); 
-				float sqrDistR = dot(vecR,vecR);
+				vec3 vecL = (rayOrigin - centerL);
+				vec3 vecR = (rayOrigin - centerR);
+
+				float sqrDistL = dot(vecL, vecL);
+				float sqrDistR = dot(vecR, vecR);
 
 				bool leftFirst = sqrDistL <= sqrDistR;
-				if(leftFirst)
+				if (leftFirst)
 				{
-					 leftChild = leftChild ^ rightChild;
-					 rightChild = leftChild ^ rightChild;
-					 leftChild = leftChild ^ rightChild;
-				}				
-//atomicCompSwap(leftFir)
-				stackPtr[currentIdx++] =leftChild ;  //leftFirst ? leftChild  : rightChild;
-				stackPtr[currentIdx++] =rightChild;  //leftFirst ? rightChild : leftChild ;
+					leftChild = leftChild ^ rightChild;
+					rightChild = leftChild ^ rightChild;
+					leftChild = leftChild ^ rightChild;
+				}
+				//atomicCompSwap(leftFir)
+				stackPtr[currentIdx++] = leftChild;  //leftFirst ? leftChild  : rightChild;
+				stackPtr[currentIdx++] = rightChild;  //leftFirst ? rightChild : leftChild ;
 
 				if (currentIdx > StackSize) return false;
 
@@ -244,9 +257,19 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 					vec3 v1 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 1, 0).xyz;
 					vec3 v2 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 2, 0).xyz;
 
-					vec3 Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
-					if (Thit.x > 0)
+					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
+
+					float newT = Thit.dist;
+					if (newT > 0)
+					{
 						hasHit = true;
+						if (newT < t )
+						{
+							t = newT;
+							_u = Thit.u;
+							_v = Thit.v;
+						}
+					}
 					//if (IntersectAABB(rayDir, rayOrigin, currentAABB))
 					//	return true;
 					//TODO: use 1D index texture to fetch triangles!
@@ -254,6 +277,10 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 			}
 		}
 	}
+
+	
+	u = _u;
+	v = _v;
 
 	return hasHit;
 	//vec4 boxhit = BoxColor(u_bboxIdx, rayOrigin, rayDir);
@@ -317,10 +344,16 @@ void main()
  //}
   //
 	//
-	bool foundHit = TraverseBVH(rayOrigin, rayDir);
+	float u;
+	float v;
+	bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
 	//finalColor = vec4(1, 1, 1, 1);
+	//vec3 spyrotex = texture(u_spyroTexture, vec2(u,v), 0).rgb;
+	
+	
+	finalColor = foundHit ? vec4(u,v,0.5f,1) : vec4(0, 1, 1, 1);
+	
 
-	 finalColor = foundHit ? vec4(1, 0, 0, 1) : vec4(0, 1, 1, 1);
 	FragColor = finalColor;
 	//float mixAlpha = boxhit.a > 0 ? 0.4f : 0.0f;
 	//FragColor = mix(albedo4, boxhit, mixAlpha);
