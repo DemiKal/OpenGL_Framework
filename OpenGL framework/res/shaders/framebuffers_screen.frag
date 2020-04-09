@@ -7,13 +7,16 @@ in vec2 TexCoords;
 
 const int StackSize = 64;
 
+uniform float near_plane;
+uniform float far_plane;
+
 uniform vec3 u_cameraPos;
 uniform vec3 u_viewDir;
 uniform vec3 u_cameraUp;
 
 uniform sampler2D screenTexture;
 uniform sampler1D u_triangleTexture;
-
+uniform sampler2D u_depthBuffer;
 
 //uniform isampler1D u_trianglesTexture;	// 3 floats xyz 
 
@@ -282,6 +285,36 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir, out float u, out float v)
 
 
 }
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // Back to NDC 
+    return (2.0 * near_plane * far_plane) / (far_plane + near_plane - z * (far_plane - near_plane));	
+}
+float LinearizeDepth2(float z)
+{
+  float n = 1.0; // camera z near
+  float f = 100.0; // camera z far
+  //float z = texture2D(depthSampler, uv).x;
+  return (2.0 * n) / (f + n - z * (f - n));	
+}
+
+ 
+vec3 WorldPosFromDepth(float depth) {
+    float z = depth * 2.0 - 1.0;
+
+    vec4 clipSpacePosition = vec4(TexCoords * 2.0 - 1.0, z, 1.0);
+    vec4 viewSpacePosition = u_inv_projMatrix * clipSpacePosition;
+
+	//u_inv_projMatrix
+	//u_inv_viewMatrix
+
+    // Perspective division
+    viewSpacePosition /= viewSpacePosition.w;
+
+    vec4 worldSpacePosition = u_inv_viewMatrix * viewSpacePosition;
+
+    return worldSpacePosition.xyz;
+}
 
 void main()
 {
@@ -328,12 +361,20 @@ void main()
 	//
 	float u;
 	float v;
-	bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
+	//bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
+	 bool foundHit = false;//	TraverseBVH(rayOrigin, rayDir, u, v);
 	//finalColor = vec4(1, 1, 1, 1);
 	//vec3 spyrotex = texture(u_spyroTexture, vec2(u,v), 0).rgb;
 	
-	finalColor = foundHit ? vec4(u, v, 0.5f, 1.0f) : vec4(0, 1, 1, 1);
+	//finalColor = foundHit ? vec4(u, v, 0.5f, 1.0f) : albedo4 ;
+	float depthval = texture(u_depthBuffer, TexCoords.xy).r ;
+	float depthLinear = LinearizeDepth2(depthval);
+	vec4 distanceColor = vec4( vec3(depthLinear), 1.0f);
+	finalColor = mix(albedo4, vec4(0.1f,0.1f,0.1f,1.0f),  smoothstep(0.0f, 1.2f, depthLinear));	// mix(albedo4 , distanceColor, 0.5f); ;
+	finalColor = vec4(WorldPosFromDepth(depthval),1.0f);
 	FragColor = finalColor;
+
+
 	//float mixAlpha = boxhit.a > 0 ? 0.4f : 0.0f;
 	//FragColor = mix(albedo4, boxhit, mixAlpha);
 	//int size = textureSize(u_indexTexture, 0);

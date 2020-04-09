@@ -10,8 +10,12 @@ struct Triangle;
 
 struct HitData
 {
-	HitData(/*unsigned int _triangleIdx,*/ float _distance, unsigned int _nodeIdx) :
-		/*	triangleIdx(_triangleIdx),*/ distance(_distance), nodeIdx(_nodeIdx) {}
+	HitData(float _distance, unsigned int _nodeIdx)
+		:
+		distance(_distance),
+		nodeIdx(_nodeIdx) 
+	{}
+	
 	unsigned int triangleIdx;
 	float distance;
 	unsigned int nodeIdx;
@@ -19,7 +23,6 @@ struct HitData
 
 class BVH
 {
-
 private: //todo:: check if unsigned
 	//unsigned int m_triangleIndexTexture;
 	//unsigned int m_triangleTexture;
@@ -43,7 +46,11 @@ public:
 
 	BVH() = default;
 	BVH(std::vector<unsigned int>& indices, BVHNode* pool, BVHNode* root, int poolPtr)
-		: m_indices(indices), m_pool(pool), m_root(root), m_poolPtr(poolPtr) {};
+		: m_indices(indices),
+		m_pool(pool),
+		m_root(root),
+		m_poolPtr(poolPtr)
+	{};
 
 	Texture1D& GetAABBNodesTexture() { return  m_aabbNodesTexture; }
 	Texture1D& GetMinTexture() { return  m_minTexture; }

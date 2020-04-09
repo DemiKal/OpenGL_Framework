@@ -90,7 +90,7 @@ void BVH::InitBVHRenderer()
 
 void BVH::Draw(const Camera& camera)
 {
-	if (m_localBounds.size() <= 0) return;
+	if (m_localBounds.size() <= 0) return; //has been initialized?
 
 	auto& aabbshader = EntityManager::GetEntity("WireCube").GetShader();
 	aabbshader.Bind();
@@ -177,6 +177,7 @@ void BVH::DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& 
 	ImGui::Text("Normal: {%f.3, %f.3, %f.3)", normal.x, normal.y, normal.z);
 	if (dot < 0)
 		normal = -normal;
+
 	normal *= 0.01f;
 	auto& shader = ShaderManager::GetShader("singleTriangle");
 	shader.Bind();
@@ -274,7 +275,6 @@ void BVH::CreateBVHTextures()
 	}
 
 	m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
-
 	m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
 }
 

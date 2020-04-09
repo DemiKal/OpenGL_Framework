@@ -76,12 +76,13 @@ int main(void)
 		//cube.SetShader("framebuffers");
 		//cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
-		//Model plane = Model::CreatePlane();
-		//plane.name = "plane";
-		////plane.SetShader("framebuffers");
-		//plane.SetShader("plane");
-		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
-		//EntityManager::AddEntity(plane);
+		Model plane = Model::CreatePlane();
+		plane.name = "plane";
+		//plane.SetShader("framebuffers");
+		plane.SetShader("plane");
+		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+		EntityManager::AddEntity(plane);
+
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "WireCube";
 		EntityManager::AddEntity(wireCube);
@@ -98,36 +99,10 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		//artisans.SetShader("basic");
-		//artisans.name = "artisans";
-		//EntityManager::AddEntity(artisans);
-
-		//TriangleBuffer::GetTriangleBuffer();
-
-		std::vector<glm::vec3>& triBuffer = spyro.getMesh(0).positionVertices;
-		/*for (auto& v : spyro.getMesh(0).positionVertices)
-		{
-			 v  = (spyro.model * glm::vec4(v, 1.0f));
-		}*/
-
-		//unsigned int triCount = triBuffer.size();
-		//
-		//unsigned int triTex;
-		//GLCall(glGenTextures(1, &triTex));
-		//GLCall(glBindTexture(GL_TEXTURE_1D, triTex));
-		//GLCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, triCount, 0,
-		//	GL_RGB, GL_FLOAT, &triBuffer[0]));
-
-		// GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4, 1, 0,
-		// 	GL_RGB, GL_FLOAT, &triverts[0]));
-
-		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
-		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
-		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-		GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-
-		//GLCall(glBindTexture(GL_TEXTURE_2D, triTex));
+		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		artisans.SetShader("basic");
+		artisans.name = "artisans";
+		EntityManager::AddEntity(artisans);
 
 		//artisans.getMesh(0).MakeWireFrame();
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
@@ -136,8 +111,8 @@ int main(void)
 		//nanosuit.SetShader("normalmapshader");
 
 		BVH bvh;
-		bvh.BuildBVH();
-		bvh.CreateBVHTextures();
+		//bvh.BuildBVH();
+		//bvh.CreateBVHTextures();
 
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr << "\n";
 		//
@@ -178,8 +153,7 @@ int main(void)
 		glGenBuffers(1, &quadVBO);
 		glBindVertexArray(quadVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices),
-			&quadVertices, GL_STATIC_DRAW); //TODO: static?
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
@@ -196,6 +170,32 @@ int main(void)
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
+
+		// configure depth map FBO
+		// -----------------------
+
+		unsigned int zBufferFBO;
+		glGenFramebuffers(1, &zBufferFBO);
+		// create depth texture
+		unsigned int zBufferTexture;
+		glGenTextures(1, &zBufferTexture);
+		glBindTexture(GL_TEXTURE_2D, zBufferTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SCREENWIDTH, SCREENHEIGHT,
+			0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		// attach depth texture as FBO's depth buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
+		//glDrawBuffer(GL_NONE);
+		//glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+
 		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
 		postProcessShader.Bind();
@@ -205,6 +205,7 @@ int main(void)
 		postProcessShader.SetInt("u_minTexture", 3);
 		postProcessShader.SetInt("u_maxTexture", 4);
 		postProcessShader.SetInt("u_triangleIdxTexture", 5);
+		postProcessShader.SetInt("u_depthBuffer", 6);
 
 		Shader& lineshader = ShaderManager::GetShader("lineshader");
 		Shader& boneshader = ShaderManager::GetShader("bones");
@@ -288,7 +289,7 @@ int main(void)
 		// enable depth testing (is disabled for rendering screen-space quad)
 
 
-
+		bool drawBvh = false;
 		int currentBbox = 0;
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
@@ -342,16 +343,33 @@ int main(void)
 
 			//cube.Update(deltaTime);
 			//plane.Update(deltaTime);
-			//spyro.Update(deltaTime);
+			spyro.Update(deltaTime);
 			//duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			//artisans.Update(deltaTime);
+			artisans.Update(deltaTime);
 
-		//	cube.Draw(camera);
+			//cube.Draw(camera);
 			//plane.Draw(camera);
+			//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+			
+			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO));
+			//GLCall(glClear(GL_DEPTH_BUFFER_BIT));
+			//glActiveTexture(GL_TEXTURE0);
+			//glBindTexture(GL_TEXTURE_2D, woodTexture);
+			//renderScene(simpleDepthShader);
+
 			spyro.Draw(camera);
+			artisans.Draw(camera);
+			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO));
+			GLCall(glClear(GL_DEPTH_BUFFER_BIT));
+
+			spyro.Draw(camera);
+			artisans.Draw(camera);
+			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
 			//duck.Draw(camera);
-			//artisans.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
 
 			//artisans.Draw(camera);
@@ -363,15 +381,19 @@ int main(void)
 			// nanosuit.Draw(camera);
 
 			//set bvh node
-			ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr - 1);
+			//ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr - 1);
 
-			GLCall(glDisable(GL_DEPTH_TEST));
-			bvh.DrawSingleAABB(camera, currentBbox);
-			int leftfirst = bvh.m_pool[currentBbox].m_leftFirst;
-			int rightFirst = leftfirst + 1;
+			//GLCall(glDisable(GL_DEPTH_TEST));
+			//bvh.DrawSingleAABB(camera, currentBbox);
+			//int leftfirst = bvh.m_pool[currentBbox].m_leftFirst;
+			//int rightFirst = leftfirst + 1;
 
-			bvh.DrawSingleAABB(camera, leftfirst);
-			bvh.DrawSingleAABB(camera, rightFirst);
+			if (ImGui::RadioButton("Draw bvh", &drawBvh)) drawBvh = !drawBvh;
+
+			if (drawBvh) bvh.Draw(camera);
+
+			//bvh.DrawSingleAABB(camera, leftfirst);
+			//bvh.DrawSingleAABB(camera, rightFirst);
 
 			GLCall(glEnable(GL_DEPTH_TEST));
 
@@ -382,7 +404,7 @@ int main(void)
 			glfwGetCursorPos(window, &MouseX, &MouseY);
 
 			const Ray ray = camera.RayFromMouse(MouseX, MouseY);
-			bvh.TraceRay(ray);
+			//bvh.TraceRay(ray);
 
 			LightManager::debug_render(camera);
 
@@ -403,7 +425,8 @@ int main(void)
 			postProcessShader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
 			postProcessShader.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(camera.GetViewMatrix()));
 
-			AABB& aabb = spyro.getMesh(0).m_aabb;
+			postProcessShader.SetFloat("near_plane", camera.GetNearPlaneDist());
+			postProcessShader.SetFloat("far_plane", camera.GetFarPlaneDist());
 
 			//draw final quad
 			glBindVertexArray(quadVAO);
@@ -415,13 +438,19 @@ int main(void)
 			bvh.GetMinTexture().Bind(3);
 			bvh.GetMaxTexture().Bind(4);
 			bvh.GetTriangleIndexTexture().Bind(5);
-			
+
+			GLCall(glActiveTexture(GL_TEXTURE0 + 6));
+			GLCall(glBindTexture(GL_TEXTURE_2D, zBufferTexture));
+
+
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
 			userInterface.Draw();
 
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
+
+			//glDeleteFramebuffers(1, &zBufferFBO);
 
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currentFrameTime);
