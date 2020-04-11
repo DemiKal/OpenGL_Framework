@@ -370,9 +370,10 @@ void main()
 	float depthval = texture(u_depthBuffer, TexCoords.xy).r ;
 	float depthLinear = LinearizeDepth2(depthval);
 	vec4 distanceColor = vec4( vec3(depthLinear), 1.0f);
-	finalColor = mix(albedo4, vec4(0.1f,0.1f,0.1f,1.0f),  smoothstep(0.0f, 1.2f, depthLinear));	// mix(albedo4 , distanceColor, 0.5f); ;
+	finalColor=distanceColor;
+	//finalColor = mix(albedo4, vec4(0.1f,0.1f,0.1f,1.0f),  smoothstep(0.0f, 1.2f, depthLinear));	// mix(albedo4 , distanceColor, 0.5f); ;
 	finalColor = vec4(WorldPosFromDepth(depthval),1.0f);
-	FragColor = finalColor;
+	FragColor =  finalColor;
 
 
 	//float mixAlpha = boxhit.a > 0 ? 0.4f : 0.0f;

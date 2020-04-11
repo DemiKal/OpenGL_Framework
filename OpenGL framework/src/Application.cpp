@@ -174,22 +174,31 @@ int main(void)
 		// configure depth map FBO
 		// -----------------------
 
-		unsigned int zBufferFBO;
-		glGenFramebuffers(1, &zBufferFBO);
+		//unsigned int zBufferFBO;
+		//glGenFramebuffers(1, &zBufferFBO);
 		// create depth texture
 		unsigned int zBufferTexture;
 		glGenTextures(1, &zBufferTexture);
 		glBindTexture(GL_TEXTURE_2D, zBufferTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SCREENWIDTH, SCREENHEIGHT,
-			0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24,
+			SCREENWIDTH, SCREENHEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		//glDrawBuffer(GL_NONE);
+		//glReadBuffer(GL_NONE);
+
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		// attach depth texture as FBO's depth buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
+		//glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO);
+		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
 		//glDrawBuffer(GL_NONE);
 		//glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -225,9 +234,16 @@ int main(void)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
+		//glDrawBuffer(GL_NONE);
+		//glReadBuffer(GL_NONE);
+
+		
 		// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
-		RenderBufferObject rbo;
+		//RenderBufferObject rbo;
 		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -261,7 +277,7 @@ int main(void)
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
-		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_DEPTH_TEST);
 
 		std::vector<float>  frametimes;
 
@@ -351,23 +367,23 @@ int main(void)
 			//cube.Draw(camera);
 			//plane.Draw(camera);
 			//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-			
+
 			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO));
 			//GLCall(glClear(GL_DEPTH_BUFFER_BIT));
 			//glActiveTexture(GL_TEXTURE0);
 			//glBindTexture(GL_TEXTURE_2D, woodTexture);
 			//renderScene(simpleDepthShader);
 
-			spyro.Draw(camera);
-			artisans.Draw(camera);
-			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO));
-			GLCall(glClear(GL_DEPTH_BUFFER_BIT));
-
-			spyro.Draw(camera);
-			artisans.Draw(camera);
-			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+			 spyro.Draw(camera);
+			 artisans.Draw(camera);
+			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+			//
+			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO));
+			//GLCall(glClear(GL_DEPTH_BUFFER_BIT));
+			//
+			//spyro.Draw(camera);
+			//artisans.Draw(camera);
+			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 			//duck.Draw(camera);
 			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
@@ -411,7 +427,7 @@ int main(void)
 			prevFrameTime = currentFrameTime;
 			glDisable(GL_DEPTH_TEST);
 
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0); //unbind fb
 
 			const glm::vec3 camPos = camera.GetPosition();
 			const float nearPlane = camera.GetNearPlaneDist();
