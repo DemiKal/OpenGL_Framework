@@ -17,6 +17,7 @@
 #include "Geometry/Ray.h"
 #include "misc/UserInterface.h"
 #include <exception>
+#include <Rendering\ScreenQuad.h>
 //#include <CL/opencl.h>
 
 
@@ -116,54 +117,6 @@ int main(void)
 
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr << "\n";
 		//
-		constexpr float half = 0.5f;
-		float triVerts[] =
-		{
-			-half, -half, 1, 0, 0,
-			half, -half, 0, 1, 0,
-			half,	half, 0, 0, 1
-		};
-
-		// screen quad VAO
-		unsigned int triVAO, triVBO;
-		glGenVertexArrays(1, &triVAO);
-		glGenBuffers(1, &triVBO);
-		glBindVertexArray(triVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, triVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(triVerts), &triVerts, GL_DYNAMIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
-
-		float quadVertices[] = {
-			// positions   // texCoords
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			-1.0f, -1.0f,  0.0f, 0.0f,
-			 1.0f, -1.0f,  1.0f, 0.0f,
-
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			 1.0f, -1.0f,  1.0f, 0.0f,
-			 1.0f,  1.0f,  1.0f, 1.0f
-		};
-
-		// screen quad VAO
-		unsigned int quadVAO, quadVBO;
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-		
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
 
 		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
@@ -240,8 +193,6 @@ int main(void)
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
-		//glEnable(GL_DEPTH_TEST);
-
 		std::vector<float>  frametimes;
 
 		glm::vec3 lightpos(1.0f, 2.0f, 3.0f);
@@ -253,6 +204,7 @@ int main(void)
 		//
 		// Render loop
 		//
+		ScreenQuad screenQuad;
 
 		LightManager::AddLight({ 0,  5, 0 }, { 1,0,0 });
 		LightManager::AddLight({ -2,  3, 0 }, { 0,1,0 });
@@ -279,6 +231,13 @@ int main(void)
 #pragma region input
 			userInterface.Update();
 			InputManager::Update(camera);
+			double MouseX, MouseY;
+
+			glfwGetCursorPos(window, &MouseX, &MouseY);
+
+			const Ray ray = camera.RayFromMouse(MouseX, MouseY);
+			//bvh.TraceRay(ray);
+
 
 			const float average = (float)std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
 			const float avgfps = 1000.0f * float(1.0f / average);
@@ -336,19 +295,10 @@ int main(void)
 
 			if (drawBvh) bvh.Draw(camera);
 
-			//bvh.DrawSingleAABB(camera, leftfirst);
-			//bvh.DrawSingleAABB(camera, rightFirst);
-
-			GLCall(glEnable(GL_DEPTH_TEST));
 
 			// draw AABB instanced
 			//bvh.Draw(camera);
 
-			double MouseX, MouseY;
-			glfwGetCursorPos(window, &MouseX, &MouseY);
-
-			const Ray ray = camera.RayFromMouse(MouseX, MouseY);
-			//bvh.TraceRay(ray);
 
 			LightManager::debug_render(camera);
 
@@ -373,7 +323,8 @@ int main(void)
 			postProcessShader.SetFloat("far_plane", camera.GetFarPlaneDist());
 
 			//draw final quad
-			glBindVertexArray(quadVAO);
+			screenQuad.Bind();
+
 			GLCall(glActiveTexture(GL_TEXTURE0 + 0));
 			GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbufferID));
 
@@ -386,14 +337,13 @@ int main(void)
 			GLCall(glActiveTexture(GL_TEXTURE0 + 6));
 			GLCall(glBindTexture(GL_TEXTURE_2D, zBufferTextureID));
 
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+			screenQuad.Draw();
+			screenQuad.UnBind();
 
 			userInterface.Draw();
 
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
-
-			//glDeleteFramebuffers(1, &zBufferFBO);
 
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currentFrameTime);

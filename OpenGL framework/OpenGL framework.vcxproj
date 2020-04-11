@@ -83,6 +83,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Rendering\ScreenQuad.cpp" />
     <ClCompile Include="src\GameObject\Components\Texture1D.cpp" />
     <ClCompile Include="src\misc\UserInterface.cpp" />
     <None Include="imgui.ini" />
@@ -196,6 +197,7 @@
     <None Include="src\vendor\glm\gtc\vec1.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rendering\ScreenQuad.h" />
     <ClInclude Include="src\GameObject\Components\Texture1D.h" />
     <ClInclude Include="src\Geometry\Ray.h" />
     <ClInclude Include="src\Geometry\BVH\BVHNode.h" />
