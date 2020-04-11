@@ -11,6 +11,18 @@ private:
 
 public:
 	Texture2D(const std::string& fullPath, const std::string& typeName);
+	Texture2D(const GLenum internalformat, 
+		const int p_width,  //TODO: unsigned?
+		const int p_height,
+		const int border,
+		const GLenum format, 
+		const GLenum type, 
+		const GLenum minFilter,
+		const GLenum magFilter,
+		const GLenum wrap_S,
+		const GLenum wrap_T,
+		const void* data);
+	
 	~Texture2D() = default;
 
 	inline unsigned int GetID()const { return m_rendererID; }

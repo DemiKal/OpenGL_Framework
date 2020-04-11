@@ -29,7 +29,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -177,17 +177,7 @@ int main(void)
 		//unsigned int zBufferFBO;
 		//glGenFramebuffers(1, &zBufferFBO);
 		// create depth texture
-		unsigned int zBufferTexture;
-		glGenTextures(1, &zBufferTexture);
-		glBindTexture(GL_TEXTURE_2D, zBufferTexture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24,
-			SCREENWIDTH, SCREENHEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
+	
 
 		//glDrawBuffer(GL_NONE);
 		//glReadBuffer(GL_NONE);
@@ -198,7 +188,7 @@ int main(void)
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		// attach depth texture as FBO's depth buffer
 		//glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO);
-		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
+		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTextureID, 0);
 		//glDrawBuffer(GL_NONE);
 		//glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -224,33 +214,48 @@ int main(void)
 		////////////////////////////
 
 		FrameBuffer framebuffer;
-
-		static bool output = true;
-		// create a color attachment texture
-		unsigned int textureColorbuffer;
-		glGenTextures(1, &textureColorbuffer);
-		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexture, 0);
-		//glDrawBuffer(GL_NONE);
-		//glReadBuffer(GL_NONE);
-
 		
-		// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
-		//RenderBufferObject rbo;
-		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+		// create a color attachment texture
+		Texture2D textureColorBuffer(
+			GL_RGB,
+			SCREENWIDTH,
+			SCREENHEIGHT,
+			0,
+			GL_RGB,
+			GL_UNSIGNED_BYTE,
+			GL_LINEAR,
+			GL_LINEAR, 
+			GL_CLAMP_TO_EDGE, 
+			GL_CLAMP_TO_EDGE,
+			nullptr);
 
+		unsigned int textureColorbufferID = textureColorBuffer.GetID();
+ 
+		Texture2D zBufferTex(
+			GL_DEPTH_COMPONENT24,
+			SCREENWIDTH,
+			SCREENHEIGHT,
+			0,
+			GL_DEPTH_COMPONENT,
+			GL_FLOAT,
+			GL_LINEAR,
+			GL_LINEAR,
+			GL_CLAMP_TO_EDGE,
+			GL_CLAMP_TO_EDGE,
+			nullptr);
 
+		unsigned int zBufferTextureID = zBufferTex.GetID();
+
+		//bind color and depth to framebuffer
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbufferID, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTextureID, 0);
+		// glDrawBuffer(GL_NONE);
+		// glReadBuffer(GL_NONE);
+		 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//Texture back("res/textures/uvtest.png");
 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
@@ -302,8 +307,6 @@ int main(void)
 
 		double prevFrameTime = glfwGetTime();
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		// enable depth testing (is disabled for rendering screen-space quad)
-
 
 		bool drawBvh = false;
 		int currentBbox = 0;
@@ -374,8 +377,8 @@ int main(void)
 			//glBindTexture(GL_TEXTURE_2D, woodTexture);
 			//renderScene(simpleDepthShader);
 
-			 spyro.Draw(camera);
-			 artisans.Draw(camera);
+			spyro.Draw(camera);
+			artisans.Draw(camera);
 			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 			//
 			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO));
@@ -447,7 +450,7 @@ int main(void)
 			//draw final quad
 			glBindVertexArray(quadVAO);
 			GLCall(glActiveTexture(GL_TEXTURE0 + 0));
-			GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbuffer));
+			GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbufferID));
 
 			bvh.GetTriangleTexture().Bind(1);
 			bvh.GetAABBNodesTexture().Bind(2);
@@ -456,7 +459,7 @@ int main(void)
 			bvh.GetTriangleIndexTexture().Bind(5);
 
 			GLCall(glActiveTexture(GL_TEXTURE0 + 6));
-			GLCall(glBindTexture(GL_TEXTURE_2D, zBufferTexture));
+			GLCall(glBindTexture(GL_TEXTURE_2D, zBufferTextureID));
 
 
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
