@@ -58,11 +58,11 @@ Texture2D::Texture2D(
 	const int border, 
 	const GLenum format, 
 	const GLenum type,
+	const void* data,
 	const GLenum minFilter,
 	const GLenum magFilter, 
 	const GLenum wrap_S,
-	const GLenum wrap_T, 
-	const void* data)
+	const GLenum wrap_T)
 	:
 	width(p_width), height(p_height)
 { 

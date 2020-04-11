@@ -159,38 +159,8 @@ int main(void)
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-		float lineverts[] = { 0, 0, 1, 1 };
+		
 
-		unsigned int lineVao, lineVBO;
-		glGenVertexArrays(1, &lineVao);
-		glGenBuffers(1, &lineVBO);
-		glBindVertexArray(lineVao);
-		glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(lineverts), &lineverts, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-
-
-		// configure depth map FBO
-		// -----------------------
-
-		//unsigned int zBufferFBO;
-		//glGenFramebuffers(1, &zBufferFBO);
-		// create depth texture
-	
-
-		//glDrawBuffer(GL_NONE);
-		//glReadBuffer(GL_NONE);
-
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		// attach depth texture as FBO's depth buffer
-		//glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO);
-		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTextureID, 0);
-		//glDrawBuffer(GL_NONE);
-		//glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -214,7 +184,7 @@ int main(void)
 		////////////////////////////
 
 		FrameBuffer framebuffer;
-		
+
 		// create a color attachment texture
 		Texture2D textureColorBuffer(
 			GL_RGB,
@@ -222,36 +192,24 @@ int main(void)
 			SCREENHEIGHT,
 			0,
 			GL_RGB,
-			GL_UNSIGNED_BYTE,
-			GL_LINEAR,
-			GL_LINEAR, 
-			GL_CLAMP_TO_EDGE, 
-			GL_CLAMP_TO_EDGE,
-			nullptr);
+			GL_UNSIGNED_BYTE);
 
 		unsigned int textureColorbufferID = textureColorBuffer.GetID();
- 
+
 		Texture2D zBufferTex(
 			GL_DEPTH_COMPONENT24,
 			SCREENWIDTH,
 			SCREENHEIGHT,
 			0,
 			GL_DEPTH_COMPONENT,
-			GL_FLOAT,
-			GL_LINEAR,
-			GL_LINEAR,
-			GL_CLAMP_TO_EDGE,
-			GL_CLAMP_TO_EDGE,
-			nullptr);
+			GL_FLOAT);
 
 		unsigned int zBufferTextureID = zBufferTex.GetID();
 
 		//bind color and depth to framebuffer
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbufferID, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTextureID, 0);
-		// glDrawBuffer(GL_NONE);
-		// glReadBuffer(GL_NONE);
-		 
+
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
@@ -310,18 +268,13 @@ int main(void)
 
 		bool drawBvh = false;
 		int currentBbox = 0;
+
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LEQUAL);	double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
-
-
-
-			//ImGui::ShowDemoWindow(&showDemo);
-
-
 
 #pragma region input
 			userInterface.Update();
@@ -352,11 +305,6 @@ int main(void)
 				lightDir = glm::vec3(-light.x, -light.y, -light.z);
 
 
-			//ImGui::SliderFloat3("directional light", &lightDir[0], -1, 1);
-
-
-
-
 			float& ambientLight = LightManager::GetAmbientLight();
 			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
 
@@ -367,32 +315,9 @@ int main(void)
 			//nanosuit.Update(deltaTime);
 			artisans.Update(deltaTime);
 
-			//cube.Draw(camera);
-			//plane.Draw(camera);
-			//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-
-			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO));
-			//GLCall(glClear(GL_DEPTH_BUFFER_BIT));
-			//glActiveTexture(GL_TEXTURE0);
-			//glBindTexture(GL_TEXTURE_2D, woodTexture);
-			//renderScene(simpleDepthShader);
 
 			spyro.Draw(camera);
 			artisans.Draw(camera);
-			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-			//
-			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, zBufferFBO));
-			//GLCall(glClear(GL_DEPTH_BUFFER_BIT));
-			//
-			//spyro.Draw(camera);
-			//artisans.Draw(camera);
-			//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-			//duck.Draw(camera);
-			//spyro.getMesh(0).DrawWireFrame(camera, spyro.model);
-
-			//artisans.Draw(camera);
-			// artisans.getMesh(0).DrawWireFrame(camera, artisans.model);
 
 			// nanosuit.GetShader().Bind();
 			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
@@ -460,7 +385,6 @@ int main(void)
 
 			GLCall(glActiveTexture(GL_TEXTURE0 + 6));
 			GLCall(glBindTexture(GL_TEXTURE_2D, zBufferTextureID));
-
 
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
