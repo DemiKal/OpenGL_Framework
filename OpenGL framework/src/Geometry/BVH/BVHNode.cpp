@@ -14,6 +14,8 @@ glm::vec3 GetCenterTriangle(const Triangle& triangle);
 void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
 	const std::vector<Triangle>& triangles, const int start, const int end)
 {
+	std::cout << "count at: " << bvh.count++ << "\n";
+
 	const int objcount = end - start;
 	m_bounds = calculate_bb(bvh, aabbs, start, end);
 	m_count = objcount;

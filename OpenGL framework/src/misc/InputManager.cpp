@@ -28,7 +28,7 @@ void InputManager::Update(Camera& camera)
 
 	glfwGetCursorPos(window, &instance.m_mouseNew.x, &instance.m_mouseNew.y);
 
-	float camSpeed = 0.05f;
+	float camSpeed = 0.35f;
 	glm::vec3 camMovement = glm::vec3();
 	const glm::vec3 forward = camera.GetForwardVector();
 	const glm::vec3 up = camera.GetUpVector();
@@ -60,13 +60,13 @@ void InputManager::Update(Camera& camera)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camMovement += glm::normalize(glm::cross(forward, up)) * camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camera.RotateYlocal(.01f);
+		camera.RotateYlocal(.01f * (1+ camSpeed));
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		camera.RotateYlocal(-.01f);
+		camera.RotateYlocal(-.01f * (1 + camSpeed));
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-		camera.RotateXlocal(.01f);
+		camera.RotateXlocal(.01f * (1 + camSpeed));
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-		camera.RotateXlocal(-.01f);
+		camera.RotateXlocal(-.01f * (1 + camSpeed));
 	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
 		LightManager::GetLight(0).get_position() += (2 * camSpeed * upWorld);
 	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
@@ -93,14 +93,20 @@ void InputManager::Update(Camera& camera)
 
 	double mouseX, mouseY;
 	glfwGetCursorPos(window, &mouseX, &mouseY);
-	auto [hit, selected] = camera.MousePick(mouseX, mouseY);
+	//auto [hit, selected] = camera.MousePick(mouseX, mouseY);
 
 	std::string selectedStr = "None";
-	if (hit)
-	{
+	//if (hit)
+	//{
 	//selectedStr = selected->name;
 	//instance.SelectedModel = selected;
-	}
+	//}
+	double MouseX, MouseY;
+
+	glfwGetCursorPos(window, &MouseX, &MouseY);
+
+	const Ray ray = camera.RayFromMouse(MouseX, MouseY);
+	//bvh.TraceRay(ray);
 
 	//ImGui::LabelText("label", selectedStr.c_str());
 

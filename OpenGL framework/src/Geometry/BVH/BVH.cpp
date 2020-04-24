@@ -10,6 +10,8 @@
 
 void BVH::BuildBVH()
 {
+	std::cout << "Building BVH... \n";
+
 	InitTriangleRenderer();
 
 	std::vector<AABB> triAABBs;
@@ -25,7 +27,7 @@ void BVH::BuildBVH()
 				std::max(std::max(tri.A.x, tri.B.x), tri.C.x),
 				std::max(std::max(tri.A.y, tri.B.y), tri.C.y),
 				std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
-				));
+			));
 
 	const int N = triangles.size();
 	m_indices.resize(N);
@@ -40,6 +42,7 @@ void BVH::BuildBVH()
 	m_root->m_end = N;
 	m_root->m_count = N;
 
+	//std::cout << "Starting recursion at count 0\n";
 	//actually  build now
 	m_root->Subdivide(*this, triAABBs, triangles, 0, N);
 
@@ -48,7 +51,9 @@ void BVH::BuildBVH()
 		m_localBounds.emplace_back(m_pool[i].m_bounds);
 	}
 
+	std::cout << N << " triangles needed " << count << " recursions \n";
 	InitBVHRenderer();
+	m_isBuilt = true;
 }
 
 
@@ -93,18 +98,22 @@ void BVH::Draw(const Camera& camera)
 	if (m_localBounds.size() <= 0) return; //has been initialized?
 
 	auto& aabbshader = EntityManager::GetEntity("WireCube").GetShader();
+	auto& spyro = EntityManager::GetEntity("Spyro");
 	aabbshader.Bind();
+	//aabbshader.SetUniformMat4f("model", spyro.model);
 	aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
 	aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
 	const unsigned int vcount = m_wireCube->getMesh(0).GetVertexCount();
 	glBindVertexArray(m_wireCube->getMesh(0).GetVAO());
 	glDrawArraysInstanced(GL_LINES, 0, vcount, m_localBounds.size());
 	glBindVertexArray(0);
-
 }
+
 void BVH::TraceRay(const Ray& ray)
 {
 	if (!InputManager::m_isClicked) return;
+	if(ImGui::IsWindowHovered()) return;
+	if (!m_isBuilt) return;
 
 	std::vector<HitData> hitData;
 	m_root->Traverse(*this, ray, hitData, 0);
@@ -238,6 +247,8 @@ void BVH::CreateBVHTextures()
 
 		indicesPart.emplace_back(glm::ivec4(start, end, leftFirst, count));
 	}
+
+	std::cout << "nodes tex size: " << indicesPart.size() * sizeof(indicesPart[0]) / 1024 << "kb" << "\n";
 
 	//aabb nodes
 	m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &indicesPart[0], false);

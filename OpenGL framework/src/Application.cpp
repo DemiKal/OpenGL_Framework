@@ -17,7 +17,9 @@
 #include "Geometry/Ray.h"
 #include "misc/UserInterface.h"
 #include <exception>
-#include <Rendering\ScreenQuad.h>
+#include <Rendering/ScreenQuad.h>
+#include <algorithm>
+#include <execution>
 //#include <CL/opencl.h>
 
 
@@ -49,8 +51,8 @@ int main(void)
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
-	float aa = ((1.0f * 10.0f - 1.0f / 0.1f + (2.0f - 0.5f * 4.0f) - 0.000f));
-	float xx = 1.0f / aa;
+
+
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	GLint  max_tex_size;
 	GLint  max_uniform_locations;
@@ -59,10 +61,84 @@ int main(void)
 
 	std::cout << "--- GPU Data ---\n";
 	std::cout << "max tex size: " << max_tex_size << "\n";
-	std::cout << "max uniform locations: " << max_uniform_locations << "\n";
+	std::cout << "max uniform locations: " << max_uniform_locations / 1024 << "kb \n";
 	std::cout << "----------------\n";
+	std::vector<int> nums{ 3, 4, 2, 8, 15, 267 };
 
+	auto print = [](const int& n) { std::cout << " " << n; };
+
+	std::cout << "before:";
+	//std::for_each(std::execution::par, nums.cbegin(), nums.cend(), print);
+	std::cout << '\n';
+
+	std::for_each(std::execution::par, std::begin(nums), std::end(nums),
+		[&](int i)
+		{
+			std::cout << i << "\n";
+			//nums.fetch_add(1, std::memory_order_relaxed);
+		});
+
+
+	struct position
 	{
+		position(const float x, const  float y) : pos(x, y) {}
+		glm::vec2 pos;
+	};
+
+	struct velocity
+	{
+		velocity(const float x, const  float y) : vel(x, y) {}
+		glm::vec2 vel;
+	};
+
+	struct aaaaaaaaaaaa
+	{
+		int i;
+	};
+	{
+		entt::registry registry;
+
+		//entt::registry registry;
+		std::uint64_t dt = 16;
+
+		for (auto i = 0; i < 10; ++i)
+		{
+			auto entity = registry.create();
+			registry.assign<entt::tag<"enemy"_hs>>(entity);
+
+			registry.assign<position>(entity, i * 1.f, i * 1.f);
+			if (i % 2 == 0) registry.assign<velocity>(entity, i * .1f, i * .1f);
+		}
+		auto view = registry.view<position, velocity>();
+		for (auto& entity : view) {
+			// const auto [ cpos , cvel] = view.get<const position,velocity>(entity);
+			//  cvel = { -150, -10 };
+			//position& vel = view.get<position>(entity);
+			//const position& cpos = view.get<const position>(entity);
+			//const velocity& cvel = view.get<const velocity>(entity);
+			//std::tuple<position&, const velocity&> tup = view.get<position, const velocity>(entity);
+			//std::tuple<const position&, const velocity&> ctup = view.get<const position, const velocity>(entity);
+		}
+		//auto view2 = registry.view<position>();
+		//for (auto& entity :view2 )
+		//{
+		//	auto& pos = view2.get<position>(entity);
+		//	std::cout << "pos: { " << pos.pos.x << ", " << pos.pos.y << " }" << "\n";
+		//}
+		//auto view3 = registry.view<velocity>();
+		//for (auto& entity : view3)
+		//{
+		//	auto& vel = view3.get<velocity>(entity);
+		//	std::cout << "vel: { " << vel.vel.x << ", " << vel.vel.y << " }" << "\n";
+		//}
+		//auto view = registry.view<position, velocity>();
+		//for (auto entity : view)
+		//{
+		//	auto& vel = view.get<velocity>(entity);
+		//}
+
+			//auto view = registry.view<position, velocity>();
+
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
 
@@ -77,12 +153,12 @@ int main(void)
 		//cube.SetShader("framebuffers");
 		//cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
 
-		Model plane = Model::CreatePlane();
-		plane.name = "plane";
-		//plane.SetShader("framebuffers");
-		plane.SetShader("plane");
-		plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
-		EntityManager::AddEntity(plane);
+		//Model plane = Model::CreatePlane();
+		//plane.name = "plane";
+		////plane.SetShader("framebuffers");
+		//plane.SetShader("plane");
+		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
+		//EntityManager::AddEntity(plane);
 
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "WireCube";
@@ -91,7 +167,7 @@ int main(void)
 
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("basic");
-		spyro.name = "spyro";
+		spyro.name = "Spyro";
 		EntityManager::AddEntity(spyro);
 		// spyro.getMesh(0).MakeWireFrame();
 
@@ -100,10 +176,10 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		artisans.SetShader("basic");
-		artisans.name = "artisans";
-		EntityManager::AddEntity(artisans);
+		 Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		 artisans.SetShader("basic");
+		 artisans.name = "artisans";
+		 EntityManager::AddEntity(artisans);
 
 		//artisans.getMesh(0).MakeWireFrame();
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
@@ -115,7 +191,7 @@ int main(void)
 		//bvh.BuildBVH();
 		//bvh.CreateBVHTextures();
 
-		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr << "\n";
+		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
 		//
 
 		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
@@ -170,7 +246,7 @@ int main(void)
 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
-		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 200.0f);
+		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 400.0f);
 		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
 		cam2.RotateYlocal(glm::radians(-90.0f));
 
@@ -200,13 +276,9 @@ int main(void)
 		glm::vec4 s = pp[3];
 		glm::vec4  override_color(0.3f, 0.5, 0.1, 0.5f);
 
-		//auto& singledotshader = ShaderManager::GetShader("singledotshader");
-		//
-		// Render loop
-		//
 		ScreenQuad screenQuad;
 
-		LightManager::AddLight({ 0,  5, 0 }, { 1,0,0 });
+		LightManager::AddLight({ 0,  5, 0 }, { 1, 0,0 });
 		LightManager::AddLight({ -2,  3, 0 }, { 0,1,0 });
 		LightManager::AddLight({ 2,  3, 0 }, { 0,0,1 });
 
@@ -214,29 +286,25 @@ int main(void)
 		const glm::vec3 rightWorld(1, 0, 0);
 		const glm::vec3 forwardWorld(0, 0, -1);
 
-
 		double prevFrameTime = glfwGetTime();
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		bool drawBvh = false;
 		int currentBbox = 0;
 
+		float smoothStart = 0;
+		float smoothEnd = 1;
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
 			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LEQUAL);	double currentFrameTime = glfwGetTime();
+			glDepthFunc(GL_LESS);
+			double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 
 #pragma region input
 			userInterface.Update();
 			InputManager::Update(camera);
-			double MouseX, MouseY;
-
-			glfwGetCursorPos(window, &MouseX, &MouseY);
-
-			const Ray ray = camera.RayFromMouse(MouseX, MouseY);
-			//bvh.TraceRay(ray);
 
 
 			const float average = (float)std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
@@ -272,11 +340,10 @@ int main(void)
 			spyro.Update(deltaTime);
 			//duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			artisans.Update(deltaTime);
+			//artisans.Update(deltaTime);
 
-
+			//artisans.Draw(camera);
 			spyro.Draw(camera);
-			artisans.Draw(camera);
 
 			// nanosuit.GetShader().Bind();
 			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
@@ -298,7 +365,8 @@ int main(void)
 
 			// draw AABB instanced
 			//bvh.Draw(camera);
-
+			static float angle = 45;
+			ImGui::SliderAngle("angle slider", &angle);
 
 			LightManager::debug_render(camera);
 
@@ -319,8 +387,13 @@ int main(void)
 			postProcessShader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
 			postProcessShader.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(camera.GetViewMatrix()));
 
-			postProcessShader.SetFloat("near_plane", camera.GetNearPlaneDist());
-			postProcessShader.SetFloat("far_plane", camera.GetFarPlaneDist());
+			postProcessShader.SetFloat("u_near_plane", camera.GetNearPlaneDist());
+			postProcessShader.SetFloat("u_far_plane", camera.GetFarPlaneDist());
+
+			ImGui::SliderFloat("smoothstep start", &smoothStart, 0, .9f);
+			ImGui::SliderFloat("smoothstep end", &smoothEnd, 0.9f, 2);
+			postProcessShader.SetFloat("u_smoothStepStart", smoothStart);
+			postProcessShader.SetFloat("u_smoothStepEnd", smoothEnd);
 
 			//draw final quad
 			screenQuad.Bind();
@@ -339,6 +412,14 @@ int main(void)
 
 			screenQuad.Draw();
 			screenQuad.UnBind();
+			static float angleee = 0;
+			angleee += 0.01f;
+
+			static auto bcolor = glm::vec4(1, 0.5f, 0, 1);
+			ImGui::ColorEdit4("bcolor", glm::value_ptr(bcolor));
+			renderer.DrawCube(camera, glm::rotate(glm::mat4(1.0f), angleee, { 0,1,0 })
+				* glm::scale(glm::mat4(1.0f), { cos(angleee), 0.5 + 0.5 * sin(angleee),-cos(angleee) }), bcolor);
+
 
 			userInterface.Draw();
 

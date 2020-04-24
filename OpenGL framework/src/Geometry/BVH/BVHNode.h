@@ -10,7 +10,7 @@ public:
 	int m_leftFirst;	//4	+
 	int m_count;		//4 = 16
 	AABB m_bounds;		//4 * 4  = 16 --> 16 + 16  = 32-byte aligned
-
+	
 	BVHNode() : m_start(-1), m_end(-1), m_leftFirst(-1), m_count(-1)  , m_bounds() {};
 
 

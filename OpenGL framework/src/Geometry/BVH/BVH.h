@@ -12,6 +12,7 @@ struct HitData
 {
 	HitData(float _distance, unsigned int _nodeIdx)
 		:
+		triangleIdx(2<<32),
 		distance(_distance),
 		nodeIdx(_nodeIdx) 
 	{}
@@ -23,30 +24,30 @@ struct HitData
 
 class BVH
 {
-private: //todo:: check if unsigned
-	//unsigned int m_triangleIndexTexture;
-	//unsigned int m_triangleTexture;
-	//unsigned int m_indexTexture;
-	//unsigned int m_minTexture;
-	//unsigned int m_maxTexture;
-public:
-	std::vector<unsigned int> m_indices;
-	BVHNode* m_pool{};
-	BVHNode* m_root{};
-	int m_poolPtr{};
-	std::vector<AABB> m_localBounds;
-	std::vector<glm::mat4> m_aabbMatrices;
-	Model* m_wireCube;
-
+private: 
 	Texture1D  m_aabbNodesTexture;
 	Texture1D  m_minTexture;
 	Texture1D  m_maxTexture;
 	Texture1D  m_triangleTexture;
 	Texture1D  m_triangleIdxTexture;
+	bool m_isBuilt = false;
+public:
+	int count = 0;
+	std::vector<unsigned int> m_indices;
+	BVHNode* m_pool{};
+	BVHNode* m_root{};
+	int m_poolPtr{};
+	std::vector<AABB> m_localBounds;		//local bounding box of each triangle
+	std::vector<glm::mat4> m_aabbMatrices;	//matrix representing bounding boxes
+	Model* m_wireCube;
+
 
 	BVH() = default;
 	BVH(std::vector<unsigned int>& indices, BVHNode* pool, BVHNode* root, int poolPtr)
-		: m_indices(indices),
+		:
+		m_triangleVAO(0), 
+		m_triangleVBO(0),
+		m_indices(indices),
 		m_pool(pool),
 		m_root(root),
 		m_poolPtr(poolPtr)
@@ -66,6 +67,7 @@ public:
 	void InitTriangleRenderer();
 	void CreateBVHTextures();
 	void DrawSingleAABB(Camera& cam, int index);
+	bool IsBuilt() { return m_isBuilt; }
 private:
 	unsigned int m_triangleVAO;
 	unsigned int m_triangleVBO;

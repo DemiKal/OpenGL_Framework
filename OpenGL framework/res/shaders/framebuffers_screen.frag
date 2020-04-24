@@ -7,8 +7,11 @@ in vec2 TexCoords;
 
 const int StackSize = 64;
 
-uniform float near_plane;
-uniform float far_plane;
+uniform float u_near_plane;
+uniform float u_far_plane;
+
+uniform float u_smoothStepStart;
+uniform float u_smoothStepEnd;
 
 uniform vec3 u_cameraPos;
 uniform vec3 u_viewDir;
@@ -288,7 +291,8 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir, out float u, out float v)
 float LinearizeDepth(float depth)
 {
     float z = depth * 2.0 - 1.0; // Back to NDC 
-    return (2.0 * near_plane * far_plane) / (far_plane + near_plane - z * (far_plane - near_plane));	
+    return (2.0 * u_near_plane * u_far_plane) / 
+	(u_far_plane + u_near_plane - z * (u_far_plane - u_near_plane));	
 }
 float LinearizeDepth2(float z)
 {
@@ -340,6 +344,7 @@ void main()
 	vec4 albedo4 = vec4(albedo3, 1);
 	vec4 black = vec4(0, 0, 0, 1.0f);
 	vec4 finalColor = albedo4;
+
 	//vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
 	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
 	//bool foundHit = false;
@@ -362,7 +367,7 @@ void main()
 	float u;
 	float v;
 	//bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
-	 bool foundHit = false;//	TraverseBVH(rayOrigin, rayDir, u, v);
+	// bool foundHit = false;//	TraverseBVH(rayOrigin, rayDir, u, v);
 	//finalColor = vec4(1, 1, 1, 1);
 	//vec3 spyrotex = texture(u_spyroTexture, vec2(u,v), 0).rgb;
 	
@@ -371,8 +376,19 @@ void main()
 	float depthLinear = LinearizeDepth2(depthval);
 	vec4 distanceColor = vec4( vec3(depthLinear), 1.0f);
 	finalColor=distanceColor;
-	//finalColor = mix(albedo4, vec4(0.1f,0.1f,0.1f,1.0f),  smoothstep(0.0f, 1.2f, depthLinear));	// mix(albedo4 , distanceColor, 0.5f); ;
-	finalColor = vec4(WorldPosFromDepth(depthval),1.0f);
+	float smoothStp =smoothstep(u_smoothStepStart, u_smoothStepEnd, depthLinear);
+	 finalColor = mix(albedo4, vec4(0.1f,0.1f,0.1f,1.0f),  smoothStp);	// mix(albedo4 , distanceColor, 0.5f); ;
+	 vec4 worldPos = vec4(WorldPosFromDepth(depthval), 1.0f);
+	 vec4 distPerpixel = worldPos -	vec4( u_cameraPos, 1.0f) ;
+	 float distL = length(distPerpixel.xyz);
+	 
+	 finalColor = albedo4;
+	// if(distL >20) 
+	//	finalColor = black;
+	// bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
+	// if(foundHit)
+	//	finalColor = vec4(u,v,0.5f,1.0f);
+	//finalColor = vec4(distPerpixel.xyz,1.0f);
 	FragColor =  finalColor;
 
 

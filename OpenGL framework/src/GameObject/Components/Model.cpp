@@ -27,8 +27,13 @@ glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
 	return result;
 }
 
-Model::Model(const std::string& path, const aiPostProcessSteps loadFlags) :
-	model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0)
+Model::Model(const std::string& path, const aiPostProcessSteps loadFlags = aiProcess_GenBoundingBoxes) 
+	:
+	model(glm::mat4(1.0f)), 
+	meshes(), 
+	directory(""),
+	textures_loaded(), 
+	shaderIdx(0)
 {
 	loadModel(path, loadFlags);
 }
@@ -64,10 +69,10 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 	}
 }
 
-void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags = aiProcess_Triangulate)
+void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags)
 {
 	Assimp::Importer import;
-	const auto standardFlags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes;
+	const auto standardFlags =  aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes;
 	const auto flagsComposed = standardFlags | LoadFlags;
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
 
