@@ -28,12 +28,16 @@ public:
 		glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
 		const GLenum filterMethod = GL_NEAREST);
 
-	
+	void ClearColor(float r, float g, float b, float a);
+	void ClearColor(const glm::vec4& color);
+	void Clear(GLenum type);
 	
 	bool GetAlphaBlending() const { return m_alphaBlending; }
 	void CreateCubeMesh();
 	void CreateTriangle();
 	void CreatePlane();
 	void DrawCube(const Camera& cam, const glm::mat4& transform,  const glm::vec4 color);
-
+	void Enable(GLenum type);
+	void EnableDepth();
+	void SetDepthFunc(GLenum depthFunc);
 };

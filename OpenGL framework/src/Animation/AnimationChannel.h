@@ -27,12 +27,18 @@ public:
 		std::vector<RotationKey>& rotations,
 		std::vector<ScaleKey>& scalings)
 		:
-		m_name(name), m_positionKeys(positions), m_rotationKeys(rotations), m_scaleKeys(m_scaleKeys) {};
+		m_name(name), 
+		m_positionKeys(positions),
+		m_rotationKeys(rotations),
+		m_scaleKeys(m_scaleKeys) {};
 
 	//copy constructor
 	AnimationChannel(const AnimationChannel& a)
-		: m_name(a.m_name), m_positionKeys(a.m_positionKeys),
-		m_rotationKeys(a.m_rotationKeys), m_scaleKeys(a.m_scaleKeys) {}
+		: m_name(a.m_name),
+		m_positionKeys(a.m_positionKeys),
+		m_rotationKeys(a.m_rotationKeys),
+		m_scaleKeys(a.m_scaleKeys) 
+	{}
 
 	PositionKey  GetPositionByIndex(const unsigned int idx) { return m_positionKeys[idx]; }
 	RotationKey GetRotationByIndex(const unsigned int idx) { return m_rotationKeys[idx]; }
@@ -43,8 +49,8 @@ public:
 
 private:
 	std::string m_name;
-	std::vector<PositionKey  > m_positionKeys;
-	std::vector<RotationKey >  m_rotationKeys;
-	std::vector<ScaleKey >  m_scaleKeys;
+	std::vector<PositionKey> m_positionKeys;
+	std::vector<RotationKey>  m_rotationKeys;
+	std::vector<ScaleKey>  m_scaleKeys;
 };
 

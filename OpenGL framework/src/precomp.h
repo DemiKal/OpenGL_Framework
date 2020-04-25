@@ -2,7 +2,6 @@
 
 const int SCREENWIDTH = 1920;
 const int SCREENHEIGHT = 1080;
-
 #include <filesystem>
 #include <iostream>
 #include <vector>
@@ -44,6 +43,12 @@ const int SCREENHEIGHT = 1080;
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+
+
+const glm::vec3 UP_WORLD(0, 1, 0);
+const glm::vec3 RIGHT_WORLD(1, 0, 0);
+const glm::vec3 FORWARD_WORLD(0, 0, -1);
 
 #define ASSERT(x) if(!(x)) __debugbreak(); 
 #define GLCall(x) GLClearError();\

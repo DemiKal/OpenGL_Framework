@@ -16,7 +16,9 @@ public:
 
 	Animator(const Animator& a) :
 		animTime(a.animTime), current(a.current), m_bones(a.m_bones),
-		m_duration(a.m_duration), m_ticks(a.m_ticks), m_inverse_root(a.m_inverse_root) {}
+		m_duration(a.m_duration),
+		m_ticks(a.m_ticks),
+		m_inverse_root(a.m_inverse_root) {}
 
 
 	//TODO: improve

@@ -72,74 +72,8 @@ int main(void)
 	//std::for_each(std::execution::par, nums.cbegin(), nums.cend(), print);
 	std::cout << '\n';
 
-	std::for_each(std::execution::par, std::begin(nums), std::end(nums),
-		[&](int i)
-		{
-			std::cout << i << "\n";
-			//nums.fetch_add(1, std::memory_order_relaxed);
-		});
-
-
-	struct position
-	{
-		position(const float x, const  float y) : pos(x, y) {}
-		glm::vec2 pos;
-	};
-
-	struct velocity
-	{
-		velocity(const float x, const  float y) : vel(x, y) {}
-		glm::vec2 vel;
-	};
-
-	struct aaaaaaaaaaaa
-	{
-		int i;
-	};
-	{
-		entt::registry registry;
-
-		//entt::registry registry;
-		std::uint64_t dt = 16;
-
-		for (auto i = 0; i < 10; ++i)
-		{
-			auto entity = registry.create();
-			registry.assign<entt::tag<"enemy"_hs>>(entity);
-
-			registry.assign<position>(entity, i * 1.f, i * 1.f);
-			if (i % 2 == 0) registry.assign<velocity>(entity, i * .1f, i * .1f);
-		}
-		auto view = registry.view<position, velocity>();
-		for (auto& entity : view) {
-			// const auto [ cpos , cvel] = view.get<const position,velocity>(entity);
-			//  cvel = { -150, -10 };
-			//position& vel = view.get<position>(entity);
-			//const position& cpos = view.get<const position>(entity);
-			//const velocity& cvel = view.get<const velocity>(entity);
-			//std::tuple<position&, const velocity&> tup = view.get<position, const velocity>(entity);
-			//std::tuple<const position&, const velocity&> ctup = view.get<const position, const velocity>(entity);
-		}
-		//auto view2 = registry.view<position>();
-		//for (auto& entity :view2 )
-		//{
-		//	auto& pos = view2.get<position>(entity);
-		//	std::cout << "pos: { " << pos.pos.x << ", " << pos.pos.y << " }" << "\n";
-		//}
-		//auto view3 = registry.view<velocity>();
-		//for (auto& entity : view3)
-		//{
-		//	auto& vel = view3.get<velocity>(entity);
-		//	std::cout << "vel: { " << vel.vel.x << ", " << vel.vel.y << " }" << "\n";
-		//}
-		//auto view = registry.view<position, velocity>();
-		//for (auto entity : view)
-		//{
-		//	auto& vel = view.get<velocity>(entity);
-		//}
-
-			//auto view = registry.view<position, velocity>();
-
+	 
+	{ 
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
 
@@ -313,9 +247,7 @@ int main(void)
 		LightManager::AddLight({ -2,  3, 0 }, { 0,1,0 });
 		LightManager::AddLight({ 2,  3, 0 }, { 0,0,1 });
 
-		const glm::vec3 upWorld(0, 1, 0);
-		const glm::vec3 rightWorld(1, 0, 0);
-		const glm::vec3 forwardWorld(0, 0, -1);
+		
 
 		double prevFrameTime = glfwGetTime();
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -323,17 +255,17 @@ int main(void)
 		bool drawBvh = false;
 		int currentBbox = 0;
 
-		float smoothStart = 0;
-		float smoothEnd = 1;
+
 		double totalTime = 0;
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
+			//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			renderer.ClearColor(0, 0, 0, 1);
+			renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//glClear();
+			renderer.Enable(GL_DEPTH_TEST);
+			renderer.SetDepthFunc(GL_LESS);
 			double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 			renderer.SetAlphaBlending(false);
@@ -389,25 +321,15 @@ int main(void)
 
 			// 1. geometry pass: render scene's geometry/color data into gbuffer
 			// -----------------------------------------------------------------
-			glEnable(GL_DEPTH);
+			renderer.EnableDepth();
 			//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			G_buffer.Bind();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			//	Shader& gbufferShaderGeometry = ShaderManager::GetShader("Gbuffer_basic");
-				//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-
-			//	gbufferShaderGeometry.Bind();
-			//	gbufferShaderGeometry.SetUniformMat4f("u_projection", camera.GetProjectionMatrix());
-			//	gbufferShaderGeometry.SetUniformMat4f("u_view", camera.GetViewMatrix());
-			//	gbufferShaderGeometry.SetUniformMat4f("u_model", spyro.model);
-			//	
+			renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
 			artisans.Draw(camera);
 			spyro.Draw(camera);
 			renderer.SetAlphaBlending(true);
-			//glDisable(GL_DEPTH_TEST);
 			
-
-
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			// nanosuit.GetShader().Bind();
@@ -429,9 +351,9 @@ int main(void)
 			deferredShading.Bind();
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, G_buffer.GetPositionID());
-			glActiveTexture(GL_TEXTURE1);
+			glActiveTexture(GL_TEXTURE0+1);
 			glBindTexture(GL_TEXTURE_2D, G_buffer.GetNormalID());
-			glActiveTexture(GL_TEXTURE2);
+			glActiveTexture(GL_TEXTURE0+2);
 			glBindTexture(GL_TEXTURE_2D, G_buffer.GetAlbedoSpecID());
 
 			// send light relevant uniforms
@@ -447,19 +369,15 @@ int main(void)
 
 			screenQuad.Bind();
 			screenQuad.Draw();
-			//deferredShading.setVec3("viewPos", camera.Position);
-			// finally render quad
 		
 			renderer.BlitFrameBuffer(G_buffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
-			 bvh.Draw(camera);
-			//renderQuad();
-			// draw AABB instanced
-			//bvh.Draw(camera);
-			static float angle = 45;
-			ImGui::SliderAngle("angle slider", &angle);
+			
 
 			//LightManager::debug_render(camera);
-			if (ImGui::RadioButton("Draw bvh", &drawBvh)) drawBvh = !drawBvh;
+			if (ImGui::RadioButton("Draw bvh", &drawBvh)) 
+				drawBvh = !drawBvh;
+			
+			if(drawBvh) bvh.Draw(camera);
 			//glBindFramebuffer(GL_FRAMEBUFFER ,0);
 			//framebuffer.Bind();
 		

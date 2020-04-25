@@ -34,23 +34,23 @@ void Renderer::CreateCubeMesh()
 	   5,4, 6,7,
 	   4,7, 0,4, 3,7
 	};
-	
+
 	glGenVertexArrays(1, &cubeVAO);
-	glGenBuffers(1, &cubeVBO); 
-	
+	glGenBuffers(1, &cubeVBO);
+
 	glBindVertexArray(cubeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cubeVertices.size(), &cubeVertices[0], GL_STATIC_DRAW);
-	
+
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr);
 
-	glGenBuffers(1, &cubeEBO);	
+	glGenBuffers(1, &cubeEBO);
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int),
 		&cubeIndices[0], GL_STATIC_DRAW));
-	
-	
+
+
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -65,14 +65,14 @@ void Renderer::CreatePlane()
 {
 
 }
- 
 
-void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform,  const glm::vec4 color)
+
+void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm::vec4 color)
 {
 	auto& shader = ShaderManager::GetShader("AABB_single");
 	shader.Bind();
- 
- 	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
+
+	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
 	shader.SetUniformMat4f("model", transform);
 	shader.SetUniformMat4f("view", cam.GetViewMatrix());
 	shader.SetUniformMat4f("projection", cam.GetProjectionMatrix());
@@ -80,12 +80,27 @@ void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform,  const gl
 
 	glBindVertexArray(cubeVAO);
 
-	GLCall(glDrawElements(GL_LINES, 
-		static_cast<GLsizei>(cubeIndices.size()), 
+	GLCall(glDrawElements(GL_LINES,
+		static_cast<GLsizei>(cubeIndices.size()),
 		GL_UNSIGNED_INT, nullptr));
 
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
+}
+
+void Renderer::Enable(GLenum type)
+{
+	GLCall(glEnable(type));
+}
+
+void Renderer::EnableDepth()
+{
+}
+
+void Renderer::SetDepthFunc(GLenum depthFunc)
+{
+	//TODO: check bitflag if correct
+	glDepthFunc(depthFunc);
 }
 
 Renderer::Renderer()
@@ -144,17 +159,28 @@ bool GLLogCall(const char* function, const char* file, int line)
 void Renderer::BlitFrameBuffer(const unsigned int from,
 	const unsigned int to,
 	const GLenum type,
-	glm::ivec2 srcStart  , 
-	glm::ivec2 srcEnd    , 
-	glm::ivec2 destStart  ,
-	glm::ivec2 destEnd ,
-	const GLenum filterMethod )
+	glm::ivec2 srcStart,
+	glm::ivec2 srcEnd,
+	glm::ivec2 destStart,
+	glm::ivec2 destEnd,
+	const GLenum filterMethod)
 {
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, from);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, to);
 	glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT,
 		type, filterMethod);
+}
 
-
+void Renderer::ClearColor(float r, float g, float b, float a)
+{
+	glClearColor(r,g,b,a);
+}
+void Renderer::ClearColor(const glm::vec4& color)
+{
+	glClearColor(color.x, color.y, color.z, color.w);
+}
+void Renderer::Clear(GLenum type)
+{
+	glClear(type);
 }
