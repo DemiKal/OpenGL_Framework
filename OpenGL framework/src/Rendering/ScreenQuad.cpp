@@ -26,7 +26,7 @@ ScreenQuad::ScreenQuad() : m_VAO(0), m_VBO(0)
 
 
 }
-void ScreenQuad::Bind()
+void ScreenQuad::Bind() const
 {
 	GLCall(glBindVertexArray(m_VAO));
 }

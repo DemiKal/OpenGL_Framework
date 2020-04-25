@@ -132,7 +132,7 @@ void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
-	shader.SetUniform4f("u_color", color.x,color.y,color.z,color.w);
+	shader.SetVec4f("u_color", color.x,color.y,color.z,color.w);
 
 	Mesh& mesh = wirecube->getMesh(0);
 

@@ -32,7 +32,7 @@ void Mesh::Draw(Shader& shader)
 		else if (name == "texture_height")
 			number = std::to_string(heightNr++);	// transfer unsigned int to stream
 				// now set the sampler to the correct texture unit
-		shader.SetUniform1i(name + number, i);
+		shader.SetInt(name + number, i);
 		//GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
 		// and finally bind the texture
 		GLCall(glBindTexture(GL_TEXTURE_2D, tex.GetID()));

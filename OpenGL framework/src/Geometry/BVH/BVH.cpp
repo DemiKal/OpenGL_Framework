@@ -207,7 +207,7 @@ void BVH::DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& 
 	//shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", cam->GetViewMatrix());
 	shader.SetUniformMat4f("projection", cam->GetProjectionMatrix());
-	shader.SetUniform4f("u_color", 1, 1, 0.0f, 1.0f);
+	shader.SetVec4f("u_color", 1, 1, 0.0f, 1.0f);
 	glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO);
 
 	glBindVertexArray(m_triangleVAO);

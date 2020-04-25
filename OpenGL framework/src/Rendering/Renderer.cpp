@@ -67,7 +67,7 @@ void Renderer::CreatePlane()
 }
 
 
-void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm::vec4 color)
+void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm::vec4 color) const
 {
 	auto& shader = ShaderManager::GetShader("AABB_single");
 	shader.Bind();
@@ -76,7 +76,7 @@ void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm
 	shader.SetUniformMat4f("model", transform);
 	shader.SetUniformMat4f("view", cam.GetViewMatrix());
 	shader.SetUniformMat4f("projection", cam.GetProjectionMatrix());
-	shader.SetUniform4f("u_color", color.x, color.y, color.z, color.w);
+	shader.SetVec4f("u_color", color.x, color.y, color.z, color.w);
 
 	glBindVertexArray(cubeVAO);
 

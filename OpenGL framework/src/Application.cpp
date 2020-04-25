@@ -355,10 +355,10 @@ int main(void)
 			glBindTexture(GL_TEXTURE_2D, G_buffer.GetAlbedoSpecID());
 
 			// send light relevant uniforms
-			deferredShading.setVec3("u_globalLightDir", lightDir);
+			deferredShading.SetVec3f("u_globalLightDir", lightDir);
 			deferredShading.SetFloat("u_ambientLight", ambientLight);
 			deferredShading.SetFloat("u_fogDistance", fogDistance);
-			deferredShading.setVec3("u_viewPos", camera.GetPosition());
+			deferredShading.SetVec3f("u_viewPos", camera.GetPosition());
 			const char* listbox_items[] = { "Regular Shading", "Albedo", "Normals", "Position", "Specular" };
 			static int displayMode = 0;
 			ImGui::ListBox("listbox\n(single select)", &displayMode, listbox_items, IM_ARRAYSIZE(listbox_items), 5);

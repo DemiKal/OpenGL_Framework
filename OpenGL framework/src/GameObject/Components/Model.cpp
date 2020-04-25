@@ -547,7 +547,10 @@ void Model::Draw(const Camera& cam)
 	//		mesh.m_aabb.Draw(cam);
 }
 
-Shader& Model::GetShader() const { return   ShaderManager::GetShader(m_shaderIdx); }
+Shader& Model::GetShader() const
+{
+	return   ShaderManager::GetShader(m_shaderIdx);
+}
 
 Model Model::CreateCube() {
 	Model model;

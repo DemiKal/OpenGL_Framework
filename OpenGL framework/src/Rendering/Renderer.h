@@ -16,28 +16,28 @@ private:
 
 public:
 	Renderer();
-	void Clear();
-	void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
+	static void Clear();
+	static void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
 	void SetAlphaBlending(bool set);
-	void BlitFrameBuffer(const unsigned int from,
-		const unsigned int to,
-		const GLenum type,
-		glm::ivec2 srcStart = { 0,0 },
-		glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT },
-		glm::ivec2 destStart = { 0,0 },
-		glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
-		const GLenum filterMethod = GL_NEAREST);
+	static void BlitFrameBuffer(const unsigned int from,
+	                            const unsigned int to,
+	                            const GLenum type,
+	                            glm::ivec2 srcStart = { 0,0 },
+	                            glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT },
+	                            glm::ivec2 destStart = { 0,0 },
+	                            glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
+	                            const GLenum filterMethod = GL_NEAREST);
 
-	void ClearColor(float r, float g, float b, float a);
-	void ClearColor(const glm::vec4& color);
-	void Clear(GLenum type);
+	static void ClearColor(float r, float g, float b, float a);
+	static void ClearColor(const glm::vec4& color);
+	static void Clear(GLenum type);
 	
 	bool GetAlphaBlending() const { return m_alphaBlending; }
 	void CreateCubeMesh();
 	void CreateTriangle();
 	void CreatePlane();
-	void DrawCube(const Camera& cam, const glm::mat4& transform,  const glm::vec4 color);
-	void Enable(GLenum type);
-	void EnableDepth();
-	void SetDepthFunc(GLenum depthFunc);
+	void DrawCube(const Camera& cam, const glm::mat4& transform,  const glm::vec4 color) const;
+	static void Enable(GLenum type);
+	static void EnableDepth();
+	static void SetDepthFunc(GLenum depthFunc);
 };

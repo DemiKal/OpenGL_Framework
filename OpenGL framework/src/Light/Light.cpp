@@ -29,7 +29,7 @@ void Light::draw(const Camera& cam )
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
-	shader.setVec3("color", get_color());
+	shader.SetVec3f("color", get_color());
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(15);
 
