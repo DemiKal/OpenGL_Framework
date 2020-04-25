@@ -32,6 +32,83 @@ void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 	}
 }
 
+Min AABB::Minimize(const Min& minA, const Min& minB) const
+{
+	glm::vec3 vmin(
+		std::min(minA.v.x, minB.v.x),
+		std::min(minA.v.y, minB.v.y),
+		std::min(minA.v.z, minB.v.z));
+	return vmin;
+}
+
+Max AABB::Maximize(const Max& maxA, const Max& maxB) const
+{
+	return glm::vec3(
+		std::max(maxA.v.x, maxB.v.x),
+		std::max(maxA.v.y, maxB.v.y),
+		std::max(maxA.v.z, maxB.v.z));
+}
+
+AABB AABB::Union(const AABB& a) const
+{
+	const Min minV = Minimize(a.m_min, m_min);
+	const Max maxV = Maximize(a.m_max, m_max);
+
+	return AABB(minV, maxV);
+}
+
+std::vector<glm::vec4> AABB::GetVerticesLocal() const
+{
+	return
+	{
+		//front plane
+		{m_min.v.x, m_min.v.y, m_max.v.z, 1.0f}, {m_max.v.x, m_min.v.y, m_max.v.z, 1.0f},
+		{m_max.v.x, m_max.v.y, m_max.v.z, 1.0f}, {m_min.v.x, m_max.v.y, m_max.v.z, 1.0f},
+
+		{m_min.v.x, m_min.v.y, m_min.v.z, 1.0f}, {m_max.v.x, m_min.v.y, m_min.v.z, 1.0f},
+		{m_max.v.x, m_max.v.y, m_min.v.z, 1.0f}, {m_min.v.x, m_max.v.y, m_min.v.z, 1.0f},
+	};
+}
+
+void AABB::RecalcBounds(const glm::mat4& transform, const AABB& original)
+{
+	const std::vector<glm::vec4> verts_local = original.GetVerticesLocal();
+	std::vector<glm::vec3> verts_world;
+	std::transform(verts_local.begin(), verts_local.end(),
+	               std::back_inserter(verts_world),
+	               [transform](const glm::vec4& v) { return glm::vec3(transform * v); });
+
+	CalcBounds(verts_world);
+}
+
+void AABB::CalcBounds(const std::vector<glm::vec3>& posVector)
+{
+	Min vmin(glm::vec3((float)std::numeric_limits<float>::infinity()));
+	Max vmax(glm::vec3((float)-std::numeric_limits<float>::infinity()));
+
+	for (const glm::vec3& v : posVector)
+	{
+		vmin = Minimize(vmin, v);
+		vmax = Maximize(vmax, v);
+	}
+
+	m_min = vmin;
+	m_max = vmax;
+}
+
+glm::mat4 AABB::GetTransform() const
+{
+	const glm::vec3 scale = m_max.v - m_min.v;
+	const glm::vec3 center = 0.5f * (m_max.v + m_min.v);
+
+	return glm::scale(glm::translate(glm::mat4(1.0f), center), scale);
+}
+
+void AABB::Update(const glm::mat4& transform, const AABB& original)
+{
+	RecalcBounds(transform, original);
+}
+
 void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f })
 {
 	const glm::mat4 model = GetTransform();

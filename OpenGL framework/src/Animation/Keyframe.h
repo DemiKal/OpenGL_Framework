@@ -1,11 +1,13 @@
 #pragma once
 class Keyframe
 {
-	float TimeStamp;
-	std::unordered_map<std::string, glm::mat4> pose;
+	float m_timeStamp;
+	std::unordered_map<std::string, glm::mat4> m_pose;
 
-	Keyframe(const float _timestamp, std::unordered_map<std::string, glm::mat4> _pose)
+	Keyframe(const float _timestamp, const std::unordered_map<std::string, glm::mat4> _pose)
 		:
-		TimeStamp(_timestamp), pose(_pose) {}
+		m_timeStamp(_timestamp),
+		m_pose(_pose)
+	{}
 };
 

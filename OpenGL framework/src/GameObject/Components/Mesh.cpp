@@ -41,7 +41,7 @@ void Mesh::Draw(Shader& shader)
 	if (!m_animator.m_bones.empty()) {
 		std::vector<glm::mat4> boneMatrices;
 		for (auto& m : m_animator.m_bones)
-			boneMatrices.emplace_back(m.pose_transform);
+			boneMatrices.emplace_back(m.m_pose_transform);
 
 		const auto idx = shader.GetUniformLocation("mBones[0]");
 		GLCall(glUniformMatrix4fv((GLint)idx, (GLsizei)20, GL_FALSE, (const GLfloat*)&boneMatrices[0])); // Passing 20 matrices

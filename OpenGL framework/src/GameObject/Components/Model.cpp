@@ -161,7 +161,7 @@ void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
 	{
 		for (int i = 0; i < arma->children.size(); i++)
 		{
-			joint.childrenPair.emplace_back(
+			joint.m_childrenPair.emplace_back(
 				std::make_pair(arma->children[i]->name, bonesDict[arma->children[i]->name]));
 		}
 		return;
@@ -171,9 +171,9 @@ void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
 }
 void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 {
-	if (armature->name == joint.Name)
+	if (armature->name == joint.m_name)
 	{
-		joint.nodeTransform = armature->mat;
+		joint.m_nodeTransform = armature->mat;
 		return;
 	}
 	else for (auto& children : armature->children)	AssignMatrices(children, joint);
