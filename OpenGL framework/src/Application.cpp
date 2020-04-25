@@ -6,6 +6,7 @@
 #include "Rendering/Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "Rendering/Renderer.h"
+#include "Rendering/Buffer/Gbuffer.h"
 #include "GameObject/Camera.h"
 #include "Light/LightManager.h"
 #include "GameObject/EntityManager.h"
@@ -245,34 +246,9 @@ int main(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// configure g-buffer framebuffer
 // ------------------------------
-		unsigned int gBuffer;
-		glGenFramebuffers(1, &gBuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-		unsigned int gPosition, gNormal, gAlbedoSpec;
-		// position color buffer
-		glGenTextures(1, &gPosition);
-		glBindTexture(GL_TEXTURE_2D, gPosition);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
-		// normal color buffer
-		glGenTextures(1, &gNormal);
-		glBindTexture(GL_TEXTURE_2D, gNormal);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
-		// color + specular color buffer
-		glGenTextures(1, &gAlbedoSpec);
-		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
-		// tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
-		unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-		glDrawBuffers(3, attachments);
+
+		Gbuffer G_buffer;
+		unsigned int gbuffer = G_buffer.GetID();
 
 		Shader deferredShading = ShaderManager::GetShader("deferred_shading");
 
@@ -414,7 +390,8 @@ int main(void)
 			// 1. geometry pass: render scene's geometry/color data into gbuffer
 			// -----------------------------------------------------------------
 			glEnable(GL_DEPTH);
-			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+			//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+			G_buffer.Bind();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//	Shader& gbufferShaderGeometry = ShaderManager::GetShader("Gbuffer_basic");
 				//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -447,14 +424,16 @@ int main(void)
 
 			// 2. lighting pass: calculate lighting by iterating over a screen filled quad pixel-by-pixel using the gbuffer's content.
 			// -----------------------------------------------------------------------------------------------------------------------
+			
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			deferredShading.Bind();
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, gPosition);
+			glBindTexture(GL_TEXTURE_2D, G_buffer.GetPositionID());
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, gNormal);
+			glBindTexture(GL_TEXTURE_2D, G_buffer.GetNormalID());
 			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+			glBindTexture(GL_TEXTURE_2D, G_buffer.GetAlbedoSpecID());
+
 			// send light relevant uniforms
 			deferredShading.setVec3("u_globalLightDir", lightDir);
 			deferredShading.SetFloat("u_ambientLight", ambientLight);
@@ -470,11 +449,9 @@ int main(void)
 			screenQuad.Draw();
 			//deferredShading.setVec3("viewPos", camera.Position);
 			// finally render quad
-			 glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
-			 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			 glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT,
-			 	GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-			bvh.Draw(camera);
+		
+			renderer.BlitFrameBuffer(G_buffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
+			 bvh.Draw(camera);
 			//renderQuad();
 			// draw AABB instanced
 			//bvh.Draw(camera);

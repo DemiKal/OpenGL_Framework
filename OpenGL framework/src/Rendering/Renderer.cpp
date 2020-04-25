@@ -140,3 +140,21 @@ bool GLLogCall(const char* function, const char* file, int line)
 
 	return true;
 }
+
+void Renderer::BlitFrameBuffer(const unsigned int from,
+	const unsigned int to,
+	const GLenum type,
+	glm::ivec2 srcStart  , 
+	glm::ivec2 srcEnd    , 
+	glm::ivec2 destStart  ,
+	glm::ivec2 destEnd ,
+	const GLenum filterMethod )
+{
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, from);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, to);
+	glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT,
+		type, filterMethod);
+
+
+}

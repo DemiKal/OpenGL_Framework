@@ -7,7 +7,7 @@ class Camera;
 
 class Renderer
 {
-private: 
+private:
 	bool m_alphaBlending = true;
 	std::vector<glm::vec3> cubeVertices;
 	std::vector<unsigned int> cubeIndices;
@@ -19,6 +19,17 @@ public:
 	void Clear();
 	void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
 	void SetAlphaBlending(bool set);
+	void BlitFrameBuffer(const unsigned int from,
+		const unsigned int to,
+		const GLenum type,
+		glm::ivec2 srcStart = { 0,0 },
+		glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT },
+		glm::ivec2 destStart = { 0,0 },
+		glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
+		const GLenum filterMethod = GL_NEAREST);
+
+	
+	
 	bool GetAlphaBlending() const { return m_alphaBlending; }
 	void CreateCubeMesh();
 	void CreateTriangle();

@@ -84,6 +84,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GBUFFER.CPP" />
+    <ClCompile Include="src\Rendering\Buffer\Gbuffer.cpp" />
     <ClCompile Include="src\Rendering\ScreenQuad.cpp" />
     <ClCompile Include="src\GameObject\Components\Texture1D.cpp" />
     <ClCompile Include="src\misc\UserInterface.cpp" />
@@ -202,6 +204,7 @@
     <None Include="src\vendor\glm\gtc\vec1.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rendering\Buffer\Gbuffer.h" />
     <ClInclude Include="src\Rendering\ScreenQuad.h" />
     <ClInclude Include="src\GameObject\Components\Texture1D.h" />
     <ClInclude Include="src\Geometry\Ray.h" />
