@@ -11,7 +11,7 @@
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
 #include "GameObject/Components/mesh.h"
-#include <Light\LightManager.h>
+#include "Light/LightManager.h"
 
 
 //from assimpviewer
@@ -27,12 +27,12 @@ glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
 	return result;
 }
 
-Model::Model(const std::string& path, const aiPostProcessSteps loadFlags = aiProcess_GenBoundingBoxes) 
+Model::Model(const std::string& path, const aiPostProcessSteps loadFlags = aiProcess_GenBoundingBoxes)
 	:
-	model(glm::mat4(1.0f)), 
-	meshes(), 
+	model(glm::mat4(1.0f)),
+	meshes(),
 	directory(""),
-	textures_loaded(), 
+	textures_loaded(),
 	shaderIdx(0)
 {
 	loadModel(path, loadFlags);
@@ -72,7 +72,7 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags)
 {
 	Assimp::Importer import;
-	const auto standardFlags =  aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes;
+	const auto standardFlags = aiProcess_GenSmoothNormals| aiProcess_GenBoundingBoxes;
 	const auto flagsComposed = standardFlags | LoadFlags;
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
 
@@ -511,40 +511,31 @@ void Model::Draw(const Camera& cam)
 	const glm::mat4 view = cam.GetViewMatrix();
 	const glm::mat4 proj = cam.GetProjectionMatrix();
 
-	Camera* cam2 = Camera::GetCam2();
-	glm::mat4 proj2 = cam2->GetProjectionMatrix();
-	glm::mat4 view2 = cam2->GetViewMatrix();
-
-
-	static float interp = 0;
-
-	ImGui::SliderFloat("interpolate", &interp, 0, 1);
-
-
-
-	//auto viewCombined =    * interp * view + (1 - interp) * view2;
-	//														    
-	//auto projCombined =   interp * proj + (1 - interp) * proj2;
-	auto viewCombined = view * (view2);
-	auto projCombined = proj * (proj2);
-
-	auto interpView = viewCombined * interp + (1 - interp) * view;
-	auto interpProj = projCombined * interp + (1 - interp) * proj;
-
-	shader.SetUniformMat4f("model", model);
-	shader.SetUniformMat4f("view", interpView);
-	shader.SetUniformMat4f("projection", interpProj);
-
-	auto itt = shader.m_uniformsInfo.find("directionalLight");
-
-	if (itt != shader.m_uniformsInfo.end());
-	{
-		glm::vec3 l = LightManager::GetDirectionalLight();
-		shader.setVec3("directionalLight", l);
-	}
-
-	if (shader.m_uniformsInfo.find("ambientLight") != shader.m_uniformsInfo.end())
-		shader.SetFloat("ambientLight", LightManager::GetAmbientLight());
+	//Camera* cam2 = Camera::GetCam2();
+	//glm::mat4 proj2 = cam2->GetProjectionMatrix();
+	//glm::mat4 view2 = cam2->GetViewMatrix();
+	//static float interp = 0;
+	//ImGui::SliderFloat("interpolate", &interp, 0, 1);
+	//	//auto viewCombined =    * interp * view + (1 - interp) * view2;
+	////														    
+	////auto projCombined =   interp * proj + (1 - interp) * proj2;
+	//auto viewCombined = view * (view2);
+	//auto projCombined = proj * (proj2);
+	//auto interpView = viewCombined * interp + (1 - interp) * view;
+	//auto interpProj = projCombined * interp + (1 - interp) * proj;
+	//auto itt = shader.m_uniformsInfo.find("directionalLight");
+	//
+	//if (itt != shader.m_uniformsInfo.end());
+	//{
+	glm::vec3 l = LightManager::GetDirectionalLight();
+	//shader.setVec3("directionalLight", l);
+	//}
+	//
+	//if (shader.m_uniformsInfo.find("ambientLight") != shader.m_uniformsInfo.end())
+	//shader.SetFloat("ambientLight", LightManager::GetAmbientLight());
+	shader.SetUniformMat4f("u_model", model);
+	shader.SetUniformMat4f("u_view", view);
+	shader.SetUniformMat4f("u_projection", proj);
 
 
 	for (auto& mesh : meshes)

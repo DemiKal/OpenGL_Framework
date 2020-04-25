@@ -103,6 +103,10 @@
     <None Include="res\shaders\basic.frag" />
     <None Include="res\shaders\bones.frag" />
     <None Include="res\shaders\bones.vert" />
+    <None Include="res\shaders\deferred_shading.frag" />
+    <None Include="res\shaders\deferred_shading.vert" />
+    <None Include="res\shaders\Gbuffer_basic.frag" />
+    <None Include="res\shaders\Gbuffer_basic.vert" />
     <None Include="res\shaders\framebuffers.frag" />
     <None Include="res\shaders\framebuffers.vert" />
     <None Include="res\shaders\framebuffers_screen.frag" />
@@ -117,7 +121,7 @@
     <None Include="res\shaders\lineshader.vert" />
     <None Include="res\shaders\normalmapshader.frag" />
     <None Include="res\shaders\plane.frag" />
-    <None Include="res\shaders\plane.glsl" />
+    <None Include="res\shaders\plane.vert" />
     <None Include="res\shaders\singlecolor.frag" />
     <None Include="res\shaders\singledotshader.frag" />
     <None Include="res\shaders\singleTriangle.frag" />

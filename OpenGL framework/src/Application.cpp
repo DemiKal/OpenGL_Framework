@@ -32,7 +32,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -166,7 +166,7 @@ int main(void)
 		wireCube.SetShader("AABB_instanced");
 
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
-		spyro.SetShader("basic");
+		spyro.SetShader("Gbuffer_basic");
 		spyro.name = "Spyro";
 		EntityManager::AddEntity(spyro);
 		// spyro.getMesh(0).MakeWireFrame();
@@ -176,10 +176,10 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		 Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		 artisans.SetShader("basic");
-		 artisans.name = "artisans";
-		 EntityManager::AddEntity(artisans);
+		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		artisans.SetShader("Gbuffer_basic");
+		artisans.name = "artisans";
+		EntityManager::AddEntity(artisans);
 
 		//artisans.getMesh(0).MakeWireFrame();
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
@@ -188,8 +188,8 @@ int main(void)
 		//nanosuit.SetShader("normalmapshader");
 
 		BVH bvh;
-		//bvh.BuildBVH();
-		//bvh.CreateBVHTextures();
+		bvh.BuildBVH();
+		bvh.CreateBVHTextures();
 
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
 		//
@@ -243,6 +243,59 @@ int main(void)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// configure g-buffer framebuffer
+// ------------------------------
+		unsigned int gBuffer;
+		glGenFramebuffers(1, &gBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		unsigned int gPosition, gNormal, gAlbedoSpec;
+		// position color buffer
+		glGenTextures(1, &gPosition);
+		glBindTexture(GL_TEXTURE_2D, gPosition);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+		// normal color buffer
+		glGenTextures(1, &gNormal);
+		glBindTexture(GL_TEXTURE_2D, gNormal);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
+		// color + specular color buffer
+		glGenTextures(1, &gAlbedoSpec);
+		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
+		// tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+		unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		glDrawBuffers(3, attachments);
+
+		Shader deferredShading = ShaderManager::GetShader("deferred_shading");
+
+		deferredShading.Bind();
+		deferredShading.SetInt("gPosition", 0);
+		deferredShading.SetInt("gNormal", 1);
+		deferredShading.SetInt("gAlbedoSpec", 2);
+
+
+
+
+
+		//  create and attach depth buffer (renderbuffer)
+		unsigned int rboDepth;
+		glGenRenderbuffers(1, &rboDepth);
+		glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREENWIDTH, SCREENHEIGHT);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+		// finally check if framebuffer is complete
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Framebuffer not complete!" << std::endl;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
 
@@ -254,6 +307,8 @@ int main(void)
 		Camera::SetCamera2(&cam2);
 		//Camera* cam = Camera::GetMain(); //??
 		//* cam->Position()   += glm::vec3(2, 0, 3);
+
+
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -294,13 +349,18 @@ int main(void)
 
 		float smoothStart = 0;
 		float smoothEnd = 1;
+		double totalTime = 0;
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LESS);
 			double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
+			renderer.SetAlphaBlending(false);
 
 #pragma region input
 			userInterface.Update();
@@ -315,12 +375,16 @@ int main(void)
 			if (frametimes.size() >= 30) frametimes.clear();
 #pragma endregion input
 
-			framebuffer.Bind();
+			//framebuffer.Bind();
 			// make sure we clear the framebuffer's content
-			glClearColor(0.12f, 0.2f, 0.13f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//glClearColor(0.12f, 0.2f, 0.13f, 1.0f);
+			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
+			lightDir.x = sinf(totalTime);
+			lightDir.z = cosf(totalTime);
+			// lightDir.y =   cosf(totalTime) ;
+
 			//glm::vec3 light(-lightDir);
 			vgm::Vec3 light(-lightDir.x, -lightDir.y, -lightDir.z);
 			// get/setLigth are helper funcs that you have ideally 
@@ -330,20 +394,44 @@ int main(void)
 
 			if (ImGui::gizmo3D("##Dir1", light))
 				lightDir = glm::vec3(-light.x, -light.y, -light.z);
-
-
 			float& ambientLight = LightManager::GetAmbientLight();
 			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
+
+			static float fogDistance = 20.0f;
+			ImGui::SliderFloat("fogDistance", &fogDistance, 0, 100);
 
 			//cube.Update(deltaTime);
 			//plane.Update(deltaTime);
 			spyro.Update(deltaTime);
 			//duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			//artisans.Update(deltaTime);
+			artisans.Update(deltaTime);
 
 			//artisans.Draw(camera);
+			//glClearColor(0.4f, 0.1f, 0.1f, 1.0f);
+			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			// 1. geometry pass: render scene's geometry/color data into gbuffer
+			// -----------------------------------------------------------------
+			glEnable(GL_DEPTH);
+			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//	Shader& gbufferShaderGeometry = ShaderManager::GetShader("Gbuffer_basic");
+				//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
+			//	gbufferShaderGeometry.Bind();
+			//	gbufferShaderGeometry.SetUniformMat4f("u_projection", camera.GetProjectionMatrix());
+			//	gbufferShaderGeometry.SetUniformMat4f("u_view", camera.GetViewMatrix());
+			//	gbufferShaderGeometry.SetUniformMat4f("u_model", spyro.model);
+			//	
+			artisans.Draw(camera);
 			spyro.Draw(camera);
+			renderer.SetAlphaBlending(true);
+			//glDisable(GL_DEPTH_TEST);
+			
+
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			// nanosuit.GetShader().Bind();
 			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
@@ -353,65 +441,103 @@ int main(void)
 			//set bvh node
 			//ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr - 1);
 
-			//GLCall(glDisable(GL_DEPTH_TEST));
-			//bvh.DrawSingleAABB(camera, currentBbox);
-			//int leftfirst = bvh.m_pool[currentBbox].m_leftFirst;
-			//int rightFirst = leftfirst + 1;
-
-			if (ImGui::RadioButton("Draw bvh", &drawBvh)) drawBvh = !drawBvh;
-
-			if (drawBvh) bvh.Draw(camera);
 
 
+
+
+			// 2. lighting pass: calculate lighting by iterating over a screen filled quad pixel-by-pixel using the gbuffer's content.
+			// -----------------------------------------------------------------------------------------------------------------------
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			deferredShading.Bind();
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, gPosition);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, gNormal);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+			// send light relevant uniforms
+			deferredShading.setVec3("u_globalLightDir", lightDir);
+			deferredShading.SetFloat("u_ambientLight", ambientLight);
+			deferredShading.SetFloat("u_fogDistance", fogDistance);
+			deferredShading.setVec3("u_viewPos", camera.GetPosition());
+			const char* listbox_items[] = { "Regular Shading", "Albedo", "Normals", "Position", "Specular" };
+			static int displayMode = 0;
+			ImGui::ListBox("listbox\n(single select)", &displayMode, listbox_items, IM_ARRAYSIZE(listbox_items), 5);
+
+			deferredShading.SetInt("u_displayMode", displayMode);
+
+			screenQuad.Bind();
+			screenQuad.Draw();
+			//deferredShading.setVec3("viewPos", camera.Position);
+			// finally render quad
+			 glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+			 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			 glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT,
+			 	GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			bvh.Draw(camera);
+			//renderQuad();
 			// draw AABB instanced
 			//bvh.Draw(camera);
 			static float angle = 45;
 			ImGui::SliderAngle("angle slider", &angle);
 
-			LightManager::debug_render(camera);
+			//LightManager::debug_render(camera);
+			if (ImGui::RadioButton("Draw bvh", &drawBvh)) drawBvh = !drawBvh;
+			//glBindFramebuffer(GL_FRAMEBUFFER ,0);
+			//framebuffer.Bind();
+		
 
-			prevFrameTime = currentFrameTime;
-			glDisable(GL_DEPTH_TEST);
+			//post process ray tracer
+			//glDisable(GL_DEPTH_TEST);
+			//
+			//glBindFramebuffer(GL_FRAMEBUFFER, 0); //unbind fb
+			//
+			//const glm::vec3 camPos = camera.GetPosition();
+			//const float nearPlane = camera.GetNearPlaneDist();
+			//const glm::vec3 camForward = (1.1f + nearPlane) * camera.GetForwardVector();
+			//const glm::vec3 camUp = camera.GetUpVector();
+			//
+			//postProcessShader.Bind();
+			//postProcessShader.setVec3("u_cameraPos", camPos);
+			//postProcessShader.SetFloat("u_screenWidth", float(SCREENWIDTH));
+			//postProcessShader.SetFloat("u_screenHeight", float(SCREENHEIGHT));
+			//postProcessShader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
+			//postProcessShader.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(camera.GetViewMatrix()));
+			//
+			//postProcessShader.SetFloat("u_near_plane", camera.GetNearPlaneDist());
+			//postProcessShader.SetFloat("u_far_plane", camera.GetFarPlaneDist());
+			//
+			//ImGui::SliderFloat("smoothstep start", &smoothStart, 0, .9f);
+			//ImGui::SliderFloat("smoothstep end", &smoothEnd, 0.9f, 2);
+			//postProcessShader.SetFloat("u_smoothStepStart", smoothStart);
+			//postProcessShader.SetFloat("u_smoothStepEnd", smoothEnd);
+			//
+			////draw final quad
+			//screenQuad.Bind();
+			//
+			//GLCall(glActiveTexture(GL_TEXTURE0 + 0));
+			//GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbufferID));
+			//
+			//bvh.GetTriangleTexture().Bind(1);
+			//bvh.GetAABBNodesTexture().Bind(2);
+			//bvh.GetMinTexture().Bind(3);
+			//bvh.GetMaxTexture().Bind(4);
+			//bvh.GetTriangleIndexTexture().Bind(5);
+			//
+			//GLCall(glActiveTexture(GL_TEXTURE0 + 6));
+			//GLCall(glBindTexture(GL_TEXTURE_2D, zBufferTextureID));
+			//
+			//screenQuad.Draw();
+			//screenQuad.UnBind();
+			////
+			//// ray trace postprocessing
+			////
 
-			glBindFramebuffer(GL_FRAMEBUFFER, 0); //unbind fb
 
-			const glm::vec3 camPos = camera.GetPosition();
-			const float nearPlane = camera.GetNearPlaneDist();
-			const glm::vec3 camForward = (1.1f + nearPlane) * camera.GetForwardVector();
-			const glm::vec3 camUp = camera.GetUpVector();
 
-			postProcessShader.Bind();
-			postProcessShader.setVec3("u_cameraPos", camPos);
-			postProcessShader.SetFloat("u_screenWidth", float(SCREENWIDTH));
-			postProcessShader.SetFloat("u_screenHeight", float(SCREENHEIGHT));
-			postProcessShader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
-			postProcessShader.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(camera.GetViewMatrix()));
 
-			postProcessShader.SetFloat("u_near_plane", camera.GetNearPlaneDist());
-			postProcessShader.SetFloat("u_far_plane", camera.GetFarPlaneDist());
 
-			ImGui::SliderFloat("smoothstep start", &smoothStart, 0, .9f);
-			ImGui::SliderFloat("smoothstep end", &smoothEnd, 0.9f, 2);
-			postProcessShader.SetFloat("u_smoothStepStart", smoothStart);
-			postProcessShader.SetFloat("u_smoothStepEnd", smoothEnd);
 
-			//draw final quad
-			screenQuad.Bind();
-
-			GLCall(glActiveTexture(GL_TEXTURE0 + 0));
-			GLCall(glBindTexture(GL_TEXTURE_2D, textureColorbufferID));
-
-			bvh.GetTriangleTexture().Bind(1);
-			bvh.GetAABBNodesTexture().Bind(2);
-			bvh.GetMinTexture().Bind(3);
-			bvh.GetMaxTexture().Bind(4);
-			bvh.GetTriangleIndexTexture().Bind(5);
-
-			GLCall(glActiveTexture(GL_TEXTURE0 + 6));
-			GLCall(glBindTexture(GL_TEXTURE_2D, zBufferTextureID));
-
-			screenQuad.Draw();
-			screenQuad.UnBind();
 			static float angleee = 0;
 			angleee += 0.01f;
 
@@ -426,9 +552,11 @@ int main(void)
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 
+			prevFrameTime = currentFrameTime;
 			const double endtime = glfwGetTime();
 			const double diffms = 1000 * (endtime - currentFrameTime);
 			frametimes.push_back(static_cast<float>(diffms));
+			totalTime += deltaTime;
 		}
 	}
 

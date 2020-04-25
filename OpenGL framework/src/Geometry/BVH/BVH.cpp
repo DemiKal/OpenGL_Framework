@@ -96,13 +96,16 @@ void BVH::InitBVHRenderer()
 void BVH::Draw(const Camera& camera)
 {
 	if (m_localBounds.size() <= 0) return; //has been initialized?
-
+	static   float bvhColor [] = { 1,0,0,1 };
+	ImGui::ColorEdit4("bvh color",  bvhColor);
 	auto& aabbshader = EntityManager::GetEntity("WireCube").GetShader();
 	auto& spyro = EntityManager::GetEntity("Spyro");
 	aabbshader.Bind();
 	//aabbshader.SetUniformMat4f("model", spyro.model);
-	aabbshader.SetUniformMat4f("view", camera.GetViewMatrix());
-	aabbshader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+	aabbshader.SetUniformMat4f("u_view", camera.GetViewMatrix());
+	aabbshader.SetUniformMat4f("u_projection", camera.GetProjectionMatrix());
+	aabbshader.SetVec4f("u_color", { bvhColor[0] , bvhColor[1] ,bvhColor[2] , bvhColor[3] });
+	
 	const unsigned int vcount = m_wireCube->getMesh(0).GetVertexCount();
 	glBindVertexArray(m_wireCube->getMesh(0).GetVAO());
 	glDrawArraysInstanced(GL_LINES, 0, vcount, m_localBounds.size());

@@ -158,7 +158,6 @@
     <None Include="src\vendor\glm\gtc\vec1.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="res\shaders\plane.glsl" />
     <None Include="imgui.ini" />
     <None Include="res\shaders\testshader.vert" />
     <None Include="res\shaders\testshader.frag" />
@@ -194,6 +193,11 @@
     <None Include="res\shaders\plane.frag" />
     <None Include="res\shaders\singlecolor.frag" />
     <None Include="res\shaders\normalmapshader.frag" />
+    <None Include="res\shaders\plane.vert" />
+    <None Include="res\shaders\Gbuffer_basic.vert" />
+    <None Include="res\shaders\Gbuffer_basic.frag" />
+    <None Include="res\shaders\deferred_shading.vert" />
+    <None Include="res\shaders\deferred_shading.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">
