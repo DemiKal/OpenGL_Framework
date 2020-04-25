@@ -4,10 +4,10 @@ class UserInterface
 public:
 	UserInterface() {};
 	void Update();
-	void Draw();
+	static void Draw();
 private:
-	void MainMenu();		//menu bar on top
-	void EntityBrowser();	//vertical bar to the left
-	void EntityInspector();		//vertical bar to the right
+	void MainMenu() const;		//menu bar on top
+	void EntityBrowser() const;	//vertical bar to the left
+	static void EntityInspector();		//vertical bar to the right
 };
 

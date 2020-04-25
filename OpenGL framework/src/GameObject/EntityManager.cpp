@@ -8,7 +8,9 @@ Model& EntityManager::GetEntity(const std::string& ent_name)
 
 	for (Model* m : entities )
 	{
-		if (m->name == ent_name)
+		if (m->m_name == ent_name)
 			return *m;
 	}
+
+	std::cout << "Could not find entity of name, " << ent_name << "\n";
 }

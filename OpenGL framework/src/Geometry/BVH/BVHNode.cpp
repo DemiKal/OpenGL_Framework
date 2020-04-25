@@ -11,13 +11,17 @@ glm::vec3 GetCenterAABB(const AABB& aabb);
 glm::vec3 GetCenterTriangle(const Triangle& triangle);
 
 
-void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
-	const std::vector<Triangle>& triangles, const int start, const int end)
+void BVHNode::Subdivide(
+	BVH& bvh,
+	const std::vector<AABB>& boundingBoxes,
+	const std::vector<Triangle>& triangles,
+	const int start, 
+	const int end)
 {
 	std::cout << "count at: " << bvh.count++ << "\n";
 
 	const int objcount = end - start;
-	m_bounds = calculate_bb(bvh, aabbs, start, end);
+	m_bounds = calculate_bb(bvh, boundingBoxes, start, end);
 	m_count = objcount;
 
 	if (m_count < 3) return; //TODO: SET LEAF COUNT DYNAMICALLY!
@@ -26,17 +30,17 @@ void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
 	BVHNode& l = bvh.m_pool[m_leftFirst];
 	BVHNode& r = bvh.m_pool[bvh.m_poolPtr++];
 
-	const int split = partition(*this, bvh, triangles, aabbs, start, end);
+	const int split = partition(*this, bvh, triangles, boundingBoxes, start, end);
 	l.m_start = start;
 	l.m_end = split;
 	r.m_start = split;
 	r.m_end = end;
 
-	l.Subdivide(bvh, aabbs, triangles, start, split);
-	r.Subdivide(bvh, aabbs, triangles, split, end);
+	l.Subdivide(bvh, boundingBoxes, triangles, start, split);
+	r.Subdivide(bvh, boundingBoxes, triangles, split, end);
 }
 
-bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, const unsigned nodeIdx = 0) const
+bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, const unsigned nodeIdx = 0) const
 {
 	float tCurrent = std::numeric_limits<float>::infinity();
 	const bool i = m_bounds.IntersectAABB(ray, tCurrent);
@@ -47,7 +51,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, 
 		//leaf
 		if (m_count < 3)
 		{
-			hitdata.emplace_back(HitData(tCurrent, nodeIdx)); //TODO COMPOSE HIT DATA
+			hitData.emplace_back(HitData(tCurrent, nodeIdx)); //TODO COMPOSE HIT DATA
 			return true;
 		}
 
@@ -55,8 +59,8 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, 
 		{
 			const int leftChild = m_leftFirst;
 			const int rightChild = m_leftFirst + 1;
-			const bool l = bvh.m_pool[leftChild].Traverse(bvh, ray, hitdata, leftChild);
-			const bool r = bvh.m_pool[rightChild].Traverse(bvh, ray, hitdata, rightChild);
+			const bool l = bvh.m_pool[leftChild].Traverse(bvh, ray, hitData, leftChild);
+			const bool r = bvh.m_pool[rightChild].Traverse(bvh, ray, hitData, rightChild);
 			return l | r;
 		}
 	}

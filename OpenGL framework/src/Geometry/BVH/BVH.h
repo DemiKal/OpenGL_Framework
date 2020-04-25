@@ -34,24 +34,16 @@ private:
 public:
 	int count = 0;
 	std::vector<unsigned int> m_indices;
-	BVHNode* m_pool{};
-	BVHNode* m_root{};
-	int m_poolPtr{};
+	BVHNode* m_pool;
+	BVHNode* m_root;
+	int m_poolPtr;
 	std::vector<AABB> m_localBounds;		//local bounding box of each triangle
 	std::vector<glm::mat4> m_aabbMatrices;	//matrix representing bounding boxes
 	Model* m_wireCube;
 
 
 	BVH() = default;
-	BVH(std::vector<unsigned int>& indices, BVHNode* pool, BVHNode* root, int poolPtr)
-		:
-		m_triangleVAO(0), 
-		m_triangleVBO(0),
-		m_indices(indices),
-		m_pool(pool),
-		m_root(root),
-		m_poolPtr(poolPtr)
-	{};
+	BVH(std::vector<unsigned int>& indices, BVHNode* pool, BVHNode* root, const int poolPtr);;
 
 	Texture1D& GetAABBNodesTexture() { return  m_aabbNodesTexture; }
 	Texture1D& GetMinTexture() { return  m_minTexture; }
@@ -61,13 +53,13 @@ public:
 
 	void BuildBVH();
 	void InitBVHRenderer();
-	void Draw(const Camera& camera);
+	void Draw(const Camera& camera) const;
 	void TraceRay(const Ray& ray);
 	void DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) const;
 	void InitTriangleRenderer();
 	void CreateBVHTextures();
 	void DrawSingleAABB(Camera& cam, int index);
-	bool IsBuilt() { return m_isBuilt; }
+	bool IsBuilt() const { return m_isBuilt; }
 private:
 	unsigned int m_triangleVAO;
 	unsigned int m_triangleVBO;

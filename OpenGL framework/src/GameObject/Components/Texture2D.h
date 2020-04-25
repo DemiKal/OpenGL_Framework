@@ -3,10 +3,10 @@ class Texture2D
 {
 private:
 	unsigned int m_rendererID;
-	std::string type;
-	std::string path;
-	unsigned int width;
-	unsigned int height;
+	std::string m_type;
+	std::string m_path;
+	unsigned int m_width;
+	unsigned int m_height;
 	GLuint TextureFromFile(const std::string& fullpath);
 
 public:
@@ -23,14 +23,14 @@ public:
 		const GLenum magFilter = GL_LINEAR,
 		const GLenum wrap_S = GL_CLAMP_TO_EDGE,
 		const GLenum wrap_T = GL_CLAMP_TO_EDGE);
-	
+
 	~Texture2D() = default;
 
 	inline unsigned int GetID()const { return m_rendererID; }
-	inline  std::string GetType() const { return type; }
-	inline  std::string GetPath() const { return path; }
-	inline unsigned int GetWidth()  const { return width; }
-	inline unsigned int GetHeight()  const { return height; }
+	inline  std::string GetType() const { return m_type; }
+	inline  std::string GetPath() const { return m_path; }
+	inline unsigned int GetWidth()  const { return m_width; }
+	inline unsigned int GetHeight()  const { return m_height; }
 	inline void Bind() { throw new std::exception(); }
 };
 

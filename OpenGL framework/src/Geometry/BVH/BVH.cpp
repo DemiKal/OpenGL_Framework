@@ -8,6 +8,17 @@
 #include "Rendering/ShaderManager.h" 
 #include "GameObject/Components/texture1D.h"
 
+BVH::BVH(std::vector<unsigned>& indices, BVHNode* pool, BVHNode* root, const int poolPtr):
+	m_triangleVAO(0),
+	m_triangleVBO(0),
+	m_indices(indices),
+	m_pool(pool),
+	m_root(root),
+	m_poolPtr(poolPtr),
+	m_wireCube(nullptr)
+{
+}
+
 void BVH::BuildBVH()
 {
 	std::cout << "Building BVH... \n";
@@ -93,7 +104,7 @@ void BVH::InitBVHRenderer()
 
 }
 
-void BVH::Draw(const Camera& camera)
+void BVH::Draw(const Camera& camera) const
 {
 	if (m_localBounds.size() <= 0) return; //has been initialized?
 	static   float bvhColor [] = { 1,0,0,1 };
@@ -167,7 +178,7 @@ void BVH::TraceRay(const Ray& ray)
 			{
 				if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx < rangeIdx.endIdx)
 				{
-					ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->name.c_str());
+					ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->m_name.c_str());
 					ImGui::LabelText("Tri Idx: ", std::to_string(nearestTriIdx).c_str());
 				}
 			}

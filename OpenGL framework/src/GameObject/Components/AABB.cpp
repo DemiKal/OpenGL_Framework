@@ -125,7 +125,7 @@ void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0
 		return;
 	}
 
-	wirecube->model = model;
+	wirecube->m_modelMatrix = model;
 	Shader& shader = ShaderManager::GetShader("AABB_single");
 	shader.Bind();
 	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));

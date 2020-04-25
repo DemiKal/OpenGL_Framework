@@ -29,18 +29,18 @@ glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
 
 Model::Model(const std::string& path, const aiPostProcessSteps loadFlags = aiProcess_GenBoundingBoxes)
 	:
-	model(glm::mat4(1.0f)),
-	meshes(),
-	directory(""),
-	textures_loaded(),
-	shaderIdx(0)
+	m_modelMatrix(glm::mat4(1.0f)),
+	m_meshes(),
+	m_directory(""),
+	m_textures_loaded(),
+	m_shaderIdx(0)
 {
-	loadModel(path, loadFlags);
+	LoadModel(path, loadFlags);
 }
 
 void Model::SetShader(const std::string& shadername)
 {
-	shaderIdx = ShaderManager::GetShaderIdx(shadername);
+	m_shaderIdx = ShaderManager::GetShaderIdx(shadername);
 }
 
 
@@ -69,11 +69,11 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 	}
 }
 
-void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlags)
+void Model::LoadModel(const std::string& path, const aiPostProcessSteps loadFlags)
 {
 	Assimp::Importer import;
 	const auto standardFlags = aiProcess_GenSmoothNormals| aiProcess_GenBoundingBoxes;
-	const auto flagsComposed = standardFlags | LoadFlags;
+	const auto flagsComposed = standardFlags | loadFlags;
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
 
 
@@ -82,32 +82,32 @@ void Model::loadModel(const std::string& path, const aiPostProcessSteps LoadFlag
 		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 		return;
 	}
-	directory = path.substr(0, path.find_last_of('/'));
+	m_directory = path.substr(0, path.find_last_of('/'));
 
 	//aiNode* root_node = FindRootNode(scene->mRootNode, "Torso");
-	armature = std::make_shared<Armature>();
-	armature->name = scene->mRootNode->mName.C_Str();
-	armature->mat = AI2GLMMAT(scene->mRootNode->mTransformation);
-	armature->parent = nullptr;
-	this->inverse_root = AI2GLMMAT(scene->mRootNode->mTransformation);
+	m_armature = std::make_shared<Armature>();
+	m_armature->name = scene->mRootNode->mName.C_Str();
+	m_armature->mat = AI2GLMMAT(scene->mRootNode->mTransformation);
+	m_armature->parent = nullptr;
+	this->m_inverseRoot = AI2GLMMAT(scene->mRootNode->mTransformation);
 
-	CreateHierarchy(armature, scene->mRootNode);
+	CreateHierarchy(m_armature, scene->mRootNode);
 
-	processNode(scene->mRootNode, scene, armature);
+	ProcessNode(scene->mRootNode, scene, m_armature);
 }
 
 
-void Model::processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature> armature)
+void Model::ProcessNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature> armature)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene, armature));
+		m_meshes.push_back(ProcessMesh(mesh, scene, armature));
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene, armature);
+		ProcessNode(node->mChildren[i], scene, armature);
 	}
 }
 
@@ -128,7 +128,7 @@ void Model::UpdateModelMatrix()
 
 	const glm::mat4 translation = glm::translate(id, m_position);
 
-	model = translation * rotation * scale;
+	m_modelMatrix = translation * rotation * scale;
 }
 
 void Model::Update(float deltaTime)
@@ -137,21 +137,21 @@ void Model::Update(float deltaTime)
 
 	UpdateModelMatrix();
 
-	for (Mesh& mesh : meshes)
+	for (Mesh& mesh : m_meshes)
 	{
-		mesh.m_aabb.UpdateArvo(model, mesh.m_aabb_OG);
+		mesh.m_aabb.UpdateArvo(m_modelMatrix, mesh.m_aabb_OG);
 	}
 }
 
 void Model::AddWeight(
-	std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
-	GLuint bone_id, GLfloat weight)
+	std::vector<float>& vertices, unsigned int vertexIndex, unsigned int boneIndex,
+	GLuint boneId, GLfloat weight)
 {
 	unsigned int stride = 3 + 3 + 2 + 3 + 3 + 3 + 3;
-	unsigned int idx = stride * vertex_index;
+	unsigned int idx = stride * vertexIndex;
 	unsigned int id_offset = 13;// elems to right *sizeof(float);
-	vertices[idx + id_offset + bone_index] = bone_id;
-	vertices[idx + id_offset + 3 + bone_index] = weight;
+	vertices[idx + id_offset + boneIndex] = boneId;
+	vertices[idx + id_offset + 3 + boneIndex] = weight;
 }
 
 void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
@@ -178,7 +178,7 @@ void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 	}
 	else for (auto& children : armature->children)	AssignMatrices(children, joint);
 }
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
+Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
 {
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
@@ -267,7 +267,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 	}
 
 	Animator  animator;
-	animator.m_inverse_root = inverse_root;
+	animator.m_inverse_root = m_inverseRoot;
 
 	std::unordered_map<std::string, unsigned int> bonesMapping;
 	if (mesh->HasBones())
@@ -432,16 +432,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 	std::vector<Texture2D> textures;
 	//auto& shader = GetShader();
 	// 1. diffuse maps
-	std::vector<Texture2D> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+	std::vector<Texture2D> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	// 2. specular maps
-	std::vector<Texture2D> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+	std::vector<Texture2D> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	// 3. normal maps
-	std::vector<Texture2D> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+	std::vector<Texture2D> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
 	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 	// 4. height maps
-	std::vector<Texture2D> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+	std::vector<Texture2D> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
@@ -467,7 +467,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 }
 
 
-std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
+std::vector<Texture2D> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type,
 	const std::string& typeName)
 {
 	std::vector<Texture2D> textures;
@@ -477,7 +477,7 @@ std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 		auto r = mat->GetTexture(type, i, &fileName);
 		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 		bool skip = false;
-		for (auto& j : textures_loaded)
+		for (auto& j : m_textures_loaded)
 		{
 			if (std::strcmp(j.GetPath().data(), fileName.C_Str()) == 0)
 			{
@@ -489,11 +489,11 @@ std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 		if (!skip)
 		{   // if texture hasn't been loaded already, load it
 
-			const std::string fullpath = directory + '/' + fileName.C_Str();
+			const std::string fullpath = m_directory + '/' + fileName.C_Str();
 			Texture2D texture(fullpath, typeName);
 
 			textures.push_back(texture);
-			textures_loaded.emplace_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+			m_textures_loaded.emplace_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
 		}
 	}
 	return textures;
@@ -502,7 +502,7 @@ std::vector<Texture2D> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 void Model::Draw(const Camera& cam)
 {
 	//auto d = shader.get();
-	Shader& shader = ShaderManager::GetShader(shaderIdx);
+	Shader& shader = ShaderManager::GetShader(m_shaderIdx);
 	shader.Bind();
 	const unsigned int shaderID = shader.m_RendererID;
 
@@ -533,12 +533,12 @@ void Model::Draw(const Camera& cam)
 	//
 	//if (shader.m_uniformsInfo.find("ambientLight") != shader.m_uniformsInfo.end())
 	//shader.SetFloat("ambientLight", LightManager::GetAmbientLight());
-	shader.SetUniformMat4f("u_model", model);
+	shader.SetUniformMat4f("u_model", m_modelMatrix);
 	shader.SetUniformMat4f("u_view", view);
 	shader.SetUniformMat4f("u_projection", proj);
 
 
-	for (auto& mesh : meshes)
+	for (auto& mesh : m_meshes)
 		mesh.Draw(shader);
 
 	shader.Unbind();
@@ -547,19 +547,19 @@ void Model::Draw(const Camera& cam)
 	//		mesh.m_aabb.Draw(cam);
 }
 
-Shader& Model::GetShader() const { return   ShaderManager::GetShader(shaderIdx); }
+Shader& Model::GetShader() const { return   ShaderManager::GetShader(m_shaderIdx); }
 
 Model Model::CreateCube() {
 	Model model;
 	Mesh mesh = Mesh::CreateCube();
-	model.meshes.emplace_back(mesh);
+	model.m_meshes.emplace_back(mesh);
 	return model;
 }
 
 Model Model::CreateCubeWireframe() {
 	Model model;
 	Mesh mesh = Mesh::CreateCubeWireframe();
-	model.meshes.emplace_back(mesh);
+	model.m_meshes.emplace_back(mesh);
 	return model;
 }
 
@@ -568,6 +568,6 @@ Model Model::CreatePlane()
 	Model model;
 	Mesh mesh = Mesh::CreatePlane();
 
-	model.meshes.emplace_back(mesh);
+	model.m_meshes.emplace_back(mesh);
 	return model;
 }

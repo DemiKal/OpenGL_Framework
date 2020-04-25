@@ -21,7 +21,7 @@ void UserInterface::Draw()
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void UserInterface::MainMenu()
+void UserInterface::MainMenu() const
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -50,7 +50,7 @@ void UserInterface::MainMenu()
 	}
 }
 
-void UserInterface::EntityBrowser()
+void UserInterface::EntityBrowser() const
 {
 	ImGuiWindowFlags window_flags = 0;
 
@@ -75,7 +75,7 @@ void UserInterface::EntityBrowser()
 	{
 		for (Model* ent : EntityManager::GetEntities())
 		{
-			const std::string ent_name = ent->name;
+			const std::string ent_name = ent->m_name;
 
 			/*	if (selected == nullptr)
 				{
@@ -86,7 +86,7 @@ void UserInterface::EntityBrowser()
 					}
 				}
 				else {*/
-			bool isSelected = ent_name == (selected != nullptr ? selected->name : "none selected!");
+			bool isSelected = ent_name == (selected != nullptr ? selected->m_name : "none selected!");
 
 			if (ImGui::Selectable(ent_name.c_str(), isSelected))
 			{
@@ -110,7 +110,7 @@ void UserInterface::EntityInspector()
 	if (selection != nullptr)
 	{
 		//ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-		ImGui::Text("Currently selected: ", selection->name.c_str());
+		ImGui::Text("Currently selected: ", selection->m_name.c_str());
 		ImGui::SliderFloat3("Position", &selection->m_position[0], -100.0f, 100.0f);
 		ImGui::SliderFloat3("Rotation", &selection->m_rotation[0], 0, 360);
 		ImGui::SliderFloat3("Scale", &selection->m_scale[0], 0, 10);

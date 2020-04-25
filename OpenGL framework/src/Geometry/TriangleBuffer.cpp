@@ -28,7 +28,7 @@ void TriangleBuffer::AddTriangles_I(Model& model)
 		m_TriangleBuffer.emplace_back(Triangle(a, b, c));
 	}
 
-	std::cout << "Added triangles of " << model.directory << "with " << posVerts.size()
+	std::cout << "Added triangles of " << model.m_directory << "with " << posVerts.size()
 		<< "verts at idx range [" << currentIdx << ", " << endIdx << "]\n";
 }
 

@@ -15,7 +15,10 @@ private:
 public:
 	Light(const glm::vec3  pos, const glm::vec3  col)
 		:
-		m_position(pos), m_color(col), m_VAO(0), m_VBO(0)
+		m_position(pos),
+	m_color(col),
+	m_VAO(0),
+	m_VBO(0)
 	{	
 		create_buffer_object();
 	}

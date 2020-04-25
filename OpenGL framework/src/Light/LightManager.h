@@ -8,7 +8,16 @@ private:
 	glm::vec3 m_directionalLight;
 	float m_ambient;
 
-	LightManager();
+
+	LightManager()
+		:
+		m_lights(),
+		m_directionalLight({ 0, 1, 0 }),
+		m_ambient(0.1f)
+	{
+
+	}
+
 
 	static inline LightManager& GetInstance()
 	{

@@ -1,6 +1,6 @@
 #pragma once
 #include "GameObject/Components/Texture2D.h"
-#include "GameObject/Components/mesh.h" 
+#include "GameObject/Components/Mesh.h"
 #include "Rendering/Shader.h"
 
 class Model
@@ -16,45 +16,53 @@ public:
 
 	};
 
-	std::shared_ptr <Armature > armature;
-	glm::mat4 model;
-	std::vector<Mesh> meshes;
-	std::string directory;
-	std::vector<Texture2D> textures_loaded;
-	glm::mat4 inverse_root;
+	std::shared_ptr <Armature > m_armature;
+	glm::mat4 m_modelMatrix;
+	std::vector<Mesh> m_meshes;
+	std::string m_directory;
+	std::vector<Texture2D> m_textures_loaded;
+	glm::mat4 m_inverseRoot;
 	glm::vec3 m_velocity = { 0.001f,0,0 };
 	glm::vec3 m_position = { 0,0,0 };
 	glm::vec3 m_rotation = { 0,0,0 };
 	glm::vec3 m_scale = { 1,1,1 };
-	std::string name;
-	unsigned int shaderIdx;
+	std::string m_name;
+	unsigned int m_shaderIdx;
 
 	//VertexBufferLayout vbl;
-	Model() : model(glm::mat4(1.0f)), meshes(), directory(""), textures_loaded(), shaderIdx(0), inverse_root(glm::mat4(1.0f)) {}
+	Model()
+		:
+		m_modelMatrix(glm::mat4(1.0f)),
+		m_meshes(),
+		m_directory(""),
+		m_textures_loaded(),
+		m_inverseRoot(glm::mat4(1.0f)),
+		m_shaderIdx(0)
+	{}
 
 	~Model() = default;
 
 	Model(const std::string& path, const aiPostProcessSteps loadFlags);
 
-	glm::mat4 GetModelMatrix() { return model; }
-	void SetModelMatrix(const glm::mat4& mat) { model = mat; }
-	void SetShader(const std::string& shadername);
+	[[nodiscard]] glm::mat4 GetModelMatrix() const { return m_modelMatrix; }
+	void SetModelMatrix(const glm::mat4& mat) { m_modelMatrix = mat; }
+	void SetShader(const std::string& shader_name);
 	void Draw(const Camera& cam);
 	Shader& GetShader() const;
 	static Model CreateCube();
 	static Model CreateCubeWireframe();
-	void loadModel(const std::string& path, const aiPostProcessSteps LoadFlags);
+	void LoadModel(const std::string& path, const aiPostProcessSteps loadFlags);
 	static Model CreatePlane();
-	void processNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature>  armature);
+	void ProcessNode(aiNode* node, const aiScene* scene, std::shared_ptr<Armature>  armature);
 	void UpdateModelMatrix();
 	void Update(float deltaTime);
 
-	void AddWeight(std::vector<float>& vertices, unsigned int vertex_index,
-		unsigned int bone_index, GLuint bone_id, GLfloat weight);
+	void AddWeight(std::vector<float>& vertices, unsigned int vertexIndex,
+		unsigned int boneIndex, GLuint boneId, GLfloat weight);
 
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr <Armature> armature);
-	inline Mesh& getMesh(const unsigned int idx) { return meshes[idx]; }
-	std::vector<Texture2D> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
+	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr <Armature> armature);
+	inline Mesh& getMesh(const unsigned int idx) { return m_meshes[idx]; }
+	std::vector<Texture2D> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
 
 
 

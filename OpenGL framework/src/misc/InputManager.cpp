@@ -7,6 +7,14 @@
 #include "Light/LightManager.h"
 bool  InputManager::m_isClicked;
 
+InputManager::InputManager() :
+	m_window(nullptr),
+	m_mouseOld(),
+	m_mouseNew(),
+	m_selectedModel(nullptr)
+{
+}
+
 InputManager& InputManager::GetInstance()
 {
 	static InputManager instance;
@@ -60,13 +68,13 @@ void InputManager::Update(Camera& camera)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camMovement += glm::normalize(glm::cross(forward, up)) * camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camera.RotateYlocal(.01f * (1+ camSpeed));
+		camera.RotateLocalY(.01f * (1 + camSpeed));
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		camera.RotateYlocal(-.01f * (1 + camSpeed));
+		camera.RotateLocalY(-.01f * (1 + camSpeed));
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-		camera.RotateXlocal(.01f * (1 + camSpeed));
+		camera.RotateLocalX(.01f * (1 + camSpeed));
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-		camera.RotateXlocal(-.01f * (1 + camSpeed));
+		camera.RotateLocalX(-.01f * (1 + camSpeed));
 	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
 		LightManager::GetLight(0).get_position() += (2 * camSpeed * upWorld);
 	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)

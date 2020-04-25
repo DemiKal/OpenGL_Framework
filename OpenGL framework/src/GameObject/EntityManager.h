@@ -19,7 +19,7 @@ public:
 	{
 		auto& instance = GetInstance();
 		instance.Entities.emplace_back(&model);
-		if(model.name != "WireCube") 
+		if(model.m_name != "WireCube") 
 			TriangleBuffer::AddTriangles(model);
 	}
 

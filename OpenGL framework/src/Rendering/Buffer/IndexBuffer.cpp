@@ -24,7 +24,7 @@ void IndexBuffer::Bind() const
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_rendererID));
 }
 
-void IndexBuffer::UnBind() const
+void IndexBuffer::UnBind()
 {
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }

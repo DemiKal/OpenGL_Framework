@@ -8,9 +8,10 @@ class Camera
 public:
 	Camera();
 	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
-	void MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo);
+	~Camera();
+
+
 	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
-	void SetOrthographic();
 
 	static void SetCamera2(Camera* camera) { m_cam2 =  camera; }
 	static void SetMainCamera(Camera* cam) { m_mainCam = cam; }
@@ -29,23 +30,20 @@ public:
 	//not working
 	void SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 
-	~Camera();
-
-	[[nodiscard]] glm::vec3& GetPosition() { return pos; }
-	[[nodiscard]] glm::vec3 PositionRead() const { return pos; };
-	[[nodiscard]] float GetAspectRatio() const { return  aspectRatio; }
-	void SetAspectRatio(const float asp) { aspectRatio = asp; } //possible extra stuff to do when setting
-	[[nodiscard]] glm::vec3 GetForwardVector() const
-	{
-		return forward;
-	}
+	void SetOrthographic();
+	void SetAspectRatio(const float asp) { m_aspectRatio = asp; } //possible extra stuff to do when setting
+	void MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mvelo);
+	[[nodiscard]] glm::vec3& GetPosition() { return m_pos; }
+	[[nodiscard]] glm::vec3 PositionRead() const { return m_pos; };
+	[[nodiscard]] float GetAspectRatio() const { return  m_aspectRatio; }
+	[[nodiscard]] glm::vec3 GetForwardVector() const { 	return m_forward; }
 	[[nodiscard]] glm::vec3 GetUpVector() const;
 
 	//yaw 
-	void RotateXlocal(const float angle);
+	void RotateLocalX(const float angle);
 
 	//rotate around the y axis, its own up vector
-	void RotateYlocal(const float angle);
+	void RotateLocalY(const float angle);
 	float GetNearPlaneDist();
 	float GetFarPlaneDist();
 	 
@@ -53,14 +51,14 @@ public:
 	 
 
 private:
-	float fov;
-	float aspectRatio;
+	float m_fov;
+	float m_aspectRatio;
 	float m_nearPlane;
 	float m_farPlane;
-	glm::vec3 pos{};
-	glm::vec3 forward{};
-	glm::vec3 up{};
-	glm::mat4 projection{};
+	glm::vec3 m_pos{};
+	glm::vec3 m_forward{};
+	glm::vec3 m_up{};
+	glm::mat4 m_projection{};
 	static Camera* m_mainCam;
 	static Camera* m_cam2;
 };

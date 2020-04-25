@@ -23,8 +23,8 @@ GLuint Texture2D::TextureFromFile(const std::string& fullpath/*, Texture& textur
 		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D));
 
-		this->width = width;
-		this->height = height;
+		this->m_width = width;
+		this->m_height = height;
 		// for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. 
 		//Due to interpolation it takes texels from next repeat 
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
@@ -46,8 +46,8 @@ GLuint Texture2D::TextureFromFile(const std::string& fullpath/*, Texture& textur
 Texture2D::Texture2D(const std::string& fullPath, const std::string& typeName)
 {
 	m_rendererID = TextureFromFile(fullPath);
-	type = typeName;
-	path = fullPath;
+	m_type = typeName;
+	m_path = fullPath;
 }
 
 //create a texture directly not from a file
@@ -64,7 +64,7 @@ Texture2D::Texture2D(
 	const GLenum wrap_S,
 	const GLenum wrap_T)
 	:
-	width(p_width), height(p_height)
+	m_width(p_width), m_height(p_height)
 { 
 	glGenTextures(1, &m_rendererID);
 	glBindTexture(GL_TEXTURE_2D, m_rendererID);

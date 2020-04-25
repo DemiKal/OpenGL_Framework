@@ -1,6 +1,5 @@
 #include "precomp.h"
 #include "Application.h"
-#include "Rendering/Buffer/RenderBufferObject.h"
 #include "Rendering/Buffer/FrameBuffer.h"
 #include "GameObject/Components/Texture2D.h"
 #include "Rendering/Shader.h"
@@ -10,7 +9,6 @@
 #include "GameObject/Camera.h"
 #include "Light/LightManager.h"
 #include "GameObject/EntityManager.h"
-#include "GameObject/Components/mesh.h"
 #include "GameObject/Components/Model.h"
 #include "misc/InputManager.h"	
 #include "Geometry/BVH/BVH.h"
@@ -96,13 +94,13 @@ int main(void)
 		//EntityManager::AddEntity(plane);
 
 		Model wireCube = Model::CreateCubeWireframe();
-		wireCube.name = "WireCube";
+		wireCube.m_name = "WireCube";
 		EntityManager::AddEntity(wireCube);
 		wireCube.SetShader("AABB_instanced");
 
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("Gbuffer_basic");
-		spyro.name = "Spyro";
+		spyro.m_name = "Spyro";
 		EntityManager::AddEntity(spyro);
 		// spyro.getMesh(0).MakeWireFrame();
 
@@ -113,7 +111,7 @@ int main(void)
 
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		artisans.SetShader("Gbuffer_basic");
-		artisans.name = "artisans";
+		artisans.m_name = "artisans";
 		EntityManager::AddEntity(artisans);
 
 		//artisans.getMesh(0).MakeWireFrame();
@@ -211,7 +209,7 @@ int main(void)
 
 		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 400.0f);
 		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
-		cam2.RotateYlocal(glm::radians(-90.0f));
+		cam2.RotateLocalY(glm::radians(-90.0f));
 
 		Camera::SetMainCamera(&camera);
 		Camera::SetCamera2(&cam2);
