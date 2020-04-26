@@ -114,17 +114,21 @@ int main(void)
 		artisans.m_name = "artisans";
 		EntityManager::AddEntity(artisans);
 
+		Model morphTest("res/meshes/morph test.glb", aiProcess_Triangulate);
+		morphTest.SetShader("morph_target_simple");
+		morphTest.m_name = "morph test";
+
 		//artisans.getMesh(0).MakeWireFrame();
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
 		//nanosuit.name = "nanosuit";
 		//EntityManager::AddEntity(nanosuit);
 		//nanosuit.SetShader("normalmapshader");
 
-		BVH bvh;
-		bvh.BuildBVH();
-		bvh.CreateBVHTextures();
+		//BVH bvh;
+		//bvh.BuildBVH();
+		//bvh.CreateBVHTextures();
 
-		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
+		//std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
 		//
 
 		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
@@ -192,6 +196,8 @@ int main(void)
 
 
 
+		Texture2D uvTexture("res/textures/uvtest.png", "diffuse");
+		
 
 		//  create and attach depth buffer (renderbuffer)
 		unsigned int rboDepth;
@@ -375,11 +381,23 @@ int main(void)
 			if (ImGui::RadioButton("Draw bvh", &drawBvh)) 
 				drawBvh = !drawBvh;
 			
-			if(drawBvh) bvh.Draw(camera);
+			//if(drawBvh) bvh.Draw(camera);
 			//glBindFramebuffer(GL_FRAMEBUFFER ,0);
 			//framebuffer.Bind();
-		
 
+			static float interpolation = 0.0f;
+			ImGui::SliderFloat("morph", &interpolation, 0, 1);
+			morphTest.Update(deltaTime);
+
+			Shader& shdr =  morphTest.GetShader();
+			shdr.Bind();
+			shdr.SetFloat("u_morphValue", interpolation);
+			//shdr.SetInt("texture1", 0);
+			
+			uvTexture.Bind();
+			
+			morphTest.Draw(camera);
+			
 			//post process ray tracer
 			//glDisable(GL_DEPTH_TEST);
 			//

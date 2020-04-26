@@ -121,6 +121,8 @@
     </None>
     <None Include="res\shaders\lineshader.frag" />
     <None Include="res\shaders\lineshader.vert" />
+    <None Include="res\shaders\morph_target_simple.frag" />
+    <None Include="res\shaders\morph_target_simple.vert" />
     <None Include="res\shaders\normalmapshader.frag" />
     <None Include="res\shaders\plane.frag" />
     <None Include="res\shaders\plane.vert" />

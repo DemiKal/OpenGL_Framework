@@ -31,6 +31,10 @@ public:
 	inline  std::string GetPath() const { return m_path; }
 	inline unsigned int GetWidth()  const { return m_width; }
 	inline unsigned int GetHeight()  const { return m_height; }
-	inline void Bind() { throw new std::exception(); }
+	inline void Bind(const int textureIndex = 0)
+	{
+		GLCall(glActiveTexture(GL_TEXTURE0 + textureIndex));
+		GLCall(glBindTexture(GL_TEXTURE_2D, m_rendererID));
+	}
 };
 

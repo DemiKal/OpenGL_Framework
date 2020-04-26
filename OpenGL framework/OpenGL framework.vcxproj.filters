@@ -204,6 +204,8 @@
     <None Include="res\shaders\Gbuffer_basic.frag" />
     <None Include="res\shaders\deferred_shading.vert" />
     <None Include="res\shaders\deferred_shading.frag" />
+    <None Include="res\shaders\morph_target_simple.frag" />
+    <None Include="res\shaders\morph_target_simple.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">

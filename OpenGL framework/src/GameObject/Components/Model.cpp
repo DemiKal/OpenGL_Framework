@@ -213,13 +213,29 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 		vbLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_WEIGHT);	//bone weight
 	}
 
+	const unsigned int morphTargetCount = mesh->mNumAnimMeshes;
+	
+	if(morphTargetCount)
+	{
+		for(unsigned int i = 0; i < morphTargetCount; i++)
+		{
+			aiAnimMesh* morph = mesh->mAnimMeshes[i];
+			if (morph->HasPositions())
+				vbLayout.Push<float>(3, VertexType::POSITION);
 
+			if (morph->mNumVertices != mesh->mNumVertices)
+				std::cout << " morph target vertex count != original vertex count!";
+		}
+	}
+
+	//finally create vertex buffer
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		vertices.emplace_back(mesh->mVertices[i].x);
 		vertices.emplace_back(mesh->mVertices[i].y);
 		vertices.emplace_back(mesh->mVertices[i].z);
 
+	
 
 		if (hasNormals)
 		{
@@ -233,7 +249,16 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 			vertices.emplace_back(mesh->mTextureCoords[0][i].x);
 			vertices.emplace_back(mesh->mTextureCoords[0][i].y);
 		}
-
+		//manage morph animation by interleaving
+		for (unsigned int j = 0; j < morphTargetCount; j++)
+		{
+			aiAnimMesh* morph = mesh->mAnimMeshes[j];
+			//TODO: check for each vertex element to see if they are in animation
+			if (morph->HasPositions())
+				vertices.emplace_back(morph->mVertices[i].x);
+			vertices.emplace_back(morph->mVertices[i].y);
+			vertices.emplace_back(morph->mVertices[i].z);
+		}
 
 		if (hasTangents)
 		{
