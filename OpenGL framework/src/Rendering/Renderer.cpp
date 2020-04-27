@@ -100,8 +100,30 @@ void Renderer::EnableDepth()
 
 void Renderer::SetDepthFunc(GLenum depthFunc)
 {
-	//TODO: check bitflag if correct
-	glDepthFunc(depthFunc);
+	if (depthFunc == m_depthFunction)
+	{
+		std::cout << "same func!\n";
+	return;
+	}
+	
+	switch (depthFunc)
+	{
+		case GL_NEVER:	 	break;
+		case GL_LESS:	 	break;
+		case GL_EQUAL:	 	break;
+		case GL_LEQUAL:	 	break;
+		case GL_GREATER: 	break;
+		case GL_NOTEQUAL:	break;
+		case GL_GEQUAL:	 	break;
+		default: std::cout << "not a viable depth func enum! \n"; return;;
+	}
+	m_depthFunction = depthFunc;
+	GLCall(glDepthFunc(depthFunc));
+}
+
+void Renderer::DisableDepth()
+{
+	GLCall(glDisable(GL_DEPTH_TEST));
 }
 
 Renderer::Renderer()
@@ -175,7 +197,7 @@ void Renderer::BlitFrameBuffer(const unsigned int from,
 
 void Renderer::ClearColor(float r, float g, float b, float a)
 {
-	glClearColor(r,g,b,a);
+	glClearColor(r, g, b, a);
 }
 void Renderer::ClearColor(const glm::vec4& color)
 {

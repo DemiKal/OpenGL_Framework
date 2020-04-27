@@ -12,6 +12,7 @@ private:
 	std::vector<glm::vec3> cubeVertices;
 	std::vector<unsigned int> cubeIndices;
 	unsigned int cubeVAO, cubeVBO, cubeEBO;
+	inline static GLenum m_depthFunction = GL_LEQUAL;
 	//Mesh cube;
 
 public:
@@ -31,8 +32,8 @@ public:
 	static void ClearColor(float r, float g, float b, float a);
 	static void ClearColor(const glm::vec4& color);
 	static void Clear(GLenum type);
-	
-	bool GetAlphaBlending() const { return m_alphaBlending; }
+
+	[[nodiscard]] bool GetAlphaBlending() const { return m_alphaBlending; }
 	void CreateCubeMesh();
 	void CreateTriangle();
 	void CreatePlane();
@@ -40,4 +41,6 @@ public:
 	static void Enable(GLenum type);
 	static void EnableDepth();
 	static void SetDepthFunc(GLenum depthFunc);
+	static void DisableDepth();
+	GLenum GetDepthFunc() const { return m_depthFunction; }
 };

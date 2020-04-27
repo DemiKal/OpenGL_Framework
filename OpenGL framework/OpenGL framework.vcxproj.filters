@@ -208,6 +208,8 @@
     <None Include="res\shaders\morph_target_simple.vert" />
     <None Include="res\shaders\framebuffer_screen.frag" />
     <None Include="res\shaders\framebuffer_screen.vert" />
+    <None Include="res\shaders\full_color.frag" />
+    <None Include="res\shaders\full_color.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">

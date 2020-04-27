@@ -31,7 +31,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -137,9 +137,10 @@ int main(void)
 		//nanosuit.SetShader("normalmapshader");
 
 		BVH bvh;
+#ifndef _DEBUG
 		bvh.BuildBVH();
 		bvh.CreateBVHTextures();
-
+#endif
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
 		//
 
@@ -364,7 +365,8 @@ int main(void)
 			// -----------------------------------------------------------------------------------------------------------------------
 			framebuffer.Bind();	//make sure we write to this framebuffer
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 			deferredShading.Bind();
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, G_buffer.GetPositionID());
@@ -397,6 +399,24 @@ int main(void)
 			glActiveTexture(GL_TEXTURE0);
 			textureColorBuffer.Bind();
 			ScreenQuad::Draw();
+
+			//Shader& colorMixer = ShaderManager::GetShader("full_color");
+			//glm::vec4 overlayColor = { 1,0,0,1 };
+			//ImGui::ColorPicker4("overlay color", glm::value_ptr(overlayColor));
+			//colorMixer.Bind();
+			//colorMixer.SetVec4f("u_color", overlayColor);
+			////glActiveTexture(GL_TEXTURE0);
+			//textureColorBuffer.Bind();
+			//ScreenQuad::Draw();
+			//
+			//
+			const char* listbox_itemsDepth[] = { "GL_NEVER", "GL_LESS", "GL_EQUAL", "GL_LEQUAL", "GL_GREATER","GL_NOTEQUAL", "GL_GEQUAL", "GL_ALWAYS", "INVALID" };
+			const GLenum listbox_itemsEnum[] = { GL_NEVER, GL_LESS,GL_EQUAL, GL_LEQUAL, GL_GREATER,GL_NOTEQUAL,	GL_GEQUAL ,GL_ALWAYS, GL_DEPTH };
+			static int depthFunc = 0;
+			ImGui::ListBox("Depth function\n(single select)", &depthFunc, listbox_itemsDepth, IM_ARRAYSIZE(listbox_itemsDepth), IM_ARRAYSIZE(listbox_itemsDepth));
+
+			Renderer::SetDepthFunc(listbox_itemsEnum[depthFunc]);
+			//Renderer::SetDepthFunc(listbox_itemsEnum[depthFunc]);
 
 			Renderer::BlitFrameBuffer(G_buffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
@@ -471,7 +491,7 @@ int main(void)
 
 
 
-
+			Renderer::DisableDepth();
 
 			static float angleee = 0;
 			angleee += 0.01f;

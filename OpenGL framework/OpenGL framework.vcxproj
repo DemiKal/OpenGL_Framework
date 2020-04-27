@@ -107,6 +107,8 @@
     <None Include="res\shaders\bones.vert" />
     <None Include="res\shaders\deferred_shading.frag" />
     <None Include="res\shaders\deferred_shading.vert" />
+    <None Include="res\shaders\full_color.frag" />
+    <None Include="res\shaders\full_color.vert" />
     <None Include="res\shaders\Gbuffer_basic.frag" />
     <None Include="res\shaders\Gbuffer_basic.vert" />
     <None Include="res\shaders\framebuffers.frag" />
