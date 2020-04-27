@@ -55,12 +55,24 @@ int main(void)
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	GLint  max_tex_size;
 	GLint  max_uniform_locations;
+	GLint maxInvoc;
+	GLint maxWorkGroup;
 	GLCall(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size));
 	GLCall(glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &max_uniform_locations));
+	GLCall(glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxInvoc));
+	int work_grp_size[3], work_grp_inv;
+	// maximum global work group (total work in a dispatch)
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
 
 	std::cout << "--- GPU Data ---\n";
 	std::cout << "max tex size: " << max_tex_size << "\n";
 	std::cout << "max uniform locations: " << max_uniform_locations / 1024 << "kb \n";
+	std::cout << "max work group invocations: " << maxInvoc / 1024 << "kb \n";
+	printf("max work group count: %i, %i, %i ", work_grp_size[0], work_grp_size[1], work_grp_size[2]);
+
+
 	std::cout << "----------------\n";
 	std::vector<int> nums{ 3, 4, 2, 8, 15, 267 };
 
@@ -70,8 +82,8 @@ int main(void)
 	//std::for_each(std::execution::par, nums.cbegin(), nums.cend(), print);
 	std::cout << '\n';
 
-	 
-	{ 
+
+	{
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
 
@@ -124,11 +136,11 @@ int main(void)
 		//EntityManager::AddEntity(nanosuit);
 		//nanosuit.SetShader("normalmapshader");
 
-		//BVH bvh;
-		//bvh.BuildBVH();
-		//bvh.CreateBVHTextures();
+		BVH bvh;
+		bvh.BuildBVH();
+		bvh.CreateBVHTextures();
 
-		//std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
+		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
 		//
 
 		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
@@ -195,9 +207,8 @@ int main(void)
 
 
 
-
 		Texture2D uvTexture("res/textures/uvtest.png", "diffuse");
-		
+
 
 		//  create and attach depth buffer (renderbuffer)
 		unsigned int rboDepth;
@@ -251,7 +262,7 @@ int main(void)
 		LightManager::AddLight({ -2,  3, 0 }, { 0,1,0 });
 		LightManager::AddLight({ 2,  3, 0 }, { 0,0,1 });
 
-		
+
 
 		double prevFrameTime = glfwGetTime();
 		glm::vec4 particleColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -265,11 +276,11 @@ int main(void)
 		while (!glfwWindowShouldClose(window))
 		{
 			//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			renderer.ClearColor(0, 0, 0, 1);
-			renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			Renderer::ClearColor(0, 0, 0, 1);
+			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//glClear();
-			renderer.Enable(GL_DEPTH_TEST);
-			renderer.SetDepthFunc(GL_LESS);
+			Renderer::Enable(GL_DEPTH_TEST);
+			Renderer::SetDepthFunc(GL_LESS);
 			double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 			renderer.SetAlphaBlending(false);
@@ -325,16 +336,17 @@ int main(void)
 
 			// 1. geometry pass: render scene's geometry/color data into gbuffer
 			// -----------------------------------------------------------------
-			renderer.EnableDepth();
+			Renderer::EnableDepth();
 			//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			G_buffer.Bind();
-			renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			
+			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 			artisans.Draw(camera);
 			spyro.Draw(camera);
 			renderer.SetAlphaBlending(true);
-			
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			//FIX!
+			//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			// nanosuit.GetShader().Bind();
 			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
@@ -350,14 +362,15 @@ int main(void)
 
 			// 2. lighting pass: calculate lighting by iterating over a screen filled quad pixel-by-pixel using the gbuffer's content.
 			// -----------------------------------------------------------------------------------------------------------------------
-			
+			framebuffer.Bind();	//make sure we write to this framebuffer
+
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			deferredShading.Bind();
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, G_buffer.GetPositionID());
-			glActiveTexture(GL_TEXTURE0+1);
+			glActiveTexture(GL_TEXTURE0 + 1);
 			glBindTexture(GL_TEXTURE_2D, G_buffer.GetNormalID());
-			glActiveTexture(GL_TEXTURE0+2);
+			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, G_buffer.GetAlbedoSpecID());
 
 			// send light relevant uniforms
@@ -371,33 +384,44 @@ int main(void)
 
 			deferredShading.SetInt("u_displayMode", displayMode);
 
+			//framebuffer.Bind();
 			screenQuad.Bind();
-			screenQuad.Draw();
-		
-			renderer.BlitFrameBuffer(G_buffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
-			
+			ScreenQuad::Draw();	//Draw to custom frame buffer
+
+			//draw from deferred to framebuffer to standard framebuffer
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbufferID, 0);
+
+			Shader& singleTex = ShaderManager::GetShader("framebuffer_screen");
+			singleTex.Bind();
+			glActiveTexture(GL_TEXTURE0);
+			textureColorBuffer.Bind();
+			ScreenQuad::Draw();
+
+			Renderer::BlitFrameBuffer(G_buffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
 			//LightManager::debug_render(camera);
-			if (ImGui::RadioButton("Draw bvh", &drawBvh)) 
+			if (ImGui::RadioButton("Draw bvh", &drawBvh))
 				drawBvh = !drawBvh;
-			
-			//if(drawBvh) bvh.Draw(camera);
-			//glBindFramebuffer(GL_FRAMEBUFFER ,0);
+
+			if (drawBvh) bvh.Draw(camera);
+
+			// glBindFramebuffer(GL_FRAMEBUFFER ,0);
 			//framebuffer.Bind();
 
 			static float interpolation = 0.0f;
 			ImGui::SliderFloat("morph", &interpolation, 0, 1);
 			morphTest.Update(deltaTime);
 
-			Shader& shdr =  morphTest.GetShader();
+			Shader& shdr = morphTest.GetShader();
 			shdr.Bind();
 			shdr.SetFloat("u_morphValue", interpolation);
 			//shdr.SetInt("texture1", 0);
-			
+
 			uvTexture.Bind();
-			
+
 			morphTest.Draw(camera);
-			
+
 			//post process ray tracer
 			//glDisable(GL_DEPTH_TEST);
 			//
@@ -458,7 +482,9 @@ int main(void)
 				* glm::scale(glm::mat4(1.0f), { cos(angleee), 0.5 + 0.5 * sin(angleee),-cos(angleee) }), bcolor);
 
 
-			userInterface.Draw();
+
+
+			UserInterface::Draw();
 
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());

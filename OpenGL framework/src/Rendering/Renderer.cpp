@@ -95,6 +95,7 @@ void Renderer::Enable(GLenum type)
 
 void Renderer::EnableDepth()
 {
+	Enable(GL_DEPTH_TEST);
 }
 
 void Renderer::SetDepthFunc(GLenum depthFunc)
