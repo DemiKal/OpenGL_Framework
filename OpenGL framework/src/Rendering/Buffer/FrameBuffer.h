@@ -6,7 +6,7 @@ class FrameBuffer
 private:
 	unsigned int m_rendererID;
 	unsigned int m_RBO;
-	unsigned int m_colorTextureID;
+	//unsigned int m_colorTextureID;
 	Texture2D m_renderTarget;
 	Texture2D m_depthTexture;
 	
@@ -14,8 +14,8 @@ private:
 public:
 	explicit FrameBuffer(const unsigned int width = SCREENWIDTH, const unsigned int height = SCREENHEIGHT);
 
-	unsigned int GetColorTextureID() { return m_colorTextureID; }
-	//Texture2D& GetTexture() { return m_renderTarget; }
+	//nsigned int GetColorTextureID() { return m_colorTextureID; }
+	Texture2D& GetTexture() { return m_renderTarget; }
 
 	void Bind() const { GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID)); }
 };

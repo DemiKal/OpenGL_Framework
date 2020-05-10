@@ -164,7 +164,7 @@ int main(void)
 		// create a color attachment texture
 	
 
-		unsigned int textureColorbufferID = framebuffer.GetColorTextureID ();
+		unsigned int textureColorbufferID = framebuffer.GetTexture().GetID();
 
 		// configure g-buffer framebuffer
 		// ------------------------------
@@ -369,8 +369,9 @@ int main(void)
 			Shader& singleTex = ShaderManager::GetShader("framebuffer_screen");
 			singleTex.Bind();
 			//glActiveTexture(GL_TEXTURE0);
-			GLCall(glActiveTexture(GL_TEXTURE0));
-			GLCall(glBindTexture(GL_TEXTURE_2D, framebuffer.GetColorTextureID()));
+			//GLCall(glActiveTexture(GL_TEXTURE0));
+			//GLCall(glBindTexture(GL_TEXTURE_2D, framebuffer.GetColorTextureID()));
+			framebuffer.GetTexture().Bind();
 			//framebuffer.GetTexture().Bind();
 			ScreenQuad::Draw();
 
