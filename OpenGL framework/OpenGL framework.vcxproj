@@ -84,7 +84,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GBUFFER.CPP" />
     <ClCompile Include="src\Rendering\Buffer\Gbuffer.cpp" />
     <ClCompile Include="src\Rendering\ScreenQuad.cpp" />
     <ClCompile Include="src\GameObject\Components\Texture1D.cpp" />

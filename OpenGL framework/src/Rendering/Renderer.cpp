@@ -98,14 +98,25 @@ void Renderer::EnableDepth()
 	Enable(GL_DEPTH_TEST);
 }
 
-void Renderer::SetDepthFunc(GLenum depthFunc)
+void Renderer::SetDepthFunc(const GLenum depthFunc)
 {
+	//static const std::map<GLenum,int> validEnums = {
+	//	{GL_NEVER,0}, {GL_LESS,1}, {GL_EQUAL,2}, {GL_LEQUAL,3},
+	//	{GL_GREATER,4}, {GL_NOTEQUAL,5}, {GL_GEQUAL,6},
+	//};
+	//if(validEnums.find(depthFunc) == std::end(validEnums))	//probably slower lel
+	//{
+	//	std::cout << "not a viable depth func enum! \n";
+	//	return;;
+	//}
+	//
 	if (depthFunc == m_depthFunction)
 	{
-		std::cout << "same func!\n";
-	return;
+		//std::cout << "same func!\n";
+		return;
 	}
-	
+
+	//prob faster than std::map
 	switch (depthFunc)
 	{
 		case GL_NEVER:	 	break;
@@ -117,6 +128,8 @@ void Renderer::SetDepthFunc(GLenum depthFunc)
 		case GL_GEQUAL:	 	break;
 		default: std::cout << "not a viable depth func enum! \n"; return;;
 	}
+
+	
 	m_depthFunction = depthFunc;
 	GLCall(glDepthFunc(depthFunc));
 }

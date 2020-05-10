@@ -31,7 +31,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -121,14 +121,14 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		artisans.SetShader("Gbuffer_basic");
-		artisans.m_name = "artisans";
-		EntityManager::AddEntity(artisans);
-
-		Model morphTest("res/meshes/morph test.glb", aiProcess_Triangulate);
-		morphTest.SetShader("morph_target_simple");
-		morphTest.m_name = "morph test";
+		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		//artisans.SetShader("Gbuffer_basic");
+		//artisans.m_name = "artisans";
+		//EntityManager::AddEntity(artisans);
+		//
+		//Model morphTest("res/meshes/morph test.glb", aiProcess_Triangulate);
+		//morphTest.SetShader("morph_target_simple");
+		//morphTest.m_name = "morph test";
 
 		//artisans.getMesh(0).MakeWireFrame();
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
@@ -137,7 +137,7 @@ int main(void)
 		//nanosuit.SetShader("normalmapshader");
 
 		BVH bvh;
-#ifndef _DEBUG
+#ifdef _DEBUG
 		bvh.BuildBVH();
 		bvh.CreateBVHTextures();
 #endif
@@ -155,9 +155,6 @@ int main(void)
 		postProcessShader.SetInt("u_triangleIdxTexture", 5);
 		postProcessShader.SetInt("u_depthBuffer", 6);
 
-		Shader& lineshader = ShaderManager::GetShader("lineshader");
-		Shader& boneshader = ShaderManager::GetShader("bones");
-
 		// framebuffer configuration
 		// -------------------------
 		////////////////////////////
@@ -165,39 +162,14 @@ int main(void)
 		FrameBuffer framebuffer;
 
 		// create a color attachment texture
-		Texture2D textureColorBuffer(
-			GL_RGB,
-			SCREENWIDTH,
-			SCREENHEIGHT,
-			0,
-			GL_RGB,
-			GL_UNSIGNED_BYTE);
+	
 
-		unsigned int textureColorbufferID = textureColorBuffer.GetID();
+		unsigned int textureColorbufferID = framebuffer.GetColorTextureID ();
 
-		Texture2D zBufferTex(
-			GL_DEPTH_COMPONENT24,
-			SCREENWIDTH,
-			SCREENHEIGHT,
-			0,
-			GL_DEPTH_COMPONENT,
-			GL_FLOAT);
-
-		unsigned int zBufferTextureID = zBufferTex.GetID();
-
-		//bind color and depth to framebuffer
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbufferID, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTextureID, 0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// configure g-buffer framebuffer
-// ------------------------------
+		// ------------------------------
 
 		Gbuffer G_buffer;
-		unsigned int gbuffer = G_buffer.GetID();
 
 		Shader deferredShading = ShaderManager::GetShader("deferred_shading");
 
@@ -212,15 +184,15 @@ int main(void)
 
 
 		//  create and attach depth buffer (renderbuffer)
-		unsigned int rboDepth;
-		glGenRenderbuffers(1, &rboDepth);
-		glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREENWIDTH, SCREENHEIGHT);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-		// finally check if framebuffer is complete
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "Framebuffer not complete!" << std::endl;
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//  unsigned int rboDepth;
+		//  glGenRenderbuffers(1, &rboDepth);
+		//  glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+		//  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREENWIDTH, SCREENHEIGHT);
+		//  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+		//  // finally check if framebuffer is complete
+		//  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		//  	std::cout << "Framebuffer not complete!" << std::endl;
+		//  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 		const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
@@ -280,9 +252,9 @@ int main(void)
 			Renderer::ClearColor(0, 0, 0, 1);
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//glClear();
-			Renderer::Enable(GL_DEPTH_TEST);
-			Renderer::SetDepthFunc(GL_LESS);
-			double currentFrameTime = glfwGetTime();
+			Renderer::EnableDepth();
+			Renderer::SetDepthFunc(GL_LEQUAL);
+			const double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 			renderer.SetAlphaBlending(false);
 
@@ -329,7 +301,7 @@ int main(void)
 			spyro.Update(deltaTime);
 			//duck.Update(deltaTime);
 			//nanosuit.Update(deltaTime);
-			artisans.Update(deltaTime);
+			//artisans.Update(deltaTime);
 
 			//artisans.Draw(camera);
 			//glClearColor(0.4f, 0.1f, 0.1f, 1.0f);
@@ -342,7 +314,7 @@ int main(void)
 			G_buffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			artisans.Draw(camera);
+			//artisans.Draw(camera);
 			spyro.Draw(camera);
 			renderer.SetAlphaBlending(true);
 
@@ -396,51 +368,42 @@ int main(void)
 
 			Shader& singleTex = ShaderManager::GetShader("framebuffer_screen");
 			singleTex.Bind();
-			glActiveTexture(GL_TEXTURE0);
-			textureColorBuffer.Bind();
+			//glActiveTexture(GL_TEXTURE0);
+			GLCall(glActiveTexture(GL_TEXTURE0));
+			GLCall(glBindTexture(GL_TEXTURE_2D, framebuffer.GetColorTextureID()));
+			//framebuffer.GetTexture().Bind();
 			ScreenQuad::Draw();
 
-			//Shader& colorMixer = ShaderManager::GetShader("full_color");
-			//glm::vec4 overlayColor = { 1,0,0,1 };
-			//ImGui::ColorPicker4("overlay color", glm::value_ptr(overlayColor));
-			//colorMixer.Bind();
-			//colorMixer.SetVec4f("u_color", overlayColor);
-			////glActiveTexture(GL_TEXTURE0);
-			//textureColorBuffer.Bind();
-			//ScreenQuad::Draw();
+			//const char* listbox_itemsDepth[] = { "GL_NEVER", "GL_LESS", "GL_EQUAL", "GL_LEQUAL", "GL_GREATER","GL_NOTEQUAL", "GL_GEQUAL", "GL_ALWAYS", "INVALID" };
+			//const GLenum listbox_itemsEnum[] = { GL_NEVER, GL_LESS,GL_EQUAL, GL_LEQUAL, GL_GREATER,GL_NOTEQUAL,	GL_GEQUAL ,GL_ALWAYS, GL_DEPTH };
+			//static int depthFunc = 0;
+			//ImGui::ListBox("Depth function\n(single select)", &depthFunc, listbox_itemsDepth, IM_ARRAYSIZE(listbox_itemsDepth), IM_ARRAYSIZE(listbox_itemsDepth));
 			//
-			//
-			const char* listbox_itemsDepth[] = { "GL_NEVER", "GL_LESS", "GL_EQUAL", "GL_LEQUAL", "GL_GREATER","GL_NOTEQUAL", "GL_GEQUAL", "GL_ALWAYS", "INVALID" };
-			const GLenum listbox_itemsEnum[] = { GL_NEVER, GL_LESS,GL_EQUAL, GL_LEQUAL, GL_GREATER,GL_NOTEQUAL,	GL_GEQUAL ,GL_ALWAYS, GL_DEPTH };
-			static int depthFunc = 0;
-			ImGui::ListBox("Depth function\n(single select)", &depthFunc, listbox_itemsDepth, IM_ARRAYSIZE(listbox_itemsDepth), IM_ARRAYSIZE(listbox_itemsDepth));
-
-			Renderer::SetDepthFunc(listbox_itemsEnum[depthFunc]);
+			//Renderer::SetDepthFunc(listbox_itemsEnum[depthFunc]);
 			//Renderer::SetDepthFunc(listbox_itemsEnum[depthFunc]);
 
 			Renderer::BlitFrameBuffer(G_buffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
 			//LightManager::debug_render(camera);
-			if (ImGui::RadioButton("Draw bvh", &drawBvh))
-				drawBvh = !drawBvh;
-
+			if (ImGui::RadioButton("Draw bvh", &drawBvh)) drawBvh = !drawBvh;
 			if (drawBvh) bvh.Draw(camera);
+
 
 			// glBindFramebuffer(GL_FRAMEBUFFER ,0);
 			//framebuffer.Bind();
 
 			static float interpolation = 0.0f;
 			ImGui::SliderFloat("morph", &interpolation, 0, 1);
-			morphTest.Update(deltaTime);
+			//morphTest.Update(deltaTime);
 
-			Shader& shdr = morphTest.GetShader();
-			shdr.Bind();
-			shdr.SetFloat("u_morphValue", interpolation);
-			//shdr.SetInt("texture1", 0);
+			//Shader& shdr = morphTest.GetShader();
+			//shdr.Bind();
+			//shdr.SetFloat("u_morphValue", interpolation);
+			
 
 			uvTexture.Bind();
 
-			morphTest.Draw(camera);
+			//morphTest.Draw(camera);
 
 			//post process ray tracer
 			//glDisable(GL_DEPTH_TEST);

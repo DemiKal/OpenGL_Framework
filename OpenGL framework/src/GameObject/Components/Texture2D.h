@@ -13,9 +13,9 @@ public:
 	Texture2D(const std::string& fullPath, const std::string& typeName);
 	Texture2D(
 		const GLenum internalformat,
-		const int p_width,  //TODO: unsigned?
-		const int p_height,
-		const int border,
+		const unsigned int p_width,  
+		const unsigned int p_height,
+		const unsigned int border,
 		const GLenum format,
 		const GLenum type,
 		const void* data = nullptr,
@@ -31,7 +31,7 @@ public:
 	inline  std::string GetPath() const { return m_path; }
 	inline unsigned int GetWidth()  const { return m_width; }
 	inline unsigned int GetHeight()  const { return m_height; }
-	inline void Bind(const int textureIndex = 0)
+	inline void Bind(const int textureIndex = 0) const
 	{
 		GLCall(glActiveTexture(GL_TEXTURE0 + textureIndex));
 		GLCall(glBindTexture(GL_TEXTURE_2D, m_rendererID));

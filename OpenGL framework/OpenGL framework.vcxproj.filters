@@ -141,9 +141,6 @@
     <ClCompile Include="src\Rendering\Buffer\Gbuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GBUFFER.CPP">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\GameObject\Components\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
