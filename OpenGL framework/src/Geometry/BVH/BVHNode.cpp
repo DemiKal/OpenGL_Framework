@@ -1,11 +1,11 @@
 #include "precomp.h"
 #include "BVHNode.h"
-int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
+unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
 	const std::vector<AABB>& aabbs, int start, int end);
 
-AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& aabbs, int first, int last);
-float combine_sah(BVH& bvh, const std::vector<AABB>& aabbs, int start, int end);
-float calc_sah(const AABB& aabb, int objCount);
+AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& aabbs, unsigned int first, unsigned  int last);
+float combine_sah(BVH& bvh, const std::vector<AABB>& aabbs, unsigned int start, unsigned int end);
+float calc_sah(const AABB& aabb, unsigned int objCount);
 
 glm::vec3 GetCenterAABB(const AABB& aabb);
 glm::vec3 GetCenterTriangle(const Triangle& triangle);
@@ -68,7 +68,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 }
 
 
-AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const int first, const int last)
+AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned int first, const unsigned int last)
 {
 	float minX = INFINITY;
 	float minY = INFINITY;
@@ -77,7 +77,7 @@ AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const int firs
 	float maxY = -std::numeric_limits<float>::infinity();
 	float maxZ = -std::numeric_limits<float>::infinity();
 
-	for (int i = first; i < last; i++)
+	for (unsigned int i = first; i < last; i++)
 	{
 		const int idx = bvh.m_indices[i];
 		minX = std::min(minX, AABBs[idx].m_min.v.x);
@@ -92,7 +92,7 @@ AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const int firs
 }
 
 
-int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
+unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
 	const std::vector<AABB>& aabbs, int start, int end)
 {
 	const float sahParent = calc_sah(parent.m_bounds, parent.m_count);
@@ -158,7 +158,7 @@ int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& tria
 }
 
 
-float combine_sah(BVH& bvh, const std::vector<AABB>& aabbs, const  int start, const int end)
+float combine_sah(BVH& bvh, const std::vector<AABB>& aabbs, const unsigned int start, const unsigned int end)
 {
 	const AABB box = calculate_bb(bvh, aabbs, start, end);
 	const int count = end - start;
@@ -169,7 +169,7 @@ float combine_sah(BVH& bvh, const std::vector<AABB>& aabbs, const  int start, co
 }
 
 //calculate surface area heuristic
-float calc_sah(const AABB& aabb, const int objCount)
+float calc_sah(const AABB& aabb, const unsigned int objCount)
 {
 	const float xlen = (aabb.m_max.v.x - aabb.m_min.v.x);
 	const float zlen = (aabb.m_max.v.y - aabb.m_min.v.y);
@@ -217,9 +217,9 @@ glm::vec3 GetCenterAABB(const AABB& aabb)
 glm::vec3 GetCenterTriangle(const Triangle& tri)
 {
 	const float t = 1.0f / 3.0f;
-	const glm::vec3 aa = glm::vec3(tri.A.x / 3.0f, tri.A.x / 3, tri.A.z / 3.0f);
-	const glm::vec3 ab = glm::vec3(tri.B.x / 3.0f, tri.B.x / 3, tri.B.z / 3.0f);
-	const glm::vec3 ac = glm::vec3(tri.C.x / 3.0f, tri.C.x / 3, tri.C.z / 3.0f);
+	const glm::vec3 aa = glm::vec3(tri.A.x / 3.0f, tri.A.x / 3.0f, tri.A.z / 3.0f);
+	const glm::vec3 ab = glm::vec3(tri.B.x / 3.0f, tri.B.x / 3.0f, tri.B.z / 3.0f);
+	const glm::vec3 ac = glm::vec3(tri.C.x / 3.0f, tri.C.x / 3.0f, tri.C.z / 3.0f);
 
 	//vec3 c = ( a1.A * t ) + ( a1.B * t ) + a1.C * t;
 	glm::vec3 c = aa + ab + ac;

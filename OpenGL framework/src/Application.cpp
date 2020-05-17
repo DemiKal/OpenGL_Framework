@@ -121,10 +121,10 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		//Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		//artisans.SetShader("Gbuffer_basic");
-		//artisans.m_name = "artisans";
-		//EntityManager::AddEntity(artisans);
+		 Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		 artisans.SetShader("Gbuffer_basic");
+		 artisans.m_name = "artisans";
+		 EntityManager::AddEntity(artisans);
 		//
 		//Model morphTest("res/meshes/morph test.glb", aiProcess_Triangulate);
 		//morphTest.SetShader("morph_target_simple");
@@ -135,15 +135,21 @@ int main(void)
 		//nanosuit.name = "nanosuit";
 		//EntityManager::AddEntity(nanosuit);
 		//nanosuit.SetShader("normalmapshader");
+		 const double startTime = glfwGetTime();
 
 		BVH bvh;
-#ifdef _DEBUG
+//#ifndef _DEBUG
 		bvh.BuildBVH();
 		bvh.CreateBVHTextures();
-#endif
+//#endif
+		const double endTime = glfwGetTime();
+		double time = endTime - startTime;
+		
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
-		//
+		std::cout << "seconds: " << time << "\n";
 
+		//std::cin.get();
+		//return 0;
 		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
 		postProcessShader.Bind();
