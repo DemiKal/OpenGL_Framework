@@ -28,7 +28,7 @@ int main(void)
 	if (!glfwInit()) return -1;
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
@@ -176,20 +176,23 @@ int main(void)
 		//duck.SetShader("framebuffers");
 		//EntityManager::AddEntity(duck);
 
-		 Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		 artisans.SetShader("basic");
-		 artisans.name = "artisans";
-		 EntityManager::AddEntity(artisans);
+		// Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		// artisans.SetShader("basic");
+		// artisans.name = "artisans";
+		// EntityManager::AddEntity(artisans);
 
 		//artisans.getMesh(0).MakeWireFrame();
 		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
 		//nanosuit.name = "nanosuit";
 		//EntityManager::AddEntity(nanosuit);
 		//nanosuit.SetShader("normalmapshader");
-
+		 unsigned int as = sizeof(BVHNode);
+		 unsigned int asa = sizeof(AABB);
+		 unsigned int as1 = sizeof(Max);
+		 unsigned int as2 = sizeof(Min);
 		BVH bvh;
-		//bvh.BuildBVH();
-		//bvh.CreateBVHTextures();
+		bvh.BuildBVH();
+		bvh.CreateBVHTextures();
 
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
 		//

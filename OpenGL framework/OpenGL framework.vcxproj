@@ -117,7 +117,7 @@
     <None Include="res\shaders\lineshader.vert" />
     <None Include="res\shaders\normalmapshader.frag" />
     <None Include="res\shaders\plane.frag" />
-    <None Include="res\shaders\plane.glsl" />
+    <None Include="res\shaders\plane.vert" />
     <None Include="res\shaders\singlecolor.frag" />
     <None Include="res\shaders\singledotshader.frag" />
     <None Include="res\shaders\singleTriangle.frag" />

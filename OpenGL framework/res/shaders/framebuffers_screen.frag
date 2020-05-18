@@ -1,5 +1,5 @@
 
-#version 330 core
+#version 430 core
 
 out vec4 FragColor;
 
@@ -20,6 +20,58 @@ uniform vec3 u_cameraUp;
 uniform sampler2D screenTexture;
 uniform sampler1D u_triangleTexture;
 uniform sampler2D u_depthBuffer;
+
+ 
+struct BVHNode
+{
+	int m_start;	
+	int m_end;		//struct BVHNode{
+	int m_leftFirst; //	int m_start;		//4	+
+	int m_count;	//	int m_end;			//4	+
+	vec4 m_min;//	int m_leftFirst;	//4	+
+	vec4 m_max;//	int m_count;		//4 = 16
+};
+
+layout (std430, binding = 0) buffer BVH_buffer
+{
+	BVHNode BVH[] ;	
+};
+ 
+ struct Trianglee
+ {
+	vec4 A; //float d1;
+	vec4 B;	//float d2;
+	vec4 C;	//float d3;
+ };
+
+layout (std430, binding = 1) buffer Triangle_buffer
+{
+	Trianglee triangles[] ;	
+};
+ 
+ 
+ 
+//	vec4 m_min;
+//	vec4 m_max;
+//};
+//
+//layout (std140, binding = 0) buffer BVH_data
+//{ 
+//	BVHNode;
+//};
+//
+//struct Triangle
+//{
+//	vec3 t_A;
+//	vec3 t_B;
+//	vec3 t_C;
+//
+//};
+//layout (std430, binding = 1) buffer Triangle_data
+//{
+//	Triangle[1];
+//};
+
 
 //uniform isampler1D u_trianglesTexture;	// 3 floats xyz 
 
@@ -385,10 +437,34 @@ void main()
 	 finalColor = albedo4;
 	// if(distL >20) 
 	//	finalColor = black;
-	// bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
+	//  bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
 	// if(foundHit)
-	//	finalColor = vec4(u,v,0.5f,1.0f);
+	 //	finalColor = vec4(u,v,0.5f,1.0f);
 	//finalColor = vec4(distPerpixel.xyz,1.0f);
+	finalColor = vec4(0.5,0,1,1);
+	
+	for(int i = 0; i < 15; i++)
+	{
+		 vec3 v0 = triangles[i].A.xyz;
+		 vec3 v1 = triangles[i].B.xyz;
+		 vec3 v2 = triangles[i].C.xyz;
+		//vec3 v0 = texelFetch(u_triangleTexture, i, 0).xyz;
+		//vec3 v1 = texelFetch(u_triangleTexture, i + 1, 0).xyz;
+		//vec3 v2 = texelFetch(u_triangleTexture, i + 2, 0).xyz;
+
+		//AABB aaabbbb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz); 
+		//bool hitBB = IntersectAABB(rayOrigin, rayDir , aaabbbb);
+		
+		HitData hd = triIntersect(rayOrigin, rayDir, v0, v1, v2);
+		if(hd.hasHit)
+		{
+				finalColor = vec4(hd.u, hd.v, 1.0f,1.0f);
+		}
+	}
+	//if(hitBB)
+	//finalColor = black;
+	
+	
 	FragColor =  finalColor;
 
 

@@ -23,8 +23,9 @@ class AABB
 {
 public:
 	Min m_min; // m_min_OG;
+	int pad1;
 	Max m_max; //m_max_OG;*/
-
+	int pad2;
 	AABB() : m_min(), m_max() {}
 
 	AABB(const glm::vec3& _min, const glm::vec3& _max) : m_min(_min), m_max(_max) {}

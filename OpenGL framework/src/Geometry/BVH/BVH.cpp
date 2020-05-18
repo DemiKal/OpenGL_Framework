@@ -1,4 +1,4 @@
-#include "precomp.h"
+﻿#include "precomp.h"
 #include "BVH.h"
 
 #include "GameObject/Camera.h"
@@ -112,7 +112,7 @@ void BVH::Draw(const Camera& camera)
 void BVH::TraceRay(const Ray& ray)
 {
 	if (!InputManager::m_isClicked) return;
-	if(ImGui::IsWindowHovered()) return;
+	if (ImGui::IsWindowHovered()) return;
 	if (!m_isBuilt) return;
 
 	std::vector<HitData> hitData;
@@ -234,59 +234,136 @@ void BVH::CreateBVHTextures()
 	//tex 1: indices:  4 ints
 	//tex  2: min vecs: 3 floats
 	//tex 3: max vecs : 3 floats
-	const unsigned int aabbCount = m_poolPtr;
-	unsigned int intTexture;
-	std::vector<glm::ivec4> indicesPart;
-	//std::copy( m_pool ,std::)
-	for (int i = 0; i < m_poolPtr; i++)
-	{
-		const int start = m_pool[i].m_start;
-		const int end = m_pool[i].m_end;
-		const int leftFirst = m_pool[i].m_leftFirst;
-		const int count = m_pool[i].m_count;
+	 const unsigned int aabbCount = m_poolPtr;
+	 unsigned int intTexture;
+	 std::vector<glm::ivec4> indicesPart;
+	 //std::copy( m_pool ,std::)
+	 for (int i = 0; i < m_poolPtr; i++)
+	 {
+	 	const int start = m_pool[i].m_start;
+	 	const int end = m_pool[i].m_end;
+	 	const int leftFirst = m_pool[i].m_leftFirst;
+	 	const int count = m_pool[i].m_count;
+	 
+	 	indicesPart.emplace_back(glm::ivec4(start, end, leftFirst, count));
+	 }
+	 
+	 std::cout << "nodes tex size: " << indicesPart.size() * sizeof(indicesPart[0]) / 1024 << "kb" << "\n";
+	 
+	 //aabb nodes
+	 m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &indicesPart[0], false);
+	 intTexture = m_aabbNodesTexture.GetID();
+	 
+	 std::vector<glm::vec3> minvec;
+	 auto GetMin = [](AABB& aabb) { return aabb.m_min.v; };
+	 
+	 std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
+	 
+	 unsigned int minVecTexture;
+	 
+	 m_minTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &minvec[0], false);
+	 //minVecTexture = m_minVecTex.GetID();
+	 
+	 //max bounds
+	 auto Getmax = [](AABB& aabb) { return aabb.m_max.v; };
+	 
+	 std::vector<glm::vec3> maxVec;
+	 std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(maxVec), Getmax);
+	 
+	 m_maxTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &maxVec[0], false);
+	 
+	 //triangle texture
+	 const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
+	 const unsigned int triangleCount = triangles.size();
+	 
+	 std::vector<glm::vec3> triBuffer;
+	 
+	 for (auto& t : triangles)
+	 {
+	 	triBuffer.emplace_back(t.A);
+	 	triBuffer.emplace_back(t.B);
+	 	triBuffer.emplace_back(t.C);
+	 }
+	 
+	 m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
+	 m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
+	//
 
-		indicesPart.emplace_back(glm::ivec4(start, end, leftFirst, count));
-	}
+	//ssbo
 
-	std::cout << "nodes tex size: " << indicesPart.size() * sizeof(indicesPart[0]) / 1024 << "kb" << "\n";
+	unsigned int shaderId = ShaderManager::GetShader("framebuffers_screen").GetID();
 
-	//aabb nodes
-	m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &indicesPart[0], false);
-	intTexture = m_aabbNodesTexture.GetID();
+	const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr;
+	GLuint m_bvh_ssbo = 0;
+	glGenBuffers(1, &m_bvh_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_bvh_ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, m_pool, GL_DYNAMIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	std::vector<glm::vec3> minvec;
-	auto GetMin = [](AABB& aabb) { return aabb.m_min.v; };
+	//glGenBuffers(1, &ssbo);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(data), data​, GLenum usage); //sizeof(data) only works for statically sized C/C++ arrays.
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-	std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
 
-	unsigned int minVecTexture;
+	GLuint block_index = 1231;
+	block_index = glGetProgramResourceIndex(shaderId, GL_SHADER_STORAGE_BLOCK, "BVH_buffer");
 
-	m_minTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &minvec[0], false);
-	//minVecTexture = m_minVecTex.GetID();
 
-	//max bounds
-	auto Getmax = [](AABB& aabb) { return aabb.m_max.v; };
+	//const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
+	unsigned int tsize = sizeof(Triangle);
 
-	std::vector<glm::vec3> maxVec;
-	std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(maxVec), Getmax);
+	 std::vector<glm::vec4> trispadded;
+	 for(auto& t : triangles)
+	 {
+	 	trispadded.emplace_back(glm::vec4(t.A, -10.0f));
+	 	trispadded.emplace_back(glm::vec4(t.B, -10.0f));
+	 	trispadded.emplace_back(glm::vec4(t.C, -10.0f));
+	 	//trispadded.emplace_back(t.B.x); trispadded.emplace_back(t.B.y);	trispadded.emplace_back(t.B.z);
+	 	//trispadded.emplace_back(-1.0f);
+	 	//trispadded.emplace_back(t.C.x); trispadded.emplace_back(t.C.y);	trispadded.emplace_back(t.C.z);
+	 	//trispadded.emplace_back(-1.0f);
+	 	
+	 }
 
-	m_maxTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &maxVec[0], false);
 
-	//triangle texture
-	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
-	const unsigned int triangleCount = triangles.size();
+	//std::vector<glm::vec4> triBuffer;
 
-	std::vector<glm::vec3> triBuffer;
 
-	for (auto& t : triangles)
-	{
-		triBuffer.emplace_back(t.A);
-		triBuffer.emplace_back(t.B);
-		triBuffer.emplace_back(t.C);
-	}
+	auto& spyro = EntityManager::GetEntity("Spyro").getMesh(0).positionVertices;
+	
+	//for (auto& t : spyro)
+	//{
+	//	triBuffer.emplace_back( glm::vec4(t , -9.0f) );
+	//	//triBuffer.emplace_back(glm::vec4(t , -9.0f));
+	//	//triBuffer.emplace_back(glm::vec4(t , -9.0f));
+	//}
 
-	m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
-	m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
+	//triBuffer[0] = glm::vec4(-5, 0, 5, -10);
+	//triBuffer[1] = glm::vec4( 5, 0, 5, -10);
+	//triBuffer[2] = glm::vec4( 5, 0, -5, -10);
+	
+	GLuint m_triangles_ssbo = 0;
+	glGenBuffers(1, &m_triangles_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_triangles_ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, trispadded.size() * sizeof(glm::vec4), &trispadded[0], GL_DYNAMIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_triangles_ssbo	);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	GLuint block_indexTriangle = 123671;
+	block_indexTriangle = glGetProgramResourceIndex(shaderId, GL_SHADER_STORAGE_BLOCK, "Triangle_buffer");
+
+
+	//Luint ssbo;
+	//lGenBuffers(1, &ssbo);
+	//lBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+	//lBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, m_pool, GL_DYNAMIC_COPY); //sizeof(data) only works for statically sized C/C++ arrays.
+	//lBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
+	//lBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+
+
 }
 
 void BVH::DrawSingleAABB(Camera& cam, const int index)

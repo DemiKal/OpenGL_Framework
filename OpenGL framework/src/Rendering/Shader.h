@@ -44,7 +44,7 @@ public:
 	void setVec3(const std::string& name, const glm::vec3& value);
 	void SetFloat(const std::string& name, float value);
 	//void SetUniformStruct(const std::string& name, void* myStruct);
-
+	unsigned int GetID() { return m_RendererID; }
 	void Destroy();
 };
 

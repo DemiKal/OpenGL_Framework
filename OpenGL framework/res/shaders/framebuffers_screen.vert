@@ -1,5 +1,5 @@
 
-#version 330 core
+#version 430 core
 ///#########################\\\
 ///							\\\
 ///		VERTEX SHADER		\\\

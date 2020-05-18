@@ -62,7 +62,7 @@ private:
 
 				shaders.emplace_back(Shader(vertKey, vertSrc, fragSrc));
 
-			}
+				}
 			else continue;
 		}
 
