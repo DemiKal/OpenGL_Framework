@@ -49,7 +49,12 @@ layout (std430, binding = 1) buffer Triangle_buffer
 	Trianglee triangles[] ;	
 };
  
-  
+layout (std430, binding = 2) buffer Index_buffer
+{
+	uint tri_indices[] ;	
+};
+ 
+ 
 
 //uniform isampler1D u_trianglesTexture;	// 3 floats xyz 
 
@@ -306,7 +311,10 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 				for (int i = 0; i < childCount; i++)
 				{
 					int j = nodeStart + i;
-					uint tIdx = texelFetch(u_triangleIdxTexture, j, 0).x;
+					//uint tIdx = texelFetch(u_triangleIdxTexture, j, 0).x;
+					
+					uint tIdx = tri_indices[j];
+					
 					//vec3 v0 = texelFetch(u_triangleTexture, 3 * int(tIdx), 0).xyz;
 					//vec3 v1 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 1, 0).xyz;
 					//vec3 v2 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 2, 0).xyz;
