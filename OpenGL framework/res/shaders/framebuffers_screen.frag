@@ -49,29 +49,7 @@ layout (std430, binding = 1) buffer Triangle_buffer
 	Trianglee triangles[] ;	
 };
  
- 
- 
-//	vec4 m_min;
-//	vec4 m_max;
-//};
-//
-//layout (std140, binding = 0) buffer BVH_data
-//{ 
-//	BVHNode;
-//};
-//
-//struct Triangle
-//{
-//	vec3 t_A;
-//	vec3 t_B;
-//	vec3 t_C;
-//
-//};
-//layout (std430, binding = 1) buffer Triangle_data
-//{
-//	Triangle[1];
-//};
-
+  
 
 //uniform isampler1D u_trianglesTexture;	// 3 floats xyz 
 
@@ -219,11 +197,25 @@ vec4 BoxColor(int index, vec3 rayOrigin, vec3 rayDir)
 	return vec4(0, 0, 0, 0);
 }
 
-
-
-bool TraverseBVH(vec3 rayOrigin, vec3 rayDir, out float u, out float v)
+struct BVHhit
 {
-	int size = textureSize(u_indexTexture, 0);
+	bool hasHit;
+	int depth;
+	float u;
+	float v;
+	float t;
+	int triIdx;
+	int bbIdx;
+};
+
+
+
+BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
+{
+	BVHhit result;
+
+	 //int size = textureSize(u_indexTexture, 0);
+	//int size = BVH.length();
 	int currentIdx = 0;
 
 	int stackPtr[StackSize];
@@ -238,64 +230,91 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir, out float u, out float v)
 	float t = 999999.f;
 	float _u = 0;
 	float _v = 0;
+	int depth = 0;
+	
+	//loop---------------------------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------------------------------------------------
 
-	while (currentIdx > 0 && currentIdx < StackSize)
+	while (currentIdx > 0 && currentIdx < StackSize )
 	{
 		int bboxIdx = stackPtr[currentIdx - 1];
 		currentIdx--;
+ 		BVHNode currentBVH = BVH[bboxIdx];
+		//ivec4 idxVec = texelFetch(u_indexTexture, bboxIdx, 0);
 
-		ivec4 idxVec = texelFetch(u_indexTexture, bboxIdx, 0);
-		int childCount = idxVec.w;
+		 depth++;
+		// if(depth > 400) break;
+
+		int childCount =  currentBVH.m_count;
 		bool  isInterior = childCount > 2; //TODO: leaf check
-		AABB currentAABB = GetAABB(bboxIdx);
+		AABB currentAABB = AABB(currentBVH.m_min.xyz, currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
 
 		if (IntersectAABB(rayOrigin, rayDir, currentAABB))
 		{
+			//hasHit = true;
+			//break;
+			//if(depth > 10) break;
 			if (isInterior)
 			{
-				int leftChild = idxVec.z;
-				int rightChild = idxVec.z + 1;
-
-				AABB leftAABB = GetAABB(leftChild);
-				vec3 centerL = 0.5f * leftAABB.m_min + 0.5f * leftAABB.m_max;
-
-				AABB rightAABB = GetAABB(rightChild);
-				vec3 centerR = 0.5f * rightAABB.m_min + 0.5f * rightAABB.m_max;
+				//if(depth > 3) hasHit = true;
 
 
-				//vec3 AABBcentroidLeft = 0.5f * vec3(); 
+				int leftChild = currentBVH.m_leftFirst;
+				int rightChild = currentBVH.m_leftFirst + 1;
+				//BVHNode lBVH = BVH[leftChild];
+				//BVHNode rBVH = BVH[rightChild];
 
-				vec3 vecL = (rayOrigin - centerL);
-				vec3 vecR = (rayOrigin - centerR);
 
-				float sqrDistL = dot(vecL, vecL);
-				float sqrDistR = dot(vecR, vecR);
+				//AABB leftAABB = AABB(lBVH.m_min.xyz, lBVH.m_max.xyz); //GetAABB(leftChild);
+				//vec3 centerL = 0.5f * leftAABB.m_min + 0.5f * leftAABB.m_max;
 
-				bool leftFirst = sqrDistL <= sqrDistR;
-				if (leftFirst)
-				{
-					leftChild = leftChild ^ rightChild;
-					rightChild = leftChild ^ rightChild;
-					leftChild = leftChild ^ rightChild;
-				}
+				//AABB rightAABB = AABB(rBVH.m_min.xyz, rBVH.m_max.xyz); //GetAABB(rightChild);
+				//vec3 centerR = 0.5f * rightAABB.m_min + 0.5f * rightAABB.m_max;
+
+				//vec3 vecL = (rayOrigin - centerL);
+				//vec3 vecR = (rayOrigin - centerR);
+				//
+				//float sqrDistL = dot(vecL, vecL);
+				//float sqrDistR = dot(vecR, vecR);
+				//
+				//bool leftFirst = sqrDistL <= sqrDistR;
+				//if (leftFirst)
+				//{
+				//	leftChild = leftChild ^ rightChild;
+				//	rightChild = leftChild ^ rightChild;
+				//	leftChild = leftChild ^ rightChild;
+				//}
+				
 				//atomicCompSwap(leftFir)
 				stackPtr[currentIdx++] = leftChild;  //leftFirst ? leftChild  : rightChild;
 				stackPtr[currentIdx++] = rightChild;  //leftFirst ? rightChild : leftChild ;
 
-				if (currentIdx > StackSize) return false;
-
+				//if (currentIdx > StackSize) 
+				//{ 
+				//	hasHit = false;
+				//	break;
+				//}
 			}
 			else //leaf node
 			{
-				int nodeStart = idxVec.x;
+				//break;
+				//hasHit = true;
+				//break;
+				
+				int nodeStart = currentBVH.m_start;
 				//return true;
 				for (int i = 0; i < childCount; i++)
 				{
 					int j = nodeStart + i;
 					uint tIdx = texelFetch(u_triangleIdxTexture, j, 0).x;
-					vec3 v0 = texelFetch(u_triangleTexture, 3 * int(tIdx), 0).xyz;
-					vec3 v1 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 1, 0).xyz;
-					vec3 v2 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 2, 0).xyz;
+					//vec3 v0 = texelFetch(u_triangleTexture, 3 * int(tIdx), 0).xyz;
+					//vec3 v1 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 1, 0).xyz;
+					//vec3 v2 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 2, 0).xyz;
+
+					vec3 v0 = triangles[ int(tIdx) ].A.xyz;
+					vec3 v1 = triangles[ int(tIdx) ].B.xyz;
+					vec3 v2 = triangles[ int(tIdx) ].C.xyz;
+
 
 					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
 
@@ -318,11 +337,17 @@ bool TraverseBVH(vec3 rayOrigin, vec3 rayDir, out float u, out float v)
 		}
 	}
 
+	// _u = depth / StackSize;
 	
-	u = _u;
-	v = _v;
+	result.u = _u;
+	result.v = _v;
+	result.t = t;
+	result.hasHit = hasHit;
+	////test
+	//if(depth > 0) hasHit = true;
 
-	return hasHit;
+
+	return result;
 	//vec4 boxhit = BoxColor(u_bboxIdx, rayOrigin, rayDir);
 	//
 	//if (boxhit.a > 0)	finalColor = vec4(boxhit.xyz, 1.0f);
@@ -394,7 +419,9 @@ void main()
 	//rayDir = normalize(viewDir + screenHoriz + screenVert); //old method
 
 	vec4 albedo4 = vec4(albedo3, 1);
-	vec4 black = vec4(0, 0, 0, 1.0f);
+	vec4 black = vec4(0, 0, 0, 1);
+	vec4 red = vec4(1, 0, 0, 1);
+	vec4 white = vec4(1, 1, 1, 1);
 	vec4 finalColor = albedo4;
 
 	//vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
@@ -437,30 +464,49 @@ void main()
 	 finalColor = albedo4;
 	// if(distL >20) 
 	//	finalColor = black;
-	//  bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
-	// if(foundHit)
-	 //	finalColor = vec4(u,v,0.5f,1.0f);
-	//finalColor = vec4(distPerpixel.xyz,1.0f);
-	finalColor = vec4(0.5,0,1,1);
-	
-	for(int i = 0; i < 15; i++)
-	{
-		 vec3 v0 = triangles[i].A.xyz;
-		 vec3 v1 = triangles[i].B.xyz;
-		 vec3 v2 = triangles[i].C.xyz;
-		//vec3 v0 = texelFetch(u_triangleTexture, i, 0).xyz;
-		//vec3 v1 = texelFetch(u_triangleTexture, i + 1, 0).xyz;
-		//vec3 v2 = texelFetch(u_triangleTexture, i + 2, 0).xyz;
 
-		//AABB aaabbbb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz); 
-		//bool hitBB = IntersectAABB(rayOrigin, rayDir , aaabbbb);
-		
-		HitData hd = triIntersect(rayOrigin, rayDir, v0, v1, v2);
-		if(hd.hasHit)
-		{
-				finalColor = vec4(hd.u, hd.v, 1.0f,1.0f);
-		}
-	}
+//BVHNode top = BVH[0];
+//BVHNode lBVH = BVH[40];
+	//BVHNode rBVH = BVH[top.m_leftFirst + 1];
+	//BVHNode lBVH2 = BVH[lBVH.m_leftFirst];
+	//BVHNode rBVH2 = BVH[lBVH.m_leftFirst + 1];
+
+
+	//AABB lAABB = AABB(lBVH.m_min.xyz, lBVH.m_max.xyz);
+	//AABB rAABB = AABB(lBVH.m_min.xyz, lBVH.m_max.xyz);
+
+
+
+
+	//bool hitL =  IntersectAABB(rayOrigin, rayDir, lAABB )  || IntersectAABB(rayOrigin, rayDir, rAABB );
+	//finalColor = hitL ? black : red;
+
+	//IntersectAABB(rayOrigin, rayDir, lAABB ) ;
+
+	 BVHhit bvhR = TraverseBVH(rayOrigin, rayDir);
+	 finalColor = bvhR.hasHit ? vec4(bvhR.u, bvhR.v, 1  ,1): vec4(1,0,0.4,1);
+  
+	//finalColor = vec4(distPerpixel.xyz,1.0f);
+	//finalColor = vec4(0.5,0,1,1);
+	
+	//for(int i = 0; i < 15; i++)
+	//{
+	//	 vec3 v0 = triangles[i].A.xyz;
+	//	 vec3 v1 = triangles[i].B.xyz;
+	//	 vec3 v2 = triangles[i].C.xyz;
+	//	//vec3 v0 = texelFetch(u_triangleTexture, i, 0).xyz;
+	//	//vec3 v1 = texelFetch(u_triangleTexture, i + 1, 0).xyz;
+	//	//vec3 v2 = texelFetch(u_triangleTexture, i + 2, 0).xyz;
+	//
+	//	//AABB aaabbbb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz); 
+	//	//bool hitBB = IntersectAABB(rayOrigin, rayDir , aaabbbb);
+	//	
+	//	HitData hd = triIntersect(rayOrigin, rayDir, v0, v1, v2);
+	//	if(hd.hasHit)
+	//	{
+	//			finalColor = vec4(hd.u, hd.v, 1.0f,1.0f);
+	//	}
+	//}
 	//if(hitBB)
 	//finalColor = black;
 	
