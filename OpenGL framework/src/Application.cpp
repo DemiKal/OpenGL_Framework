@@ -32,7 +32,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -219,7 +219,7 @@ int main(void)
 
 		// create a color attachment texture
 		Texture2D textureColorBuffer(
-			GL_RGB,
+			GL_RGB32F,
 			SCREENWIDTH,
 			SCREENHEIGHT,
 			0,
@@ -345,7 +345,7 @@ int main(void)
 			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
 
-			//artisans.Draw(camera);
+			 artisans.Draw(camera);
 			spyro.Draw(camera);
 
 			// nanosuit.GetShader().Bind();
@@ -397,6 +397,7 @@ int main(void)
 			ImGui::SliderFloat("smoothstep end", &smoothEnd, 0.9f, 2);
 			postProcessShader.SetFloat("u_smoothStepStart", smoothStart);
 			postProcessShader.SetFloat("u_smoothStepEnd", smoothEnd);
+			postProcessShader.setVec3("u_lightDir", lightDir);
 
 			//draw final quad
 			screenQuad.Bind();
