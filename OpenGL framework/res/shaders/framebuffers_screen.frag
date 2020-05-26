@@ -17,11 +17,15 @@ uniform vec3 u_cameraPos;
 uniform vec3 u_viewDir;
 uniform vec3 u_cameraUp;
 
+
+uniform sampler2D u_positionBuffer;
 uniform sampler2D screenTexture;
 uniform sampler1D u_triangleTexture;
 uniform sampler2D u_depthBuffer;
 
 uniform vec3 u_lightDir;
+
+uniform bool u_useZbuffer;
 
 struct BVHNode
 {
@@ -235,11 +239,11 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 
 	float t = 999999.f;
 	float _u = 0;
-	float _v = 0;
+	float _v = 0; 
 	
 	//loop---------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------
-	while (currentIdx > 0 && currentIdx < StackSize )
+	while (currentIdx > 0 && currentIdx < StackSize && !hasHit )
 	{
 		int bboxIdx = stackPtr[currentIdx - 1];
 		currentIdx--;
@@ -315,6 +319,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 							_u = Thit.u;
 							_v = Thit.v;
 						}
+
 					} 
 				}
 			}
@@ -437,22 +442,22 @@ void main()
 	finalColor=distanceColor;
 	float smoothStp =smoothstep(u_smoothStepStart, u_smoothStepEnd, depthLinear);
 	finalColor = mix(albedo4, vec4(0.1f,0.1f,0.1f,1.0f),  smoothStp);	// mix(albedo4 , distanceColor, 0.5f); ;
-	vec4 worldPos = vec4(WorldPosFromDepth(depthval), 1.0f);
-	vec4 distPerpixel = worldPos -	vec4( u_cameraPos, 1.0f) ;
+	vec4 worldPosZbuffer = vec4(WorldPosFromDepth(depthval), 1.0f);
+	vec4 distPerpixel = worldPosZbuffer -	vec4( u_cameraPos, 1.0f) ;
 	float distL = length(distPerpixel.xyz);
+	vec3 worldPos_fromBuffer = texture(u_positionBuffer, TexCoords.xy).rgb;
+	 
 	
-	vec3 normal = albedo4.xyz;
-	
-	float diffuse = max(0, dot(normal, u_lightDir));
-	finalColor = vec4(  (1.0f - normal),1.0f);
+	vec3 wpos = u_useZbuffer ? worldPosZbuffer.xyz : worldPos_fromBuffer;
 
-	BVHhit bvhR = TraverseBVH(normal + 0.001f * u_lightDir, u_lightDir);
+	//float diffuse = max(0, dot(normal, u_lightDir));
+	finalColor = vec4(albedo4.rgb, 1.0f);
+
+	BVHhit bvhR = TraverseBVH(wpos  + 0.001f * u_lightDir, u_lightDir);
 	if(bvhR.hasHit)
 	{
 		//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
-		finalColor = vec4(finalColor.xyz * 0.5f,1.0f);
-
-
+		finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
 	}
 
 	FragColor = finalColor;

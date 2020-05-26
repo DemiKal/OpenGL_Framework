@@ -182,6 +182,9 @@ void Shader::setVec3(const std::string& name, const glm::vec3& value)
 	const int location = GetUniformLocation(name);
 	GLCall(glUniform3fv(location, 1, &value[0]));
 }
+
+
+
 void Shader::SetFloat(const std::string& name, float value)
 {
 	const int location = GetUniformLocation(name);

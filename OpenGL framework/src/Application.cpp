@@ -33,7 +33,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
-
+	glfwSwapInterval(0);
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// glfwGetPrimaryMonitor() ;
@@ -186,10 +186,10 @@ int main(void)
 		//nanosuit.name = "nanosuit";
 		//EntityManager::AddEntity(nanosuit);
 		//nanosuit.SetShader("normalmapshader");
-		 unsigned int as = sizeof(BVHNode);
-		 unsigned int asa = sizeof(AABB);
-		 unsigned int as1 = sizeof(Max);
-		 unsigned int as2 = sizeof(Min);
+		unsigned int as = sizeof(BVHNode);
+		unsigned int asa = sizeof(AABB);
+		unsigned int as1 = sizeof(Max);
+		unsigned int as2 = sizeof(Min);
 		BVH bvh;
 		bvh.BuildBVH();
 		bvh.CreateBVHTextures();
@@ -207,7 +207,8 @@ int main(void)
 		postProcessShader.SetInt("u_maxTexture", 4);
 		postProcessShader.SetInt("u_triangleIdxTexture", 5);
 		postProcessShader.SetInt("u_depthBuffer", 6);
-
+		postProcessShader.SetInt("u_positionBuffer", 7);
+		
 		Shader& lineshader = ShaderManager::GetShader("lineshader");
 		Shader& boneshader = ShaderManager::GetShader("bones");
 
@@ -258,6 +259,32 @@ int main(void)
 		//Camera* cam = Camera::GetMain(); //??
 		//* cam->Position()   += glm::vec3(2, 0, 3);
 
+		/// <summary>
+		/// POSITION FRAMEBUFFER!
+		/// 
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		FrameBuffer posBuffer;
+		Texture2D positionTexture(
+			GL_RGB32F,
+			SCREENWIDTH,
+			SCREENHEIGHT,
+			0,
+			GL_RGB,
+			GL_UNSIGNED_BYTE);
+	
+		Texture2D zBufferTexPosition(
+			GL_DEPTH_COMPONENT24,
+			SCREENWIDTH,
+			SCREENHEIGHT,
+			0,
+			GL_DEPTH_COMPONENT,
+			GL_FLOAT);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionTexture.GetID(), 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBufferTexPosition.GetID(), 0);
+
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -297,6 +324,7 @@ int main(void)
 
 		float smoothStart = 0;
 		float smoothEnd = 1;
+
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -331,6 +359,9 @@ int main(void)
 			//if (ImGui::gizmo3D("##Dir1", light /*, size,  mode */)  setLight(-light);
 			//	// or explicitly
 
+			lightDir.x = cos(0.5 * currentFrameTime);
+			lightDir.z = sin(0.5 * currentFrameTime);
+			//lightDir = glm::normalize(lightDir);
 			if (ImGui::gizmo3D("##Dir1", light))
 				lightDir = glm::vec3(-light.x, -light.y, -light.z);
 
@@ -345,9 +376,21 @@ int main(void)
 			//nanosuit.Update(deltaTime);
 			//artisans.Update(deltaTime);
 
-			 artisans.Draw(camera);
+			artisans.Draw(camera);
 			spyro.Draw(camera);
 
+
+			posBuffer.Bind();
+			glClearColor(0.12f, 0.2f, 0.13f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			Shader& posShader = ShaderManager::GetShader("position");
+			artisans.Draw(camera, posShader);
+			spyro.Draw(camera, posShader);
+			
+
+
+			
 			// nanosuit.GetShader().Bind();
 			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
 			// nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
@@ -383,6 +426,10 @@ int main(void)
 			const glm::vec3 camForward = (1.1f + nearPlane) * camera.GetForwardVector();
 			const glm::vec3 camUp = camera.GetUpVector();
 
+			
+
+
+			
 			postProcessShader.Bind();
 			postProcessShader.setVec3("u_cameraPos", camPos);
 			postProcessShader.SetFloat("u_screenWidth", float(SCREENWIDTH));
@@ -398,7 +445,11 @@ int main(void)
 			postProcessShader.SetFloat("u_smoothStepStart", smoothStart);
 			postProcessShader.SetFloat("u_smoothStepEnd", smoothEnd);
 			postProcessShader.setVec3("u_lightDir", lightDir);
+			static bool useZ = false;
 
+			if (ImGui::RadioButton("Use Zbuffer for position?", &useZ)) useZ = !useZ;
+			postProcessShader.SetInt("u_useZbuffer", useZ);
+			
 			//draw final quad
 			screenQuad.Bind();
 
@@ -414,6 +465,9 @@ int main(void)
 			GLCall(glActiveTexture(GL_TEXTURE0 + 6));
 			GLCall(glBindTexture(GL_TEXTURE_2D, zBufferTextureID));
 
+			GLCall(glActiveTexture(GL_TEXTURE0 + 7));
+			GLCall(glBindTexture(GL_TEXTURE_2D, positionTexture.GetID()));
+			
 			screenQuad.Draw();
 			screenQuad.UnBind();
 			static float angleee = 0;

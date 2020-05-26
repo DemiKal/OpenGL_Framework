@@ -118,6 +118,8 @@
     <None Include="res\shaders\normalmapshader.frag" />
     <None Include="res\shaders\plane.frag" />
     <None Include="res\shaders\plane.vert" />
+    <None Include="res\shaders\position.frag" />
+    <None Include="res\shaders\position.vert" />
     <None Include="res\shaders\singlecolor.frag" />
     <None Include="res\shaders\singledotshader.frag" />
     <None Include="res\shaders\singleTriangle.frag" />

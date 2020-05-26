@@ -556,6 +556,21 @@ void Model::Draw(const Camera& cam)
 	//		mesh.m_aabb.Draw(cam);
 }
 
+void Model::Draw(const Camera& cam, Shader& shader)
+{
+
+	shader.Bind();
+	shader.SetUniformMat4f("model", model);
+	shader.SetUniformMat4f("view", cam.GetViewMatrix());
+	shader.SetUniformMat4f("projection", cam.GetProjectionMatrix());
+
+	for (auto& mesh : meshes)
+		mesh.Draw(shader);
+
+	shader.Unbind();
+		  
+}
+
 Shader& Model::GetShader() const { return   ShaderManager::GetShader(shaderIdx); }
 
 Model Model::CreateCube() {

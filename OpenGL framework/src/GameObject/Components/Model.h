@@ -40,6 +40,7 @@ public:
 	void SetModelMatrix(const glm::mat4& mat) { model = mat; }
 	void SetShader(const std::string& shadername);
 	void Draw(const Camera& cam);
+	void Draw(const Camera& cam, Shader& shader);
 	Shader& GetShader() const;
 	static Model CreateCube();
 	static Model CreateCubeWireframe();

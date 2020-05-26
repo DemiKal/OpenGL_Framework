@@ -194,6 +194,8 @@
     <None Include="res\shaders\singlecolor.frag" />
     <None Include="res\shaders\normalmapshader.frag" />
     <None Include="res\shaders\plane.vert" />
+    <None Include="res\shaders\position.frag" />
+    <None Include="res\shaders\position.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">
