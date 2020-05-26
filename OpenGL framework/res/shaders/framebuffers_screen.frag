@@ -453,12 +453,12 @@ void main()
 	//float diffuse = max(0, dot(normal, u_lightDir));
 	finalColor = vec4(albedo4.rgb, 1.0f);
 
-	BVHhit bvhR = TraverseBVH(wpos  + 0.001f * u_lightDir, u_lightDir);
-	if(bvhR.hasHit)
-	{
-		//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
-		finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
-	}
+	//BVHhit bvhR = TraverseBVH(wpos  + 0.001f * u_lightDir, u_lightDir);
+	//if(bvhR.hasHit)
+	//{
+	//	//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
+	//	finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
+	//}
 
 	FragColor = finalColor;
 	// if(distL >20) 

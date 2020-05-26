@@ -34,6 +34,9 @@ int main(void)
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 	glfwSwapInterval(0);
+	//glfwWindowHint(GLFW_DOUBLEBUFFER, GL_FALSE);
+	
+
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// glfwGetPrimaryMonitor() ;
@@ -46,10 +49,10 @@ int main(void)
 		glfwTerminate();
 		throw std::exception("ERROR: Could not create GLFW window!");
 		return -1;
-	}
-
+	} 
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(0);
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 
 
