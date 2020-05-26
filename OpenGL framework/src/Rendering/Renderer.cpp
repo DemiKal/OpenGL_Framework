@@ -119,17 +119,17 @@ void Renderer::SetDepthFunc(const GLenum depthFunc)
 	//prob faster than std::map
 	switch (depthFunc)
 	{
-		case GL_NEVER:	 	break;
-		case GL_LESS:	 	break;
-		case GL_EQUAL:	 	break;
-		case GL_LEQUAL:	 	break;
-		case GL_GREATER: 	break;
-		case GL_NOTEQUAL:	break;
-		case GL_GEQUAL:	 	break;
-		default: std::cout << "not a viable depth func enum! \n"; return;;
+	case GL_NEVER:	 	break;
+	case GL_LESS:	 	break;
+	case GL_EQUAL:	 	break;
+	case GL_LEQUAL:	 	break;
+	case GL_GREATER: 	break;
+	case GL_NOTEQUAL:	break;
+	case GL_GEQUAL:	 	break;
+	default: std::cout << "not a viable depth func enum! \n"; return;;
 	}
 
-	
+
 	m_depthFunction = depthFunc;
 	GLCall(glDepthFunc(depthFunc));
 }
@@ -174,6 +174,20 @@ void Renderer::SetAlphaBlending(bool set)
 
 
 }
+
+void Renderer::SetVSync(const bool cond)
+{
+	if (cond != m_VSync) m_VSync = cond;
+
+	GLCall(glfwSwapInterval(m_VSync));
+}
+
+void Renderer::SwapBuffers(GLFWwindow* window)
+{
+	GLCall(glfwSwapBuffers(window));
+	GLCall(glfwPollEvents());
+}
+
 void GLClearError()
 {
 	while (glGetError() != GL_NO_ERROR);

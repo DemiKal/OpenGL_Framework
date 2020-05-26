@@ -13,6 +13,7 @@ private:
 	std::vector<unsigned int> cubeIndices;
 	unsigned int cubeVAO{}, cubeVBO{}, cubeEBO{};
 	inline static GLenum m_depthFunction = GL_LEQUAL;
+	bool m_VSync;
 	//Mesh cube;
 
 public:
@@ -20,14 +21,16 @@ public:
 	static void Clear();
 	static void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
 	void SetAlphaBlending(bool set);
+	void SetVSync(bool cond);
+	static void SwapBuffers(GLFWwindow* window);
 	static void BlitFrameBuffer(unsigned int from,
-		unsigned int to,
-		GLenum type,
-		glm::ivec2 srcStart = { 0,0 },
-		glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT },
-		glm::ivec2 destStart = { 0,0 },
-		glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
-		GLenum filterMethod = GL_NEAREST);
+	                            unsigned int to,
+	                            GLenum type,
+	                            glm::ivec2 srcStart = { 0,0 },
+	                            glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT },
+	                            glm::ivec2 destStart = { 0,0 },
+	                            glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
+	                            GLenum filterMethod = GL_NEAREST);
 
 	static void ClearColor(float r, float g, float b, float a);
 	static void ClearColor(const glm::vec4& color);

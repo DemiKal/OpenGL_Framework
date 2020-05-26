@@ -22,7 +22,7 @@ public:
 	std::string m_directory;
 	std::vector<Texture2D> m_textures_loaded;
 	glm::mat4 m_inverseRoot;
-	glm::vec3 m_velocity = { 0.001f,0,0 };
+	glm::vec3 m_velocity = { 0.001f, 0, 0 };
 	glm::vec3 m_position = { 0,0,0 };
 	glm::vec3 m_rotation = { 0,0,0 };
 	glm::vec3 m_scale = { 1,1,1 };
