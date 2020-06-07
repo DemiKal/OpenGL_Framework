@@ -144,7 +144,7 @@
     <ClCompile Include="src\GameObject\Components\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HardwareQuery.cpp">
+    <ClCompile Include="src\misc\HardwareQuery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -365,7 +365,7 @@
     <ClInclude Include="src\GameObject\Components\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HardwareQuery.h">
+    <ClInclude Include="src\misc\HardwareQuery.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

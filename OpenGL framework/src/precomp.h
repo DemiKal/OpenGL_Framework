@@ -57,3 +57,5 @@ const glm::vec3 FORWARD_WORLD(0, 0, -1);
 
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
+
+#include "misc/HardwareQuery.h"

@@ -19,8 +19,33 @@
 #include <Rendering/ScreenQuad.h>
 #include <algorithm>
 #include <execution>
-#include "../HardwareQuery.h"
 //#include <CL/opencl.h>
+
+class vertex
+{
+	float x, y, z;
+
+public:
+	vertex(float x, float y, float z) : x(x), y(y), z(z) {};
+
+	//explicit vertex(const vertex& o) : x(o.x), y(o.y), z(o.z) { std::cout << "Copy!\n"; };
+	//vertex(vertex& o) : x(o.x), y(o.y), z(o.z) { std::cout << "Copy!\n"; };
+
+	vertex(const vertex&) = delete;
+	vertex& operator=(const vertex&) = delete;
+	vertex(vertex&& v) noexcept
+		: x(v.x), y(v.y), z(v.z)
+	{
+		std::cout << "Move 1!\n";
+	}
+
+	vertex& operator=(vertex&& v) noexcept
+	{
+		std::cout << "Move 2!\n";
+		return v;
+	}
+
+};
 
 int main(void)
 {
@@ -40,6 +65,12 @@ int main(void)
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, NULL);
 
+	std::vector< vertex> vertices;
+	vertices.reserve(3);
+	vertices.emplace_back( 1, 2, 3);
+	vertices.emplace_back( 4, 5, 6);
+	vertices.emplace_back( 7, 8, 9);
+
 	if (!window)
 	{
 		glfwTerminate();
@@ -55,8 +86,18 @@ int main(void)
 
 	{
 		Renderer renderer;
-		renderer.SetAlphaBlending(true);
-		renderer.SetVSync(true);
+
+		static bool alphaBlend = false;
+
+		renderer.SetAlphaBlending(alphaBlend);
+
+		static bool vsync = true;
+		
+		  
+		
+		renderer.SetVSync(vsync);
+
+
 		//init before any model
 		ShaderManager::Init();
 		UserInterface userInterface;
@@ -133,14 +174,14 @@ int main(void)
 
 		double prevFrameTime = glfwGetTime();
 
-		bool drawBvh = false;
+		
 
 		double totalTime = 0;
 
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
-			Renderer::ClearColor(0, 0, 0, 1);
+			Renderer::ClearColor(1,1,1, 1);
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			Renderer::EnableDepth();
@@ -151,7 +192,13 @@ int main(void)
 
 #pragma region input
 			userInterface.Update();
-			InputManager::Update(camera);
+			InputManager::Update(camera,   deltaTime);
+
+			ImGui::Checkbox("Alpha Blend", &alphaBlend);
+			ImGui::Checkbox("VSync", &vsync);
+
+			renderer.SetAlphaBlending(alphaBlend); 
+			renderer.SetVSync(vsync);
 
 			const float average = (float)std::accumulate(frameTimes.begin(), frameTimes.end(), 0.0) / frameTimes.size();
 			const float avgfps = 1000.0f * float(1.0f / average);

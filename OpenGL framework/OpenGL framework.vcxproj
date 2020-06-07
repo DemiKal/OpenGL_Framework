@@ -84,7 +84,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="HardwareQuery.cpp" />
+    <ClCompile Include="src\misc\HardwareQuery.cpp" />
     <ClCompile Include="src\Rendering\Buffer\Gbuffer.cpp" />
     <ClCompile Include="src\Rendering\ScreenQuad.cpp" />
     <ClCompile Include="src\GameObject\Components\Texture1D.cpp" />
@@ -210,7 +210,7 @@
     <None Include="src\vendor\glm\gtc\vec1.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HardwareQuery.h" />
+    <ClInclude Include="src\misc\HardwareQuery.h" />
     <ClInclude Include="src\Rendering\Buffer\Gbuffer.h" />
     <ClInclude Include="src\Rendering\ScreenQuad.h" />
     <ClInclude Include="src\GameObject\Components\Texture1D.h" />

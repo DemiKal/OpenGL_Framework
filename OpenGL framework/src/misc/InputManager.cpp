@@ -27,7 +27,7 @@ void InputManager::SetWindow(GLFWwindow* window)
 }
 
 
-void InputManager::Update(Camera& camera)
+void InputManager::Update(Camera& camera, const float dt)
 {
 	//Camera& camera = Camera::GetMain();
 	auto& instance = GetInstance();
@@ -36,8 +36,13 @@ void InputManager::Update(Camera& camera)
 
 	glfwGetCursorPos(window, &instance.m_mouseNew.x, &instance.m_mouseNew.y);
 
-	float camSpeed = 0.35f;
-	glm::vec3 camMovement = glm::vec3();
+	static float camSpeed = 30.0f;
+	ImGui::SliderFloat("cam speed", &camSpeed, 0.001f, 150.0f);
+
+	static float turnSpeed = 2.0f;
+	ImGui::SliderFloat("Turn Speed", &turnSpeed, 0.001f, 15.0f);
+	
+	glm::vec3 camMovement = glm::vec3(0);
 	const glm::vec3 forward = camera.GetForwardVector();
 	const glm::vec3 up = camera.GetUpVector();
 
@@ -51,46 +56,31 @@ void InputManager::Update(Camera& camera)
 	glm::vec2 mDiff = glm::vec2(signX, signY);
 	//glm::vec2 mouseVelocity(mouseXnew - mouseXold, mouseYnew - mouseYold);
 
+	
 
-
+	
 	int mb = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
 	ImGui::Text("mouse click %s", mb ? "true" : "false");
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camMovement += camSpeed * forward;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camMovement -= camSpeed * forward;
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		camMovement += camSpeed * 4 * up;
-	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-		camMovement -= camSpeed * up;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camMovement -= glm::normalize(glm::cross(forward, up)) * camSpeed;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camMovement += glm::normalize(glm::cross(forward, up)) * camSpeed;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camera.RotateLocalY(.01f * (1 + camSpeed));
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		camera.RotateLocalY(-.01f * (1 + camSpeed));
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-		camera.RotateLocalX(.01f * (1 + camSpeed));
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-		camera.RotateLocalX(-.01f * (1 + camSpeed));
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += (2 * camSpeed * upWorld);
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * -rightWorld;
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * rightWorld;
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * forwardWorld;
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * -forwardWorld;
-	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * upWorld;
-	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)			camMovement += dt * camSpeed * forward;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)			camMovement -= dt * camSpeed * forward;
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)		camMovement += dt * camSpeed * 4 * up;
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)			camMovement -= dt * camSpeed * up;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)			camMovement -= dt * glm::normalize(glm::cross(forward, up)) * camSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)			camMovement += dt * glm::normalize(glm::cross(forward, up)) * camSpeed;
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)			camera.RotateLocalY(turnSpeed * dt);
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)			camera.RotateLocalY(-turnSpeed * dt);
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)			camera.RotateLocalX(turnSpeed * dt);
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)			camera.RotateLocalX(-turnSpeed * dt);
+
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)			LightManager::GetLight(0).get_position() += (2 * camSpeed * upWorld);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)			LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * -rightWorld;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * rightWorld;
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)			LightManager::GetLight(0).get_position() += 2 * camSpeed * forwardWorld;
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * -forwardWorld;
+	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * upWorld;
+	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
 
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
