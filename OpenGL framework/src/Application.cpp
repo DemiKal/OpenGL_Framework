@@ -327,6 +327,7 @@ int main(void)
 
 		float smoothStart = 0;
 		float smoothEnd = 1;
+		static bool u_shadowCast = false;
 
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
@@ -429,7 +430,7 @@ int main(void)
 			const glm::vec3 camForward = (1.1f + nearPlane) * camera.GetForwardVector();
 			const glm::vec3 camUp = camera.GetUpVector();
 
-			
+			ImGui::Checkbox("Shadow cast", &u_shadowCast);
 
 
 			
@@ -448,8 +449,11 @@ int main(void)
 			postProcessShader.SetFloat("u_smoothStepStart", smoothStart);
 			postProcessShader.SetFloat("u_smoothStepEnd", smoothEnd);
 			postProcessShader.setVec3("u_lightDir", lightDir);
+			postProcessShader.SetInt("u_shadowCast", u_shadowCast);
 			static bool useZ = false;
 
+
+			
 			if (ImGui::RadioButton("Use Zbuffer for position?", &useZ)) useZ = !useZ;
 			postProcessShader.SetInt("u_useZbuffer", useZ);
 			

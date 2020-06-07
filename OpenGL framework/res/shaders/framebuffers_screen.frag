@@ -27,6 +27,18 @@ uniform vec3 u_lightDir;
 
 uniform bool u_useZbuffer;
 
+struct BVHNodeNew
+{
+	int m_start;	
+	int m_end;		//struct BVHNode{
+	int m_leftFirst; //	int m_start;		//4	+
+	int m_count;	//	int m_end;			//4	+
+	vec4 m_min;//	int m_leftFirst;	//4	+
+	vec4 m_max;//	int m_count;		//4 = 16
+	vec4 m_tri1;
+	vec4 m_tri2;
+};
+
 struct BVHNode
 {
 	int m_start;	
@@ -82,9 +94,10 @@ uniform mat4 u_inv_projMatrix;
 uniform mat4 u_inv_viewMatrix;
 
 uniform usampler1D u_triangleIdxTexture;
+uniform bool u_shadowCast;
 
-
-struct AABB {
+struct AABB 
+{
 	vec3 m_min;
 	vec3 m_max;
 };
@@ -451,15 +464,15 @@ void main()
 	vec3 wpos = u_useZbuffer ? worldPosZbuffer.xyz : worldPos_fromBuffer;
 
 	//float diffuse = max(0, dot(normal, u_lightDir));
-	finalColor = vec4(albedo4.rgb, 1.0f);
-
-	//BVHhit bvhR = TraverseBVH(wpos  + 0.001f * u_lightDir, u_lightDir);
-	//if(bvhR.hasHit)
-	//{
-	//	//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
-	//	finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
-	//}
-
+	finalColor = vec4( albedo4.rgb, 1.0f);
+	if(u_shadowCast){
+		BVHhit bvhR = TraverseBVH(wpos  + 0.001f * u_lightDir, u_lightDir);
+		if(bvhR.hasHit)
+		{
+			//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
+			finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
+		}
+	}
 	FragColor = finalColor;
 	// if(distL >20) 
 	//	finalColor = black;
