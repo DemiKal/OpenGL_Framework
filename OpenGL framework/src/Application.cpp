@@ -35,7 +35,7 @@ int main(void)
 	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 	glfwSwapInterval(0);
 	//glfwWindowHint(GLFW_DOUBLEBUFFER, GL_FALSE);
-	
+
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -49,7 +49,7 @@ int main(void)
 		glfwTerminate();
 		throw std::exception("ERROR: Could not create GLFW window!");
 		return -1;
-	} 
+	}
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(0);
@@ -211,7 +211,7 @@ int main(void)
 		postProcessShader.SetInt("u_triangleIdxTexture", 5);
 		postProcessShader.SetInt("u_depthBuffer", 6);
 		postProcessShader.SetInt("u_positionBuffer", 7);
-		
+
 		Shader& lineshader = ShaderManager::GetShader("lineshader");
 		Shader& boneshader = ShaderManager::GetShader("bones");
 
@@ -276,7 +276,7 @@ int main(void)
 			0,
 			GL_RGB,
 			GL_UNSIGNED_BYTE);
-	
+
 		Texture2D zBufferTexPosition(
 			GL_DEPTH_COMPONENT24,
 			SCREENWIDTH,
@@ -391,10 +391,10 @@ int main(void)
 			Shader& posShader = ShaderManager::GetShader("position");
 			artisans.Draw(camera, posShader);
 			spyro.Draw(camera, posShader);
-			
 
 
-			
+
+
 			// nanosuit.GetShader().Bind();
 			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
 			// nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
@@ -433,7 +433,7 @@ int main(void)
 			ImGui::Checkbox("Shadow cast", &u_shadowCast);
 
 
-			
+
 			postProcessShader.Bind();
 			postProcessShader.setVec3("u_cameraPos", camPos);
 			postProcessShader.SetFloat("u_screenWidth", float(SCREENWIDTH));
@@ -453,10 +453,13 @@ int main(void)
 			static bool useZ = false;
 
 
-			
-			if (ImGui::RadioButton("Use Zbuffer for position?", &useZ)) useZ = !useZ;
+
+			ImGui::Checkbox("Zbuffer for position?", &useZ);
 			postProcessShader.SetInt("u_useZbuffer", useZ);
-			
+
+			//static bool integrTri = false;
+			//ImGui::Checkbox("Use integrated triangles?", &integrTri);
+			//postProcessShader.SetInt("u_integrTri", integrTri);
 			//draw final quad
 			screenQuad.Bind();
 
@@ -474,7 +477,7 @@ int main(void)
 
 			GLCall(glActiveTexture(GL_TEXTURE0 + 7));
 			GLCall(glBindTexture(GL_TEXTURE_2D, positionTexture.GetID()));
-			
+
 			screenQuad.Draw();
 			screenQuad.UnBind();
 			static float angleee = 0;

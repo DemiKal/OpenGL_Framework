@@ -10,6 +10,9 @@ struct Triangle
 	glm::vec3 C;
 	float dummy3 = 0;
 	Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C) : A(_A), B(_B), C(_C) {}
+	Triangle(): A(), B(), C()
+	{
+	}
 
 	bool intersect(const glm::vec3& orign, glm::vec3& direction, glm::vec2& bary_coords)
 	{

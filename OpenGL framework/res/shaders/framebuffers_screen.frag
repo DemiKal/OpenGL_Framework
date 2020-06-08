@@ -16,27 +16,22 @@ uniform float u_smoothStepEnd;
 uniform vec3 u_cameraPos;
 uniform vec3 u_viewDir;
 uniform vec3 u_cameraUp;
+uniform vec3 u_lightDir;
 
+uniform bool u_integrTri;
+uniform bool u_useZbuffer;
 
 uniform sampler2D u_positionBuffer;
 uniform sampler2D screenTexture;
 uniform sampler1D u_triangleTexture;
 uniform sampler2D u_depthBuffer;
 
-uniform vec3 u_lightDir;
 
-uniform bool u_useZbuffer;
-
-struct BVHNodeNew
+struct Triangle
 {
-	int m_start;	
-	int m_end;		//struct BVHNode{
-	int m_leftFirst; //	int m_start;		//4	+
-	int m_count;	//	int m_end;			//4	+
-	vec4 m_min;//	int m_leftFirst;	//4	+
-	vec4 m_max;//	int m_count;		//4 = 16
-	vec4 m_tri1;
-	vec4 m_tri2;
+	vec4 A; //float d1;
+	vec4 B;	//float d2;
+	vec4 C;	//float d3;
 };
 
 struct BVHNode
@@ -47,6 +42,13 @@ struct BVHNode
 	int m_count;	//	int m_end;			//4	+
 	vec4 m_min;//	int m_leftFirst;	//4	+
 	vec4 m_max;//	int m_count;		//4 = 16
+	//Triangle m_triangles[2];
+	vec3 m_tri1A;
+	vec3 m_tri1B;
+	vec3 m_tri1C;
+	vec3 m_tri2A;
+	vec3 m_tri2B;
+	vec3 m_tri2C;
 };
 
 layout (std430, binding = 0) buffer BVH_buffer
@@ -54,16 +56,11 @@ layout (std430, binding = 0) buffer BVH_buffer
 	BVHNode BVH[] ;	
 };
  
- struct Trianglee
- {
-	vec4 A; //float d1;
-	vec4 B;	//float d2;
-	vec4 C;	//float d3;
- };
+
 
 layout (std430, binding = 1) buffer Triangle_buffer
 {
-	Trianglee triangles[] ;	
+	Triangle triangles[] ;	
 };
  
 layout (std430, binding = 2) buffer Index_buffer
@@ -306,19 +303,14 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 				//return true;
 				for (int i = 0; i < childCount; i++)
 				{
-					int j = nodeStart + i;
-					//uint tIdx = texelFetch(u_triangleIdxTexture, j, 0).x;
+					int j = nodeStart + i; 
 					
-					uint tIdx = tri_indices[j];
+					 uint tIdx = tri_indices[j];
 					
-					//vec3 v0 = texelFetch(u_triangleTexture, 3 * int(tIdx), 0).xyz;
-					//vec3 v1 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 1, 0).xyz;
-					//vec3 v2 = texelFetch(u_triangleTexture, 3 * int(tIdx) + 2, 0).xyz;
-
-					vec3 v0 = triangles[  tIdx  ].A.xyz;
-					vec3 v1 = triangles[  tIdx  ].B.xyz;
-					vec3 v2 = triangles[  tIdx  ].C.xyz;
-
+					vec3 v0 = triangles[tIdx].A.xyz;
+					vec3 v1 = triangles[tIdx].B.xyz;
+					vec3 v2 = triangles[tIdx].C.xyz;
+					 
 
 					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
 

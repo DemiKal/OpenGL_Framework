@@ -231,30 +231,42 @@ void BVH::InitTriangleRenderer()
 void BVH::CreateBVHTextures()
 {
 	//ssbo
+	auto triangles = TriangleBuffer::GetTriangleBuffer();
 
+		
 	unsigned int shaderId = ShaderManager::GetShader("framebuffers_screen").GetID();
 
-	const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr;
+	for(int i = 0 ; i < m_poolPtr; i++)
+	{
+		auto& node = m_pool[i];
+		const size_t tidx = node.m_start;
+		Triangle& t1 = triangles[m_indices[tidx]];
+		Triangle& t2 = triangles[m_indices[tidx + 1]];
+
+		node.m_triangles[0] = t1;
+		node.m_triangles[1] = t2;
+	}
+
 	GLuint m_bvh_ssbo = 0;
+	const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr;
 	glGenBuffers(1, &m_bvh_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_bvh_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, m_pool, GL_DYNAMIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, m_pool, GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	auto& triangles = TriangleBuffer::GetTriangleBuffer();
 
 	GLuint m_triangles_ssbo = 0;
 	glGenBuffers(1, &m_triangles_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_triangles_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_DYNAMIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_triangles_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	GLuint m_tri_index_ssbo = 0;
 	glGenBuffers(1, &m_tri_index_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tri_index_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_DYNAMIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_tri_index_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
