@@ -8,8 +8,9 @@
 #include "Rendering/ShaderManager.h" 
 #include "GameObject/Components/texture1D.h"
 
-void BVH::BuildBVH()
+void BVH::BuildBVH(const uint32_t leafSize)
 {
+	m_leafSize = leafSize;
 	std::cout << "Building BVH... \n";
 
 	InitTriangleRenderer();
@@ -20,14 +21,14 @@ void BVH::BuildBVH()
 	triAABBs.reserve(triangles.size());
 	for (auto& tri : triangles)
 		triAABBs.emplace_back(
-			AABB(
+			 
 				std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
 				std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
 				std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
 				std::max(std::max(tri.A.x, tri.B.x), tri.C.x),
 				std::max(std::max(tri.A.y, tri.B.y), tri.C.y),
 				std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
-			));
+			 );
 
 	const int N = triangles.size();
 	m_indices.resize(N);
@@ -231,9 +232,15 @@ void BVH::InitTriangleRenderer()
 void BVH::CreateBVHTextures()
 {
 	//ssbo
-	auto triangles = TriangleBuffer::GetTriangleBuffer();
+	std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
 
-		
+	std::vector<Triangle>trianglesCopy(triangles.size());
+	for(int i = 0 ; i < triangles.size(); i++)
+	{
+		int index = m_indices[i];
+		trianglesCopy[i] = triangles[index];
+	}
+	
 	unsigned int shaderId = ShaderManager::GetShader("framebuffers_screen").GetID();
 
 	for(int i = 0 ; i < m_poolPtr; i++)
@@ -255,11 +262,12 @@ void BVH::CreateBVHTextures()
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
+	
 
 	GLuint m_triangles_ssbo = 0;
 	glGenBuffers(1, &m_triangles_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_triangles_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, trianglesCopy.size() * sizeof(Triangle), &trianglesCopy[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_triangles_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 

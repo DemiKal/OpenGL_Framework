@@ -20,7 +20,7 @@ void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
 	m_bounds = calculate_bb(bvh, aabbs, start, end);
 	m_count = objcount;
 
-	if (m_count < 3) return; //TODO: SET LEAF COUNT DYNAMICALLY!
+	if (m_count <= bvh.m_leafSize) return; //TODO: SET LEAF COUNT DYNAMICALLY!
 
 	m_leftFirst = bvh.m_poolPtr++;
 	BVHNode& l = bvh.m_pool[m_leftFirst];
@@ -62,7 +62,6 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, 
 	}
 	return false;
 }
-
 
 AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const int first, const int last)
 {

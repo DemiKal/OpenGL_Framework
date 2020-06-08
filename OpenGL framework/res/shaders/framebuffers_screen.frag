@@ -6,7 +6,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 const int StackSize = 64;
-
+const int LEAFSIZE = 4;
 uniform float u_near_plane;
 uniform float u_far_plane;
 
@@ -260,7 +260,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
  		BVHNode currentBVH = BVH[bboxIdx];
 
 		int childCount =  currentBVH.m_count;
-		bool  isInterior = childCount > 2; //TODO: leaf check
+		bool  isInterior = childCount > LEAFSIZE; //TODO: leaf check
 		AABB currentAABB = AABB(currentBVH.m_min.xyz, currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
 
 		if (IntersectAABB(rayOrigin, rayDir, currentAABB))
@@ -305,11 +305,11 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 				{
 					int j = nodeStart + i; 
 					
-					 uint tIdx = tri_indices[j];
+					// uint tIdx = tri_indices[j];
 					
-					vec3 v0 = triangles[tIdx].A.xyz;
-					vec3 v1 = triangles[tIdx].B.xyz;
-					vec3 v2 = triangles[tIdx].C.xyz;
+					vec3 v0 = triangles[j].A.xyz;
+					vec3 v1 = triangles[j].B.xyz;
+					vec3 v2 = triangles[j].C.xyz;
 					 
 
 					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);

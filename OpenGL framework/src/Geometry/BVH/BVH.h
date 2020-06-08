@@ -40,17 +40,18 @@ public:
 	std::vector<AABB> m_localBounds;		//local bounding box of each triangle
 	std::vector<glm::mat4> m_aabbMatrices;	//matrix representing bounding boxes
 	Model* m_wireCube;
-
+	uint32_t m_leafSize;
 
 	BVH() = default;
-	BVH(std::vector<unsigned int>& indices, BVHNode* pool, BVHNode* root, int poolPtr)
+	BVH(std::vector<unsigned int>& indices, BVHNode* pool, BVHNode* root, int poolPtr, uint32_t leafSize)
 		:
 		m_triangleVAO(0), 
 		m_triangleVBO(0),
 		m_indices(indices),
 		m_pool(pool),
 		m_root(root),
-		m_poolPtr(poolPtr)
+		m_poolPtr(poolPtr),
+		m_leafSize(leafSize)
 	{};
 
 	Texture1D& GetAABBNodesTexture() { return  m_aabbNodesTexture; }
@@ -59,7 +60,7 @@ public:
 	Texture1D& GetTriangleTexture() { return  m_triangleTexture; }
 	Texture1D& GetTriangleIndexTexture() { return  m_triangleIdxTexture; }
 
-	void BuildBVH();
+	void BuildBVH(const uint32_t leafSize);
 	void InitBVHRenderer();
 	void Draw(const Camera& camera);
 	void TraceRay(const Ray& ray);

@@ -193,8 +193,9 @@ int main(void)
 		unsigned int asa = sizeof(AABB);
 		unsigned int as1 = sizeof(Max);
 		unsigned int as2 = sizeof(Min);
+
 		BVH bvh;
-		bvh.BuildBVH();
+		bvh.BuildBVH(4);
 		bvh.CreateBVHTextures();
 
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
