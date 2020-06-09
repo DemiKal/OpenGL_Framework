@@ -6,7 +6,7 @@
 #include "Geometry/BVH/BVHNode.h"
 #include "misc/InputManager.h"
 #include "Rendering/ShaderManager.h" 
-#include "GameObject/Components/texture1D.h"
+#include "fmt/format.h"
 
 void BVH::BuildBVH(const uint32_t leafSize)
 {
@@ -14,14 +14,14 @@ void BVH::BuildBVH(const uint32_t leafSize)
 	std::cout << "Building BVH... \n";
 
 	InitTriangleRenderer();
-
+	int size = sizeof BVHNode;
+	
 	std::vector<AABB> triAABBs;
 	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
 
 	triAABBs.reserve(triangles.size());
-	for (auto& tri : triangles)
+	for (const auto& tri : triangles)
 		triAABBs.emplace_back(
-			 
 				std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
 				std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
 				std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
@@ -39,8 +39,8 @@ void BVH::BuildBVH(const uint32_t leafSize)
 	m_poolPtr = 1;
 
 	m_root->m_leftFirst = 1;
-	m_root->m_start = 0;
-	m_root->m_end = N;
+	//m_root->m_start = 0;
+	//m_root->m_end = N;
 	m_root->m_count = N;
 
 	//std::cout << "Starting recursion at count 0\n";
@@ -56,7 +56,6 @@ void BVH::BuildBVH(const uint32_t leafSize)
 	InitBVHRenderer();
 	m_isBuilt = true;
 }
-
 
 void BVH::InitBVHRenderer()
 {
@@ -74,13 +73,13 @@ void BVH::InitBVHRenderer()
 	glBindVertexArray(cubeVAO);
 	// set attribute pointers for matrix (4 times vec4)
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), static_cast<void*>(0));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), reinterpret_cast<void*>(sizeof(glm::vec4)));
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), reinterpret_cast<void*>(2 * sizeof(glm::vec4)));
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), reinterpret_cast<void*>(3 * sizeof(glm::vec4)));
 
 	glVertexAttribDivisor(1, 1);
 	glVertexAttribDivisor(2, 1);
@@ -135,7 +134,7 @@ void BVH::TraceRay(const Ray& ray)
 
 			for (int i = 0; i < nrTris; i++)
 			{
-				const int j = node.m_start + i;
+				const int j = node.m_leftFirst + i;
 				const int triIdx = m_indices[j];
 				const Triangle& triangle = triangles[triIdx];
 				glm::vec2 baryCentric;
@@ -232,27 +231,6 @@ void BVH::InitTriangleRenderer()
 void BVH::CreateBVHTextures()
 {
 	//ssbo
-	std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
-
-	std::vector<Triangle>trianglesCopy(triangles.size());
-	for(int i = 0 ; i < triangles.size(); i++)
-	{
-		int index = m_indices[i];
-		trianglesCopy[i] = triangles[index];
-	}
-	
-	unsigned int shaderId = ShaderManager::GetShader("framebuffers_screen").GetID();
-
-	for(int i = 0 ; i < m_poolPtr; i++)
-	{
-		auto& node = m_pool[i];
-		const size_t tidx = node.m_start;
-		Triangle& t1 = triangles[m_indices[tidx]];
-		Triangle& t2 = triangles[m_indices[tidx + 1]];
-
-		node.m_triangles[0] = t1;
-		node.m_triangles[1] = t2;
-	}
 
 	GLuint m_bvh_ssbo = 0;
 	const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr;
@@ -264,10 +242,11 @@ void BVH::CreateBVHTextures()
 
 	
 
+	std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
 	GLuint m_triangles_ssbo = 0;
 	glGenBuffers(1, &m_triangles_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_triangles_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, trianglesCopy.size() * sizeof(Triangle), &trianglesCopy[0], GL_STATIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_triangles_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 

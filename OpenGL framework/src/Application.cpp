@@ -32,14 +32,9 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
 	glfwSwapInterval(0);
 	//glfwWindowHint(GLFW_DOUBLEBUFFER, GL_FALSE);
-
-
-	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
-	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	// glfwGetPrimaryMonitor() ;
 
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, NULL);
@@ -50,6 +45,7 @@ int main(void)
 		throw std::exception("ERROR: Could not create GLFW window!");
 		return -1;
 	}
+
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(0);
@@ -66,82 +62,7 @@ int main(void)
 	std::cout << "max tex size: " << max_tex_size << "\n";
 	std::cout << "max uniform locations: " << max_uniform_locations / 1024 << "kb \n";
 	std::cout << "----------------\n";
-	std::vector<int> nums{ 3, 4, 2, 8, 15, 267 };
-
-	auto print = [](const int& n) { std::cout << " " << n; };
-
-	std::cout << "before:";
-	//std::for_each(std::execution::par, nums.cbegin(), nums.cend(), print);
-	std::cout << '\n';
-
-	std::for_each(std::execution::par, std::begin(nums), std::end(nums),
-		[&](int i)
-		{
-			std::cout << i << "\n";
-			//nums.fetch_add(1, std::memory_order_relaxed);
-		});
-
-
-	struct position
 	{
-		position(const float x, const  float y) : pos(x, y) {}
-		glm::vec2 pos;
-	};
-
-	struct velocity
-	{
-		velocity(const float x, const  float y) : vel(x, y) {}
-		glm::vec2 vel;
-	};
-
-	struct aaaaaaaaaaaa
-	{
-		int i;
-	};
-	{
-		entt::registry registry;
-
-		//entt::registry registry;
-		std::uint64_t dt = 16;
-
-		for (auto i = 0; i < 10; ++i)
-		{
-			auto entity = registry.create();
-			registry.assign<entt::tag<"enemy"_hs>>(entity);
-
-			registry.assign<position>(entity, i * 1.f, i * 1.f);
-			if (i % 2 == 0) registry.assign<velocity>(entity, i * .1f, i * .1f);
-		}
-		auto view = registry.view<position, velocity>();
-		for (auto& entity : view) {
-			// const auto [ cpos , cvel] = view.get<const position,velocity>(entity);
-			//  cvel = { -150, -10 };
-			//position& vel = view.get<position>(entity);
-			//const position& cpos = view.get<const position>(entity);
-			//const velocity& cvel = view.get<const velocity>(entity);
-			//std::tuple<position&, const velocity&> tup = view.get<position, const velocity>(entity);
-			//std::tuple<const position&, const velocity&> ctup = view.get<const position, const velocity>(entity);
-		}
-		//auto view2 = registry.view<position>();
-		//for (auto& entity :view2 )
-		//{
-		//	auto& pos = view2.get<position>(entity);
-		//	std::cout << "pos: { " << pos.pos.x << ", " << pos.pos.y << " }" << "\n";
-		//}
-		//auto view3 = registry.view<velocity>();
-		//for (auto& entity : view3)
-		//{
-		//	auto& vel = view3.get<velocity>(entity);
-		//	std::cout << "vel: { " << vel.vel.x << ", " << vel.vel.y << " }" << "\n";
-		//}
-		//auto view = registry.view<position, velocity>();
-		//for (auto entity : view)
-		//{
-		//	auto& vel = view.get<velocity>(entity);
-		//}
-
-			//auto view = registry.view<position, velocity>();
-
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
 
@@ -184,22 +105,11 @@ int main(void)
 		artisans.name = "artisans";
 		EntityManager::AddEntity(artisans);
 
-		//artisans.getMesh(0).MakeWireFrame();
-		//Model nanosuit("res/meshes/nanosuit/nanosuit.obj", (aiPostProcessSteps)(aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace));
-		//nanosuit.name = "nanosuit";
-		//EntityManager::AddEntity(nanosuit);
-		//nanosuit.SetShader("normalmapshader");
-		unsigned int as = sizeof(BVHNode);
-		unsigned int asa = sizeof(AABB);
-		unsigned int as1 = sizeof(Max);
-		unsigned int as2 = sizeof(Min);
-
 		BVH bvh;
-		bvh.BuildBVH(4);
+		bvh.BuildBVH(2);
 		bvh.CreateBVHTextures();
 
 		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
-		//
 
 		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
@@ -260,15 +170,7 @@ int main(void)
 
 		Camera::SetMainCamera(&camera);
 		Camera::SetCamera2(&cam2);
-		//Camera* cam = Camera::GetMain(); //??
-		//* cam->Position()   += glm::vec3(2, 0, 3);
 
-		/// <summary>
-		/// POSITION FRAMEBUFFER!
-		/// 
-		/// </summary>
-		/// <param name=""></param>
-		/// <returns></returns>
 		FrameBuffer posBuffer;
 		Texture2D positionTexture(
 			GL_RGB32F,
@@ -279,7 +181,7 @@ int main(void)
 			GL_UNSIGNED_BYTE);
 
 		Texture2D zBufferTexPosition(
-			GL_DEPTH_COMPONENT24,
+			GL_DEPTH_COMPONENT32,
 			SCREENWIDTH,
 			SCREENHEIGHT,
 			0,
@@ -326,8 +228,7 @@ int main(void)
 		bool drawBvh = false;
 		int currentBbox = 0;
 
-		float smoothStart = 0;
-		float smoothEnd = 1;
+ 
 		static bool u_shadowCast = false;
 
 		//Game Loop
@@ -445,19 +346,24 @@ int main(void)
 			postProcessShader.SetFloat("u_near_plane", camera.GetNearPlaneDist());
 			postProcessShader.SetFloat("u_far_plane", camera.GetFarPlaneDist());
 
-			ImGui::SliderFloat("smoothstep start", &smoothStart, 0, .9f);
-			ImGui::SliderFloat("smoothstep end", &smoothEnd, 0.9f, 2);
-			postProcessShader.SetFloat("u_smoothStepStart", smoothStart);
-			postProcessShader.SetFloat("u_smoothStepEnd", smoothEnd);
+		 
 			postProcessShader.setVec3("u_lightDir", lightDir);
 			postProcessShader.SetInt("u_shadowCast", u_shadowCast);
 			static bool useZ = false;
 
+			if (u_shadowCast) {
+				ImGui::Checkbox("Zbuffer for position?", &useZ);
+				postProcessShader.SetInt("u_useZbuffer", useZ);
 
+				if (useZ)
+				{
+					const char* listbox_items[] = { "Logarithmic","Linear 1", "Linear 2" };
+					static int depthReconstrMode = 0;
+					ImGui::ListBox("Depth Reconstruction Mode\n(single select)", &depthReconstrMode, listbox_items, IM_ARRAYSIZE(listbox_items), 3);
+					postProcessShader.SetInt("u_DepthReconstruction", depthReconstrMode);
 
-			ImGui::Checkbox("Zbuffer for position?", &useZ);
-			postProcessShader.SetInt("u_useZbuffer", useZ);
-
+				}
+			}
 			//static bool integrTri = false;
 			//ImGui::Checkbox("Use integrated triangles?", &integrTri);
 			//postProcessShader.SetInt("u_integrTri", integrTri);
@@ -499,18 +405,19 @@ int main(void)
 			const double diffms = 1000 * (endtime - currentFrameTime);
 			frametimes.push_back(static_cast<float>(diffms));
 		}
+
+
+		ShaderManager::Destroy();
+
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+
+		glfwDestroyWindow(window);
+
+		glfwTerminate();
+		return 0;
 	}
-
-	ShaderManager::Destroy();
-
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
-	glfwDestroyWindow(window);
-
-	glfwTerminate();
-	return 0;
 }
 
 

@@ -6,7 +6,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 const int StackSize = 64;
-const int LEAFSIZE = 4;
+const int LEAFSIZE = 2;
 uniform float u_near_plane;
 uniform float u_far_plane;
 
@@ -36,19 +36,10 @@ struct Triangle
 
 struct BVHNode
 {
-	int m_start;	
-	int m_end;		//struct BVHNode{
 	int m_leftFirst; //	int m_start;		//4	+
-	int m_count;	//	int m_end;			//4	+
-	vec4 m_min;//	int m_leftFirst;	//4	+
-	vec4 m_max;//	int m_count;		//4 = 16
-	//Triangle m_triangles[2];
-	vec3 m_tri1A;
-	vec3 m_tri1B;
-	vec3 m_tri1C;
-	vec3 m_tri2A;
-	vec3 m_tri2B;
-	vec3 m_tri2C;
+	int m_count;	 //	int m_end;			//4	+
+	vec4 m_min;		 //	int m_leftFirst;	//16	+
+	vec4 m_max;		 //	int m_count;		//16 = 40
 };
 
 layout (std430, binding = 0) buffer BVH_buffer
@@ -270,46 +261,25 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 				int leftChild = currentBVH.m_leftFirst;
 				int rightChild = currentBVH.m_leftFirst + 1;
 				//BVHNode lBVH = BVH[leftChild];
-				//BVHNode rBVH = BVH[rightChild];
-
-
-				//AABB leftAABB = AABB(lBVH.m_min.xyz, lBVH.m_max.xyz); //GetAABB(leftChild);
-				//vec3 centerL = 0.5f * leftAABB.m_min + 0.5f * leftAABB.m_max;
-
-				//AABB rightAABB = AABB(rBVH.m_min.xyz, rBVH.m_max.xyz); //GetAABB(rightChild);
-				//vec3 centerR = 0.5f * rightAABB.m_min + 0.5f * rightAABB.m_max;
-
-				//vec3 vecL = (rayOrigin - centerL);
-				//vec3 vecR = (rayOrigin - centerR);
-				//
-				//float sqrDistL = dot(vecL, vecL);
-				//float sqrDistR = dot(vecR, vecR);
-				//
-				//bool leftFirst = sqrDistL <= sqrDistR;
-				//if (leftFirst)
-				//{
-				//	leftChild = leftChild ^ rightChild;
-				//	rightChild = leftChild ^ rightChild;
-				//	leftChild = leftChild ^ rightChild;
-				//}
-				
+				 
 				//atomicCompSwap(leftFir)
 				stackPtr[currentIdx++] = leftChild;  //leftFirst ? leftChild  : rightChild;
 				stackPtr[currentIdx++] = rightChild;  //leftFirst ? rightChild : leftChild ;
 			}
 			else //leaf node
 			{
-				int nodeStart = currentBVH.m_start;
+				int nodeStart =  currentBVH.m_leftFirst;
+				//int nodeStart = bboxIdx;
 				//return true;
 				for (int i = 0; i < childCount; i++)
 				{
 					int j = nodeStart + i; 
 					
-					// uint tIdx = tri_indices[j];
+					uint tIdx = tri_indices[j];
 					
-					vec3 v0 = triangles[j].A.xyz;
-					vec3 v1 = triangles[j].B.xyz;
-					vec3 v2 = triangles[j].C.xyz;
+					vec3 v0 = triangles[tIdx].A.xyz;
+					vec3 v1 = triangles[tIdx].B.xyz;
+					vec3 v2 = triangles[tIdx].C.xyz;
 					 
 
 					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
@@ -324,7 +294,6 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 							_u = Thit.u;
 							_v = Thit.v;
 						}
-
 					} 
 				}
 			}
@@ -338,29 +307,15 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	result.hasHit = hasHit; 
 
 	return result;
-	//vec4 boxhit = BoxColor(u_bboxIdx, rayOrigin, rayDir);
-	//
-	//if (boxhit.a > 0)	finalColor = vec4(boxhit.xyz, 1.0f);
-	//vec4 boxhits = vec4(0,0,0,0);
-	//for (int i = 0; i < 70; i++)
-	//{
-	//	int childCount = texelFetch(u_indexTexture, i, 0).a; //w = alpha component
-	//	if (childCount < 3)
-	//	{
-	//		vec4 boxhit = BoxColor(i, rayOrigin, rayDir);
-	//		//finalColor = mix(finalColor, vec4(boxhit.xyz, 1.0f), 0.6f);
-	//		boxhits +=  boxhit ;
-	//	}
-	//}
-
-
 }
+
 float LinearizeDepth(float depth)
 {
     float z = depth * 2.0 - 1.0; // Back to NDC 
     return (2.0 * u_near_plane * u_far_plane) / 
 	(u_far_plane + u_near_plane - z * (u_far_plane - u_near_plane));	
 }
+
 float LinearizeDepth2(float z)
 {
   float n = 1.0; // camera z near
@@ -369,17 +324,12 @@ float LinearizeDepth2(float z)
   return (2.0 * n) / (f + n - z * (f - n));	
 }
 
- 
 vec3 WorldPosFromDepth(float depth) {
     float z = depth * 2.0 - 1.0;
 
     vec4 clipSpacePosition = vec4(TexCoords * 2.0 - 1.0, z, 1.0);
     vec4 viewSpacePosition = u_inv_projMatrix * clipSpacePosition;
 
-	//u_inv_projMatrix
-	//u_inv_viewMatrix
-
-    // Perspective division
     viewSpacePosition /= viewSpacePosition.w;
 
     vec4 worldSpacePosition = u_inv_viewMatrix * viewSpacePosition;
@@ -406,41 +356,12 @@ void main()
 	vec2 pixelCoord = vec2(TexCoords.x, 1.0f - TexCoords.y) * vec2(u_screenWidth, u_screenHeight);
 	vec3 rayDir = RayFromCam(pixelCoord.x, pixelCoord.y);
 
-	//rayDir = normalize(viewDir + screenHoriz + screenVert); //old method
-
 	vec4 albedo4 = vec4(albedo3, 1);
 	vec4 black = vec4(0, 0, 0, 1);
 	vec4 red = vec4(1, 0, 0, 1);
 	vec4 white = vec4(1, 1, 1, 1);
 	vec4 finalColor = albedo4;
 
-	//vec4 triangleColor = vec4(texture(u_triangleTexture, TexCoords.x).rgb, 1.0f);
-	//vec4 mixedColor = mix(albedo4, triangleColor, 1.f);
-	//bool foundHit = false;
-	//bool foundHit = false;
- //for (int i = 0; i < 1200 ; i += 3)
- //{
- //	 vec3 v0 = texelFetch(u_triangleTexture, i, 0).xyz;
- //	 vec3 v1 = texelFetch(u_triangleTexture, i + 1, 0).xyz;
- //	 vec3 v2 = texelFetch(u_triangleTexture, i + 2, 0).xyz;
- //	
- ////	  vec3 v0 = vec3(0, 0, 0);
- ////	  vec3 v1 = vec3(0, 1, 0);
- ////	  vec3 v2 = vec3(1, 0, 0);
- //	// 
- //	vec3 hitData = triIntersect(rayOrigin, rayDir, v0, v1, v2);
- //	if( hitData.x > 0 ) foundHit = true;
- //}
-  //
-	//
-	float u;
-	float v;
-	//bool foundHit = TraverseBVH(rayOrigin, rayDir, u, v);
-	// bool foundHit = false;//	TraverseBVH(rayOrigin, rayDir, u, v);
-	//finalColor = vec4(1, 1, 1, 1);
-	//vec3 spyrotex = texture(u_spyroTexture, vec2(u,v), 0).rgb;
-	
-	//finalColor = foundHit ? vec4(u, v, 0.5f, 1.0f) : albedo4 ;
 	float depthval = texture(u_depthBuffer, TexCoords.xy).r ;
 	float depthLinear = LinearizeDepth2(depthval);
 	vec4 distanceColor = vec4( vec3(depthLinear), 1.0f);
@@ -452,12 +373,11 @@ void main()
 	float distL = length(distPerpixel.xyz);
 	vec3 worldPos_fromBuffer = texture(u_positionBuffer, TexCoords.xy).rgb;
 	 
-	
 	vec3 wpos = u_useZbuffer ? worldPosZbuffer.xyz : worldPos_fromBuffer;
 
-	//float diffuse = max(0, dot(normal, u_lightDir));
 	finalColor = vec4( albedo4.rgb, 1.0f);
-	if(u_shadowCast){
+	if(u_shadowCast)
+	{
 		BVHhit bvhR = TraverseBVH(wpos  + 0.001f * u_lightDir, u_lightDir);
 		if(bvhR.hasHit)
 		{
@@ -465,97 +385,6 @@ void main()
 			finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
 		}
 	}
+
 	FragColor = finalColor;
-	// if(distL >20) 
-	//	finalColor = black;
-
-//BVHNode top = BVH[0];
-//BVHNode lBVH = BVH[40];
-	//BVHNode rBVH = BVH[top.m_leftFirst + 1];
-	//BVHNode lBVH2 = BVH[lBVH.m_leftFirst];
-	//BVHNode rBVH2 = BVH[lBVH.m_leftFirst + 1];
-
-
-	//AABB lAABB = AABB(lBVH.m_min.xyz, lBVH.m_max.xyz);
-	//AABB rAABB = AABB(lBVH.m_min.xyz, lBVH.m_max.xyz);
-
-
-
-
-	//bool hitL =  IntersectAABB(rayOrigin, rayDir, lAABB )  || IntersectAABB(rayOrigin, rayDir, rAABB );
-	//finalColor = hitL ? black : red;
-
-	//IntersectAABB(rayOrigin, rayDir, lAABB ) ;
-
-	// BVHhit bvhR = TraverseBVH(rayOrigin, rayDir);
-	// finalColor = bvhR.hasHit ? vec4(bvhR.u, bvhR.v, 1  ,1): vec4(1,0,0.4,1);
-	//finalColor =  vec4(1 - normal, 1);
-	//
-	//vec3 lightDir = -normalize(worldPos.xyz - u_lightDir);
-	//BVHhit shadowData =  TraverseBVH(normal.xyz + 0.001f *   lightDir,   lightDir);
-	//
-	//if(shadowData.hasHit)
-	//{
-	//	finalColor = vec4(finalColor.xyz * vec3(0.,0.,0. ),1);
-	//}
-	//
-	//FragColor =   finalColor;
-
-
-	
-	//finalColor = vec4(distPerpixel.xyz,1.0f);
-	//finalColor = vec4(0.5,0,1,1);
-	
-	//for(int i = 0; i < 15; i++)
-	//{
-	//	 vec3 v0 = triangles[i].A.xyz;
-	//	 vec3 v1 = triangles[i].B.xyz;
-	//	 vec3 v2 = triangles[i].C.xyz;
-	//	//vec3 v0 = texelFetch(u_triangleTexture, i, 0).xyz;
-	//	//vec3 v1 = texelFetch(u_triangleTexture, i + 1, 0).xyz;
-	//	//vec3 v2 = texelFetch(u_triangleTexture, i + 2, 0).xyz;
-	//
-	//	//AABB aaabbbb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz); 
-	//	//bool hitBB = IntersectAABB(rayOrigin, rayDir , aaabbbb);
-	//	
-	//	HitData hd = triIntersect(rayOrigin, rayDir, v0, v1, v2);
-	//	if(hd.hasHit)
-	//	{
-	//			finalColor = vec4(hd.u, hd.v, 1.0f,1.0f);
-	//	}
-	//}
-	//if(hitBB)
-	//finalColor = black;
-	
-	
-	
-
-
-	//float mixAlpha = boxhit.a > 0 ? 0.4f : 0.0f;
-	//FragColor = mix(albedo4, boxhit, mixAlpha);
-	//int size = textureSize(u_indexTexture, 0);
-	//vec4 boxColor = vec4(0, 0, 0, 1);
-	//vec4 boxhit = BoxColor(u_bboxIdx, rayOrigin, rayDir);
-	//
-	//if (boxhit.a > 0)	finalColor = vec4(boxhit.xyz, 1.0f);
-	//vec4 boxhits = vec4(0,0,0,0);
-	//for (int i = 0; i < 70; i++)
-	//{
-	//	int childCount = texelFetch(u_indexTexture, i, 0).a; //w = alpha component
-	//	if (childCount < 3)
-	//	{
-	//		vec4 boxhit = BoxColor(i, rayOrigin, rayDir);
-	//		//finalColor = mix(finalColor, vec4(boxhit.xyz, 1.0f), 0.6f);
-	//		boxhits +=  boxhit ;
-	//	}
-	//}
-	//
-	//boxhits = vec4(normalize(boxhits.xyz), boxhits.w);
-	//
-	//if(boxhits.w > 0)
-	//	FragColor = vec4( mix(albedo4.xyz, boxhits.xyz, 0.5f), 1.0f);
-	//else FragColor = albedo4;
-	//TraverseBVH()
-
-
 }

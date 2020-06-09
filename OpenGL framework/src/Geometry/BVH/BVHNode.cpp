@@ -20,17 +20,21 @@ void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
 	m_bounds = calculate_bb(bvh, aabbs, start, end);
 	m_count = objcount;
 
-	if (m_count <= bvh.m_leafSize) return; //TODO: SET LEAF COUNT DYNAMICALLY!
-
+	if (m_count <= bvh.m_leafSize) 
+	{
+		m_leftFirst = start; //when leaf node, leftFirst becomes index of the leaf node
+		return; 
+	}
+	
 	m_leftFirst = bvh.m_poolPtr++;
 	BVHNode& l = bvh.m_pool[m_leftFirst];
 	BVHNode& r = bvh.m_pool[bvh.m_poolPtr++];
 
 	const int split = partition(*this, bvh, triangles, aabbs, start, end);
-	l.m_start = start;
-	l.m_end = split;
-	r.m_start = split;
-	r.m_end = end;
+	//l.m_start = start;
+	//l.m_end = split;
+	//r.m_start = split;
+	//r.m_end = end;
 
 	l.Subdivide(bvh, aabbs, triangles, start, split);
 	r.Subdivide(bvh, aabbs, triangles, split, end);

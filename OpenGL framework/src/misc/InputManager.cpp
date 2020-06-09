@@ -47,42 +47,24 @@ void InputManager::Update(Camera& camera)
 
 	int mb = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
 	ImGui::Text("mouse click %s", mb ? "true" : "false");
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camMovement += camSpeed * forward;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camMovement -= camSpeed * forward;
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		camMovement += camSpeed * 4 * up;
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-		camMovement -= camSpeed * up;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camMovement -= glm::normalize(glm::cross(forward, up)) * camSpeed;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camMovement += glm::normalize(glm::cross(forward, up)) * camSpeed;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camera.RotateYlocal(.01f * (1+ camSpeed));
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		camera.RotateYlocal(-.01f * (1 + camSpeed));
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-		camera.RotateXlocal(.01f * (1 + camSpeed));
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-		camera.RotateXlocal(-.01f * (1 + camSpeed));
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += (2 * camSpeed * upWorld);
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * -rightWorld;
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * rightWorld;
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * forwardWorld;
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * -forwardWorld;
-	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * upWorld;
-	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-		LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)	camMovement += camSpeed * forward;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)	camMovement -= camSpeed * forward;
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)	camMovement += camSpeed * 4 * up;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)	camMovement -= camSpeed * up;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)	camMovement -= glm::normalize(glm::cross(forward, up)) * camSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)	camMovement += glm::normalize(glm::cross(forward, up)) * camSpeed;
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)	camera.RotateYlocal(.01f * (1+ camSpeed));
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)	camera.RotateYlocal(-.01f * (1 + camSpeed));
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)	camera.RotateXlocal(.01f * (1 + camSpeed));
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)	camera.RotateXlocal(-.01f * (1 + camSpeed));
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += (2 * camSpeed * upWorld);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += 2 * camSpeed * -rightWorld;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += 2 * camSpeed * rightWorld;
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += 2 * camSpeed * forwardWorld;
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += 2 * camSpeed * -forwardWorld;
+	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * upWorld;
+	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
 
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
