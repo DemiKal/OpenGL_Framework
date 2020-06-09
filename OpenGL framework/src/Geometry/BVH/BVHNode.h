@@ -5,13 +5,11 @@
 class BVHNode
 {
 public:
-	int asdas = 1;
-	int asda = 2;
-	int m_leftFirst;	//4b	+
-	int m_count;		//4b  
+	//int m_leftFirst;	//4b	+
+	//int m_count;		//4b  
 	AABB m_bounds;		//8 * 4  = 32 --> 32 + 8 = 40-byte aligned
 	
-	BVHNode() : m_leftFirst(-1), m_count(-1){};
+	BVHNode() {};
 
 
 	void Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,

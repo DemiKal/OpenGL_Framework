@@ -36,10 +36,8 @@ struct Triangle
 
 struct BVHNode
 {
-	int m_leftFirst; //	int m_start;		//4	+
-	int m_count;	 //	int m_end;			//4	+
-	vec4 m_min;		 //	int m_leftFirst;	//16	+
-	vec4 m_max;		 //	int m_count;		//16 = 40
+	vec4 m_min;		 //	.w =  m_leftFirst;	//16	+
+	vec4 m_max;		 //	.w =  m_count;		//16 = 40
 };
 
 layout (std430, binding = 0) buffer BVH_buffer
@@ -47,8 +45,6 @@ layout (std430, binding = 0) buffer BVH_buffer
 	BVHNode BVH[] ;	
 };
  
-
-
 layout (std430, binding = 1) buffer Triangle_buffer
 {
 	Triangle triangles[] ;	
@@ -111,7 +107,7 @@ HitData triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 	vec3 v2v0 = v2 - v0;
 	vec3 rov0 = ro - v0;
 
-#if 0
+#if 1
 	// Cramer's rule for solcing p(t) = ro+t·rd = p(u,v) = vo + u·(v1-v0) + v·(v2-v1)
 	float d = 1.0 / determinant(mat3(v1v0, v2v0, -rd));
 	float u = d * determinant(mat3(rov0, v2v0, -rd));
@@ -250,27 +246,28 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 		currentIdx--;
  		BVHNode currentBVH = BVH[bboxIdx];
 
-		int childCount =  currentBVH.m_count;
-		bool  isInterior = childCount > LEAFSIZE; //TODO: leaf check
+		int childCount =  int(currentBVH.m_max.w); //currentBVH.m_count;
+		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
 		AABB currentAABB = AABB(currentBVH.m_min.xyz, currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
 
 		if (IntersectAABB(rayOrigin, rayDir, currentAABB))
 		{
 			if (isInterior)
 			{
-				int leftChild = currentBVH.m_leftFirst;
-				int rightChild = currentBVH.m_leftFirst + 1;
+				int leftFirst = int(currentBVH.m_min.w);
+				int rightFirst = leftFirst + 1;
 				//BVHNode lBVH = BVH[leftChild];
 				 
 				//atomicCompSwap(leftFir)
-				stackPtr[currentIdx++] = leftChild;  //leftFirst ? leftChild  : rightChild;
-				stackPtr[currentIdx++] = rightChild;  //leftFirst ? rightChild : leftChild ;
+				stackPtr[currentIdx++] = leftFirst;  //leftFirst ? leftChild  : rightChild;
+				stackPtr[currentIdx++] = rightFirst;  //leftFirst ? rightChild : leftChild ;
 			}
 			else //leaf node
 			{
-				int nodeStart =  currentBVH.m_leftFirst;
+				int nodeStart = int(currentBVH.m_min.w);
 				//int nodeStart = bboxIdx;
 				//return true;
+				
 				for (int i = 0; i < childCount; i++)
 				{
 					int j = nodeStart + i; 
@@ -281,7 +278,6 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 					vec3 v1 = triangles[tIdx].B.xyz;
 					vec3 v2 = triangles[tIdx].C.xyz;
 					 
-
 					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
 
 					float newT = Thit.dist;
@@ -300,7 +296,6 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 		}
 	}
 	 
-	
 	result.u = _u;
 	result.v = _v;
 	result.t = t;

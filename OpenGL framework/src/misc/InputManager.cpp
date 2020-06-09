@@ -49,8 +49,8 @@ void InputManager::Update(Camera& camera)
 	ImGui::Text("mouse click %s", mb ? "true" : "false");
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)	camMovement += camSpeed * forward;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)	camMovement -= camSpeed * forward;
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)	camMovement += camSpeed * 4 * up;
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)	camMovement -= camSpeed * up;
+	//if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)	camMovement += camSpeed * 4 * up;
+	//if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)	camMovement -= camSpeed * up;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)	camMovement -= glm::normalize(glm::cross(forward, up)) * camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)	camMovement += glm::normalize(glm::cross(forward, up)) * camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)	camera.RotateYlocal(.01f * (1+ camSpeed));

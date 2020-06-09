@@ -18,16 +18,16 @@ void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
 
 	const int objcount = end - start;
 	m_bounds = calculate_bb(bvh, aabbs, start, end);
-	m_count = objcount;
+	m_bounds.m_count = objcount;
 
-	if (m_count <= bvh.m_leafSize) 
+	if (m_bounds.m_count <= bvh.m_leafSize)
 	{
-		m_leftFirst = start; //when leaf node, leftFirst becomes index of the leaf node
+		m_bounds.m_leftFirst = start; //when leaf node, leftFirst becomes index of the leaf node
 		return; 
 	}
 	
-	m_leftFirst = bvh.m_poolPtr++;
-	BVHNode& l = bvh.m_pool[m_leftFirst];
+	m_bounds.m_leftFirst = bvh.m_poolPtr++;
+	BVHNode& l = bvh.m_pool[(int)m_bounds.m_leftFirst];
 	BVHNode& r = bvh.m_pool[bvh.m_poolPtr++];
 
 	const int split = partition(*this, bvh, triangles, aabbs, start, end);
@@ -49,7 +49,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, 
 	if (i)
 	{
 		//leaf
-		if (m_count < 3)
+		if (m_bounds.m_count <= bvh.m_leafSize)
 		{
 			hitdata.emplace_back(HitData(tCurrent, nodeIdx)); //TODO COMPOSE HIT DATA
 			return true;
@@ -57,8 +57,8 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, 
 
 		else //traverse children
 		{
-			const int leftChild = m_leftFirst;
-			const int rightChild = m_leftFirst + 1;
+			const int leftChild = m_bounds.m_leftFirst;
+			const int rightChild = m_bounds.m_leftFirst + 1;
 			const bool l = bvh.m_pool[leftChild].Traverse(bvh, ray, hitdata, leftChild);
 			const bool r = bvh.m_pool[rightChild].Traverse(bvh, ray, hitdata, rightChild);
 			return l | r;
@@ -94,7 +94,7 @@ AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const int firs
 int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
 	const std::vector<AABB>& aabbs, int start, int end)
 {
-	const float sahParent = calc_sah(parent.m_bounds, parent.m_count);
+	const float sahParent = calc_sah(parent.m_bounds, parent.m_bounds.m_count);
 	int longestAxis = 0;
 
 	const float xlen = (std::abs(parent.m_bounds.m_max.v.x - parent.m_bounds.m_min.v.x));

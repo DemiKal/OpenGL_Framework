@@ -38,10 +38,10 @@ void BVH::BuildBVH(const uint32_t leafSize)
 	m_root = &m_pool[0];
 	m_poolPtr = 1;
 
-	m_root->m_leftFirst = 1;
+	m_root->m_bounds.m_leftFirst = 1;
 	//m_root->m_start = 0;
 	//m_root->m_end = N;
-	m_root->m_count = N;
+	m_root->m_bounds.m_count = N;
 
 	//std::cout << "Starting recursion at count 0\n";
 	//actually  build now
@@ -95,7 +95,7 @@ void BVH::InitBVHRenderer()
 
 void BVH::Draw(const Camera& camera)
 {
-	if (m_localBounds.size() <= 0) return; //has been initialized?
+	if (m_localBounds.empty()) return; //has been initialized?
 
 	auto& aabbshader = EntityManager::GetEntity("WireCube").GetShader();
 	auto& spyro = EntityManager::GetEntity("Spyro");
@@ -129,12 +129,12 @@ void BVH::TraceRay(const Ray& ray)
 		for (HitData& hd : hitData)
 		{
 			BVHNode& node = m_pool[hd.nodeIdx];
-			const int nrTris = node.m_count;
+			const int nrTris = node.m_bounds.m_count;
 			//node.m_bounds.Draw(*Camera::GetMain(), { 1.0f, 1.0f, 1.0f, 1.0f });
 
 			for (int i = 0; i < nrTris; i++)
 			{
-				const int j = node.m_leftFirst + i;
+				const int j = node.m_bounds.m_leftFirst + i;
 				const int triIdx = m_indices[j];
 				const Triangle& triangle = triangles[triIdx];
 				glm::vec2 baryCentric;
