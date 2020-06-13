@@ -42,17 +42,17 @@ struct BVHNode
 	//float maxX,maxY,maxZ, count;
 };
 
-layout (std430, binding = 0) buffer BVH_buffer
+layout (std430,  binding = 0) readonly buffer BVH_buffer 
 {
 	BVHNode BVH[] ;	
 };
  
-layout (std430, binding = 1) buffer Triangle_buffer
+layout (std430, binding = 1) readonly buffer Triangle_buffer
 {
 	Triangle triangles[] ;	
 };
  
-layout (std430, binding = 2) buffer Index_buffer
+layout (std430, binding = 2) readonly buffer Index_buffer
 {
 	uint tri_indices[] ;	
 };

@@ -71,19 +71,7 @@ int main(void)
 		ShaderManager::Init();
 		UserInterface userInterface;
 
-		//Model cube = Model::CreateCube();
-		//cube.name = "cube";
-		////
-		//EntityManager::AddEntity(cube);
-		//cube.SetShader("framebuffers");
-		//cube.getMesh(0).addTexture(Texture2D("res/textures/marble.jpg", "texture_diffuse"));
-
-		//Model plane = Model::CreatePlane();
-		//plane.name = "plane";
-		////plane.SetShader("framebuffers");
-		//plane.SetShader("plane");
-		//plane.getMesh(0).addTexture(Texture2D("res/textures/brickwall.jpg", "texture_diffuse"));
-		//EntityManager::AddEntity(plane);
+ 
 
 		Model wireCube = Model::CreateCubeWireframe();
 		wireCube.name = "WireCube";
