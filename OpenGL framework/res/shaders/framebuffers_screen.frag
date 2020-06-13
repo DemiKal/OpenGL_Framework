@@ -36,8 +36,10 @@ struct Triangle
 
 struct BVHNode
 {
-	vec4 m_min;		 //	.w =  m_leftFirst;	//16	+
-	vec4 m_max;		 //	.w =  m_count;		//16 = 40
+	 vec4 m_min;		 //	.w =  m_leftFirst;	//16	+
+	 vec4 m_max;		 //	.w =  m_count;		//16 = 40
+	//float minX,minY,minZ, leftFirst;
+	//float maxX,maxY,maxZ, count;
 };
 
 layout (std430, binding = 0) buffer BVH_buffer
@@ -215,7 +217,7 @@ struct BVHhit
 	int bbIdx;
 };
 
-
+//
 
 BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 {
@@ -225,7 +227,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	//int size = BVH.length();
 	int currentIdx = 0;
 
-	int stackPtr[StackSize];
+	uint stackPtr[StackSize];
 	stackPtr[0] = 0; //sentinel null guard value
 	currentIdx++;
 
@@ -242,20 +244,23 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	//-------------------------------------------------------------------------------------------------------------------
 	while (currentIdx > 0 && currentIdx < StackSize && !hasHit )
 	{
-		int bboxIdx = stackPtr[currentIdx - 1];
+		uint bboxIdx = stackPtr[currentIdx - 1];
 		currentIdx--;
  		BVHNode currentBVH = BVH[bboxIdx];
 
-		int childCount =  int(currentBVH.m_max.w); //currentBVH.m_count;
+		uint childCount =  floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
 		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
-		AABB currentAABB = AABB(currentBVH.m_min.xyz, currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
+		//vec3 BBmin = vec3(currentBVH.minX,currentBVH.minY,currentBVH.minZ);
+		//vec3 BBmax = vec3(currentBVH.maxX,currentBVH.maxY,currentBVH.maxZ);
+		
+		AABB currentAABB = AABB(currentBVH.m_min.xyz , currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
 
 		if (IntersectAABB(rayOrigin, rayDir, currentAABB))
 		{
 			if (isInterior)
 			{
-				int leftFirst = int(currentBVH.m_min.w);
-				int rightFirst = leftFirst + 1;
+				uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
+				uint rightFirst = leftFirst + 1;
 				//BVHNode lBVH = BVH[leftChild];
 				 
 				//atomicCompSwap(leftFir)
@@ -264,13 +269,13 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 			}
 			else //leaf node
 			{
-				int nodeStart = int(currentBVH.m_min.w);
+				uint nodeStart = floatBitsToUint(currentBVH.m_min.w);
 				//int nodeStart = bboxIdx;
 				//return true;
 				
 				for (int i = 0; i < childCount; i++)
 				{
-					int j = nodeStart + i; 
+					uint j = nodeStart + i; 
 					
 					uint tIdx = tri_indices[j];
 					
@@ -373,8 +378,8 @@ void main()
 	finalColor = vec4( albedo4.rgb, 1.0f);
 	if(u_shadowCast)
 	{
-		BVHhit bvhR = TraverseBVH(wpos  + 0.001f * u_lightDir, u_lightDir);
-		if(bvhR.hasHit)
+		BVHhit bvhR = TraverseBVH(wpos  + 0.01f * u_lightDir, u_lightDir);
+		if(bvhR.hasHit && bvhR.t > 0.01)
 		{
 			//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
 			finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);

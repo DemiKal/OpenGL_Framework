@@ -13,7 +13,7 @@ public:
 
 
 	void Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
-		const std::vector<Triangle>& triangles, int start, int end);
+		const std::vector<Triangle>& triangles, uint32_t start, uint32_t end);
 	bool Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitdata, const unsigned int nodeIdx) const;
 };
 

@@ -23,9 +23,19 @@ class AABB
 {
 public:
 	Min m_min; // m_min_OG;
-	float m_leftFirst;
+	union {
+		float dummy1;//m_leftFirst;
+		uint32_t m_leftFirst;
+	};
+
 	Max m_max; //m_max_OG;*/
-	float m_count;
+
+	union {
+		float dummy2;//m_count;
+		uint32_t m_count;
+	};
+
+
 	AABB() : m_min(), m_max() {}
 
 	AABB(const glm::vec3& _min, const glm::vec3& _max) : m_min(_min), m_max(_max) {}

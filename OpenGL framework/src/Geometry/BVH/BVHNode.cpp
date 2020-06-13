@@ -12,13 +12,13 @@ glm::vec3 GetCenterTriangle(const Triangle& triangle);
 
 
 void BVHNode::Subdivide(BVH& bvh, const std::vector<AABB>& aabbs,
-	const std::vector<Triangle>& triangles, const int start, const int end)
+	const std::vector<Triangle>& triangles, const uint32_t start, const uint32_t end)
 {
-	std::cout << "count at: " << bvh.count++ << "\n";
+	//std::cout << "count at: " << bvh.count++ << "\n";
 
-	const int objcount = end - start;
+	const uint32_t objCount = end - start;
 	m_bounds = calculate_bb(bvh, aabbs, start, end);
-	m_bounds.m_count = objcount;
+	m_bounds.m_count = objCount;
 
 	if (m_bounds.m_count <= bvh.m_leafSize)
 	{

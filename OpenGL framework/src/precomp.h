@@ -1,7 +1,7 @@
 #define GLM_ENABLE_EXPERIMENTAL 
 
-const int SCREENWIDTH = 1920;
-const int SCREENHEIGHT = 1080;
+const int SCREENWIDTH = 1920  ;
+const int SCREENHEIGHT = 1080  ;
 
 #include <filesystem>
 #include <iostream>
@@ -27,6 +27,7 @@ const int SCREENHEIGHT = 1080;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <fmt/format.h>
 #include <entt/entt.hpp>
 
 #include <imgui/imgui.h>
@@ -52,3 +53,4 @@ const int SCREENHEIGHT = 1080;
 
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
+

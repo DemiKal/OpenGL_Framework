@@ -31,7 +31,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
 	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
 	glfwSwapInterval(0);
 	//glfwWindowHint(GLFW_DOUBLEBUFFER, GL_FALSE);
@@ -52,16 +52,17 @@ int main(void)
 	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 
 
-	std::cout << glGetString(GL_VERSION) << std::endl;
+	fmt::print("GL Version: {0}", glGetString(GL_VERSION));
+
 	GLint  max_tex_size;
 	GLint  max_uniform_locations;
 	GLCall(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size));
 	GLCall(glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &max_uniform_locations));
 
-	std::cout << "--- GPU Data ---\n";
-	std::cout << "max tex size: " << max_tex_size << "\n";
-	std::cout << "max uniform locations: " << max_uniform_locations / 1024 << "kb \n";
-	std::cout << "----------------\n";
+	fmt::print("--- GPU Data ---\n");
+	fmt::print("max tex size: \n", max_tex_size);
+	fmt::print("max uniform locations: {0} KB\n",   max_uniform_locations / 1024);
+	fmt::print("----------------\n");
 	{
 		Renderer renderer;
 		renderer.SetAlphaBlending(true);
@@ -109,7 +110,7 @@ int main(void)
 		bvh.BuildBVH(2);
 		bvh.CreateBVHTextures();
 
-		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
+		fmt::print("bvh size: {0} kb", sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024);
 
 		Shader& postProcessShader = ShaderManager::GetShader("framebuffers_screen");
 
@@ -245,9 +246,10 @@ int main(void)
 
 
 			const float average = (float)std::accumulate(frametimes.begin(), frametimes.end(), 0.0) / frametimes.size();
-			const float avgfps = 1000.0f * float(1.0f / average);
+			const float avgFPS = 1000.0f * float(1.0f / average);
 
-			ImGui::Text("ms %f", avgfps);
+			ImGui::Text("FPS: %f, %f ms", avgFPS, average);
+			
 
 			if (frametimes.size() >= 30) frametimes.clear();
 #pragma endregion input
@@ -294,23 +296,7 @@ int main(void)
 			artisans.Draw(camera, posShader);
 			spyro.Draw(camera, posShader);
 
-
-
-
-			// nanosuit.GetShader().Bind();
-			// nanosuit.GetShader().setVec3("lightPos", LightManager::GetLight(0).get_position());
-			// nanosuit.GetShader().setVec3("viewPos", camera.GetPosition());
-			// nanosuit.Draw(camera);
-
-			//set bvh node
-			//ImGui::SliderInt("bbox idx", &currentBbox, 0, bvh.m_poolPtr - 1);
-
-			//GLCall(glDisable(GL_DEPTH_TEST));
-			//bvh.DrawSingleAABB(camera, currentBbox);
-			//int leftfirst = bvh.m_pool[currentBbox].m_leftFirst;
-			//int rightFirst = leftfirst + 1;
-
-			if (ImGui::RadioButton("Draw bvh", &drawBvh)) drawBvh = !drawBvh;
+			ImGui::Checkbox("Draw bvh", &drawBvh) ;
 
 			if (drawBvh) bvh.Draw(camera);
 
@@ -391,7 +377,7 @@ int main(void)
 			angleee += 0.01f;
 
 			static auto bcolor = glm::vec4(1, 0.5f, 0, 1);
-			ImGui::ColorEdit4("bcolor", glm::value_ptr(bcolor));
+			//ImGui::ColorEdit4("bcolor", glm::value_ptr(bcolor));
 			renderer.DrawCube(camera, glm::rotate(glm::mat4(1.0f), angleee, { 0,1,0 })
 				* glm::scale(glm::mat4(1.0f), { cos(angleee), 0.5 + 0.5 * sin(angleee),-cos(angleee) }), bcolor);
 
