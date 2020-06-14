@@ -2,11 +2,11 @@
 class Texture2D
 {
 private:
-	unsigned int m_rendererID;
+	unsigned int m_rendererID{};
 	std::string m_type;
 	std::string m_path;
-	unsigned int m_width;
-	unsigned int m_height;
+	unsigned int m_width{};
+	unsigned int m_height{};
 	GLuint TextureFromFile(const std::string& fullpath);
 
 public:

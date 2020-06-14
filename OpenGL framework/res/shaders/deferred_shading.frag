@@ -34,40 +34,19 @@ void main()
     float Specular = texture(gAlbedoSpec, TexCoords).a;
 
     vec3 lightDir = normalize(u_globalLightDir - FragPos);
-    float diffuseFactor = clamp(max(dot(Normal, u_globalLightDir),0) + u_ambientLight, 0,1);
+    float diffuseFactor = clamp(max(dot(Normal, u_globalLightDir), 0) + u_ambientLight, 0, 1);
 
     vec3 diffuse = Albedo * diffuseFactor;
     vec3 black = vec3(0);
     
-    //float dist = length(FragPos - u_viewPos);
-    //
-    //if( dist < u_fogDistance) 
-    //    FragColor = vec4(Albedo,1.0f);
-    //else 
-    //    FragColor = vec4(black,1.0f);
     
-    //"Regular Shading", "Albedo", "Normals", "Position", "Specular";
     
-    if(u_displayMode == 0)
-    {
-        FragColor = vec4(diffuse, 1.0f);
-    }
-    if(u_displayMode == 1)
-    {
-     FragColor = vec4(Albedo, 1.0f);
-    }
-    if(u_displayMode == 2)
-    {
-        FragColor = vec4(Normal,1.0f);
-    }
-    if(u_displayMode == 3)
-    {
-        FragColor = vec4(FragPos, 1.0f);
-    }
-    if(u_displayMode == 4)
-    {
-        FragColor = vec4(vec3(Specular), 1.0f);
-    }
+    if(u_displayMode == 0)  FragColor = vec4(diffuse, 1.0f);
+    else if(u_displayMode == 1)  FragColor = vec4(Albedo, 1.0f);
+    else if(u_displayMode == 2)  FragColor = vec4(Normal,1.0f);
+    else if(u_displayMode == 3)  FragColor = vec4(FragPos, 1.0f);
+    else if(u_displayMode == 4)  FragColor = vec4(vec3(Specular), 1.0f);
+    
     // then calculate lighting as usual
    // vec3 lighting  = Diffuse * 0.1; // hard-coded ambient component
    // vec3 viewDir  = normalize(viewPos - FragPos);

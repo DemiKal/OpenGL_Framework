@@ -20,21 +20,17 @@ void BVHNode::Subdivide(
 {
 	std::cout << "count at: " << bvh.count++ << "\n";
 
-	const int objcount = end - start;
+	const uint32_t objcount = end - start;
 	m_bounds = calculate_bb(bvh, boundingBoxes, start, end);
-	m_count = objcount;
+	m_bounds.m_count = objcount;
 
-	if (m_count < 3) return; //TODO: SET LEAF COUNT DYNAMICALLY!
+	if (objcount < 3) return; //TODO: SET LEAF COUNT DYNAMICALLY!
 
-	m_leftFirst = bvh.m_poolPtr++;
-	BVHNode& l = bvh.m_pool[m_leftFirst];
+	m_bounds.m_leftFirst = bvh.m_poolPtr++;
+	BVHNode& l = bvh.m_pool[m_bounds.m_leftFirst];
 	BVHNode& r = bvh.m_pool[bvh.m_poolPtr++];
 
-	const int split = partition(*this, bvh, triangles, boundingBoxes, start, end);
-	l.m_start = start;
-	l.m_end = split;
-	r.m_start = split;
-	r.m_end = end;
+	const uint32_t split = partition(*this, bvh, triangles, boundingBoxes, start, end);
 
 	l.Subdivide(bvh, boundingBoxes, triangles, start, split);
 	r.Subdivide(bvh, boundingBoxes, triangles, split, end);
@@ -49,7 +45,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 	if (i)
 	{
 		//leaf
-		if (m_count < 3)
+		if (m_bounds.m_count < 3)
 		{
 			hitData.emplace_back(HitData(tCurrent, nodeIdx)); //TODO COMPOSE HIT DATA
 			return true;
@@ -57,8 +53,8 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 
 		else //traverse children
 		{
-			const int leftChild = m_leftFirst;
-			const int rightChild = m_leftFirst + 1;
+			const int leftChild = m_bounds.m_leftFirst;
+			const int rightChild = m_bounds.m_leftFirst + 1;
 			const bool l = bvh.m_pool[leftChild].Traverse(bvh, ray, hitData, leftChild);
 			const bool r = bvh.m_pool[rightChild].Traverse(bvh, ray, hitData, rightChild);
 			return l | r;
@@ -95,16 +91,16 @@ AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned
 unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
 	const std::vector<AABB>& aabbs, int start, int end)
 {
-	const float sahParent = calc_sah(parent.m_bounds, parent.m_count);
+	const float sahParent = calc_sah(parent.m_bounds, parent.m_bounds.m_count);
 	int longestAxis = 0;
 
 	const float xlen = (std::abs(parent.m_bounds.m_max.v.x - parent.m_bounds.m_min.v.x));
 	const float ylen = (std::abs(parent.m_bounds.m_max.v.y - parent.m_bounds.m_min.v.y));
 	const float zlen = (std::abs(parent.m_bounds.m_max.v.z - parent.m_bounds.m_min.v.z));
 	float axisline;
-	if (xlen > ylen&& xlen > zlen) longestAxis = 0, axisline = parent.m_bounds.m_min.v.x;
-	if (ylen > xlen&& ylen > zlen) longestAxis = 1, axisline = parent.m_bounds.m_min.v.y;
-	if (zlen > xlen&& zlen > ylen) longestAxis = 2, axisline = parent.m_bounds.m_min.v.z;
+	if (xlen > ylen && xlen > zlen) longestAxis = 0, axisline = parent.m_bounds.m_min.v.x;
+	else if (ylen > xlen && ylen > zlen) longestAxis = 1, axisline = parent.m_bounds.m_min.v.y;
+	else if (zlen > xlen && zlen > ylen) longestAxis = 2, axisline = parent.m_bounds.m_min.v.z;
 
 	//sort indices based on longest axis
 	std::sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,

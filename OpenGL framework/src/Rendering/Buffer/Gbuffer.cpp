@@ -64,6 +64,11 @@ unsigned int Gbuffer::GetAlbedoSpecID() const
 	return m_gAlbedoSpec;
 }
 
+inline void Gbuffer::Enable()
+{
+	
+}
+
 void Gbuffer::Bind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_bufferID);

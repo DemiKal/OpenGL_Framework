@@ -52,7 +52,7 @@ Texture2D::Texture2D(const std::string& fullPath, const std::string& typeName)
 
 //create a texture directly not from a file
 Texture2D::Texture2D(
-	const GLenum internalformat, 
+	const GLenum internalFormat, 
 	const unsigned int p_width, 
 	const unsigned int p_height,
 	const unsigned int border, 
@@ -69,7 +69,7 @@ Texture2D::Texture2D(
 	glGenTextures(1, &m_rendererID);
 	glBindTexture(GL_TEXTURE_2D, m_rendererID);
 	glTexImage2D(GL_TEXTURE_2D, 0,
-		internalformat,
+		internalFormat,
 		SCREENWIDTH,
 		SCREENHEIGHT,
 		0, 

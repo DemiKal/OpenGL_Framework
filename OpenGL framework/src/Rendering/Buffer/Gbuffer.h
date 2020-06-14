@@ -15,5 +15,7 @@ public:
 	[[nodiscard]] unsigned int GetPositionID() const;
 	[[nodiscard]] unsigned int GetNormalID() const;
 	[[nodiscard]] unsigned int GetAlbedoSpecID() const;
+
+	void Enable();
 };
 

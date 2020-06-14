@@ -40,10 +40,12 @@ public:
 	void CreateCubeMesh();
 	void CreateTriangle();
 	void CreatePlane();
+	void DrawInstancedCubes(GLsizei instanceCount) const;
 	void DrawCube(const Camera& cam, const glm::mat4& transform,  glm::vec4 color) const;
 	static void Enable(GLenum type);
 	static void EnableDepth();
 	static void SetDepthFunc(GLenum depthFunc);
 	static void DisableDepth();
 	static GLenum GetDepthFunc() { return m_depthFunction; }
+	uint32_t GetCubeVAO() const { return cubeVAO; }
 };

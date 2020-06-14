@@ -19,40 +19,14 @@
 #include <Rendering/ScreenQuad.h>
 #include <algorithm>
 #include <execution>
-//#include <CL/opencl.h>
 
-class vertex
-{
-	float x, y, z;
-
-public:
-	vertex(float x, float y, float z) : x(x), y(y), z(z) {};
-
-	//explicit vertex(const vertex& o) : x(o.x), y(o.y), z(o.z) { std::cout << "Copy!\n"; };
-	//vertex(vertex& o) : x(o.x), y(o.y), z(o.z) { std::cout << "Copy!\n"; };
-
-	vertex(const vertex&) = delete;
-	vertex& operator=(const vertex&) = delete;
-	vertex(vertex&& v) noexcept
-		: x(v.x), y(v.y), z(v.z)
-	{
-		std::cout << "Move 1!\n";
-	}
-
-	vertex& operator=(vertex&& v) noexcept
-	{
-		std::cout << "Move 2!\n";
-		return v;
-	}
-
-};
 
 int main(void)
 {
 	if (!glfwInit()) return -1;
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
@@ -63,13 +37,7 @@ int main(void)
 	// glfwGetPrimaryMonitor() ;
 
 	/* Create a windowed mode window and its OpenGL context */
-	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, NULL);
-
-	std::vector< vertex> vertices;
-	vertices.reserve(3);
-	vertices.emplace_back( 1, 2, 3);
-	vertices.emplace_back( 4, 5, 6);
-	vertices.emplace_back( 7, 8, 9);
+	GLFWwindow* window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, nullptr);
 
 	if (!window)
 	{
@@ -92,38 +60,36 @@ int main(void)
 		renderer.SetAlphaBlending(alphaBlend);
 
 		static bool vsync = true;
-		
-		  
-		
+
 		renderer.SetVSync(vsync);
 
 
 		//init before any model
 		ShaderManager::Init();
 		UserInterface userInterface;
+		Model wireCube = Model::CreateCubeWireframe();
+		wireCube.m_name = "WireCube";
+		EntityManager::AddEntity(wireCube);
+		wireCube.SetShader("AABB_instanced");
 
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("Gbuffer_basic");
 		spyro.m_name = "Spyro";
 		EntityManager::AddEntity(spyro);
 
+#ifndef _DEBUG
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		artisans.SetShader("Gbuffer_basic");
 		artisans.m_name = "artisans";
 		EntityManager::AddEntity(artisans);
-
-		const double startTime = glfwGetTime();
+#endif
+		
 
 		BVH bvh;
-#ifndef _DEBUG
-		bvh.BuildBVH();
-		bvh.CreateBVHTextures();
-#endif
-		const double endTime = glfwGetTime();
-		double time = endTime - startTime;
+		bvh.BuildBVH(renderer);
 
-		std::cout << "bvh size: " << sizeof(bvh.m_pool[0]) * bvh.m_poolPtr / 1024 << "kb \n";
-		std::cout << "seconds: " << time << "\n";
+
+
 
 
 		FrameBuffer framebuffer;
@@ -132,15 +98,24 @@ int main(void)
 		// configure g-buffer framebuffer
 		// ------------------------------
 
-		Gbuffer G_buffer;
-
+		Gbuffer gBuffer;
+		 
+		Shader shadow_casting = ShaderManager::GetShader("shadow_cast");
+		shadow_casting.Bind();
+		shadow_casting.SetInt("gPosition", 0);
+		shadow_casting.SetInt("gNormal", 1);
+		shadow_casting.SetInt("gAlbedoSpec", 2);
+		shadow_casting.Unbind();
+		
 		Shader deferredShading = ShaderManager::GetShader("deferred_shading");
 
 		deferredShading.Bind();
 		deferredShading.SetInt("gPosition", 0);
 		deferredShading.SetInt("gNormal", 1);
 		deferredShading.SetInt("gAlbedoSpec", 2);
+ 
 
+		
 		const float aspect = static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT);
 
 		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 400.0f);
@@ -174,7 +149,8 @@ int main(void)
 
 		double prevFrameTime = glfwGetTime();
 
-		
+		bool drawBvh = true;
+
 
 		double totalTime = 0;
 
@@ -201,7 +177,7 @@ int main(void)
 			renderer.SetVSync(vsync);
 
 			const float average = (float)std::accumulate(frameTimes.begin(), frameTimes.end(), 0.0) / frameTimes.size();
-			const float avgfps = 1000.0f * float(1.0f / average);
+			const float avgfps = 1000.0f * static_cast<float>(1.0f / average);
 
 			ImGui::Text("ms %f", avgfps);
 
@@ -218,17 +194,30 @@ int main(void)
 			float& ambientLight = LightManager::GetAmbientLight();
 			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
 
+#ifndef _DEBUG
+			artisans.Update(deltaTime);
+#endif
+
 			spyro.Update(deltaTime);
 
 			// 1. geometry pass: render scene's geometry/color data into gbuffer
 			// -----------------------------------------------------------------
 			Renderer::EnableDepth();
 			//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-			G_buffer.Bind();
+			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			artisans.Draw(camera);
+#ifndef _DEBUG
+			 artisans.Draw(camera);
+#endif
+			
 			spyro.Draw(camera);
+
+			spyro.m_position += glm::vec3(2, 1, 0);
+			spyro.UpdateModelMatrix();
+			spyro.Draw(camera);
+			spyro.m_position -= glm::vec3(2, 1, 0);
+			spyro.UpdateModelMatrix();
+			
 			renderer.SetAlphaBlending(true);
 
 			framebuffer.Bind();	//make sure we write to this framebuffer
@@ -236,17 +225,18 @@ int main(void)
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			deferredShading.Bind();
+			
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, G_buffer.GetPositionID());
+			glBindTexture(GL_TEXTURE_2D, gBuffer.GetPositionID());
 			glActiveTexture(GL_TEXTURE0 + 1);
-			glBindTexture(GL_TEXTURE_2D, G_buffer.GetNormalID());
+			glBindTexture(GL_TEXTURE_2D, gBuffer.GetNormalID());
 			glActiveTexture(GL_TEXTURE0 + 2);
-			glBindTexture(GL_TEXTURE_2D, G_buffer.GetAlbedoSpecID());
+			glBindTexture(GL_TEXTURE_2D, gBuffer.GetAlbedoSpecID());
 
 			// send light relevant uniforms
 			deferredShading.SetVec3f("u_globalLightDir", lightDir);
 			deferredShading.SetFloat("u_ambientLight", ambientLight);
-			deferredShading.SetVec3f("u_viewPos", camera.GetPosition());
+			//;deferredShading.SetVec3f("u_viewPos", camera.GetPosition());
 
 			const char* listbox_items[] = { "Regular Shading", "Albedo", "Normals", "Position", "Specular" };
 			static int displayMode = 0;
@@ -257,17 +247,30 @@ int main(void)
 			//framebuffer.Bind();
 			screenQuad.Bind();
 			ScreenQuad::Draw();	//Draw to custom frame buffer
+			
+			ImGui::Checkbox("draw bvh", &drawBvh);
 
 			//draw from deferred to framebuffer to standard framebuffer
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer.GetTexture().GetID(), 0);
-
+			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+			//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer.GetTexture().GetID(), 0); //crash!
+			
 			Shader& singleTex = ShaderManager::GetShader("framebuffer_screen");
 			singleTex.Bind();
 			framebuffer.GetTexture().Bind();
 			ScreenQuad::Draw();
 
-			Renderer::BlitFrameBuffer(G_buffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
+			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
+
+			Renderer::SetDepthFunc(GL_LEQUAL);
+
+			static float angle = 0;
+			angle += 0.01f;
+			renderer.DrawCube(camera, glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
+				* glm::scale(glm::mat4(1.0f), { cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), {0,1,1,1});
+		 
+			if (drawBvh) bvh.Draw (camera, renderer);
+
+
 			UserInterface::Draw();
 			Renderer::SwapBuffers(window);
 

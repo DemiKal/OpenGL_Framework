@@ -23,8 +23,20 @@ struct Min {
 class AABB
 {
 public:
-	Min m_min; // m_min_OG;
-	Max m_max; //m_max_OG;*/
+	Min m_min;
+	union
+	{
+		uint32_t m_leftFirst;
+		float dummy1;
+	};
+
+	Max m_max; 
+	union
+	{
+		uint32_t m_count;
+		float dummy2;
+	};
+
 
 	AABB() : m_min(), m_max() {}
 

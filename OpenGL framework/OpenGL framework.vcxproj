@@ -84,13 +84,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Rendering\PostProcessing.cpp" />
     <ClCompile Include="src\misc\HardwareQuery.cpp" />
     <ClCompile Include="src\Rendering\Buffer\Gbuffer.cpp" />
     <ClCompile Include="src\Rendering\ScreenQuad.cpp" />
     <ClCompile Include="src\GameObject\Components\Texture1D.cpp" />
     <ClCompile Include="src\misc\UserInterface.cpp" />
+    <ClCompile Include="src\Rendering\Buffer\SSBO.cpp" />
     <None Include="imgui.ini" />
     <None Include="res\shaders\AABB_instanced.frag" />
+    <None Include="res\shaders\AABB_instanced_SSBO.frag" />
+    <None Include="res\shaders\AABB_instanced_SSBO.vert" />
     <None Include="res\shaders\AABB_single.frag" />
     <None Include="res\shaders\AABB_single.vert">
       <FileType>Document</FileType>
@@ -128,6 +132,8 @@
     <None Include="res\shaders\normalmapshader.frag" />
     <None Include="res\shaders\plane.frag" />
     <None Include="res\shaders\plane.vert" />
+    <None Include="res\shaders\shadow_cast.frag" />
+    <None Include="res\shaders\shadow_cast.vert" />
     <None Include="res\shaders\singlecolor.frag" />
     <None Include="res\shaders\singledotshader.frag" />
     <None Include="res\shaders\singleTriangle.frag" />
@@ -210,6 +216,7 @@
     <None Include="src\vendor\glm\gtc\vec1.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rendering\PostProcessing.h" />
     <ClInclude Include="src\misc\HardwareQuery.h" />
     <ClInclude Include="src\Rendering\Buffer\Gbuffer.h" />
     <ClInclude Include="src\Rendering\ScreenQuad.h" />
@@ -262,6 +269,7 @@
     <ClInclude Include="src\GameObject\Components\Texture2D.h" />
     <ClInclude Include="src\Geometry\TriangleBuffer.h" />
     <ClInclude Include="src\misc\UserInterface.h" />
+    <ClInclude Include="src\Rendering\Buffer\SSBO.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\ChernoLogo.png" />

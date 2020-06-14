@@ -147,6 +147,12 @@
     <ClCompile Include="src\misc\HardwareQuery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rendering\Buffer\SSBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\PostProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vendor\glm\detail\type_gentype.inl">
@@ -210,6 +216,10 @@
     <None Include="res\shaders\framebuffer_screen.vert" />
     <None Include="res\shaders\full_color.frag" />
     <None Include="res\shaders\full_color.vert" />
+    <None Include="res\shaders\shadow_cast.frag" />
+    <None Include="res\shaders\shadow_cast.vert" />
+    <None Include="res\shaders\AABB_instanced_SSBO.frag" />
+    <None Include="res\shaders\AABB_instanced_SSBO.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">
@@ -366,6 +376,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\misc\HardwareQuery.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rendering\Buffer\SSBO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rendering\PostProcessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
