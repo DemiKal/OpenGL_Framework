@@ -8,7 +8,7 @@ void BVHNode::Subdivide(
 	BVH& bvh,
 	const std::vector<AABB>& boundingBoxes,
 	const std::vector<Triangle>& triangles,
-	const int start, 
+	const int start,
 	const int end)
 {
 	std::cout << "count at: " << bvh.count++ << "\n";
@@ -17,8 +17,11 @@ void BVHNode::Subdivide(
 	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
 	m_bounds.m_count = objcount;
 
-	if (objcount < 3) return; //TODO: SET LEAF COUNT DYNAMICALLY!
-
+	if (objcount < 3)
+	{
+		m_bounds.m_leftFirst = start;
+		return; //TODO: SET LEAF COUNT DYNAMICALLY!
+	}
 	m_bounds.m_leftFirst = bvh.m_poolPtr++;
 
 

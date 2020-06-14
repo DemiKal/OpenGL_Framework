@@ -315,26 +315,26 @@ void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 }
 void BVH::CreateBuffers()
 {
-	m_bvh_ssbo = 0;
+	GLuint m_bvh_ssbo = 0;
 	const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr;
-	GLCall(glGenBuffers(1, &m_bvh_ssbo));
-	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_bvh_ssbo));
-	GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, &m_pool[0], GL_STATIC_COPY));
-	GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo));
-	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+	glGenBuffers(1, &m_bvh_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_bvh_ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, &m_pool[0], GL_STATIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	auto& triangles = TriangleBuffer::GetTriangleBuffer();
+	std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
 	GLuint m_triangles_ssbo = 0;
-	GLCall(glGenBuffers(1, &m_triangles_ssbo));
-	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_triangles_ssbo));
-	GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_COPY));
-	GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_triangles_ssbo));
-	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+	glGenBuffers(1, &m_triangles_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_triangles_ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_triangles_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	GLuint m_tri_index_ssbo = 0;
-	GLCall(glGenBuffers(1, &m_tri_index_ssbo));
-	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tri_index_ssbo));
-	GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_COPY));
-	GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_tri_index_ssbo));
-	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+	glGenBuffers(1, &m_tri_index_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tri_index_ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_tri_index_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
