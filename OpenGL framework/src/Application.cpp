@@ -32,7 +32,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -50,31 +50,22 @@ int main(void)
 
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
+	bool pauseLight = false;
+	bool alphaBlend = false;
+	bool vsync = true;
+	
+	if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
 
-	if (glewInit() != GLEW_OK) std::cout << "ERROR!" << std::endl;
 	HardwareQuery::Query();
-
 	{
 		Renderer renderer;
-
-		static bool alphaBlend = false;
-
 		renderer.SetAlphaBlending(alphaBlend);
-
-		static bool vsync = true;
-
 		renderer.SetVSync(vsync);
-
 
 		//init before any model
 		ShaderManager::Init();
 		UserInterface userInterface;
 		
-		//Model wireCube = Model::CreateCubeWireframe();
-		//wireCube.m_name = "WireCube";
-		//EntityManager::AddEntity(wireCube);
-		//wireCube.SetShader("AABB_instanced");
-
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("Gbuffer_basic");
 		spyro.m_name = "Spyro";
@@ -87,20 +78,14 @@ int main(void)
 		EntityManager::AddEntity(artisans);
 #endif
 		
-
 		BVH bvh;
 		bvh.BuildBVH(renderer);
-
-
-
-
 
 		FrameBuffer framebuffer;
 
 
 		// configure g-buffer framebuffer
 		// ------------------------------
-
 		Gbuffer gBuffer;
 		 
 		Shader shadow_casting = ShaderManager::GetShader("shadow_cast");
@@ -156,6 +141,7 @@ int main(void)
 
 
 		double totalTime = 0;
+		float rotation = 0;
 
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
@@ -165,6 +151,7 @@ int main(void)
 
 			Renderer::EnableDepth();
 			Renderer::SetDepthFunc(GL_LEQUAL);
+			GLCall(glCullFace(GL_BACK));
 			const double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 			renderer.SetAlphaBlending(false);
@@ -175,22 +162,26 @@ int main(void)
 
 			ImGui::Checkbox("Alpha Blend", &alphaBlend);
 			ImGui::Checkbox("VSync", &vsync);
+			ImGui::Checkbox("Pause Light", &pauseLight);
 
 			renderer.SetAlphaBlending(alphaBlend); 
 			renderer.SetVSync(vsync);
 
 			const float average = (float)std::accumulate(frameTimes.begin(), frameTimes.end(), 0.0) / frameTimes.size();
-			const float avgfps = 1000.0f * static_cast<float>(1.0f / average);
+			const float avgFPS = 1000.0f * static_cast<float>(1.0f / average);
 
-			ImGui::Text("ms %f", avgfps);
+			ImGui::Text("FPS: %f, %f ms", avgFPS, average);
 
-			if (frameTimes.size() >= 30) frameTimes.clear();
+			if (frameTimes.size() >= 100) frameTimes.clear();
 #pragma endregion input
 
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
-			lightDir.x = sinf(totalTime);
-			lightDir.z = cosf(totalTime);
-
+			if (!pauseLight)
+			{
+				rotation += 1.f * deltaTime;
+				lightDir.x = sinf(rotation);
+				lightDir.z = cosf(rotation);
+			}
 			vgm::Vec3 light(-lightDir.x, -lightDir.y, -lightDir.z);
 
 			if (ImGui::gizmo3D("##Dir1", light)) lightDir = glm::vec3(-light.x, -light.y, -light.z);

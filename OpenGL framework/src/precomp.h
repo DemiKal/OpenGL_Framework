@@ -1,3 +1,5 @@
+#ifndef PRECOMP_H
+#define PRECOMP_H
 #define GLM_ENABLE_EXPERIMENTAL 
 
 const int SCREENWIDTH = 1920;
@@ -59,3 +61,4 @@ void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
 
 #include "misc/HardwareQuery.h"
+#endif PRECOMP_H

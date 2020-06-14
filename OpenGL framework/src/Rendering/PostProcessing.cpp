@@ -11,12 +11,20 @@ void PostProcessing::ShadowCastGLSL(Camera& camera, Gbuffer& gBuffer)
 	Shader& shader = ShaderManager::GetShader("shadow_cast");
 
 	static bool castShadows = false;
+	static bool useZbuffer = false;
+	static float epsilon = 0.00001;
 	ImGui::Checkbox("Cast Shadows", &castShadows);
+	ImGui::SliderFloat("epsilon", &epsilon, 0, 0.1, "%.7f");
+
+	if(castShadows)	ImGui::Checkbox("Use Z-buffer", &useZbuffer);
+	
 	const float ambient = LightManager::GetAmbientLight();
+
 	shader.Bind();
-	shader.SetInt("gPosition",0);
-	shader.SetInt("gNormal",1);
-	shader.SetInt("gAlbedoSpec",2);
+	//shader.SetInt("gPosition",0);
+	//shader.SetInt("gNormal",1);
+	//shader.SetInt("gAlbedoSpec",2);
+	//shader.SetInt("zBuffer",3);
 
 
 	glActiveTexture(GL_TEXTURE0);
@@ -25,49 +33,27 @@ void PostProcessing::ShadowCastGLSL(Camera& camera, Gbuffer& gBuffer)
 	glBindTexture(GL_TEXTURE_2D, gBuffer.GetNormalID());
 	glActiveTexture(GL_TEXTURE0 + 2);
 	glBindTexture(GL_TEXTURE_2D, gBuffer.GetAlbedoSpecID());
+	glActiveTexture(GL_TEXTURE0 + 3);
+	glBindTexture(GL_TEXTURE_2D, gBuffer.GetZBufferTexID());
 
 
 	const glm::vec3& lightDir = LightManager::GetDirectionalLight();
-	//shader.SetVec3f("u_lightDir", lightDir);
-	//shader.SetFloat("u_ambientLight", ambient);
-	//shader.SetFloat("u_screenWidth", (float)SCREENWIDTH);
-	//shader.SetFloat("u_screenWidth", (float)SCREENHEIGHT);
-	//shader.SetFloat("u_nearPlane", camera.GetNearPlaneDist());
-	//shader.SetFloat("u_nearPlane", camera.GetFarPlaneDist());
-	//shader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
-	//shader.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(camera.GetViewMatrix()));
-	//shader.SetInt("u_shadowCast", castShadows);
-	//shader.SetVec3f("u_cameraPos", camera.GetPosition());
-
 	shader.Bind();
 	shader.SetVec3f("u_cameraPos", camera.GetPosition());
-	shader.SetFloat("u_screenWidth", float(SCREENWIDTH));
-	shader.SetFloat("u_screenHeight", float(SCREENHEIGHT));
+	shader.SetFloat("u_screenWidth", static_cast<float>(SCREENWIDTH));
+	shader.SetFloat("u_screenHeight", static_cast<float>(SCREENHEIGHT));
 	shader.SetUniformMat4f("u_inv_projMatrix", glm::inverse(camera.GetProjectionMatrix()));
 	shader.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(camera.GetViewMatrix()));
 	 
 	shader.SetFloat("u_near_plane", camera.GetNearPlaneDist());
 	shader.SetFloat("u_far_plane", camera.GetFarPlaneDist());
 	shader.SetFloat("u_ambientLight", ambient);
+	shader.SetFloat("u_epsilon", epsilon);
 	 
 	 
 	shader.SetVec3f("u_lightDir", lightDir);
 	shader.SetInt("u_shadowCast", castShadows);
+	shader.SetInt("u_useZbuffer", useZbuffer);
 
-
-
-
-
-
-
-	
-	//const char* listbox_items[] = { "wpos", "normal", "albedo" };
-	//static int displayMode = 0;
-	//ImGui::ListBox("render pass 2\n(single select)", &displayMode, listbox_items, IM_ARRAYSIZE(listbox_items), 5);
-	//
-	//
-	//shader.SetInt("renderMode", displayMode);
-
-	//ScreenQuad::Bind();
 	ScreenQuad::Draw();
 }

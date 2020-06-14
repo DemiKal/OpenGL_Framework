@@ -13,11 +13,11 @@ void BVHNode::Subdivide(
 {
 	std::cout << "count at: " << bvh.count++ << "\n";
 
-	const uint32_t objcount = end - start;
+	const uint32_t objCount = end - start;
 	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
-	m_bounds.m_count = objcount;
+	m_bounds.m_count = objCount;
 
-	if (objcount < 3)
+	if (objCount <= 2)
 	{
 		m_bounds.m_leftFirst = start;
 		return; //TODO: SET LEAF COUNT DYNAMICALLY!

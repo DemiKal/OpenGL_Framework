@@ -5,26 +5,39 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-const int StackSize = 64;
+const int StackSize = 32;
 const int LEAFSIZE = 2;
+
+uniform bool u_shadowCast;
+uniform bool u_useZbuffer;
+uniform bool u_linearizeZ;
+uniform bool u_showNormal;
+
 uniform float u_near_plane;
 uniform float u_far_plane;
- 
+uniform float u_aspectRatio;
+uniform float u_screenWidth;
+uniform float u_screenHeight;
+uniform float u_ambientLight;
+uniform float u_epsilon;
 
 uniform vec3 u_cameraPos;
 uniform vec3 u_viewDir;
 uniform vec3 u_cameraUp;
 uniform vec3 u_lightDir;
  
+uniform mat4 u_inv_projMatrix;
+uniform mat4 u_inv_viewMatrix; 
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
+uniform sampler2D zBuffer;
 
 
 struct Triangle { vec4 A; vec4 B; vec4 C; };
 
-struct BVHNode { vec4 m_min;   vec4 m_max; };
+struct BVHNode { vec4 m_min; vec4 m_max; };
 
 layout (std430,  binding = 0) readonly buffer BVH_buffer 
 {
@@ -41,14 +54,7 @@ layout (std430, binding = 2) readonly buffer Index_buffer
 	uint tri_indices[] ;	
 };
   
-uniform float u_aspectRatio;
-uniform float u_screenWidth;
-uniform float u_screenHeight;
-uniform float u_ambientLight;
 
-uniform mat4 u_inv_projMatrix;
-uniform mat4 u_inv_viewMatrix; 
-uniform bool u_shadowCast;
 
 struct AABB
 {
@@ -70,7 +76,7 @@ HitData triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 	vec3 v2v0 = v2 - v0;
 	vec3 rov0 = ro - v0;
 
-#if 1
+#if 0
 	// Cramer's rule for solcing p(t) = ro+t·rd = p(u,v) = vo + u·(v1-v0) + v·(v2-v1)
 	float d = 1.0 / determinant(mat3(v1v0, v2v0, -rd));
 	float u = d * determinant(mat3(rov0, v2v0, -rd));
@@ -232,7 +238,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
 
 					float newT = Thit.dist;
-					if (newT > 0)
+					if (newT > 0 && newT >= u_epsilon)
 					{
 						hasHit = true;
 						if (newT < t )
@@ -264,8 +270,8 @@ float LinearizeDepth(float depth)
 
 float LinearizeDepth2(float z)
 {
-  float n = 1.0; // camera z near
-  float f = 100.0; // camera z far
+  float n = u_near_plane ; // camera z near
+  float f = u_far_plane ; // camera z far
   //float z = texture2D(depthSampler, uv).x;
   return (2.0 * n) / (f + n - z * (f - n));	
 }
@@ -309,31 +315,41 @@ void main()
  
 	vec3 normal = texture(gNormal, TexCoords.xy).xyz;
 	vec3 worldPos_fromBuffer = texture(gPosition, TexCoords.xy).rgb;
-	float diffuse = clamp(max(dot(normal, u_lightDir), 0) + u_ambientLight, 0, 1);
-
+	
 	float NdotL = dot(normal, u_lightDir);
+	float diffuse = clamp(max(NdotL, 0) + u_ambientLight, 0, 1);
 
-	vec3 wpos = worldPos_fromBuffer;
 
-	 finalColor = vec4( diffuse * albedo4.rgb, 1.0f);
-	 if(u_shadowCast)
-	 {
-		if(NdotL > 0) 
+	float zValue = texture(zBuffer, TexCoords.xy).x;
+	float zLinear =   LinearizeDepth2(zValue) ;
+	
+	vec3 wposFromG = worldPos_fromBuffer;
+	vec3 wposFromZ = WorldPosFromDepth(u_linearizeZ ? zLinear : zValue );
+
+	vec3 wpos = u_useZbuffer ? wposFromZ : wposFromG;
+
+	finalColor = vec4(diffuse * albedo4.rgb, 1.0f);
+	//finalColor = vec4(wpos, 1.0);
+	
+	if(u_shadowCast)
+	{
+		if(NdotL > 0 && zValue < 1) 
 		{
-	 		BVHhit bvhR = TraverseBVH(wpos + 0.00001 * u_lightDir, u_lightDir);
-	 		if(bvhR.hasHit)
-	 		{
-	 			//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
-				finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
-	 			//finalColor = vec4(bvhR.u, bvhR.v, 1, 1.0f);
-	 		}
+				float bias = 0.005*tan(acos(clamp(NdotL,0,1))); 
+				bias = clamp(bias, 0., 0.01);
+				float slope = 2 - NdotL ; //1 + 1 - ndotl
+				 
+				BVHhit bvhR = TraverseBVH(wpos + (u_epsilon*slope ) * normal, u_lightDir);
+				if(bvhR.hasHit)
+				{
+						//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
+					finalColor = vec4(finalColor.xyz * 0.2f    , 1.0f);
+					//finalColor = vec4(bvhR.u, bvhR.v, 1, 1.0f);
+				}
 		}
-	 }
-
- 
-
-
-
-
+	}
+	 
+	// finalColor = vec4(vec3(zLinear), 1.0);
+	if(u_showNormal) finalColor =vec4(normal,1.0);
 	FragColor = finalColor;
 }
