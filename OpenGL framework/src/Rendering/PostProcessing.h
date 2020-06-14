@@ -4,6 +4,7 @@
 
 class PostProcessing
 {
-	static void ShadowCastGLSL(Camera& cam, Gbuffer& gBuffer);
+public:
+	static void  ShadowCastGLSL(Camera& cam, Gbuffer& gBuffer);
 };
 

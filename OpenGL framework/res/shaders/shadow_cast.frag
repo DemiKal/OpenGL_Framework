@@ -12,6 +12,9 @@ uniform sampler2D gAlbedoSpec;
 
 uniform sampler2D u_depthBuffer;
 
+uniform int  renderMode;
+
+uniform float u_ambientLight;
 uniform float u_screenWidth;
 uniform float u_screenHeight;
 uniform float u_nearPlane;
@@ -21,10 +24,8 @@ uniform mat4 u_inv_projMatrix;
 uniform mat4 u_inv_viewMatrix;
 uniform bool u_shadowCast;
 
-//uniforms
-uniform vec3 u_lightDir;
-
-
+uniform vec3 u_globalLightDir;
+uniform vec3 u_cameraPos;
 
 struct Triangle { vec4 A; vec4 B; vec4 C; };
 struct AABB { vec3 m_min; vec3 m_max; };
@@ -58,6 +59,7 @@ float LinearizeDepth2(float z);
 void main()
 {             
 	vec2 pixelCoord = vec2(TexCoords.x, 1.0f - TexCoords.y) * vec2(u_screenWidth, u_screenHeight);
+	vec3 rayOrigin = u_cameraPos;
 	vec3 rayDir = RayFromCam(pixelCoord.x, pixelCoord.y);
 
 	vec4 albedoSpec = texture(gAlbedoSpec, TexCoords.xy).xyzw;
@@ -67,17 +69,34 @@ void main()
 	//float depthLinear = LinearizeDepth2(depthval);
 	//vec4 worldPosZbuffer = vec4(WorldPosFromDepth(depthval), 1.0f);
 	vec3 wposGbuffer = texture(gPosition, TexCoords.xy).rgb;
-	vec3 normalGbuffer = texture(gNormal, TexCoords.xy).xyz;
-	 
+	vec3 normal = texture(gNormal, TexCoords.xy).xyz;
+
+	float diffuse = clamp(max(dot(normal, u_globalLightDir), 0) + u_ambientLight, 0, 1);
+ 	finalColor = vec4(finalColor.xyz * diffuse, 1.0); 
+
 	vec3 wpos = wposGbuffer;
 	if(u_shadowCast)
 	{
-		BVHhit bvhR = TraverseBVH(wpos  + 0.01f * u_lightDir, u_lightDir);
-		if(bvhR.hasHit)
+		//BVHhit bvhR = TraverseBVH(wpos  + 0.01f * u_globalLightDir, -u_globalLightDir);
+		//BVHhit bvhR = TraverseBVH(u_cameraPos, rayDir);
+		//if(bvhR.hasHit)
+		
+		AABB bbox = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz);
+		//finalColor = vec4(1, 0, 0, 1.0);
+		BVHhit bvhR = TraverseBVH(rayOrigin, rayDir);
+		if(bvhR.hasHit) 
 		{
 			//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
-			finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
+			//finalColor = vec4(finalColor.xyz * 0.2f, 1.0f);
+			finalColor = vec4(1,0,1, 1.0f);
+		 
 		}
+	}
+	else
+	{
+		if(renderMode == 0) finalColor = vec4(wpos,  1.0);
+		if(renderMode == 1) finalColor = vec4(normal, 1.0);
+		if(renderMode == 2) finalColor = vec4(albedoSpec.rgb, 1.0);
 	}
 
 	FragColor = finalColor;
@@ -138,7 +157,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 				uint nodeStart = floatBitsToUint(currentBVH.m_min.w);
 				//int nodeStart = bboxIdx;
 				//return true;
-				
+				hasHit = true; break;
 				for (int i = 0; i < childCount; i++)
 				{
 					uint j = nodeStart + i; 
@@ -175,7 +194,6 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	return result;
 }
 
-
 HitData triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 {
 	vec3 v1v0 = v1 - v0;
@@ -183,7 +201,7 @@ HitData triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 	vec3 rov0 = ro - v0;
 
 #if 1
-	// Cramer's rule for solcing p(t) = ro+t·rd = p(u,v) = vo + u·(v1-v0) + v·(v2-v1)
+	// Cramer's rule for solving p(t) = ro+t·rd = p(u,v) = vo + u·(v1-v0) + v·(v2-v1)
 	float d = 1.0 / determinant(mat3(v1v0, v2v0, -rd));
 	float u = d * determinant(mat3(rov0, v2v0, -rd));
 	float v = d * determinant(mat3(v1v0, rov0, -rd));
@@ -205,14 +223,10 @@ HitData triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 		t = -1.0;
 
 	return HitData(t > -1.0f, u , v, t); 
-	 //vec3(t, u, v); 
 }
 
 bool IntersectAABB(vec3 rayOrigin, vec3 rayDirection, AABB bbox)
 {
-	//vec3  direction rayDirection;
-	//vec3  origin = rayOrigin;
-
 	vec3 d = vec3(
 		1.0f / rayDirection.x,
 		1.0f / rayDirection.y,
@@ -258,10 +272,8 @@ vec3 RayFromCam(float mouseX, float mouseY)
 	ray_eye = vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
 
 	// world space [-x:x, -y:y, -z:z, -w:w]
-	vec3 ray_world = vec3(u_inv_viewMatrix * ray_eye);
+	vec3 ray_world = vec3( u_inv_viewMatrix  * ray_eye);
 	ray_world = normalize(ray_world);
-
-	//Ray ray(this->PositionRead(), ray_world);
 
 	return ray_world;
 }

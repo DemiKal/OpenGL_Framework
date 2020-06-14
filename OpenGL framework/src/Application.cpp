@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <execution>
 
+#include "Rendering/PostProcessing.h"
+
 
 int main(void)
 {
@@ -150,7 +152,7 @@ int main(void)
 
 		double prevFrameTime = glfwGetTime();
 
-		bool drawBvh = true;
+		bool drawBvh = false;
 
 
 		double totalTime = 0;
@@ -254,25 +256,29 @@ int main(void)
 			//draw from deferred to framebuffer to standard framebuffer
 			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 			//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer.GetTexture().GetID(), 0); //crash!
-			
-			Shader& singleTex = ShaderManager::GetShader("framebuffer_screen");
-			singleTex.Bind();
-			framebuffer.GetTexture().Bind();
-			ScreenQuad::Draw();
+
+			//Shader& singleTex = ShaderManager::GetShader("framebuffer_screen");
+			//singleTex.Bind();
+			//framebuffer.GetTexture().Bind();
+			//ScreenQuad::Draw();
+			PostProcessing::ShadowCastGLSL(camera, gBuffer);
 
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
-			Renderer::SetDepthFunc(GL_LEQUAL);
+			//Renderer::SetDepthFunc(GL_LEQUAL);
 
-			static float angle = 0;
-			angle += 0.01f;
+
+			///
+			/// Draw extra widgets, gizmos, debug info, and more below
+			//
+			static float angle = 0; 	angle += 0.01f;
 			renderer.DrawCube(camera, glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
 				* glm::scale(glm::mat4(1.0f), { cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), {0,1,1,1});
 		 
 			if (drawBvh) bvh.Draw (camera, renderer);
-
-
 			UserInterface::Draw();
+
+
 			Renderer::SwapBuffers(window);
 
 			prevFrameTime = currentFrameTime;

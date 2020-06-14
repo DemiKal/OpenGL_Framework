@@ -1,25 +1,18 @@
 #include "precomp.h"
 #include "BVH.h"
-
-#include <utility>
-
 #include "GameObject/Camera.h"
-#include "GameObject/EntityManager.h"
-#include "GameObject/Components/texture1D.h"
+#include "GameObject/EntityManager.h" 
 #include "Geometry/BVH/BVHNode.h"
 #include "misc/InputManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h" 
 
-
- 
-
 BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
 	m_bvh_ssbo(0),
-	m_indices(std::move(indices)),
-	m_pool(std::move(pool)),
 	m_root(root),
-	m_poolPtr(poolPtr), 
+	m_poolPtr(poolPtr),
+	m_indices(std::move(indices)),
+	m_pool(std::move(pool)), 
 	m_triangleVAO(0) 
 {
 }
@@ -323,14 +316,14 @@ void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 void BVH::CreateBuffers()
 {
 	m_bvh_ssbo = 0;
-	GLCall(const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr);
+	const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr;
 	GLCall(glGenBuffers(1, &m_bvh_ssbo));
 	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_bvh_ssbo));
 	GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, &m_pool[0], GL_STATIC_COPY));
 	GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo));
 	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 
-	std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
+	auto& triangles = TriangleBuffer::GetTriangleBuffer();
 	GLuint m_triangles_ssbo = 0;
 	GLCall(glGenBuffers(1, &m_triangles_ssbo));
 	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_triangles_ssbo));
