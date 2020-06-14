@@ -5,10 +5,7 @@
 #include "GameObject/Camera.h"
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/AABB.h"
-#include "GameObject/Components/mesh.h"
 #include "Geometry/Ray.h"
-#include "glm/detail/_noise.hpp"
-#include "glm/detail/_noise.hpp"
 #include "Rendering/ShaderManager.h"
 
 class Model;
@@ -30,6 +27,22 @@ void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 			m_max.v[i] += e < f ? f : e;
 		}
 	}
+}
+
+float AABB::CalcSurfaceArea() const
+{
+	const float xlen = m_max.v.x - m_min.v.x;
+	const float zlen = m_max.v.y - m_min.v.y;
+	const float ylen = m_max.v.z - m_min.v.z;
+	const float ground = 2 * xlen * zlen;
+	const float side1 = 2 * ylen * xlen;
+	const float side2 = 2 * ylen * zlen;
+	return ground + side1 + side2;
+}
+
+glm::vec3 AABB::GetCenter() const
+{
+	return 0.5f * (m_max.v + m_min.v); //{x, y, z};
 }
 
 Min AABB::Minimize(const Min& minA, const Min& minB) const

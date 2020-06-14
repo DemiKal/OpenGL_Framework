@@ -1,15 +1,8 @@
 #include "precomp.h"
 #include "BVHNode.h"
-unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
-	const std::vector<AABB>& aabbs, int start, int end);
 
-AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& aabbs, unsigned int first, unsigned  int last);
-float combine_sah(BVH& bvh, const std::vector<AABB>& aabbs, unsigned int start, unsigned int end);
-float calc_sah(const AABB& aabb, unsigned int objCount);
-
-glm::vec3 GetCenterAABB(const AABB& aabb);
+ 
 glm::vec3 GetCenterTriangle(const Triangle& triangle);
-
 
 void BVHNode::Subdivide(
 	BVH& bvh,
@@ -21,16 +14,18 @@ void BVHNode::Subdivide(
 	std::cout << "count at: " << bvh.count++ << "\n";
 
 	const uint32_t objcount = end - start;
-	m_bounds = calculate_bb(bvh, boundingBoxes, start, end);
+	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
 	m_bounds.m_count = objcount;
 
 	if (objcount < 3) return; //TODO: SET LEAF COUNT DYNAMICALLY!
 
 	m_bounds.m_leftFirst = bvh.m_poolPtr++;
+
+
 	BVHNode& l = bvh.m_pool[m_bounds.m_leftFirst];
 	BVHNode& r = bvh.m_pool[bvh.m_poolPtr++];
 
-	const uint32_t split = partition(*this, bvh, triangles, boundingBoxes, start, end);
+	const uint32_t split = Partition(*this, bvh, triangles, boundingBoxes, start, end);
 
 	l.Subdivide(bvh, boundingBoxes, triangles, start, split);
 	r.Subdivide(bvh, boundingBoxes, triangles, split, end);
@@ -64,7 +59,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 }
 
 
-AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned int first, const unsigned int last)
+AABB BVHNode::CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned int first, const unsigned int last) const
 {
 	float minX = INFINITY;
 	float minY = INFINITY;
@@ -88,10 +83,11 @@ AABB calculate_bb(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned
 }
 
 
-unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
-	const std::vector<AABB>& aabbs, int start, int end)
+uint32_t BVHNode::Partition(
+	const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
+	const std::vector<AABB>& aabbs, const uint32_t start, const uint32_t end) const
 {
-	const float sahParent = calc_sah(parent.m_bounds, parent.m_bounds.m_count);
+	const float sahParent = CalcSAH(parent.m_bounds, parent.m_bounds.m_count);
 	int longestAxis = 0;
 
 	const float xlen = (std::abs(parent.m_bounds.m_max.v.x - parent.m_bounds.m_min.v.x));
@@ -113,10 +109,10 @@ unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triang
 			const float f = 1.0f / 3.0f;
 			//  const vec3 c1 = A1.A * f + A1.B * f + A1.C * f;
 			//  const vec3 c2 = B1.A * f + B1.B * f + B1.C * f;
-			const glm::vec3 c1 = GetCenterAABB(bb1);
-			const glm::vec3 c2 = GetCenterAABB(bb2);
-			const glm::vec3 cp1 = GetCenterTriangle(A1);
-			const glm::vec3 cp2 = GetCenterTriangle(B1);
+			const glm::vec3 c1 =  bb1.GetCenter();
+			const glm::vec3 c2 =  bb2.GetCenter();
+			//const glm::vec3 cp1 = GetCenterTriangle(A1);
+			//const glm::vec3 cp2 = GetCenterTriangle(B1);
 			//c//onst vec3 cp1 = getCenterTriangle( B1 );
 			//const vec3 cp2 = getCenterTriangle( B1 );
 			//return cp1[longestAxis] < cp2[longestAxis];
@@ -127,11 +123,11 @@ unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triang
 
 	//get lowest SAH
 	float bestSAH = sahParent;
-	int splitIdx = start + 1;
-	for (int i = start + 1; i < end; i++)
+	uint32_t splitIdx = start + 1;
+	for (uint32_t i = start + 1; i < end; i++)
 	{
-		const float SAH_left = combine_sah(bvh, aabbs, start, i);
-		const float SAH_right = combine_sah(bvh, aabbs, i, end);
+		const float SAH_left = CombineSAH(bvh, aabbs, start, i);
+		const float SAH_right = CombineSAH(bvh, aabbs, i, end);
 		const float SAH = SAH_left + SAH_right;
 
 		if (SAH < bestSAH)
@@ -139,10 +135,6 @@ unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triang
 			bestSAH = SAH;
 			splitIdx = i;
 		}
-	}
-	if (start == 1397)
-	{
-		int assada = 1;
 	}
 	if (splitIdx < 0)
 	{
@@ -154,26 +146,20 @@ unsigned int partition(const BVHNode& parent, BVH& bvh, const std::vector<Triang
 }
 
 
-float combine_sah(BVH& bvh, const std::vector<AABB>& aabbs, const unsigned int start, const unsigned int end)
+float BVHNode::CombineSAH(BVH& bvh, const std::vector<AABB>& aabbs, const uint32_t start, const uint32_t end) const
 {
-	const AABB box = calculate_bb(bvh, aabbs, start, end);
-	const int count = end - start;
-	const float sah = calc_sah(box, count);
+	const AABB box = CalculateAABB(bvh, aabbs, start, end);
+	const uint32_t count = end - start;
+	const float sah = CalcSAH(box, count);
 	return sah;
-
-
 }
+ 
 
 //calculate surface area heuristic
-float calc_sah(const AABB& aabb, const unsigned int objCount)
+float BVHNode::CalcSAH(const AABB& aabb, const uint32_t objCount)
 {
-	const float xlen = (aabb.m_max.v.x - aabb.m_min.v.x);
-	const float zlen = (aabb.m_max.v.y - aabb.m_min.v.y);
-	const float ylen = (aabb.m_max.v.z - aabb.m_min.v.z);
-	const float ground = 2 * xlen * zlen;
-	const float side1 = 2 * ylen * xlen;
-	const float side2 = 2 * ylen * zlen;
-	const float SAH = (ground + side1 + side2) * static_cast<float>(objCount);
+	const float surfaceArea = aabb.CalcSurfaceArea();
+	const float SAH = surfaceArea * static_cast<float>(objCount);
 	return SAH;
 }
 
@@ -198,17 +184,17 @@ float getSmallestVertex(const int axis, const Triangle& tri)
 	//	return tri.C[axis];
 }
 
-glm::vec3 GetCenterAABB(const AABB& aabb)
-{
-	const glm::vec3 lowerleft = aabb.m_min.v;
-	const glm::vec3 upperright = aabb.m_max.v;
-
-	const glm::vec3 dir = upperright - lowerleft;
-
-	const glm::vec3 center = lowerleft + dir * 0.5f;
-	return center; //{x, y, z};
-
-}
+//glm::vec3 GetCenterAABB(const AABB& aabb)
+//{
+//	const glm::vec3 lowerleft = aabb.m_min.v;
+//	const glm::vec3 upperright = aabb.m_max.v;
+//
+//	const glm::vec3 dir = upperright - lowerleft;
+//
+//	const glm::vec3 center = lowerleft + dir * 0.5f;
+//	return center; //{x, y, z};
+//
+//}
 
 glm::vec3 GetCenterTriangle(const Triangle& tri)
 {

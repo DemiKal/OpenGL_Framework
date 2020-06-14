@@ -30,7 +30,7 @@ public:
 		float dummy1;
 	};
 
-	Max m_max; 
+	Max m_max;
 	union
 	{
 		uint32_t m_count;
@@ -44,8 +44,8 @@ public:
 	AABB(const float minX, const float minY, const float minZ,
 		const float maxX, const float maxY, const float maxZ)
 		:
-	m_min({ minX,minY,minZ }),
-	m_max({ maxX,maxY,maxZ }) {};
+		m_min({ minX,minY,minZ }),
+		m_max({ maxX,maxY,maxZ }) {};
 
 
 	AABB(const Min _min, const Max _max) : m_min(_min), m_max(_max) {};
@@ -75,5 +75,8 @@ public:
 
 	// ReSharper disable once IdentifierTypo
 	void UpdateArvo(const glm::mat4& m, const AABB& orig);
+	[[nodiscard]] float CalcSurfaceArea() const;
+
+	[[nodiscard]] glm::vec3 GetCenter() const;
 };
 

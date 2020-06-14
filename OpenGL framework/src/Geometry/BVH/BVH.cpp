@@ -1,6 +1,8 @@
 #include "precomp.h"
 #include "BVH.h"
 
+#include <utility>
+
 #include "GameObject/Camera.h"
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/texture1D.h"
@@ -10,13 +12,15 @@
 #include "Rendering/ShaderManager.h" 
 
 
-BVH::BVH(std::vector<unsigned>& indices, BVHNode* pool, BVHNode* root, const int poolPtr) : m_bvh_ssbo(0),
-m_indices(indices),
-m_pool(pool),
-m_root(root),
-m_poolPtr(poolPtr),
-//m_wireCube(nullptr),
-m_triangleVAO(0)
+ 
+
+BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
+	m_bvh_ssbo(0),
+	m_indices(std::move(indices)),
+	m_pool(std::move(pool)),
+	m_root(root),
+	m_poolPtr(poolPtr), 
+	m_triangleVAO(0) 
 {
 }
 
@@ -26,9 +30,9 @@ void BVH::BuildBVH(const Renderer& renderer)
 
 	InitTriangleRenderer();
 
-	std::vector<AABB> triAABBs;
 	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
 
+	std::vector<AABB> triAABBs;
 	triAABBs.reserve(triangles.size());
 	for (const auto& tri : triangles)
 		triAABBs.emplace_back(
@@ -40,24 +44,19 @@ void BVH::BuildBVH(const Renderer& renderer)
 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
 		);
 
-	const int N = triangles.size();
+	const size_t N = triangles.size();
 	m_indices.resize(N);
 	std::iota(m_indices.begin(), m_indices.end(), 0);
-	m_pool.reserve(N * 2 - 1);
-		
-	//m_root = &m_pool[0];
+	//m_pool.reserve(N * 2 - 1);
+	m_pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
 	m_poolPtr = 1;
+	m_root = &m_pool[0];
 
 	const double startTime = glfwGetTime();
 
-
 	m_root->Subdivide(*this, triAABBs, triangles, 0, N);
-
-	for (int i = 0; i < m_poolPtr; i++)
-	{
-		m_localBounds.emplace_back(m_pool[i].m_bounds);
-	}
-
+	m_pool.resize(m_poolPtr);
+ 
 	const double endTime = glfwGetTime();
 	double time = endTime - startTime;
 	fmt::print("{0} triangles needed {1} recursions\n", N, count);
@@ -121,17 +120,17 @@ void BVH::BuildBVH(const Renderer& renderer)
 void BVH::Draw(const Camera& camera, Renderer& renderer) const
 {
 	if (!IsBuilt()) return; //has been initialized?
-	static   float bvhColor[] = { 1, 1 , 0.5, 1 };
+	static   glm::vec4 bvhColor = { 1, 0.3 , 0.6, 0.4 };
 	ImGui::ColorEdit4("bvh color", &bvhColor[0]);
 	auto& aabbShader = ShaderManager::GetShader("AABB_instanced_SSBO");
 
 	aabbShader.Bind();
 	aabbShader.SetUniformMat4f("u_view", camera.GetViewMatrix());
 	aabbShader.SetUniformMat4f("u_projection", camera.GetProjectionMatrix());
-	aabbShader.SetVec4f("u_color", bvhColor[0], bvhColor[1], bvhColor[2], bvhColor[3]);
+	aabbShader.SetVec4f("u_color", bvhColor);
 
-	const uint32_t instanceCount = m_localBounds.size();
-	renderer.DrawInstancedCubes(instanceCount);
+	//const uint32_t instanceCount = m_localBounds.size();
+	renderer.DrawInstancedCubes(GetBVHSize());
 }
 
 void BVH::CastRay(const Ray& ray)
@@ -279,7 +278,7 @@ void BVH::CreateBVHTextures()
 	std::vector<glm::vec3> minvec;
 	auto GetMin = [](AABB& aabb) { return aabb.m_min.v; };
 
-	std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
+	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
 
 
 
@@ -290,7 +289,7 @@ void BVH::CreateBVHTextures()
 	auto Getmax = [](AABB& aabb) { return aabb.m_max.v; };
 
 	std::vector<glm::vec3> maxVec;
-	std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(maxVec), Getmax);
+	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(maxVec), Getmax);
 
 	m_maxTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &maxVec[0], false);
 
@@ -310,7 +309,7 @@ void BVH::CreateBVHTextures()
 	m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
 	m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
 }
-void BVH::DrawSingleAABB(Camera& cam, const int index)
+void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 {
 	if (index < 0 || index >= m_poolPtr)
 	{
@@ -318,17 +317,16 @@ void BVH::DrawSingleAABB(Camera& cam, const int index)
 		return;
 	}
 
-	AABB& mat = m_localBounds[index]; //m_aabbMatrices???
+	AABB& mat = m_pool[index].m_bounds; //m_aabbMatrices???
 	mat.Draw(cam, { 1.0f, 0.2f,0.3f,1.0f });
 }
-
 void BVH::CreateBuffers()
 {
 	m_bvh_ssbo = 0;
 	GLCall(const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr);
 	GLCall(glGenBuffers(1, &m_bvh_ssbo));
 	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_bvh_ssbo));
-	GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, m_pool, GL_STATIC_COPY));
+	GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, &m_pool[0], GL_STATIC_COPY));
 	GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo));
 	GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 

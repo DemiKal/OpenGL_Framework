@@ -67,10 +67,11 @@ int main(void)
 		//init before any model
 		ShaderManager::Init();
 		UserInterface userInterface;
-		Model wireCube = Model::CreateCubeWireframe();
-		wireCube.m_name = "WireCube";
-		EntityManager::AddEntity(wireCube);
-		wireCube.SetShader("AABB_instanced");
+		
+		//Model wireCube = Model::CreateCubeWireframe();
+		//wireCube.m_name = "WireCube";
+		//EntityManager::AddEntity(wireCube);
+		//wireCube.SetShader("AABB_instanced");
 
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("Gbuffer_basic");
