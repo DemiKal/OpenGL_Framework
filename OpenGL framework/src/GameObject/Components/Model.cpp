@@ -64,7 +64,7 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 	if (node->mName.C_Str() == name)
 		return node;
 	else {
-		for (int i = 0; i < node->mNumChildren; i++)
+		for (unsigned int i = 0; i < node->mNumChildren; i++)
 			FindRootNode(node->mChildren[i], name);
 	}
 }
@@ -181,7 +181,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 	if (hasTangents)
 	{
 		vbLayout.Push<float>(3, VertexType::TANGENT);
-		vbLayout.Push<float>(3, VertexType::BI_TANGENT);
+		vbLayout.Push<float>(3, VertexType::BITANGENT);
 	}
 
 	//TODO colors
@@ -304,7 +304,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 
 			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
 
-			for (int j = 0; j < numWeights; j++) {
+			for (unsigned int j = 0; j < numWeights; j++) {
 				aiVertexWeight vw = ai_bone->mWeights[j];
 				const unsigned int v_idx = vw.mVertexId;
 				const float v_w = vw.mWeight;
@@ -352,10 +352,10 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 			size_t j = 0;
 			for (auto& bm : bonemapping[i])
 			{
-				int elemidxV1 = vbLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
-				int elemidxV2 = vbLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
-				vertices[elemidxV1] = bm.first;
-				vertices[elemidxV2] = bm.second;
+				const unsigned int elementIdxV1 = vbLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
+				const unsigned int elementIdxV2 = vbLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
+				vertices[elementIdxV1] = bm.first;
+				vertices[elementIdxV2] = bm.second;
 				j++;
 				if (j >= BONESPERVERTEX) break;
 			}
@@ -367,8 +367,8 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 			aiAnimation* anim = scene->mAnimations[i];
 			const std::string anim_name = anim->mName.C_Str();
-			float ticks = 1;//anim->mTicksPerSecond;
-			float duration = anim->mDuration;
+			float ticks = 1;	//anim->mTicksPerSecond;
+			float duration = static_cast<float>(anim->mDuration);
 			animator.m_duration = duration;
 			animator.m_ticks = ticks;
 

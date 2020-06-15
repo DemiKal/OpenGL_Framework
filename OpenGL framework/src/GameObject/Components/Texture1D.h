@@ -16,8 +16,7 @@ private:
 
 public:
 	//Texture1D(void* data, const int width, GLenum type, bool normalized);
-	Texture1D(const unsigned int width, const unsigned int channels,
-		const dataType dataType, void* data, const bool normalized);
+	Texture1D(uint32_t width, uint32_t channels, dataType dataType, void* data, bool normalized);
 	Texture1D();
 	~Texture1D() = default;
 

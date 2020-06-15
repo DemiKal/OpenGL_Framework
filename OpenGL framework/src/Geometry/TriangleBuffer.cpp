@@ -15,21 +15,19 @@ void TriangleBuffer::AddTriangles_I(Model& model)
 	const size_t currentIdx = m_TriangleBuffer.size();			//global StartIdx
 	const size_t endIdx = currentIdx + posVerts.size() / 3;	//global EndIdx
 	m_TriangleBuffer.reserve(currentIdx + posVerts.size());
-	const int maxx = m_TriangleBuffer.max_size();
 
 	m_IndexRangeBuffer.emplace_back(IndexPair(currentIdx, endIdx, model));
-	//std::copy(posVerts.begin(), posVerts.end(), std::back_inserter(m_TriangleBuffer));
-	for (unsigned int i = 0; i < posVerts.size() / 3; i ++)
+
+	for (uint32_t i = 0; i < posVerts.size() / 3u; i ++)
 	{
-		//std::cout << "i:" << i <<  "\n";
-		const glm::vec3 a = posVerts[3*i];
-		const glm::vec3 b = posVerts[3*i + 1];
-		const glm::vec3 c = posVerts[3*i + 2];
+		const glm::vec3 a = posVerts[3 * i];
+		const glm::vec3 b = posVerts[3 * i + 1];
+		const glm::vec3 c = posVerts[3 * i + 2];
 		m_TriangleBuffer.emplace_back(Triangle(a, b, c));
 	}
-
-	std::cout << "Added triangles of " << model.m_directory << "with " << posVerts.size()
-		<< "verts at idx range [" << currentIdx << ", " << endIdx << "]\n";
+	fmt::print("size of Triangle {} bytes\n", sizeof(Triangle));
+	fmt::print("Added triangles of {} with {} vertices at idx range [{},{}]\n",
+		model.m_directory, posVerts.size(), currentIdx, endIdx);
 }
 
 [[nodiscard]]

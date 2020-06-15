@@ -43,8 +43,12 @@ Gbuffer::Gbuffer(const unsigned int width, const unsigned int height)
 	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height));
 	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RBO));
 	// finally check if framebuffer is complete
-	GLCall(if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE))
+	while(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		 
+		
 		fmt::print("Framebuffer not complete!\n");
+	}
 
 	const Texture2D zBufferTexPosition(
 		GL_DEPTH_COMPONENT24,

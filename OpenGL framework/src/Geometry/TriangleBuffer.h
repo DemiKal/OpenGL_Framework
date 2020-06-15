@@ -4,18 +4,14 @@ class Model;
 struct Triangle
 {
 	glm::vec3 A;
-	float dummy1 = 0;
+	union { float dummy1 = 0; uint32_t meshIdx ; };
 	glm::vec3 B;
-	float dummy2 = 0;
+	union { float dummy1 = 0; uint32_t triIdx  ; };
 	glm::vec3 C;
-	float dummy3 = 0;
+	union { float dummy1 = 0; uint32_t dummy2  ; };
+	
 
 	Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C) : A(_A), B(_B), C(_C) {}
-
-	bool intersect(const glm::vec3& orign, glm::vec3& direction, glm::vec2& bary_coords)
-	{
-
-	}
 };
 
 struct IndexPair

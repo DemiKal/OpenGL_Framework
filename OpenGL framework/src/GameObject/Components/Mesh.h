@@ -54,8 +54,8 @@ public:
 
 	static Mesh CreateCube();
 
-	inline bool HasFaceIndices() { return indices.size() > 0; }
-	inline unsigned int GetVertexCount() { return vertices.size(); }
+	inline bool HasFaceIndices() const { return indices.size() > 0; }
+	inline size_t GetVertexCount() const { return vertices.size(); }
 
 	//void SetVAO(unsigned int val) { VAO = val; }
 	//void SetVBO(unsigned int val) { VBO = val; }

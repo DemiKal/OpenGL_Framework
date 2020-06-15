@@ -2,8 +2,7 @@
 #define PRECOMP_H
 #define GLM_ENABLE_EXPERIMENTAL 
 
-const int SCREENWIDTH = 1920;
-const int SCREENHEIGHT = 1080;
+#pragma warning(push, 0)	//disable warnings on external header files
 #include <filesystem>
 #include <iostream>
 #include <vector>
@@ -16,6 +15,7 @@ const int SCREENHEIGHT = 1080;
 #include <algorithm>
 #include <map>
 #include <numeric>
+#include <exception>
 
 #include <ctime>
 #include <GL/glew.h>
@@ -33,20 +33,15 @@ const int SCREENHEIGHT = 1080;
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h> 
-
- #include <imgui/extensions/imGuIZMOquat.h> 
-//#//include <imgui/extensions/vGizmo.h> 
-//#include <imgui/extensions/vgConfig.h> 
-//#include <imgui/extensions/vGizmoMath.h> 
-//#include <imgui/extensions/vgMath.h> 
-//#include <imgui/extensions/> 
-	
+#include <imgui/extensions/imGuIZMOquat.h> 
 #include <stb_image/stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#pragma warning(pop)
 
-
+constexpr uint32_t SCREENWIDTH = 1920;
+constexpr uint32_t SCREENHEIGHT = 1080;
 
 const glm::vec3 UP_WORLD(0, 1, 0);
 const glm::vec3 RIGHT_WORLD(1, 0, 0);

@@ -13,7 +13,7 @@ struct HitData
 {
 	HitData(float _distance, unsigned int _nodeIdx)
 		:
-		triangleIdx(2<<32),
+		triangleIdx(0),
 		distance(_distance),
 		nodeIdx(_nodeIdx) 
 	{}
@@ -63,12 +63,5 @@ public:
 	void CreateBuffers();
 	bool IsBuilt() const { return m_isBuilt; }
 	uint32_t GetBVHSize() const { return m_poolPtr; }
-	float CalcSah(const AABB& aabb, unsigned objCount);
-	float CalcSAH(const AABB& aabb, uint32_t objCount);;
-
- 
-
-	float CalcSAH(const AABB& aabb, const uint32_t objCount) const;
-
 };
 

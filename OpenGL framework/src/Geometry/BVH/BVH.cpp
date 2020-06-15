@@ -37,7 +37,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
 		);
 
-	const size_t N = triangles.size();
+	const uint32_t N = triangles.size();	//WARNING: max is 4G tris!
 	m_indices.resize(N);
 	std::iota(m_indices.begin(), m_indices.end(), 0);
 	//m_pool.reserve(N * 2 - 1);
@@ -252,7 +252,7 @@ void BVH::CreateBVHTextures()
 	unsigned int intTexture;
 	//std::vector<glm::ivec4> indicesPart;
 	//std::copy( m_pool ,std::)
-	for (int i = 0; i < m_poolPtr; i++)
+	for (uint32_t i = 0; i < m_poolPtr; i++)
 	{
 		//const int start = m_pool[i].m_bounds.m_start;
 		//const int end = m_pool[i].m_end;
@@ -288,7 +288,7 @@ void BVH::CreateBVHTextures()
 
 	//triangle texture
 	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
-	const unsigned int triangleCount = triangles.size();
+	const uint32_t triangleCount = static_cast<uint32_t>(triangles.size());
 
 	std::vector<glm::vec3> triBuffer;
 

@@ -122,44 +122,29 @@ void AABB::Update(const glm::mat4& transform, const AABB& original)
 	RecalcBounds(transform, original);
 }
 
-void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f })
+void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f }) const
 {
 	const glm::mat4 model = GetTransform();
 	const glm::mat4 view = camera.GetViewMatrix();
 	const glm::mat4 projection = camera.GetProjectionMatrix();
 
-	Model* wirecube = nullptr;
-	wirecube = &EntityManager::GetEntity("WireCube");
-	
-
-	if (wirecube == nullptr)
-	{
-		std::cout << "wirecube not initialized!\n";
-		return;
-	}
-
-	wirecube->m_modelMatrix = model;
 	Shader& shader = ShaderManager::GetShader("AABB_single");
 	shader.Bind();
 	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
-	shader.SetVec4f("u_color", color.x,color.y,color.z,color.w);
+	shader.SetVec4f("u_color", color );
 
-	Mesh& mesh = wirecube->getMesh(0);
-
-	glBindVertexArray(mesh.GetVAO());
-	if (!mesh.indices.empty())
-		glDrawElements(GL_TRIANGLES,
-			static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, nullptr);
-	else glDrawArrays(mesh.GetElemDrawType(), 0, mesh.GetVertexCount()); //plane!
-
-	glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
-
-	//wirecube->Draw(camera);
-
+	throw std::exception("AABB draw NOT YET IMPLEMENTED!"); //TODO: fix with new renderer.
+	//GLCall(glBindVertexArray(mesh.GetVAO()));
+	//if (mesh.indices.empty())
+	//	GLCall(glDrawArrays(	mesh.GetElemDrawType(), 0, static_cast<GLsizei>(mesh.GetVertexCount()));)
+	//else GLCall(glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, nullptr);)
+	// 
+	//
+	//GLCall(glBindVertexArray(0));
+	//GLCall(glActiveTexture(GL_TEXTURE0));
 
 }
 
@@ -168,11 +153,9 @@ bool AABB::IntersectAABB(const Ray& ray, float& tCurrent) const
 	const glm::vec3& direction = ray.m_direction;
 	const glm::vec3& origin = ray.m_origin;
 
-	const glm::vec3 d = glm::vec3(1.0f / direction.x,
-		1.0f / direction.y,
-		1.0f / direction.z);
+	const glm::vec3 d = glm::vec3(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z);
 
-	const float t = std::numeric_limits<float>::infinity();
+	constexpr float t = std::numeric_limits<float>::infinity();
 	const float tx1 = ( m_min.v.x - origin.x) * d.x;
 	const float tx2 = ( m_max.v.x - origin.x) * d.x;
 					    

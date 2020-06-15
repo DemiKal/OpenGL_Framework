@@ -1,7 +1,6 @@
 #include "precomp.h"
 #include "Application.h"
 #include "Rendering/Buffer/FrameBuffer.h"
-#include "GameObject/Components/Texture2D.h"
 #include "Rendering/Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "Rendering/Renderer.h"
@@ -12,15 +11,10 @@
 #include "GameObject/Components/Model.h"
 #include "misc/InputManager.h"	
 #include "Geometry/BVH/BVH.h"
-#include "Geometry/BVH/BVHNode.h"
-#include "Geometry/Ray.h"
 #include "misc/UserInterface.h"
-#include <exception>
-#include <Rendering/ScreenQuad.h>
-#include <algorithm>
-#include <execution>
-
+#include "Rendering/ScreenQuad.h"
 #include "Rendering/PostProcessing.h"
+#include "Geometry/BVH/BVHNode.h"
 
 
 int main(void)
@@ -31,7 +25,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
 	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
@@ -88,12 +82,12 @@ int main(void)
 		// ------------------------------
 		Gbuffer gBuffer;
 		 
-		Shader shadow_casting = ShaderManager::GetShader("shadow_cast");
-		shadow_casting.Bind();
-		shadow_casting.SetInt("gPosition", 0);
-		shadow_casting.SetInt("gNormal", 1);
-		shadow_casting.SetInt("gAlbedoSpec", 2);
-		shadow_casting.Unbind();
+		//Shader shadow_casting = ShaderManager::GetShader("shadow_cast");
+		//shadow_casting.Bind();
+		//shadow_casting.SetInt("gPosition", 0);
+		//shadow_casting.SetInt("gNormal", 1);
+		//shadow_casting.SetInt("gAlbedoSpec", 2);
+		//shadow_casting.Unbind();
 		
 		Shader deferredShading = ShaderManager::GetShader("deferred_shading");
 

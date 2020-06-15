@@ -29,13 +29,13 @@ uniform vec3 u_lightDir;
 uniform mat4 u_inv_projMatrix;
 uniform mat4 u_inv_viewMatrix; 
 
-uniform sampler2D gPosition;
-uniform sampler2D gNormal;
-uniform sampler2D gAlbedoSpec;
-uniform sampler2D zBuffer;
+layout(binding = 0) uniform sampler2D gPosition;
+layout(binding = 1) uniform sampler2D gNormal;
+layout(binding = 2) uniform sampler2D gAlbedoSpec;
+layout(binding = 3) uniform sampler2D zBuffer;
 
 
-struct Triangle { vec4 A; vec4 B; vec4 C; };
+struct Triangle { vec4 A, B, C;};
 
 struct BVHNode { vec4 m_min; vec4 m_max; };
 

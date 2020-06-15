@@ -12,7 +12,7 @@ void PostProcessing::ShadowCastGLSL(Camera& camera, Gbuffer& gBuffer)
 
 	static bool castShadows = false;
 	static bool useZbuffer = false;
-	static float epsilon = 0.00001;
+	static float epsilon = 0.00001f;
 	ImGui::Checkbox("Cast Shadows", &castShadows);
 	ImGui::SliderFloat("epsilon", &epsilon, 0, 0.1, "%.7f");
 

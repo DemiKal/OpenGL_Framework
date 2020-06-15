@@ -38,8 +38,8 @@ std::tuple<GLenum, GLenum, GLenum> GetType(dataType datatype, const unsigned int
 
 }
 
-Texture1D::Texture1D(const unsigned int width, const unsigned int channels,
-	dataType datatype, void* data, bool normalized = false)
+Texture1D::Texture1D(const uint32_t width, const uint32_t channels,
+	dataType dataType, void* data, bool normalized = false)
 	:
 	m_rendererID(0), m_width(width)
 {
@@ -47,17 +47,17 @@ Texture1D::Texture1D(const unsigned int width, const unsigned int channels,
 	//	GLenum type2 = datatype == dataType::INT32 ? GL_RGBA_INTEGER : GL_RGB;
 	//	GLenum type3 = datatype == dataType::INT32 ? GL_INT :					 GL_FLOAT;
 
-	auto [type1, type2, type3] = GetType(datatype, channels);
+	auto [type1, type2, type3] = GetType(dataType, channels);
 
-	unsigned int maxsize = 2u << 13u;
-	unsigned int maxsize2 = 2u >> 14u;
-	 const unsigned int actualWidth = std::min(width, maxsize);
+	const uint32_t maxsize = 2u << 13u;
+	const uint32_t maxsize2 = 2u >> 14u;
+	const uint32_t actualWidth = std::min(width, maxsize);
 
 	unsigned int renderer_id = 0;
 	GLCall(glGenTextures(1, &renderer_id));
 	GLCall(glBindTexture(GL_TEXTURE_1D, renderer_id));
 	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, type1, actualWidth, 0,
-		type2, type3, data)); //fix nonnormalized ints!
+		type2, type3, data)); //TODO: fix non-normalized ints!
 
 	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
 	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));

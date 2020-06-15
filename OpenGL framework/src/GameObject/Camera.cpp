@@ -47,24 +47,24 @@ void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mvelo)
 	}
 }
 
-//TODO: use a screenmanager to get SCREENWIDTH dynamically!
+//TODO: use a screen manager to get SCREENWIDTH dynamically!
 Ray Camera::RayFromMouse(const double mouseX, const double mouseY) const
 {
-	const float x = (2.0f * mouseX) / SCREENWIDTH - 1.0f;
-	const float y = 1.0f - (2.0f * mouseY) / SCREENHEIGHT;
-	const float z = 1.0f;
+	const double x = (2.0 * mouseX) / static_cast<double>(SCREENWIDTH) - 1.0;
+	const double y = 1.0 - (2.0 * mouseY) / static_cast<double>(SCREENHEIGHT);
+	const double z = 1.0;
 	const glm::mat4 proj_mat = GetProjectionMatrix();
 	const glm::mat4 view_matrix = GetViewMatrix();
 
 	//normalized device coordinates [-1:1, -1:1, -1:1]
-	const glm::vec3 ray_nds = glm::vec3(x, y, z);
+	const glm::vec3 ray_nds(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z));
 
 	// clip space (4d homogenized) [-1:1, -1:1, -1:1, -1:1]
-	const glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
+	const glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0f, 1.0f);
 
 	// eye space [-x:x, -y:y, -z:z, -w:w]
 	glm::vec4 ray_eye = glm::inverse(proj_mat) * ray_clip;
-	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
+	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0f, 0.0f);
 
 	// world space [-x:x, -y:y, -z:z, -w:w]
 	glm::vec3 ray_world = glm::vec3(glm::inverse(view_matrix) * ray_eye);
@@ -94,7 +94,7 @@ std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 	const Ray ray = RayFromMouse(MouseX, MouseY);
 	//glm::vec3 origin = GetPosition();
 	std::vector < std::pair<Model*, float>> hits;
-	float t_min = 99999999;
+	float t_min = std::numeric_limits<float>::infinity();
 	Model* m_current = nullptr;
 	bool totalHit = false;
 

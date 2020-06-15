@@ -1,5 +1,5 @@
 #pragma once
-enum  class VertexType
+enum class VertexType
 {
 	POSITION,
 	COLOR,
@@ -8,7 +8,7 @@ enum  class VertexType
 	BONE_WEIGHT,
 	NORMAL,
 	TANGENT,
-	BI_TANGENT,
+	BITANGENT,
 };
 
 struct VertexBufferElement
@@ -53,7 +53,7 @@ private:
 public:
 	VertexBufferLayout() : m_Stride(0) {}
 	VertexBufferLayout(const VertexBufferLayout& o) : m_Stride(o.m_Stride), m_Elements(o.m_Elements) {}
-	//~VertexBufferLayout() {};
+
 
 	template<typename T>
 	void Push(unsigned int count, VertexType vt)
@@ -84,8 +84,8 @@ public:
 		m_Stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE);
 	}
 
-	const unsigned int GetElementIndex(const unsigned int vertexIndex, const unsigned int subIdx, VertexType vt) {
-		for (auto& vbe : GetElements()) {
+	unsigned int GetElementIndex(const unsigned int vertexIndex, const unsigned int subIdx, VertexType vt) {
+		for (const auto& vbe : GetElements()) {
 			if (vbe.vertexType == vt)
 			{
 				const unsigned int elementIdx = vbe.vertexIndex;
@@ -93,11 +93,10 @@ public:
 				return strideNoByte* vertexIndex + elementIdx + subIdx; 
 			}
 		}
+		ASSERT(false);
 	}
 
 
-
-
-	inline unsigned int GetStride() const { return m_Stride; }
-	inline const std::vector<VertexBufferElement> GetElements() const& { return m_Elements; }
+	unsigned int GetStride() const { return m_Stride; }
+	std::vector<VertexBufferElement> GetElements() const& { return m_Elements; }
 };

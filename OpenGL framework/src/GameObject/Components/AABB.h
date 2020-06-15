@@ -38,45 +38,42 @@ public:
 	};
 
 
-	AABB() : m_min(), m_max() {}
+	AABB() : m_leftFirst(0),  m_count(0)
+	{
+	}
 
-	AABB(const glm::vec3& _min, const glm::vec3& _max) : m_min(_min), m_max(_max) {}
+	AABB(const glm::vec3& _min, const glm::vec3& _max) : m_min(_min), m_leftFirst(0), m_max(_max), m_count(0)
+	{
+	}
+
 	AABB(const float minX, const float minY, const float minZ,
-		const float maxX, const float maxY, const float maxZ)
+	     const float maxX, const float maxY, const float maxZ)
 		:
-		m_min({ minX,minY,minZ }),
-		m_max({ maxX,maxY,maxZ }) {};
+		m_min({minX, minY, minZ}), m_leftFirst(0), m_max({maxX, maxY, maxZ}), m_count(0) 
+	{
+	};
 
 
-	AABB(const Min _min, const Max _max) : m_min(_min), m_max(_max) {};
+	AABB(const Min _min, const Max _max) : m_min(_min), m_leftFirst(0),  m_max(_max), m_count(0)
+	{
+	};
 
-	//void InitOriginal() { m_min_OG = m_min; m_max_OG = m_max; } //set original
-	[[nodiscard]] Max GetMax() const { return m_max; }
 	[[nodiscard]] Min GetMin() const { return m_min; }
-
+	[[nodiscard]] Max GetMax() const { return m_max; }
 	[[nodiscard]] Min Minimize(const Min& minA, const Min& minB) const;
-
 	[[nodiscard]] Max Maximize(const Max& maxA, const Max& maxB) const;
-
 	[[nodiscard]] AABB Union(const AABB& a) const;
-
+	[[nodiscard]] float CalcSurfaceArea() const;
+	[[nodiscard]] glm::vec3 GetCenter() const;
+	[[nodiscard]] glm::mat4 GetTransform() const;
 	[[nodiscard]] std::vector<glm::vec4> GetVerticesLocal() const;
 
 	void RecalcBounds(const glm::mat4& transform, const AABB& original);
-
 	void CalcBounds(const std::vector<glm::vec3>& posVector);
-
-	[[nodiscard]] glm::mat4 GetTransform() const;
-
 	void Update(const glm::mat4& transform, const AABB& original);
-
-	void Draw(const ::Camera& camera, const glm::vec4& color);
+	void Draw(const ::Camera& camera, const glm::vec4& color) const;
 	bool IntersectAABB(const Ray& ray, float& tCurrent) const;
-
-	// ReSharper disable once IdentifierTypo
 	void UpdateArvo(const glm::mat4& m, const AABB& orig);
-	[[nodiscard]] float CalcSurfaceArea() const;
-
-	[[nodiscard]] glm::vec3 GetCenter() const;
+	
 };
 
