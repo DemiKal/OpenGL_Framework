@@ -74,12 +74,12 @@ AABB BVHNode::CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, cons
 	for (unsigned int i = first; i < last; i++)
 	{
 		const int idx = bvh.m_indices[i];
-		minX = std::min(minX, AABBs[idx].m_min.v.x);
-		minY = std::min(minY, AABBs[idx].m_min.v.y);
-		minZ = std::min(minZ, AABBs[idx].m_min.v.z);
-		maxX = std::max(maxX, AABBs[idx].m_max.v.x);
-		maxY = std::max(maxY, AABBs[idx].m_max.v.y);
-		maxZ = std::max(maxZ, AABBs[idx].m_max.v.z);
+		minX = std::min(minX, AABBs[idx].min.x);
+		minY = std::min(minY, AABBs[idx].min.y);
+		minZ = std::min(minZ, AABBs[idx].min.z);
+		maxX = std::max(maxX, AABBs[idx].max.x);
+		maxY = std::max(maxY, AABBs[idx].max.y);
+		maxZ = std::max(maxZ, AABBs[idx].max.z);
 	}
 
 	return { minX, minY, minZ, maxX, maxY, maxZ };
@@ -93,13 +93,13 @@ uint32_t BVHNode::Partition(
 	const float sahParent = CalcSAH(parent.m_bounds, parent.m_bounds.m_count);
 	int longestAxis = 0;
 
-	const float xlen = (std::abs(parent.m_bounds.m_max.v.x - parent.m_bounds.m_min.v.x));
-	const float ylen = (std::abs(parent.m_bounds.m_max.v.y - parent.m_bounds.m_min.v.y));
-	const float zlen = (std::abs(parent.m_bounds.m_max.v.z - parent.m_bounds.m_min.v.z));
+	const float xlen = (std::abs(parent.m_bounds.max.x - parent.m_bounds.min.x));
+	const float ylen = (std::abs(parent.m_bounds.max.y - parent.m_bounds.min.y));
+	const float zlen = (std::abs(parent.m_bounds.max.z - parent.m_bounds.min.z));
 	float axisline;
-	if (xlen > ylen && xlen > zlen) longestAxis = 0, axisline = parent.m_bounds.m_min.v.x;
-	else if (ylen > xlen && ylen > zlen) longestAxis = 1, axisline = parent.m_bounds.m_min.v.y;
-	else if (zlen > xlen && zlen > ylen) longestAxis = 2, axisline = parent.m_bounds.m_min.v.z;
+	if (xlen > ylen && xlen > zlen) longestAxis = 0, axisline = parent.m_bounds.min.x;
+	else if (ylen > xlen && ylen > zlen) longestAxis = 1, axisline = parent.m_bounds.min.y;
+	else if (zlen > xlen && zlen > ylen) longestAxis = 2, axisline = parent.m_bounds.min.z;
 
 	//sort indices based on longest axis
 	std::sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,

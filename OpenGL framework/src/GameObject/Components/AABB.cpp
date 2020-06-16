@@ -16,24 +16,24 @@ void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 	const glm::vec3 t = glm::column(m, 3);
 	for (int i = 0; i < 3; i++)
 	{
-		m_min.v[i] = t[i];
-		m_max.v[i] = t[i];
+		 min  [i] = t[i];
+		 max  [i] = t[i];
 
 		for (int j = 0; j < 3; j++)
 		{
-			float e = m[j][i] * orig.m_min.v[j];
-			float f = m[j][i] * orig.m_max.v[j];
-			m_min.v[i] += e < f ? e : f;
-			m_max.v[i] += e < f ? f : e;
+			float e = m[j][i] * orig.min[j];
+			float f = m[j][i] * orig.max[j];
+			min[i] += e < f ? e : f;
+			max[i] += e < f ? f : e;
 		}
 	}
 }
 
 float AABB::CalcSurfaceArea() const
 {
-	const float xlen = m_max.v.x - m_min.v.x;
-	const float zlen = m_max.v.y - m_min.v.y;
-	const float ylen = m_max.v.z - m_min.v.z;
+	const float xlen = max.x - min.x;
+	const float zlen = max.y - min.y;
+	const float ylen = max.z - min.z;
 	const float ground = 2 * xlen * zlen;
 	const float side1 = 2 * ylen * xlen;
 	const float side2 = 2 * ylen * zlen;
@@ -42,30 +42,31 @@ float AABB::CalcSurfaceArea() const
 
 glm::vec3 AABB::GetCenter() const
 {
-	return 0.5f * (m_max.v + m_min.v); //{x, y, z};
+	return 0.5f * ( max  +  min ); //{x, y, z};
 }
 
-Min AABB::Minimize(const Min& minA, const Min& minB) const
+glm::vec3 AABB::Minimize(const glm::vec3& minA, const glm::vec3& minB) const
 {
 	glm::vec3 vmin(
-		std::min(minA.v.x, minB.v.x),
-		std::min(minA.v.y, minB.v.y),
-		std::min(minA.v.z, minB.v.z));
+		std::min(minA.x, minB.x),
+		std::min(minA.y, minB.y),
+		std::min(minA.z, minB.z));
 	return vmin;
 }
 
-Max AABB::Maximize(const Max& maxA, const Max& maxB) const
+glm::vec3 AABB::Maximize(const glm::vec3& maxA, const glm::vec3& maxB) const
 {
 	return glm::vec3(
-		std::max(maxA.v.x, maxB.v.x),
-		std::max(maxA.v.y, maxB.v.y),
-		std::max(maxA.v.z, maxB.v.z));
+		std::max(maxA. x, maxB. x),
+		std::max(maxA. y, maxB. y),
+		std::max(maxA. z, maxB. z));
 }
 
+//TODO make it affect this instance
 AABB AABB::Union(const AABB& a) const
 {
-	const Min minV = Minimize(a.m_min, m_min);
-	const Max maxV = Maximize(a.m_max, m_max);
+	const glm::vec3 minV = Minimize(a. min, min);
+	const glm::vec3 maxV = Maximize(a. max, max);
 
 	return AABB(minV, maxV);
 }
@@ -75,11 +76,11 @@ std::vector<glm::vec4> AABB::GetVerticesLocal() const
 	return
 	{
 		//front plane
-		{m_min.v.x, m_min.v.y, m_max.v.z, 1.0f}, {m_max.v.x, m_min.v.y, m_max.v.z, 1.0f},
-		{m_max.v.x, m_max.v.y, m_max.v.z, 1.0f}, {m_min.v.x, m_max.v.y, m_max.v.z, 1.0f},
+		{min.x, min.y, max.z, 1.0f}, {max.x, min.y, max.z, 1.0f},
+		{max.x, max.y, max.z, 1.0f}, {min.x, max.y, max.z, 1.0f},
 
-		{m_min.v.x, m_min.v.y, m_min.v.z, 1.0f}, {m_max.v.x, m_min.v.y, m_min.v.z, 1.0f},
-		{m_max.v.x, m_max.v.y, m_min.v.z, 1.0f}, {m_min.v.x, m_max.v.y, m_min.v.z, 1.0f},
+		{min.x, min.y, min.z, 1.0f}, {max.x, min.y, min.z, 1.0f},
+		{max.x, max.y, min.z, 1.0f}, {min.x, max.y, min.z, 1.0f},
 	};
 }
 
@@ -96,8 +97,8 @@ void AABB::RecalcBounds(const glm::mat4& transform, const AABB& original)
 
 void AABB::CalcBounds(const std::vector<glm::vec3>& posVector)
 {
-	Min vmin(glm::vec3((float)std::numeric_limits<float>::infinity()));
-	Max vmax(glm::vec3((float)-std::numeric_limits<float>::infinity()));
+	glm::vec3 vmin(glm::vec3((float)std::numeric_limits<float>::infinity()));
+	glm::vec3 vmax(glm::vec3((float)-std::numeric_limits<float>::infinity()));
 
 	for (const glm::vec3& v : posVector)
 	{
@@ -105,14 +106,14 @@ void AABB::CalcBounds(const std::vector<glm::vec3>& posVector)
 		vmax = Maximize(vmax, v);
 	}
 
-	m_min = vmin;
-	m_max = vmax;
+	 min = vmin;
+	 max = vmax;
 }
 
 glm::mat4 AABB::GetTransform() const
 {
-	const glm::vec3 scale = m_max.v - m_min.v;
-	const glm::vec3 center = 0.5f * (m_max.v + m_min.v);
+	const glm::vec3 scale =  max  -   min ;
+	const glm::vec3 center = 0.5f * ( max +  min );
 
 	return glm::scale(glm::translate(glm::mat4(1.0f), center), scale);
 }
@@ -156,20 +157,20 @@ bool AABB::IntersectAABB(const Ray& ray, float& tCurrent) const
 	const glm::vec3 d = glm::vec3(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z);
 
 	constexpr float t = std::numeric_limits<float>::infinity();
-	const float tx1 = ( m_min.v.x - origin.x) * d.x;
-	const float tx2 = ( m_max.v.x - origin.x) * d.x;
+	const float tx1 = ( min.x - origin.x) * d.x;
+	const float tx2 = ( max.x - origin.x) * d.x;
 					    
 	float tmin = std::min(tx1, tx2);
 	float tmax = std::max(tx1, tx2);
 
-	const float ty1 = ( m_min.v.y - origin.y) * d.y;
-	const float ty2 = ( m_max.v.y - origin.y) * d.y;
+	const float ty1 = ( min.y - origin.y) * d.y;
+	const float ty2 = ( max.y - origin.y) * d.y;
 
 	tmin = std::max(tmin, std::min(ty1, ty2));
 	tmax = std::min(tmax, std::max(ty1, ty2));
 
-	const float tz1 = ( m_min.v.z - origin.z) * d.z;
-	const float tz2 = ( m_max.v.z - origin.z) * d.z;
+	const float tz1 = ( min.z - origin.z) * d.z;
+	const float tz2 = ( max.z - origin.z) * d.z;
 
 	tmin = std::max(tmin, std::min(tz1, tz2));
 	tmax = std::min(tmax, std::max(tz1, tz2));

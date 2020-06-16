@@ -5,32 +5,19 @@
 class Camera;
 class Model;
 
-struct Max {
-	glm::vec3 v;
-	Max() : v(0) {};
-	Max(const  Max& m) : v(m.v) {};
-	Max(const glm::vec3& _max) : v(_max) {}
-};
-
-struct Min {
-	glm::vec3 v;
-	Min() : v(0) {};
-	Min(const Min& m) : v(m.v) {};
-	Min(const glm::vec3& _min) : v(_min) {}
-};
 
 // ReSharper disable once CppInconsistentNaming
 class AABB
 {
 public:
-	Min m_min;
+	glm::vec3 min;
 	union
 	{
 		uint32_t m_leftFirst;
 		float dummy1;
 	};
 
-	Max m_max;
+	glm::vec3 max;
 	union
 	{
 		uint32_t m_count;
@@ -42,28 +29,28 @@ public:
 	{
 	}
 
-	AABB(const glm::vec3& _min, const glm::vec3& _max) : m_min(_min), m_leftFirst(0), m_max(_max), m_count(0)
+	AABB(const glm::vec3& _min, const glm::vec3& _max) : min(_min), m_leftFirst(0), max(_max), m_count(0)
 	{
 	}
 
 	AABB(const float minX, const float minY, const float minZ,
 	     const float maxX, const float maxY, const float maxZ)
 		:
-		m_min({minX, minY, minZ}), m_leftFirst(0), m_max({maxX, maxY, maxZ}), m_count(0) 
+		min({minX, minY, minZ}), m_leftFirst(0), max({maxX, maxY, maxZ}), m_count(0) 
 	{
 	};
 
 
-	AABB(const Min _min, const Max _max) : m_min(_min), m_leftFirst(0),  m_max(_max), m_count(0)
-	{
-	};
+	//AABB(const glm::vec3&_min, const glm::vec3&  _max) : min(_min), m_leftFirst(0),  max(_max), m_count(0)
+	//{
+	//};
 
-	[[nodiscard]] Min GetMin() const { return m_min; }
-	[[nodiscard]] Max GetMax() const { return m_max; }
-	[[nodiscard]] Min Minimize(const Min& minA, const Min& minB) const;
-	[[nodiscard]] Max Maximize(const Max& maxA, const Max& maxB) const;
-	[[nodiscard]] AABB Union(const AABB& a) const;
-	[[nodiscard]] float CalcSurfaceArea() const;
+	[[nodiscard]] glm::vec3 GetMin() const { return min; }
+	[[nodiscard]] glm::vec3	GetMax() const { return max; }
+	[[nodiscard]] glm::vec3 Minimize(const glm::vec3& minA, const glm::vec3& minB) const;
+	[[nodiscard]] glm::vec3	Maximize(const glm::vec3 & maxA, const glm::vec3 & maxB) const;
+	[[nodiscard]] AABB		Union(const AABB& a) const;
+	[[nodiscard]] float		CalcSurfaceArea() const;
 	[[nodiscard]] glm::vec3 GetCenter() const;
 	[[nodiscard]] glm::mat4 GetTransform() const;
 	[[nodiscard]] std::vector<glm::vec4> GetVerticesLocal() const;

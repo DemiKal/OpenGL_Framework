@@ -269,7 +269,7 @@ void BVH::CreateBVHTextures()
 	intTexture = m_aabbNodesTexture.GetID();
 
 	std::vector<glm::vec3> minvec;
-	auto GetMin = [](AABB& aabb) { return aabb.m_min.v; };
+	auto GetMin = [](AABB& aabb) { return aabb.min; };
 
 	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
 
@@ -279,7 +279,7 @@ void BVH::CreateBVHTextures()
 	//minVecTexture = m_minVecTex.GetID();
 
 	//max bounds
-	auto Getmax = [](AABB& aabb) { return aabb.m_max.v; };
+	//auto Getmax = [](AABB& aabb) { return aabb.m_max.v; };
 
 	std::vector<glm::vec3> maxVec;
 	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(maxVec), Getmax);
