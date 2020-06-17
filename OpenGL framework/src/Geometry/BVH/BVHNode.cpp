@@ -8,8 +8,8 @@ void BVHNode::Subdivide(
 	BVH& bvh,
 	const std::vector<AABB>& boundingBoxes,
 	const std::vector<Triangle>& triangles,
-	const int start,
-	const int end)
+	const uint32_t start,
+	const uint32_t end)
 {
 	//std::cout << "Count at: . " << bvh.count++;;
 
@@ -28,7 +28,7 @@ void BVHNode::Subdivide(
 	BVHNode& l = bvh.m_pool[m_bounds.m_leftFirst];
 	BVHNode& r = bvh.m_pool[bvh.m_poolPtr++];
 
-	const uint32_t split = Partition(*this, bvh, triangles, boundingBoxes, start, end);
+	const uint32_t split = Partition(*this, bvh, boundingBoxes, start, end);
 
 	l.Subdivide(bvh, boundingBoxes, triangles, start, split);
 	r.Subdivide(bvh, boundingBoxes, triangles, split, end);
@@ -62,33 +62,37 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 }
 
 
-AABB BVHNode::CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned int first, const unsigned int last) const
+AABB BVHNode::CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned int first, const unsigned int last)
 {
-	float minX = INFINITY;
-	float minY = INFINITY;
-	float minZ = INFINITY;
-	float maxX = -std::numeric_limits<float>::infinity();
-	float maxY = -std::numeric_limits<float>::infinity();
-	float maxZ = -std::numeric_limits<float>::infinity();
-
-	for (unsigned int i = first; i < last; i++)
+	//float minX = INFINITY;
+	//float minY = INFINITY;
+	//float minZ = INFINITY;
+	//float maxX = -std::numeric_limits<float>::infinity();
+	//float maxY = -std::numeric_limits<float>::infinity();
+	//float maxZ = -std::numeric_limits<float>::infinity();
+	AABB sAABB = AABBs[bvh.m_indices[first]];
+	for (unsigned int i = first + 1; i < last; i++)
 	{
 		const int idx = bvh.m_indices[i];
-		minX = std::min(minX, AABBs[idx].min.x);
-		minY = std::min(minY, AABBs[idx].min.y);
-		minZ = std::min(minZ, AABBs[idx].min.z);
-		maxX = std::max(maxX, AABBs[idx].max.x);
-		maxY = std::max(maxY, AABBs[idx].max.y);
-		maxZ = std::max(maxZ, AABBs[idx].max.z);
+		sAABB = sAABB.Union(AABBs[idx]);
+		//minX = std::min(minX, AABBs[idx].min.x);
+		//minY = std::min(minY, AABBs[idx].min.y);
+		//minZ = std::min(minZ, AABBs[idx].min.z);
+		//maxX = std::max(maxX, AABBs[idx].max.x);
+		//maxY = std::max(maxY, AABBs[idx].max.y);
+		//maxZ = std::max(maxZ, AABBs[idx].max.z);
 	}
 
-	return { minX, minY, minZ, maxX, maxY, maxZ };
+	//return { minX, minY, minZ, maxX, maxY, maxZ };
+	return sAABB;
 }
 
 
 uint32_t BVHNode::Partition(
-	const BVHNode& parent, BVH& bvh, const std::vector<Triangle>& triangles,
-	const std::vector<AABB>& aabbs, const uint32_t start, const uint32_t end) const
+	const BVHNode& parent, BVH& bvh,
+	const std::vector<AABB>& boundingBoxes, 
+	const uint32_t start, 
+	const uint32_t end) const
 {
 	const float sahParent = CalcSAH(parent.m_bounds, parent.m_bounds.m_count);
 	int longestAxis = 0;
@@ -96,31 +100,18 @@ uint32_t BVHNode::Partition(
 	const float xlen = (std::abs(parent.m_bounds.max.x - parent.m_bounds.min.x));
 	const float ylen = (std::abs(parent.m_bounds.max.y - parent.m_bounds.min.y));
 	const float zlen = (std::abs(parent.m_bounds.max.z - parent.m_bounds.min.z));
-	float axisline;
-	if (xlen > ylen && xlen > zlen) longestAxis = 0, axisline = parent.m_bounds.min.x;
-	else if (ylen > xlen && ylen > zlen) longestAxis = 1, axisline = parent.m_bounds.min.y;
-	else if (zlen > xlen && zlen > ylen) longestAxis = 2, axisline = parent.m_bounds.min.z;
+	
+	if (xlen > ylen && xlen > zlen) longestAxis = 0;
+	else if (ylen > xlen && ylen > zlen) longestAxis = 1;
+	else if (zlen > xlen && zlen > ylen) longestAxis = 2;
 
 	//sort indices based on longest axis
 	std::sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,
-		[aabbs, triangles, longestAxis, axisline](const int& a, const int& b) -> bool {
-			const Triangle& A1 = triangles[a];
-			const Triangle& B1 = triangles[b];
-			const AABB bb1 = aabbs[a];
-			const AABB bb2 = aabbs[b];
-
-			const float f = 1.0f / 3.0f;
-			//  const vec3 c1 = A1.A * f + A1.B * f + A1.C * f;
-			//  const vec3 c2 = B1.A * f + B1.B * f + B1.C * f;
+		[boundingBoxes, longestAxis](const uint32_t a, const uint32_t b) -> bool {
+			const AABB bb1 = boundingBoxes[a];
+			const AABB bb2 = boundingBoxes[b];
 			const glm::vec3 c1 =  bb1.GetCenter();
 			const glm::vec3 c2 =  bb2.GetCenter();
-			//const glm::vec3 cp1 = GetCenterTriangle(A1);
-			//const glm::vec3 cp2 = GetCenterTriangle(B1);
-			//c//onst vec3 cp1 = getCenterTriangle( B1 );
-			//const vec3 cp2 = getCenterTriangle( B1 );
-			//return cp1[longestAxis] < cp2[longestAxis];
-			const float d1 = std::abs(axisline - c1[longestAxis]);
-			const float d2 = std::abs(axisline - c2[longestAxis]);
 			return c1[longestAxis] < c2[longestAxis];
 		});
 
@@ -129,8 +120,8 @@ uint32_t BVHNode::Partition(
 	uint32_t splitIdx = start + 1;
 	for (uint32_t i = start + 1; i < end; i++)
 	{
-		const float SAH_left = CombineSAH(bvh, aabbs, start, i);
-		const float SAH_right = CombineSAH(bvh, aabbs, i, end);
+		const float SAH_left = CombineSAH(bvh, boundingBoxes, start, i);
+		const float SAH_right = CombineSAH(bvh, boundingBoxes, i, end);
 		const float SAH = SAH_left + SAH_right;
 
 		if (SAH < bestSAH)
@@ -139,19 +130,14 @@ uint32_t BVHNode::Partition(
 			splitIdx = i;
 		}
 	}
-	if (splitIdx < 0)
-	{
-		ASSERT(false);
-		int asdasd = 1;
-	}
-	return splitIdx;
 
+	return splitIdx;
 }
 
 
-float BVHNode::CombineSAH(BVH& bvh, const std::vector<AABB>& aabbs, const uint32_t start, const uint32_t end) const
+inline float BVHNode::CombineSAH(BVH& bvh, const std::vector<AABB>& boundingBoxes, const uint32_t start, const uint32_t end)
 {
-	const AABB box = CalculateAABB(bvh, aabbs, start, end);
+	const AABB box = CalculateAABB(bvh, boundingBoxes, start, end);
 	const uint32_t count = end - start;
 	const float sah = CalcSAH(box, count);
 	return sah;
@@ -159,7 +145,7 @@ float BVHNode::CombineSAH(BVH& bvh, const std::vector<AABB>& aabbs, const uint32
  
 
 //calculate surface area heuristic
-float BVHNode::CalcSAH(const AABB& aabb, const uint32_t objCount)
+inline float BVHNode::CalcSAH(const AABB& aabb, const uint32_t objCount)
 {
 	const float surfaceArea = aabb.CalcSurfaceArea();
 	const float SAH = surfaceArea * static_cast<float>(objCount);
@@ -187,17 +173,6 @@ float getSmallestVertex(const int axis, const Triangle& tri)
 	//	return tri.C[axis];
 }
 
-//glm::vec3 GetCenterAABB(const AABB& aabb)
-//{
-//	const glm::vec3 lowerleft = aabb.m_min.v;
-//	const glm::vec3 upperright = aabb.m_max.v;
-//
-//	const glm::vec3 dir = upperright - lowerleft;
-//
-//	const glm::vec3 center = lowerleft + dir * 0.5f;
-//	return center; //{x, y, z};
-//
-//}
 
 glm::vec3 GetCenterTriangle(const Triangle& tri)
 {

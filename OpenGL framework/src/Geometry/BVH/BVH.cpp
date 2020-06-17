@@ -12,8 +12,7 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 	m_root(root),
 	m_poolPtr(poolPtr),
 	m_indices(std::move(indices)),
-	m_pool(std::move(pool)), 
-	m_triangleVAO(0) 
+	m_pool(std::move(pool))
 {
 }
 

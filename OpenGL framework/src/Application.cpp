@@ -60,16 +60,22 @@ int main(void)
 		ShaderManager::Init();
 		UserInterface userInterface;
 		
-		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
-		spyro.SetShader("Gbuffer_basic");
-		spyro.m_name = "Spyro";
-		EntityManager::AddEntity(spyro);
+		 Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
+		 spyro.SetShader("Gbuffer_basic");
+		 spyro.m_name = "Spyro";
+		 EntityManager::AddEntity(spyro);
 
 #ifndef _DEBUG
-		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		artisans.SetShader("Gbuffer_basic");
-		artisans.m_name = "artisans";
-		EntityManager::AddEntity(artisans);
+		 Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		 artisans.SetShader("Gbuffer_basic");
+		 artisans.m_name = "artisans";
+		 EntityManager::AddEntity(artisans);
+
+		//Model bunny("res/meshes/bunny.obj", aiProcess_Triangulate);
+		//bunny.SetShader("Gbuffer_basic");
+		//bunny.m_name = "Spyro";
+		//EntityManager::AddEntity(bunny);
+		
 #endif
 		
 		BVH bvh;
@@ -184,9 +190,10 @@ int main(void)
 
 #ifndef _DEBUG
 			artisans.Update(deltaTime);
+			//bunny.Update(deltaTime);
 #endif
 
-			spyro.Update(deltaTime);
+			//spyro.Update(deltaTime);
 
 			// 1. geometry pass: render scene's geometry/color data into gbuffer
 			// -----------------------------------------------------------------
@@ -195,16 +202,15 @@ int main(void)
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #ifndef _DEBUG
-			 artisans.Draw(camera);
+			artisans.Draw(camera);
+			//bunny.Draw(camera);
 #endif
 			
-			spyro.Draw(camera);
+			//spyro.Draw(camera);
 
-			spyro.m_position += glm::vec3(2, 1, 0);
-			spyro.UpdateModelMatrix();
-			spyro.Draw(camera);
-			spyro.m_position -= glm::vec3(2, 1, 0);
-			spyro.UpdateModelMatrix();
+			
+
+
 			
 			renderer.SetAlphaBlending(true);
 

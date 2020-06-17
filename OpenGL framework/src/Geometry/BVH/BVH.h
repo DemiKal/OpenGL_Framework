@@ -62,6 +62,6 @@ public:
 	void DrawSingleAABB(Camera& cam, uint32_t index);
 	void CreateBuffers();
 	bool IsBuilt() const { return m_isBuilt; }
-	uint32_t GetBVHSize() const { return m_poolPtr; }
+	[[nodiscard]] uint32_t GetBVHSize() const { return m_poolPtr; }
 };
 

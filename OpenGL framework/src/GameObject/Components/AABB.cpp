@@ -16,8 +16,8 @@ void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 	const glm::vec3 t = glm::column(m, 3);
 	for (int i = 0; i < 3; i++)
 	{
-		 min  [i] = t[i];
-		 max  [i] = t[i];
+		min[i] = t[i];
+		max[i] = t[i];
 
 		for (int j = 0; j < 3; j++)
 		{
@@ -29,49 +29,22 @@ void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 	}
 }
 
-float AABB::CalcSurfaceArea() const
+
+
+
+
+inline glm::vec3 AABB::Minimize(const glm::vec3& minA, const glm::vec3& minB) const
 {
-	const float xlen = max.x - min.x;
-	const float zlen = max.y - min.y;
-	const float ylen = max.z - min.z;
-	const float ground = 2 * xlen * zlen;
-	const float side1 = 2 * ylen * xlen;
-	const float side2 = 2 * ylen * zlen;
-	return ground + side1 + side2;
+	return{ std::min(minA.x, minB.x),std::min(minA.y, minB.y),std::min(minA.z, minB.z) };
 }
 
-glm::vec3 AABB::GetCenter() const
+inline glm::vec3 AABB::Maximize(const glm::vec3& maxA, const glm::vec3& maxB) const
 {
-	return 0.5f * ( max  +  min ); //{x, y, z};
+	return { std::max(maxA.x, maxB.x),std::max(maxA.y, maxB.y),std::max(maxA.z, maxB.z) };
 }
 
-glm::vec3 AABB::Minimize(const glm::vec3& minA, const glm::vec3& minB) const
-{
-	glm::vec3 vmin(
-		std::min(minA.x, minB.x),
-		std::min(minA.y, minB.y),
-		std::min(minA.z, minB.z));
-	return vmin;
-}
-
-glm::vec3 AABB::Maximize(const glm::vec3& maxA, const glm::vec3& maxB) const
-{
-	return glm::vec3(
-		std::max(maxA. x, maxB. x),
-		std::max(maxA. y, maxB. y),
-		std::max(maxA. z, maxB. z));
-}
-
-//TODO make it affect this instance
-AABB AABB::Union(const AABB& a) const
-{
-	const glm::vec3 minV = Minimize(a. min, min);
-	const glm::vec3 maxV = Maximize(a. max, max);
-
-	return AABB(minV, maxV);
-}
-
-std::vector<glm::vec4> AABB::GetVerticesLocal() const
+ 
+inline std::vector<glm::vec4> AABB::GetVerticesLocal() const
 {
 	return
 	{
@@ -89,8 +62,8 @@ void AABB::RecalcBounds(const glm::mat4& transform, const AABB& original)
 	const std::vector<glm::vec4> verts_local = original.GetVerticesLocal();
 	std::vector<glm::vec3> verts_world;
 	std::transform(verts_local.begin(), verts_local.end(),
-	               std::back_inserter(verts_world),
-	               [transform](const glm::vec4& v) { return glm::vec3(transform * v); });
+		std::back_inserter(verts_world),
+		[transform](const glm::vec4& v) { return glm::vec3(transform * v); });
 
 	CalcBounds(verts_world);
 }
@@ -106,14 +79,14 @@ void AABB::CalcBounds(const std::vector<glm::vec3>& posVector)
 		vmax = Maximize(vmax, v);
 	}
 
-	 min = vmin;
-	 max = vmax;
+	min = vmin;
+	max = vmax;
 }
 
 glm::mat4 AABB::GetTransform() const
 {
-	const glm::vec3 scale =  max  -   min ;
-	const glm::vec3 center = 0.5f * ( max +  min );
+	const glm::vec3 scale = max - min;
+	const glm::vec3 center = 0.5f * (max + min);
 
 	return glm::scale(glm::translate(glm::mat4(1.0f), center), scale);
 }
@@ -135,7 +108,7 @@ void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
-	shader.SetVec4f("u_color", color );
+	shader.SetVec4f("u_color", color);
 
 	throw std::exception("AABB draw NOT YET IMPLEMENTED!"); //TODO: fix with new renderer.
 	//GLCall(glBindVertexArray(mesh.GetVAO()));
@@ -157,20 +130,20 @@ bool AABB::IntersectAABB(const Ray& ray, float& tCurrent) const
 	const glm::vec3 d = glm::vec3(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z);
 
 	constexpr float t = std::numeric_limits<float>::infinity();
-	const float tx1 = ( min.x - origin.x) * d.x;
-	const float tx2 = ( max.x - origin.x) * d.x;
-					    
+	const float tx1 = (min.x - origin.x) * d.x;
+	const float tx2 = (max.x - origin.x) * d.x;
+
 	float tmin = std::min(tx1, tx2);
 	float tmax = std::max(tx1, tx2);
 
-	const float ty1 = ( min.y - origin.y) * d.y;
-	const float ty2 = ( max.y - origin.y) * d.y;
+	const float ty1 = (min.y - origin.y) * d.y;
+	const float ty2 = (max.y - origin.y) * d.y;
 
 	tmin = std::max(tmin, std::min(ty1, ty2));
 	tmax = std::min(tmax, std::max(ty1, ty2));
 
-	const float tz1 = ( min.z - origin.z) * d.z;
-	const float tz2 = ( max.z - origin.z) * d.z;
+	const float tz1 = (min.z - origin.z) * d.z;
+	const float tz2 = (max.z - origin.z) * d.z;
 
 	tmin = std::max(tmin, std::min(tz1, tz2));
 	tmax = std::min(tmax, std::max(tz1, tz2));
