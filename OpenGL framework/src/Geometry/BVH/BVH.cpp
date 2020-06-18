@@ -18,7 +18,7 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 
 void BVH::BuildBVH(const Renderer& renderer)
 {
-	std::cout << "Building BVH... \n";
+	fmt::print("Building BVH... \n");
 
 	InitTriangleRenderer(); //TODO:: relocate it to renderer
 
@@ -28,6 +28,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 		fmt::print("Error, Triangle list is empty! Cancelling build");
 		return;
 	}
+
 	std::vector<AABB> triAABBs;
 	triAABBs.reserve(triangles.size());
 	for (const auto& tri : triangles)
@@ -43,7 +44,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 	const uint32_t N = triangles.size();	//WARNING: max is 4G tris!
 	m_indices.resize(N);
 	std::iota(m_indices.begin(), m_indices.end(), 0);
-	//m_pool.reserve(N * 2 - 1);
+
 	m_pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
 	m_poolPtr = 1;
 	m_root = &m_pool[0];
@@ -51,6 +52,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 	const double startTime = glfwGetTime();
 
 	m_root->Subdivide(*this, triAABBs, triangles, 0, N);
+
 	m_pool.resize(m_poolPtr);
  
 	const double endTime = glfwGetTime();

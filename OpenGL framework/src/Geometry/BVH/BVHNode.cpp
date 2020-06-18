@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "BVHNode.h"
 
- 
+
 glm::vec3 GetCenterTriangle(const Triangle& triangle);
 
 void BVHNode::Subdivide(
@@ -11,7 +11,7 @@ void BVHNode::Subdivide(
 	const uint32_t start,
 	const uint32_t end)
 {
-	//std::cout << "Count at: . " << bvh.count++;;
+	fmt::print("Count at: . {}", bvh.count++);
 
 	const uint32_t objCount = end - start;
 	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
@@ -77,17 +77,17 @@ AABB BVHNode::CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, cons
 
 uint32_t BVHNode::Partition(
 	const BVHNode& parent, BVH& bvh,
-	const std::vector<AABB>& boundingBoxes, 
-	const uint32_t start, 
+	const std::vector<AABB>& boundingBoxes,
+	const uint32_t start,
 	const uint32_t end) const
 {
 	const float sahParent = parent.m_bounds.CalcSurfaceArea() * parent.m_bounds.m_count;
-	int longestAxis = 0;
+	uint32_t longestAxis = 0;
 
-	const float xlen = (std::abs(parent.m_bounds.max.x - parent.m_bounds.min.x));
-	const float ylen = (std::abs(parent.m_bounds.max.y - parent.m_bounds.min.y));
-	const float zlen = (std::abs(parent.m_bounds.max.z - parent.m_bounds.min.z));
-	
+	const float xlen = std::abs(parent.m_bounds.max.x - parent.m_bounds.min.x);
+	const float ylen = std::abs(parent.m_bounds.max.y - parent.m_bounds.min.y);
+	const float zlen = std::abs(parent.m_bounds.max.z - parent.m_bounds.min.z);
+
 	if (xlen > ylen && xlen > zlen) longestAxis = 0;
 	else if (ylen > xlen && ylen > zlen) longestAxis = 1;
 	else if (zlen > xlen && zlen > ylen) longestAxis = 2;
@@ -97,24 +97,48 @@ uint32_t BVHNode::Partition(
 		[boundingBoxes, longestAxis](const uint32_t a, const uint32_t b) -> bool {
 			const AABB bb1 = boundingBoxes[a];
 			const AABB bb2 = boundingBoxes[b];
-			const glm::vec3 c1 =  bb1.GetCenter();
-			const glm::vec3 c2 =  bb2.GetCenter();
+			const glm::vec3 c1 = bb1.GetCenter();
+			const glm::vec3 c2 = bb2.GetCenter();
 			return c1[longestAxis] < c2[longestAxis];
 		});
-
+	
 	//get lowest SAH
 	float bestSAH = sahParent;
-	uint32_t splitIdx = start + 1;
-	for (uint32_t i = start + 1; i < end; i++)
+	uint32_t splitIdx = start + 1;	//index is first triangle of right box
+	AABB leftBox = boundingBoxes[bvh.m_indices[start]];
+	const uint32_t range = end - start;
+
+	std::vector<AABB> rightBoxes;
+	rightBoxes.reserve(range - 1);
+
+	AABB rightBox = boundingBoxes[bvh.m_indices[end - 1]];
+	rightBoxes.emplace_back(rightBox);
+
+	for(uint32_t k = end - 2; k >= splitIdx; k--)
 	{
-		const float SAH_left = CombineSAH(bvh, boundingBoxes, start, i);
-		const float SAH_right = CombineSAH(bvh, boundingBoxes, i, end);
+		rightBox = rightBox.Union(boundingBoxes[bvh.m_indices[k]]);
+		rightBoxes.push_back(rightBox);
+	}
+	
+	
+	uint32_t countLeft = 1;
+	for (uint32_t rightFirstIdx = start + 1; rightFirstIdx < end; rightFirstIdx++)
+	{
+		const uint32_t countRight = range - countLeft;
+
+		leftBox = leftBox.Union(boundingBoxes[bvh.m_indices[rightFirstIdx-1]]);
+		const float SAH_left = leftBox.CalcSurfaceArea() * countLeft;
+
+		const AABB rBox = rightBoxes[countRight - 1];
+		const float SAH_right = rBox.CalcSurfaceArea() * countRight;
+		
 		const float SAH = SAH_left + SAH_right;
 
+		countLeft++;
 		if (SAH < bestSAH)
 		{
 			bestSAH = SAH;
-			splitIdx = i;
+			splitIdx = rightFirstIdx;
 		}
 	}
 
@@ -129,7 +153,7 @@ inline float BVHNode::CombineSAH(BVH& bvh, const std::vector<AABB>& boundingBoxe
 	const float surfaceArea = box.CalcSurfaceArea();
 	return surfaceArea * count;
 }
- 
+
 
 
 

@@ -16,7 +16,7 @@
 #include "Rendering/PostProcessing.h"
 #include "Geometry/BVH/BVHNode.h"
 
-
+//#define BUNNY
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -65,17 +65,18 @@ int main(void)
 		spyro.m_name = "Spyro";
 		EntityManager::AddEntity(spyro);
 
-#ifndef _DEBUG
+#ifndef v_DEBUG
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		artisans.SetShader("Gbuffer_basic");
 		artisans.m_name = "artisans";
 		EntityManager::AddEntity(artisans);
 
-		//Model bunny("res/meshes/bunny.obj", aiProcess_Triangulate);
-		//bunny.SetShader("Gbuffer_basic");
-		//bunny.m_name = "Spyro";
-		//EntityManager::AddEntity(bunny);
-
+#ifdef BUNNY
+		Model bunny("res/meshes/bunny.obj", aiProcess_Triangulate);
+		bunny.SetShader("Gbuffer_basic");
+		bunny.m_name = "Spyro";
+		EntityManager::AddEntity(bunny);
+#endif
 #endif
 
 		BVH bvh;
@@ -175,9 +176,12 @@ int main(void)
 			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
 #pragma endregion input
 
-#ifndef _DEBUG
+#ifndef _DEBUG //update meshes
 			artisans.Update(deltaTime);
-			//bunny.Update(deltaTime);
+
+#ifdef BUNNY//update meshes
+			bunny.Update(deltaTime);
+#endif
 #endif
 
 			spyro.Update(deltaTime);
@@ -186,9 +190,12 @@ int main(void)
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			//draw meshes
 #ifndef _DEBUG
 			artisans.Draw(camera);
-			//bunny.Draw(camera);
+#ifdef BUNNY
+			bunny.Draw(camera);
+#endif
 #endif
 
 			spyro.Draw(camera);
@@ -215,10 +222,10 @@ int main(void)
 			/// Draw extra widgets, gizmos, debug info, and more below
 			//
 			static float angle = 0; 	angle += 0.01f;
-			renderer.DrawCube(camera, 
+			renderer.DrawCube(camera,
 				glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
-				* glm::scale(glm::mat4(1.0f), 
-				{ cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), { 0,1,1,1 });
+				* glm::scale(glm::mat4(1.0f),
+					{ cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), { 0,1,1,1 });
 
 			if (drawBvh) bvh.Draw(camera, renderer);
 			UserInterface::Draw();

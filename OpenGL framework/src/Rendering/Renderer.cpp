@@ -122,7 +122,7 @@ void Renderer::SetCullingMode(const GLenum cullingMode)
 {
 	if (m_cullingMode == cullingMode)
 	{
-		fmt::print("Same culling mode is already set\n");
+		//fmt::print("Same culling mode is already set\n");
 		return;
 	}
 

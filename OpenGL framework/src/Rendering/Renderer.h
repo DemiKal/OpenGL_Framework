@@ -55,5 +55,5 @@ public:
 	GLenum GetDepthFunc() const { return m_depthFunction; }
 
 	GLenum GetCullingMode() const { return m_cullingMode; }
-	void SetCullingMode(const GLenum cullingMode);
+	void SetCullingMode(GLenum cullingMode);
 };
