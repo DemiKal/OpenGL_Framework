@@ -77,12 +77,13 @@ Shader& ShaderManager::GetShader(const std::string& name)
 	return inst.shaders[idx];
 }
 
+//Need better datastructure for this
 unsigned int ShaderManager::GetShaderIdx(const std::string& name)
 {
 	const auto& inst = GetInstance();
 	for (unsigned int i = 0; i < inst.shaders.size(); i++)
 	{
-		if (inst.shaders[i].m_name == name)
+		if (inst.shaders[i].GetName() == name)
 		{
 			return  i;
 		}

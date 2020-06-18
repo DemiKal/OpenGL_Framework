@@ -24,20 +24,21 @@ private:
 	void LoadShaders(const std::string& shaderDirectory);
 
 public:
+	static void Init(const std::string& shaderDirectory = "res/shaders");
+	static void Destroy();
+
+	[[nodiscard]] static unsigned int GetShaderIdx(const std::string& name);
+	[[nodiscard]] static ShaderManager& GetInstance();
+	[[nodiscard]] static Shader& GetShader(const unsigned int idx);
+	[[nodiscard]] static std::string ParseShader(const std::string& path);
+	[[nodiscard]] static Shader& GetShader(const std::string& name);
 
 	std::string directory;
 	bool initialized = false;
 	std::vector< Shader > shaders;
 
 	ShaderManager() = default;
-	static Shader& GetShader(const std::string& name);
-	static void Init(const std::string& shaderDirectory = "res/shaders");
 
-	static unsigned int GetShaderIdx(const std::string& name);
-	static ShaderManager& GetInstance();
-	static Shader& GetShader(const unsigned int idx);
-	static void Destroy();
-	static std::string ParseShader(const std::string& path);
 
 };
 

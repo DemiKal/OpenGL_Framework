@@ -20,10 +20,14 @@ void BVH::BuildBVH(const Renderer& renderer)
 {
 	std::cout << "Building BVH... \n";
 
-	InitTriangleRenderer();
+	InitTriangleRenderer(); //TODO:: relocate it to renderer
 
 	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
-
+	if(triangles.empty())
+	{
+		fmt::print("Error, Triangle list is empty! Cancelling build");
+		return;
+	}
 	std::vector<AABB> triAABBs;
 	triAABBs.reserve(triangles.size());
 	for (const auto& tri : triangles)

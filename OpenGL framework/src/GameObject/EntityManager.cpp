@@ -12,5 +12,6 @@ Model& EntityManager::GetEntity(const std::string& ent_name)
 			return *m;
 	}
 
-	std::cout << "Could not find entity of name, " << ent_name << "\n";
+	fmt::print("Could not find entity of name {}\n", ent_name);
+	ASSERT(false);
 }

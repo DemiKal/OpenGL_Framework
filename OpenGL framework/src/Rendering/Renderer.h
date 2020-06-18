@@ -1,4 +1,6 @@
 #pragma once
+#define PRINTAPI(x)  std::string(#x) ;
+//constexpr std::string printname(GLenum x) { return std::string(x); }
 
 class IndexBuffer;
 class VertexArray;
@@ -12,15 +14,17 @@ private:
 	std::vector<glm::vec3> cubeVertices;
 	std::vector<unsigned int> cubeIndices;
 	unsigned int cubeVAO{}, cubeVBO{}, cubeEBO{};
-	inline static GLenum m_depthFunction = GL_LEQUAL;
+	GLenum m_depthFunction = GL_LEQUAL;
+	GLenum m_cullingMode = GL_BACK;
 	bool m_VSync;
-	//Mesh cube;
+
 
 public:
 	Renderer();
+
 	static void Clear();
 	static void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
-	void SetAlphaBlending(bool set);
+	void SetAlphaBlending(bool alphaValue);
 	void SetVSync(bool cond);
 	static void SwapBuffers(GLFWwindow* window);
 	static void BlitFrameBuffer(unsigned int from,
@@ -42,10 +46,14 @@ public:
 	void CreatePlane();
 	void DrawInstancedCubes(GLsizei instanceCount) const;
 	void DrawCube(const Camera& cam, const glm::mat4& transform,  glm::vec4 color) const;
+	uint32_t GetCubeVAO() const { return cubeVAO; }
+
 	static void Enable(GLenum type);
 	static void EnableDepth();
-	static void SetDepthFunc(GLenum depthFunc);
 	static void DisableDepth();
-	static GLenum GetDepthFunc() { return m_depthFunction; }
-	uint32_t GetCubeVAO() const { return cubeVAO; }
+	void SetDepthFunc(GLenum depthFunc);
+	GLenum GetDepthFunc() const { return m_depthFunction; }
+
+	GLenum GetCullingMode() const { return m_cullingMode; }
+	void SetCullingMode(const GLenum cullingMode);
 };

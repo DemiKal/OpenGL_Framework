@@ -19,8 +19,7 @@ public:
 	{
 		auto& instance = GetInstance();
 		instance.Entities.emplace_back(&model);
-		if(model.m_name != "WireCube") 
-			TriangleBuffer::AddTriangles(model);
+		TriangleBuffer::AddTriangles(model);
 	}
 
 	static Model& GetEntity(const std::string& ent_name);

@@ -14,17 +14,20 @@ enum class ShaderType
 
 class Shader
 {
-public:
-	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
-	std::string m_FilePath;
-	std::string m_name;
-	ShaderType m_shaderType;
+private:
 	unsigned int m_RendererID;
+	ShaderType m_shaderType;
+	std::string m_name;
+	std::string m_FilePath;
+	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
+public:
 
 	Shader();
 	Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
 	Shader(const std::string& filepath, const ShaderType shaderType);
-
+	//Shader(Shader& shader) = delete;
+	std::string GetName() const { return m_name; } 
+	unsigned int GetID() const  { return m_RendererID; }
 	int GetUniformLocation(const std::string& name);
 	void SetInt(const std::string& name, int value);
 	void SetupUniforms();

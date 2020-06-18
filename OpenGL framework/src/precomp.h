@@ -28,6 +28,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <magic_enum.hpp>
 #include <entt/entt.hpp>
 #include <fmt/format.h>
 #include <imgui/imgui.h>

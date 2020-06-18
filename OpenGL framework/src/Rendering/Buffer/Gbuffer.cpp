@@ -2,6 +2,9 @@
 #include "Gbuffer.h"
 
 #include "GameObject/Components/Texture2D.h"
+#include "Light/Light.h"
+#include "Light/LightManager.h"
+#include "Rendering/ShaderManager.h"
 
 Gbuffer::Gbuffer(const unsigned int width, const unsigned int height)
 	:
@@ -9,7 +12,8 @@ Gbuffer::Gbuffer(const unsigned int width, const unsigned int height)
 	m_gPosition(0),
 	m_gNormal(0),
 	m_gAlbedoSpec(0),
-	m_RBO(0)	//depth 
+	m_RBO(0),	//depth
+	m_lightingShader(0)
 {
 	GLCall(glGenFramebuffers(1, &m_bufferID));
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_bufferID));
@@ -43,10 +47,10 @@ Gbuffer::Gbuffer(const unsigned int width, const unsigned int height)
 	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height));
 	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RBO));
 	// finally check if framebuffer is complete
-	while(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		 
-		
+
+
 		fmt::print("Framebuffer not complete!\n");
 	}
 
@@ -68,35 +72,48 @@ uint32_t Gbuffer::GetZBufferTexID() const
 {
 	return m_zBufferTexID;
 }
+
+void Gbuffer::SetShader(const std::string& shaderName)
+{
+	m_lightingShader = ShaderManager::GetShader(shaderName).GetID();
+}
+
 unsigned int Gbuffer::GetID() const
 {
 	return m_bufferID;
 }
-unsigned int Gbuffer::GetPositionID() const
-{
-	return m_gPosition;
-}
-unsigned int Gbuffer::GetNormalID() const
-{
-	return m_gNormal;
-}
-unsigned int Gbuffer::GetAlbedoSpecID() const
-{
-	return m_gAlbedoSpec;
-}
-
-unsigned Gbuffer::GetRBO_ID() const
-{
-	return m_RBO;
-}
+unsigned int Gbuffer::GetPositionID() const { return m_gPosition; }
+unsigned int Gbuffer::GetNormalID() const { return m_gNormal; }
+unsigned int Gbuffer::GetAlbedoSpecID() const { return m_gAlbedoSpec; }
+unsigned Gbuffer::GetRBO_ID() const { return m_RBO; }
 
 inline void Gbuffer::Enable()
 {
-	
+
 }
 
 void Gbuffer::Bind() const
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_bufferID);
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_bufferID));
+}
 
+void Gbuffer::BindShader() const
+{
+	ShaderManager::GetShader(m_lightingShader).Bind();
+}
+
+void Gbuffer::PrepareShader() const
+{
+	Shader& shader = ShaderManager::GetShader(m_lightingShader);
+	shader.Bind();
+	GLCall(glActiveTexture(GL_TEXTURE0));
+	GLCall(glBindTexture(GL_TEXTURE_2D, GetPositionID()));
+	GLCall(glActiveTexture(GL_TEXTURE0 + 1));
+	GLCall(glBindTexture(GL_TEXTURE_2D, GetNormalID()));
+	GLCall(glActiveTexture(GL_TEXTURE0 + 2));
+	GLCall(glBindTexture(GL_TEXTURE_2D, GetAlbedoSpecID()));
+	glm::vec3  lightDir = LightManager::GetDirectionalLight();
+	float ambientLight = LightManager::GetAmbientLight();
+	shader.SetVec3f("u_globalLightDir", lightDir);
+	shader.SetFloat("u_ambientLight", ambientLight);
 }

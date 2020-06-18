@@ -25,8 +25,8 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
-	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -47,7 +47,7 @@ int main(void)
 	bool pauseLight = false;
 	bool alphaBlend = false;
 	bool vsync = true;
-	
+
 	if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
 
 	HardwareQuery::Query();
@@ -59,57 +59,44 @@ int main(void)
 		//init before any model
 		ShaderManager::Init();
 		UserInterface userInterface;
-		
-		 Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
-		 spyro.SetShader("Gbuffer_basic");
-		 spyro.m_name = "Spyro";
-		 EntityManager::AddEntity(spyro);
+
+		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
+		spyro.SetShader("Gbuffer_basic");
+		spyro.m_name = "Spyro";
+		EntityManager::AddEntity(spyro);
 
 #ifndef _DEBUG
-		 Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
-		 artisans.SetShader("Gbuffer_basic");
-		 artisans.m_name = "artisans";
-		 EntityManager::AddEntity(artisans);
+		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+		artisans.SetShader("Gbuffer_basic");
+		artisans.m_name = "artisans";
+		EntityManager::AddEntity(artisans);
 
 		//Model bunny("res/meshes/bunny.obj", aiProcess_Triangulate);
 		//bunny.SetShader("Gbuffer_basic");
 		//bunny.m_name = "Spyro";
 		//EntityManager::AddEntity(bunny);
-		
+
 #endif
-		
+
 		BVH bvh;
 		bvh.BuildBVH(renderer);
 
 		FrameBuffer framebuffer;
 
-
 		// configure g-buffer framebuffer
 		// ------------------------------
 		Gbuffer gBuffer;
-		 
-		//Shader shadow_casting = ShaderManager::GetShader("shadow_cast");
-		//shadow_casting.Bind();
-		//shadow_casting.SetInt("gPosition", 0);
-		//shadow_casting.SetInt("gNormal", 1);
-		//shadow_casting.SetInt("gAlbedoSpec", 2);
-		//shadow_casting.Unbind();
-		
-		Shader deferredShading = ShaderManager::GetShader("deferred_shading");
+		gBuffer.SetShader("deferred_shading");
+		gBuffer.BindShader();
+		//deferredShading.Bind();
 
-		deferredShading.Bind();
-		deferredShading.SetInt("gPosition", 0);
-		deferredShading.SetInt("gNormal", 1);
-		deferredShading.SetInt("gAlbedoSpec", 2);
- 
-
-		
 		const float aspect = static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT);
-
-		Camera camera(glm::vec3(0, 3, 16), 70, aspect, 0.1f, 400.0f);
+		const auto originalCamPos = glm::vec3(0, 3, 16);
+		Camera camera(originalCamPos, 70, aspect, 0.1f, 400.0f);
 		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
 		cam2.RotateLocalY(glm::radians(-90.0f));
-
+		const glm::mat4 cam1Mat = camera.GetViewMatrix();
+		const glm::mat4 cam2Mat = cam2.GetViewMatrix();
 		Camera::SetMainCamera(&camera);
 		Camera::SetCamera2(&cam2);
 
@@ -146,25 +133,25 @@ int main(void)
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
-			Renderer::ClearColor(1,1,1, 1);
+			Renderer::ClearColor(1, 1, 1, 1);
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			Renderer::EnableDepth();
-			Renderer::SetDepthFunc(GL_LEQUAL);
-			GLCall(glCullFace(GL_BACK));
+			renderer.SetDepthFunc(GL_LEQUAL);
+			renderer.SetCullingMode(GL_BACK);
 			const double currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - prevFrameTime;
 			renderer.SetAlphaBlending(false);
 
 #pragma region input
 			userInterface.Update();
-			InputManager::Update(camera,   deltaTime);
+			InputManager::Update(camera, deltaTime);
 
 			ImGui::Checkbox("Alpha Blend", &alphaBlend);
 			ImGui::Checkbox("VSync", &vsync);
 			ImGui::Checkbox("Pause Light", &pauseLight);
 
-			renderer.SetAlphaBlending(alphaBlend); 
+			renderer.SetAlphaBlending(alphaBlend);
 			renderer.SetVSync(vsync);
 
 			const float average = (float)std::accumulate(frameTimes.begin(), frameTimes.end(), 0.0) / frameTimes.size();
@@ -173,7 +160,6 @@ int main(void)
 			ImGui::Text("FPS: %f, %f ms", avgFPS, average);
 
 			if (frameTimes.size() >= 100) frameTimes.clear();
-#pragma endregion input
 
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
 			if (!pauseLight)
@@ -187,86 +173,54 @@ int main(void)
 			if (ImGui::gizmo3D("##Dir1", light)) lightDir = glm::vec3(-light.x, -light.y, -light.z);
 			float& ambientLight = LightManager::GetAmbientLight();
 			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
+#pragma endregion input
 
 #ifndef _DEBUG
 			artisans.Update(deltaTime);
 			//bunny.Update(deltaTime);
 #endif
 
-			//spyro.Update(deltaTime);
+			spyro.Update(deltaTime);
 
-			// 1. geometry pass: render scene's geometry/color data into gbuffer
-			// -----------------------------------------------------------------
 			Renderer::EnableDepth();
-			//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 #ifndef _DEBUG
 			artisans.Draw(camera);
 			//bunny.Draw(camera);
 #endif
-			
-			//spyro.Draw(camera);
 
-			
+			spyro.Draw(camera);
 
-
-			
 			renderer.SetAlphaBlending(true);
 
-			framebuffer.Bind();	//make sure we write to this framebuffer
+			framebuffer.Bind();
 
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			deferredShading.Bind();
-			
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, gBuffer.GetPositionID());
-			glActiveTexture(GL_TEXTURE0 + 1);
-			glBindTexture(GL_TEXTURE_2D, gBuffer.GetNormalID());
-			glActiveTexture(GL_TEXTURE0 + 2);
-			glBindTexture(GL_TEXTURE_2D, gBuffer.GetAlbedoSpecID());
+			gBuffer.PrepareShader();
 
-			// send light relevant uniforms
-			deferredShading.SetVec3f("u_globalLightDir", lightDir);
-			deferredShading.SetFloat("u_ambientLight", ambientLight);
-			//;deferredShading.SetVec3f("u_viewPos", camera.GetPosition());
-
-			const char* listbox_items[] = { "Regular Shading", "Albedo", "Normals", "Position", "Specular" };
-			static int displayMode = 0;
-			ImGui::ListBox("listbox\n(single select)", &displayMode, listbox_items, IM_ARRAYSIZE(listbox_items), 5);
-
-			deferredShading.SetInt("u_displayMode", displayMode);
-
-			//framebuffer.Bind();
 			screenQuad.Bind();
 			ScreenQuad::Draw();	//Draw to custom frame buffer
-			
+
 			ImGui::Checkbox("draw bvh", &drawBvh);
 
-			//draw from deferred to framebuffer to standard framebuffer
-			GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-			//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer.GetTexture().GetID(), 0); //crash!
+			FrameBuffer::Unbind();
 
-			//Shader& singleTex = ShaderManager::GetShader("framebuffer_screen");
-			//singleTex.Bind();
-			//framebuffer.GetTexture().Bind();
-			//ScreenQuad::Draw();
 			PostProcessing::ShadowCastGLSL(camera, gBuffer);
-
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
-
-			//Renderer::SetDepthFunc(GL_LEQUAL);
-
 
 			///
 			/// Draw extra widgets, gizmos, debug info, and more below
 			//
 			static float angle = 0; 	angle += 0.01f;
-			renderer.DrawCube(camera, glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
-				* glm::scale(glm::mat4(1.0f), { cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), {0,1,1,1});
-		 
-			if (drawBvh) bvh.Draw (camera, renderer);
+			renderer.DrawCube(camera, 
+				glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
+				* glm::scale(glm::mat4(1.0f), 
+				{ cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), { 0,1,1,1 });
+
+			if (drawBvh) bvh.Draw(camera, renderer);
 			UserInterface::Draw();
 
 

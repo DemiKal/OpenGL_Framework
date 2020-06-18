@@ -264,12 +264,6 @@
     <ClInclude Include="src\Rendering\Buffer\VertexArraySub.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameObject\VertexNew.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameObject\VertexNew.cpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\GameObject\Components\Texture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>

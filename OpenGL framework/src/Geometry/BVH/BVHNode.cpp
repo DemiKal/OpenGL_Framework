@@ -64,26 +64,13 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 
 AABB BVHNode::CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned int first, const unsigned int last)
 {
-	//float minX = INFINITY;
-	//float minY = INFINITY;
-	//float minZ = INFINITY;
-	//float maxX = -std::numeric_limits<float>::infinity();
-	//float maxY = -std::numeric_limits<float>::infinity();
-	//float maxZ = -std::numeric_limits<float>::infinity();
 	AABB sAABB = AABBs[bvh.m_indices[first]];
 	for (unsigned int i = first + 1; i < last; i++)
 	{
 		const int idx = bvh.m_indices[i];
 		sAABB = sAABB.Union(AABBs[idx]);
-		//minX = std::min(minX, AABBs[idx].min.x);
-		//minY = std::min(minY, AABBs[idx].min.y);
-		//minZ = std::min(minZ, AABBs[idx].min.z);
-		//maxX = std::max(maxX, AABBs[idx].max.x);
-		//maxY = std::max(maxY, AABBs[idx].max.y);
-		//maxZ = std::max(maxZ, AABBs[idx].max.z);
 	}
 
-	//return { minX, minY, minZ, maxX, maxY, maxZ };
 	return sAABB;
 }
 
@@ -94,7 +81,7 @@ uint32_t BVHNode::Partition(
 	const uint32_t start, 
 	const uint32_t end) const
 {
-	const float sahParent = CalcSAH(parent.m_bounds, parent.m_bounds.m_count);
+	const float sahParent = parent.m_bounds.CalcSurfaceArea() * parent.m_bounds.m_count;
 	int longestAxis = 0;
 
 	const float xlen = (std::abs(parent.m_bounds.max.x - parent.m_bounds.min.x));
@@ -139,18 +126,12 @@ inline float BVHNode::CombineSAH(BVH& bvh, const std::vector<AABB>& boundingBoxe
 {
 	const AABB box = CalculateAABB(bvh, boundingBoxes, start, end);
 	const uint32_t count = end - start;
-	const float sah = CalcSAH(box, count);
-	return sah;
+	const float surfaceArea = box.CalcSurfaceArea();
+	return surfaceArea * count;
 }
  
 
-//calculate surface area heuristic
-inline float BVHNode::CalcSAH(const AABB& aabb, const uint32_t objCount)
-{
-	const float surfaceArea = aabb.CalcSurfaceArea();
-	const float SAH = surfaceArea * static_cast<float>(objCount);
-	return SAH;
-}
+
 
 float getSmallestVertex(const int axis, const Triangle& tri)
 {

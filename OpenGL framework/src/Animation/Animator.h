@@ -12,7 +12,9 @@ public:
 	float m_ticks;		//ticks per second
 	glm::mat4 m_inverse_root;
 
-	Animator() : animTime(0), current() {}
+	Animator() : animTime(0), current(), m_duration(0), m_ticks(0), m_inverse_root()
+	{
+	}
 
 	Animator(const Animator& a) :
 		animTime(a.animTime), current(a.current), m_bones(a.m_bones),

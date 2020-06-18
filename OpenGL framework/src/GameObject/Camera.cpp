@@ -8,13 +8,13 @@ Camera* Camera::m_mainCam;
 Camera* Camera::m_cam2;
 
 Camera::Camera() :
-	m_fov(70), 
+	m_fov(70),
 	m_aspectRatio((float)SCREENWIDTH / (float)SCREENHEIGHT), //TODO: fix scwidht!
-	m_pos(glm::vec3(0, 0, 0)), 
-	m_forward(glm::vec3(0, 0, -1)),
-	m_up(glm::vec3(0, 1, 0)), 
 	m_nearPlane(0.1f),
 	m_farPlane(200.0f),
+	m_pos(glm::vec3(0, 0, 0)),
+	m_forward(glm::vec3(0, 0, -1)),
+	m_up(glm::vec3(0, 1, 0)),
 	m_projection(glm::perspective(m_fov, m_aspectRatio, m_nearPlane, m_farPlane)) {}
 
 Camera::Camera(const glm::vec3& p_pos,
@@ -31,19 +31,17 @@ Camera::Camera(const glm::vec3& p_pos,
 	m_nearPlane(p_zNear),
 	m_farPlane(p_zFar),
 	m_projection(glm::perspective(p_fov, p_aspect, p_zNear, p_zFar))
-{
-
-}
+{}
 
 Camera::~Camera() = default;
 
-void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mvelo)
+void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mouseVelocity)
 {
 	mDiff = glm::normalize(mDiff);
 	if (glm::abs(mDiff.x) < 10 || glm::abs(mDiff.y) < 10)
 	{
-		RotateLocalY(-mDiff.x * camSpeed / 2 * glm::length(mvelo));
-		RotateLocalX(-mDiff.y * camSpeed / 2 * glm::length(mvelo));
+		RotateLocalY(-mDiff.x * camSpeed / 2 * glm::length(mouseVelocity));
+		RotateLocalX(-mDiff.y * camSpeed / 2 * glm::length(mouseVelocity));
 	}
 }
 
@@ -85,9 +83,6 @@ inline glm::mat4 Camera::GetViewProjectionMatrix() const
 {
 	return m_projection * glm::lookAt(m_pos, m_pos + m_forward, m_up);
 }
-
-
-
 
 std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 {
@@ -146,22 +141,26 @@ inline void Camera::RotateLocalX(const float angle)
 
 
 //rotate around the y axis, its own up vector
-
 inline void Camera::RotateLocalY(const float angle)
 {
 	static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
-	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_up);
+	const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_up);
 	m_forward = glm::vec3(glm::normalize(rotation * glm::vec4(m_forward, 0.0)));
 
 	m_up = glm::vec3(glm::normalize(rotation * glm::vec4(m_up, 0.0)));
 }
 
-float Camera::GetNearPlaneDist()
+void Camera::SetViewVector(const glm::vec3& view)
+{
+	m_forward = view;
+}
+
+float Camera::GetNearPlaneDist() const
 {
 	return m_nearPlane;
 }
 
-float Camera::GetFarPlaneDist()
+float Camera::GetFarPlaneDist() const
 {
 	return m_farPlane;
 }

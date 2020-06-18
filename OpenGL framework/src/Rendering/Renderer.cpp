@@ -77,8 +77,8 @@ void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm
 		static_cast<GLsizei>(cubeIndices.size()),
 		GL_UNSIGNED_INT, nullptr));
 
-	glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
+	GLCall(glBindVertexArray(0));
+	GLCall(glActiveTexture(GL_TEXTURE0));
 }
 
 void Renderer::Enable(GLenum type)
@@ -93,16 +93,7 @@ void Renderer::EnableDepth()
 
 void Renderer::SetDepthFunc(const GLenum depthFunc)
 {
-	//static const std::map<GLenum,int> validEnums = {
-	//	{GL_NEVER,0}, {GL_LESS,1}, {GL_EQUAL,2}, {GL_LEQUAL,3},
-	//	{GL_GREATER,4}, {GL_NOTEQUAL,5}, {GL_GEQUAL,6},
-	//};
-	//if(validEnums.find(depthFunc) == std::end(validEnums))	//probably slower lel
-	//{
-	//	std::cout << "not a viable depth func enum! \n";
-	//	return;;
-	//}
-	//
+
 	if (depthFunc == m_depthFunction)
 	{
 		//std::cout << "same func!\n";
@@ -125,6 +116,27 @@ void Renderer::SetDepthFunc(const GLenum depthFunc)
 
 	m_depthFunction = depthFunc;
 	GLCall(glDepthFunc(depthFunc));
+}
+
+void Renderer::SetCullingMode(const GLenum cullingMode)
+{
+	if (m_cullingMode == cullingMode)
+	{
+		fmt::print("Same culling mode is already set\n");
+		return;
+	}
+
+	if (cullingMode != GL_FRONT && cullingMode != GL_BACK && cullingMode != GL_FRONT_AND_BACK)
+	{
+		const auto a = PRINTAPI(GL_FRONT);
+		const auto b = PRINTAPI(GL_BACK);
+		const auto c = PRINTAPI(GL_FRONT_AND_BACK);
+		fmt::print("invalid culling mode! Only {0}, {1}, {2} are valid\n", a, b, c);
+		return;
+	}
+
+	m_cullingMode = cullingMode;
+	GLCall(glCullFace(m_cullingMode));
 }
 
 void Renderer::DisableDepth()
@@ -151,14 +163,13 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
 	va.Bind();
 	ib.Bind();
 	GLCall(glDrawElements(GL_POINTS, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
-	//glDrawElementsBaseVertex(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0, 0);
 }
 
-void Renderer::SetAlphaBlending(bool set)
+void Renderer::SetAlphaBlending(const bool alphaValue)
 {
-	m_alphaBlending = set;
+	m_alphaBlending = alphaValue;
 
-	if (set)
+	if (alphaValue)
 	{
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
