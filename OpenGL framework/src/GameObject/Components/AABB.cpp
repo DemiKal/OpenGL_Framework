@@ -79,8 +79,8 @@ void AABB::CalcBounds(const std::vector<glm::vec3>& posVector)
 		vmax = Maximize(vmax, v);
 	}
 
-	min = vmin;
-	max = vmax;
+	min = {vmin};
+	max = {vmax};
 }
 
 glm::mat4 AABB::GetTransform() const
