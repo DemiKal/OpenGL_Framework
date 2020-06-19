@@ -11,7 +11,7 @@ void BVHNode::Subdivide(
 	const uint32_t start,
 	const uint32_t end)
 {
-	fmt::print("Count at: . {}", bvh.count++);
+	fmt::print("Count at: {}.\n", bvh.count++);
 
 	const uint32_t objCount = end - start;
 	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
