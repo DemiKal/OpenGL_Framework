@@ -9,22 +9,23 @@ class Model;
 // ReSharper disable once CppInconsistentNaming
 class AABB
 {
-public:
+private:
 	glm::vec3 min;
 	union
 	{
 		uint32_t m_leftFirst;
-		float dummy1;
+		float dummy1{};
 	};
 
 	glm::vec3 max;
 	union
 	{
 		uint32_t m_count;
-		float dummy2;
+		float dummy2{};
 	};
 
 
+public:
 	AABB() : m_leftFirst(0), m_count(0)
 	{
 	}
@@ -74,10 +75,20 @@ public:
 		const float side2 = 2 * ylen * zlen;
 		return ground + side1 + side2;
 	}
-	[[nodiscard]]
-	glm::vec3  GetCenter() const
+	
+	[[nodiscard]] glm::vec3  GetCenter() const
 	{
-		return 0.5f * (max + min); //{x, y, z};
+		return 0.5f * (max + min);
 	}
+
+	[[nodiscard]] glm::vec3 Min() const { return min; };
+	[[nodiscard]] glm::vec3 Max() const { return max; };
+	[[nodiscard]] uint32_t GetCount() const { return m_count; };
+	[[nodiscard]] uint32_t GetLeftFirst() const { return m_leftFirst; };
+
+	void SetCount(const uint32_t cnt) { m_count = cnt; };
+	void SetLeftFirst(const uint32_t lf) { m_leftFirst = lf; };
+	
+	
 };
 

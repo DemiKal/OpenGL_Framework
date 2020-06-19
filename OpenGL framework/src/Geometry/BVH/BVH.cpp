@@ -151,12 +151,12 @@ void BVH::CastRay(const Ray& ray)
 		for (HitData& hd : hitData)
 		{
 			BVHNode& node = m_pool[hd.nodeIdx];
-			const int nrTris = node.m_bounds.m_count;
+			const int nrTris = node.m_bounds.GetCount();
 			//node.m_bounds.Draw(*Camera::GetMain(), { 1.0f, 1.0f, 1.0f, 1.0f });
 
 			for (int i = 0; i < nrTris; i++)
 			{
-				const int j = node.m_bounds.m_leftFirst + i;
+				const int j = node.m_bounds.GetLeftFirst() + i;
 				const int triIdx = m_indices[j];
 				const Triangle& triangle = triangles[triIdx];
 				glm::vec2 baryCentric;
@@ -274,7 +274,7 @@ void BVH::CreateBVHTextures()
 	intTexture = m_aabbNodesTexture.GetID();
 
 	std::vector<glm::vec3> minvec;
-	auto GetMin = [](AABB& aabb) { return aabb.min; };
+	//auto GetMin = [](AABB& aabb) { return aabb.min; };
 
 	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
 
