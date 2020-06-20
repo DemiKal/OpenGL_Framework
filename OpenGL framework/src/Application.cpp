@@ -16,7 +16,7 @@
 #include "Rendering/PostProcessing.h"
 #include "Geometry/BVH/BVHNode.h"
 
-//#define BUNNY
+#define BUNNY
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -26,7 +26,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -60,12 +60,16 @@ int main(void)
 		ShaderManager::Init();
 		UserInterface userInterface;
 
+		//Model test("res/meshes/tri test.obj", aiProcess_Triangulate);
+		//test.SetShader("Gbuffer_basic_no_tex");
+		//test.m_name = "tri test";
+		//EntityManager::AddEntity(test);
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("Gbuffer_basic");
 		spyro.m_name = "Spyro";
 		EntityManager::AddEntity(spyro);
 
-#ifndef v_DEBUG
+#ifndef _DEBUG
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		artisans.SetShader("Gbuffer_basic");
 		artisans.m_name = "artisans";
@@ -73,10 +77,11 @@ int main(void)
 
 #ifdef BUNNY
 		Model bunny("res/meshes/bunny.obj", aiProcess_Triangulate);
-		bunny.SetShader("Gbuffer_basic");
-		bunny.m_name = "Spyro";
+		bunny.SetShader("Gbuffer_basic_no_tex");
+		bunny.m_name = "Bunny";
 		EntityManager::AddEntity(bunny);
 #endif
+
 #endif
 
 		BVH bvh;
@@ -211,25 +216,23 @@ int main(void)
 			screenQuad.Bind();
 			ScreenQuad::Draw();	//Draw to custom frame buffer
 
-			ImGui::Checkbox("draw bvh", &drawBvh);
+			ImGui::Checkbox("Draw bvh", &drawBvh);
 
 			FrameBuffer::Unbind();
 
 			PostProcessing::ShadowCastGLSL(camera, gBuffer);
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
-			///
+			/// ====================================================================
 			/// Draw extra widgets, gizmos, debug info, and more below
 			//
 			static float angle = 0; 	angle += 0.01f;
-			renderer.DrawCube(camera,
-				glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
-				* glm::scale(glm::mat4(1.0f),
-					{ cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), { 0,1,1,1 });
+			renderer.DrawCube(camera, glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
+				* glm::scale(glm::mat4(1.0f), { cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }),
+				{ 0,1,1,1 });
 
 			if (drawBvh) bvh.Draw(camera, renderer);
 			UserInterface::Draw();
-
 
 			Renderer::SwapBuffers(window);
 

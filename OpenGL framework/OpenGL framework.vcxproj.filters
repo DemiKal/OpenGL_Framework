@@ -220,6 +220,8 @@
     <None Include="res\shaders\shadow_cast.vert" />
     <None Include="res\shaders\AABB_instanced_SSBO.frag" />
     <None Include="res\shaders\AABB_instanced_SSBO.vert" />
+    <None Include="res\shaders\Gbuffer_basic_no_tex.frag" />
+    <None Include="res\shaders\Gbuffer_basic_no_tex.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">

@@ -69,6 +69,7 @@ public:
 	bool IntersectAABB(const Ray& ray, float& tCurrent) const;
 	void UpdateArvo(const glm::mat4& m, const AABB& orig);
 
+	[[nodiscard]] uint32_t GetLongestAxis() const;
 	[[nodiscard]] glm::mat4 GetTransform() const;
 	[[nodiscard]] glm::vec3 GetMin() const { return min; }
 	[[nodiscard]] std::vector<glm::vec4> GetVerticesLocal() const;

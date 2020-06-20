@@ -30,7 +30,19 @@ void AABB::UpdateArvo(const glm::mat4& m, const AABB& orig)
 }
 
 
+ uint32_t AABB::GetLongestAxis() const
+{
+	uint32_t longestAxis = 0;
 
+	const float lengthX = std::abs(max.x - min.x);
+	const float lengthY = std::abs(max.y - min.y);
+	const float lengthZ = std::abs(max.z - min.z);
+
+	if (lengthX > lengthY && lengthX > lengthZ) longestAxis = 0;
+	else if (lengthY > lengthX && lengthY > lengthZ) longestAxis = 1;
+	else if (lengthZ > lengthX && lengthZ > lengthY) longestAxis = 2;
+	return longestAxis;
+}
 
 
 inline glm::vec3 AABB::Minimize(const glm::vec3& minA, const glm::vec3& minB) const

@@ -35,8 +35,12 @@ private:
 	bool		m_isBuilt = false;
 	BVHNode*	m_root;
 	uint32_t	m_poolPtr; //points to current idx while building, becomes size pointer at end
-	std::vector<unsigned int> m_indices;
+	//std::vector<unsigned int> m_indices;
+	std::vector<unsigned int> m_indicesX;
+	std::vector<unsigned int> m_indicesY;
+	std::vector<unsigned int> m_indicesZ;
 	std::vector<BVHNode> m_pool;
+	std::vector<AABB> m_triAABBs;
 	unsigned int m_triangleVAO = 0;
 	unsigned int m_triangleVBO = 0;
 public:
@@ -45,6 +49,8 @@ public:
 	uint32_t count = 0;
 
 	BVH() = default;
+	std::vector<unsigned>& GetAxis(unsigned axis);
+	void SortAxis(int axis);
 	BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, int poolPtr);
 
 	Texture1D& GetAABBNodesTexture() { return  m_aabbNodesTexture; }

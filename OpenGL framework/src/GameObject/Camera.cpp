@@ -73,7 +73,7 @@ Ray Camera::RayFromMouse(const double mouseX, const double mouseY) const
 	return ray;
 }
 
-//TODO: set screenwidht and other vars dynamically!
+//TODO: set screen width and other vars dynamically!
 void Camera::SetOrthographic()
 {
 	m_projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -10.0f, 100.0f);

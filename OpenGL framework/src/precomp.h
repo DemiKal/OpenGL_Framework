@@ -5,17 +5,19 @@
 #pragma warning(push, 0)	//disable warnings on external header files
 #include <filesystem>
 #include <iostream>
-#include <vector>
-#include <unordered_map>
 #include <ostream>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <functional>
-#include <algorithm>
-#include <map>
 #include <numeric>
 #include <exception>
+#include <algorithm>
+//datastructures
+#include <vector>
+#include <unordered_set>
+#include <unordered_map>
+#include <map>
 
 #include <ctime>
 #include <GL/glew.h>
