@@ -5,7 +5,7 @@
 #include "Geometry/BVH/BVHNode.h"
 #include "misc/InputManager.h"
 #include "Rendering/Renderer.h"
-#include "Rendering/ShaderManager.h" 
+#include "Rendering/ShaderManager.h"
 std::vector<unsigned int>& BVH::GetAxis(const unsigned int axis)
 {
 	return axis == 0 ? m_indicesX : axis == 1 ? m_indicesY : m_indicesZ;
@@ -28,11 +28,11 @@ void BVH::SortAxis(const int axis)
 
 
 }
-BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
+BVH::BVH(std::vector<uint32_t> indices, std::vector<BVHNode> pool, const uint32_t poolPtr) :
 	m_bvh_ssbo(0),
-	m_root(root),
+	m_root(&pool[0]),
 	m_poolPtr(poolPtr),
-	//m_indices(std::move(indices)),
+	m_indices(std::move(indices)),
 	m_pool(std::move(pool))
 {
 }
@@ -63,9 +63,11 @@ void BVH::BuildBVH(const Renderer& renderer)
 		);
 
 	const uint32_t N = triangles.size();	//WARNING: max is 4G tris!
-	 m_indicesX.resize(N);
-	 m_indicesY.resize(N);
-	 m_indicesZ.resize(N);
+	m_indices.reserve(N);
+
+	m_indicesX.resize(N);
+	m_indicesY.resize(N);
+	m_indicesZ.resize(N);
 	//std::iota(m_indices.begin(), m_indices.end(), 0);
 	std::iota(m_indicesX.begin(), m_indicesX.end(), 0);
 	std::iota(m_indicesY.begin(), m_indicesY.end(), 0);
@@ -75,14 +77,13 @@ void BVH::BuildBVH(const Renderer& renderer)
 	SortAxis(1);
 	SortAxis(2);
 
-
 	m_pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
 	m_poolPtr = 1;
 	m_root = &m_pool[0];
 
 	const double startTime = glfwGetTime();
 
-	m_root->Subdivide(*this, m_triAABBs, triangles, m_indicesX, m_indicesY, m_indicesZ);
+	m_root->Subdivide(*this, m_triAABBs, triangles, m_indicesX, m_indicesY, m_indicesZ, 0);
 
 	m_pool.resize(m_poolPtr);
 
@@ -259,6 +260,7 @@ void BVH::DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& 
 
 	glBindVertexArray(0);
 }
+
 void BVH::InitTriangleRenderer()
 {
 	std::vector<glm::vec3> triangleBuffer = { {-0.5,-1.5, 0.5},{1, -1.5f,	0.5},{1, -2, -1} }; //world pos
@@ -278,6 +280,7 @@ void BVH::InitTriangleRenderer()
 	//glEnableVertexAttribArray(1);
 	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 }
+
 void BVH::CreateBVHTextures()
 {
 	//split bvh node into 2 textures
@@ -349,6 +352,7 @@ void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 	AABB& mat = m_pool[index].m_bounds; //m_aabbMatrices???
 	mat.Draw(cam, { 1.0f, 0.2f,0.3f,1.0f });
 }
+
 void BVH::CreateBuffers()
 {
 	GLuint m_bvh_ssbo = 0;
@@ -370,7 +374,7 @@ void BVH::CreateBuffers()
 	GLuint m_tri_index_ssbo = 0;
 	glGenBuffers(1, &m_tri_index_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tri_index_ssbo); //TODO: watch out need to fix!
-	glBufferData(GL_SHADER_STORAGE_BUFFER, m_indicesX.size() * sizeof(unsigned int), &m_indicesX[0], GL_STATIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_tri_index_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }

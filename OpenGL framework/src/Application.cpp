@@ -17,6 +17,12 @@
 #include "Geometry/BVH/BVHNode.h"
 
 #define BUNNY
+//#define TRITEST
+
+#ifndef _DEBUG
+#undef TRITEST
+#endif
+
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -60,15 +66,17 @@ int main(void)
 		ShaderManager::Init();
 		UserInterface userInterface;
 
-		//Model test("res/meshes/tri test.obj", aiProcess_Triangulate);
-		//test.SetShader("Gbuffer_basic_no_tex");
-		//test.m_name = "tri test";
-		//EntityManager::AddEntity(test);
+#ifdef TRITEST
+		Model test("res/meshes/tri test.obj", aiProcess_Triangulate);
+		test.SetShader("Gbuffer_basic_no_tex");
+		test.m_name = "tri test";
+		EntityManager::AddEntity(test);
+#else
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("Gbuffer_basic");
 		spyro.m_name = "Spyro";
 		EntityManager::AddEntity(spyro);
-
+#endif
 #ifndef _DEBUG
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		artisans.SetShader("Gbuffer_basic");
@@ -188,8 +196,11 @@ int main(void)
 			bunny.Update(deltaTime);
 #endif
 #endif
-
+#ifdef TRITEST
+			test.Update(deltaTime);
+#else
 			spyro.Update(deltaTime);
+#endif
 
 			Renderer::EnableDepth();
 			gBuffer.Bind();
@@ -203,7 +214,11 @@ int main(void)
 #endif
 #endif
 
+#ifdef TRITEST
+			test.Draw(camera);
+#else
 			spyro.Draw(camera);
+#endif
 
 			renderer.SetAlphaBlending(true);
 

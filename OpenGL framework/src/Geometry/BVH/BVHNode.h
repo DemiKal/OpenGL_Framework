@@ -10,7 +10,7 @@ public:
 	BVHNode() {};
 
 	void Subdivide(BVH& bvh, const std::vector<AABB>& boundingBoxes, const std::vector<Triangle>& triangles, const std::vector<uint32_t>&
-	               indX, const std::vector<uint32_t>& indY, const std::vector<uint32_t>& indZ);
+	               indX, const std::vector<uint32_t>& indY, const std::vector<uint32_t>& indZ, const uint32_t startRecursion);
 	bool Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, unsigned nodeIdx) const;
 	static AABB CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned first, const unsigned last, const std::vector<uint32_t>&
 	                          indX, const std::vector<uint32_t>& indY, const std::vector<uint32_t>& indZ);

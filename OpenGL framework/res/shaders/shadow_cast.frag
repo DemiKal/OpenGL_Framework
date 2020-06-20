@@ -43,18 +43,16 @@ layout (std430,  binding = 0) readonly buffer BVH_buffer
 {
 	BVHNode BVH[] ;	
 };
- 
+
 layout (std430, binding = 1) readonly buffer Triangle_buffer
 {
 	Triangle triangles[] ;	
 };
- 
+
 layout (std430, binding = 2) readonly buffer Index_buffer
 {
 	uint tri_indices[] ;	
 };
-  
-
 
 struct AABB
 {
