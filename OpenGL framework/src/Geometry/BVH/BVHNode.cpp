@@ -11,8 +11,8 @@ void BVHNode::Subdivide(
 	const uint32_t start,
 	const uint32_t end)
 {
-	fmt::print("Count at: . {}", bvh.count++);
-
+	//fmt::print("Count at: . {}", bvh.count++);
+	bvh.count++;
 	const uint32_t objCount = end - start;
 	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
 	m_bounds.m_count = objCount;
@@ -94,7 +94,7 @@ uint32_t BVHNode::Partition(
 
 	//sort indices based on longest axis
 	std::sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,
-		[boundingBoxes, longestAxis](const uint32_t a, const uint32_t b) -> bool {
+		[&boundingBoxes, longestAxis](const uint32_t a, const uint32_t b) -> bool {
 			const AABB bb1 = boundingBoxes[a];
 			const AABB bb2 = boundingBoxes[b];
 			const glm::vec3 c1 = bb1.GetCenter();

@@ -60,6 +60,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 	fmt::print("{0} triangles needed {1} recursions\n", N, count);
 	fmt::print("Bvh size: {0} kb\n", sizeof(m_pool[0]) * m_poolPtr / 1024);
 	fmt::print("seconds: {0}\n", time);
+	fmt::print("triangles per second: {0}\n", N / time);
 
 	CreateBuffers();
 	m_isBuilt = true;

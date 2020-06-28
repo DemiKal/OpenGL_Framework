@@ -7,7 +7,7 @@ class BVHNode
 public:
 	AABB m_bounds;
 
-	BVHNode() {};
+	BVHNode() {}
 
 	void Subdivide(BVH& bvh, const std::vector<AABB>& boundingBoxes, const std::vector<Triangle>& triangles, uint32_t start, uint32_t end);
 	bool Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, unsigned nodeIdx) const;
