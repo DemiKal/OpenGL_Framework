@@ -16,12 +16,8 @@
 #include "Rendering/PostProcessing.h"
 #include "Geometry/BVH/BVHNode.h"
 
-#define BUNNY
-//#define TRITEST
-
-#ifndef _DEBUG
-#undef TRITEST
-#endif
+//#define BUNNY
+#define DRAGON
 
 int main(void)
 {
@@ -32,7 +28,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_FALSE); //GL_FALSE GL_TRUE
+	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -66,17 +62,11 @@ int main(void)
 		ShaderManager::Init();
 		UserInterface userInterface;
 
-#ifdef TRITEST
-		Model test("res/meshes/tri test.obj", aiProcess_Triangulate);
-		test.SetShader("Gbuffer_basic_no_tex");
-		test.m_name = "tri test";
-		EntityManager::AddEntity(test);
-#else
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("Gbuffer_basic");
 		spyro.m_name = "Spyro";
 		EntityManager::AddEntity(spyro);
-#endif
+
 #ifndef _DEBUG
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		artisans.SetShader("Gbuffer_basic");
@@ -85,9 +75,15 @@ int main(void)
 
 #ifdef BUNNY
 		Model bunny("res/meshes/bunny.obj", aiProcess_Triangulate);
-		bunny.SetShader("Gbuffer_basic_no_tex");
-		bunny.m_name = "Bunny";
+		bunny.SetShader("Gbuffer_basic");
+		bunny.m_name = "Spyro";
 		EntityManager::AddEntity(bunny);
+#endif
+#ifdef DRAGON
+		Model dragon("res/meshes/dragon.obj", aiProcess_Triangulate);
+		dragon.SetShader("Gbuffer_basic");
+		dragon.m_name = "Dragon";
+		EntityManager::AddEntity(dragon);
 #endif
 
 #endif
@@ -196,29 +192,24 @@ int main(void)
 			bunny.Update(deltaTime);
 #endif
 #endif
-#ifdef TRITEST
-			test.Update(deltaTime);
-#else
+
 			spyro.Update(deltaTime);
-#endif
 
 			Renderer::EnableDepth();
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//draw meshes
-#ifndef _DEBUG
 			artisans.Draw(camera);
 #ifdef BUNNY
 			bunny.Draw(camera);
 #endif
+
+#ifdef DRAGON
+			dragon.Draw(camera);
 #endif
 
-#ifdef TRITEST
-			test.Draw(camera);
-#else
 			spyro.Draw(camera);
-#endif
 
 			renderer.SetAlphaBlending(true);
 
@@ -231,23 +222,25 @@ int main(void)
 			screenQuad.Bind();
 			ScreenQuad::Draw();	//Draw to custom frame buffer
 
-			ImGui::Checkbox("Draw bvh", &drawBvh);
+			ImGui::Checkbox("draw bvh", &drawBvh);
 
 			FrameBuffer::Unbind();
 
 			PostProcessing::ShadowCastGLSL(camera, gBuffer);
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
-			/// ====================================================================
+			///
 			/// Draw extra widgets, gizmos, debug info, and more below
 			//
 			static float angle = 0; 	angle += 0.01f;
-			renderer.DrawCube(camera, glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
-				* glm::scale(glm::mat4(1.0f), { cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }),
-				{ 0,1,1,1 });
+			renderer.DrawCube(camera,
+				glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
+				* glm::scale(glm::mat4(1.0f),
+					{ cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), { 0,1,1,1 });
 
 			if (drawBvh) bvh.Draw(camera, renderer);
 			UserInterface::Draw();
+
 
 			Renderer::SwapBuffers(window);
 

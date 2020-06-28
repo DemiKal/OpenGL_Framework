@@ -7,7 +7,7 @@ class BVHNode
 public:
 	AABB m_bounds;
 
-	BVHNode() {};
+	BVHNode() {}
 
 	void Subdivide(BVH& bvh, const std::vector<AABB>& boundingBoxes, const std::vector<Triangle>& triangles, const std::vector<uint32_t>&
 	               indX, const std::vector<uint32_t>& indY, const std::vector<uint32_t>& indZ, const uint32_t startRecursion);

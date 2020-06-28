@@ -5,32 +5,11 @@
 #include "Geometry/BVH/BVHNode.h"
 #include "misc/InputManager.h"
 #include "Rendering/Renderer.h"
-#include "Rendering/ShaderManager.h"
-std::vector<unsigned int>& BVH::GetAxis(const unsigned int axis)
-{
-	return axis == 0 ? m_indicesX : axis == 1 ? m_indicesY : m_indicesZ;
-}
+#include "Rendering/ShaderManager.h" 
 
-void BVH::SortAxis(const int axis)
-{
-	auto& indices = GetAxis(axis);
-	auto& triAABBs = m_triAABBs;
-
-	//sort indices based on longest axis
-	std::sort(indices.begin(), indices.end(),
-		[triAABBs, axis](const uint32_t a, const uint32_t b) -> bool {
-			const AABB bb1 = triAABBs[a];
-			const AABB bb2 = triAABBs[b];
-			const glm::vec3 c1 = bb1.GetCenter();
-			const glm::vec3 c2 = bb2.GetCenter();
-			return c1[axis] < c2[axis];
-		});
-
-
-}
-BVH::BVH(std::vector<uint32_t> indices, std::vector<BVHNode> pool, const uint32_t poolPtr) :
+BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
 	m_bvh_ssbo(0),
-	m_root(&pool[0]),
+	m_root(root),
 	m_poolPtr(poolPtr),
 	m_indices(std::move(indices)),
 	m_pool(std::move(pool))
@@ -44,16 +23,16 @@ void BVH::BuildBVH(const Renderer& renderer)
 	InitTriangleRenderer(); //TODO:: relocate it to renderer
 
 	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
-	if (triangles.empty())
+	if(triangles.empty())
 	{
-		fmt::print("Error, Triangle list is empty! Cancelling build!\n");
+		fmt::print("Error, Triangle list is empty! Cancelling build");
 		return;
 	}
 
-	//std::vector<AABB> triAABBs;
-	m_triAABBs.reserve(triangles.size());
+	std::vector<AABB> triAABBs;
+	triAABBs.reserve(triangles.size());
 	for (const auto& tri : triangles)
-		m_triAABBs.emplace_back(
+		triAABBs.emplace_back(
 			std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
 			std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
 			std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
@@ -63,19 +42,8 @@ void BVH::BuildBVH(const Renderer& renderer)
 		);
 
 	const uint32_t N = triangles.size();	//WARNING: max is 4G tris!
-	m_indices.reserve(N);
-
-	m_indicesX.resize(N);
-	m_indicesY.resize(N);
-	m_indicesZ.resize(N);
-	//std::iota(m_indices.begin(), m_indices.end(), 0);
-	std::iota(m_indicesX.begin(), m_indicesX.end(), 0);
-	std::iota(m_indicesY.begin(), m_indicesY.end(), 0);
-	std::iota(m_indicesZ.begin(), m_indicesZ.end(), 0);
-
-	SortAxis(0);
-	SortAxis(1);
-	SortAxis(2);
+	m_indices.resize(N);
+	std::iota(m_indices.begin(), m_indices.end(), 0);
 
 	m_pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
 	m_poolPtr = 1;
@@ -83,16 +51,16 @@ void BVH::BuildBVH(const Renderer& renderer)
 
 	const double startTime = glfwGetTime();
 
-	m_root->Subdivide(*this, m_triAABBs, triangles, m_indicesX, m_indicesY, m_indicesZ, 0);
+	m_root->Subdivide(*this, triAABBs, triangles, 0, N);
 
 	m_pool.resize(m_poolPtr);
-
+ 
 	const double endTime = glfwGetTime();
 	double time = endTime - startTime;
 	fmt::print("{0} triangles needed {1} recursions\n", N, count);
 	fmt::print("Bvh size: {0} kb\n", sizeof(m_pool[0]) * m_poolPtr / 1024);
 	fmt::print("seconds: {0}\n", time);
-	fmt::print("Speed: {0} triangles per second\n", N / time);
+	fmt::print("triangles per second: {0}\n", N / time);
 
 	CreateBuffers();
 	m_isBuilt = true;
@@ -172,6 +140,7 @@ void BVH::CastRay(const Ray& ray)
 
 	std::vector<HitData> hitData;
 	m_root->Traverse(*this, ray, hitData, 0);
+	//const glm::vec3 norm = glm::normalize(ray.Direction());
 
 	float minDistance = std::numeric_limits<float>::infinity();
 	int nearestTriIdx = -1;
@@ -183,13 +152,13 @@ void BVH::CastRay(const Ray& ray)
 		for (HitData& hd : hitData)
 		{
 			BVHNode& node = m_pool[hd.nodeIdx];
-			const int nrTris = node.m_bounds.GetCount();
+			const int nrTris = node.m_bounds.m_count;
 			//node.m_bounds.Draw(*Camera::GetMain(), { 1.0f, 1.0f, 1.0f, 1.0f });
 
 			for (int i = 0; i < nrTris; i++)
 			{
-				const int j = node.m_bounds.GetLeftFirst() + i;
-				const int triIdx = 11;
+				const int j = node.m_bounds.m_leftFirst + i;
+				const int triIdx = m_indices[j];
 				const Triangle& triangle = triangles[triIdx];
 				glm::vec2 baryCentric;
 				float distance;;
@@ -260,7 +229,6 @@ void BVH::DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& 
 
 	glBindVertexArray(0);
 }
-
 void BVH::InitTriangleRenderer()
 {
 	std::vector<glm::vec3> triangleBuffer = { {-0.5,-1.5, 0.5},{1, -1.5f,	0.5},{1, -2, -1} }; //world pos
@@ -280,7 +248,6 @@ void BVH::InitTriangleRenderer()
 	//glEnableVertexAttribArray(1);
 	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 }
-
 void BVH::CreateBVHTextures()
 {
 	//split bvh node into 2 textures
@@ -304,17 +271,17 @@ void BVH::CreateBVHTextures()
 	//std::cout << "nodes tex size: " << indicesPart.size() * sizeof(indicesPart[0]) / 1024 << "kb" << "\n";
 
 	//aabb nodes
-	//m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &m_indices[0], false);
-	//intTexture = m_aabbNodesTexture.GetID();
+	m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &m_indices[0], false);
+	intTexture = m_aabbNodesTexture.GetID();
 
 	std::vector<glm::vec3> minvec;
-	//auto GetMin = [](AABB& aabb) { return aabb.min; };
+	auto GetMin = [](AABB& aabb) { return aabb.min; };
 
 	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
 
 
 
-	//m_minTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &minvec[0], false);
+	m_minTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &minvec[0], false);
 	//minVecTexture = m_minVecTex.GetID();
 
 	//max bounds
@@ -338,8 +305,8 @@ void BVH::CreateBVHTextures()
 		triBuffer.emplace_back(t.C);
 	}
 
-	//m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
-//	m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
+	m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
+	m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
 }
 void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 {
@@ -352,7 +319,6 @@ void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 	AABB& mat = m_pool[index].m_bounds; //m_aabbMatrices???
 	mat.Draw(cam, { 1.0f, 0.2f,0.3f,1.0f });
 }
-
 void BVH::CreateBuffers()
 {
 	GLuint m_bvh_ssbo = 0;
@@ -373,7 +339,7 @@ void BVH::CreateBuffers()
 
 	GLuint m_tri_index_ssbo = 0;
 	glGenBuffers(1, &m_tri_index_ssbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tri_index_ssbo); //TODO: watch out need to fix!
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tri_index_ssbo);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_tri_index_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
