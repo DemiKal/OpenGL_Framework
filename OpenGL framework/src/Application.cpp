@@ -17,7 +17,7 @@
 #include "Geometry/BVH/BVHNode.h"
 
 //#define BUNNY
-#define DRAGON
+//#define DRAGON
 
 int main(void)
 {
@@ -67,7 +67,6 @@ int main(void)
 		spyro.m_name = "Spyro";
 		EntityManager::AddEntity(spyro);
 
-#ifndef _DEBUG
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		artisans.SetShader("Gbuffer_basic");
 		artisans.m_name = "artisans";
@@ -82,10 +81,8 @@ int main(void)
 #ifdef DRAGON
 		Model dragon("res/meshes/dragon.obj", aiProcess_Triangulate);
 		dragon.SetShader("Gbuffer_basic");
-		dragon.m_name = "Dragon";
+		dragon.m_name = "erato";
 		EntityManager::AddEntity(dragon);
-#endif
-
 #endif
 
 		BVH bvh;
@@ -139,7 +136,9 @@ int main(void)
 
 		double totalTime = 0;
 		float rotation = 0;
-
+		int fbw, fbh,w,h;
+		glfwGetFramebufferSize(window, &fbw, &fbh);
+		glfwGetWindowSize(window,&w  , &h );
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{

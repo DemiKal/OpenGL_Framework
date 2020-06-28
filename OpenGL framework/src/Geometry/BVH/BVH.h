@@ -51,7 +51,6 @@ public:
 
 	BVH() = default;
 	std::vector<unsigned>& GetAxis(unsigned axis);
-	void SortAxis(int axis);
 	BVH(std::vector<uint32_t> indices, std::vector<BVHNode> pool, uint32_t poolPtr);
 
 	Texture1D& GetAABBNodesTexture() { return  m_aabbNodesTexture; }
@@ -60,6 +59,7 @@ public:
 	Texture1D& GetTriangleTexture() { return  m_triangleTexture; }
 	Texture1D& GetTriangleIndexTexture() { return  m_triangleIdxTexture; }
 
+	BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, int poolPtr);
  	void BuildBVH(const  Renderer& renderer);
 	void Draw(const Camera& camera, Renderer& renderer) const;
 	void CastRay(const Ray& ray);

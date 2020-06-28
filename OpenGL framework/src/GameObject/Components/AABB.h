@@ -8,6 +8,7 @@ class Model;
 
 class AABB
 {
+	friend class BVHNode;
 private:
 #ifdef SIMD
 	union
