@@ -271,8 +271,8 @@ void BVH::CreateBVHTextures()
 	//std::cout << "nodes tex size: " << indicesPart.size() * sizeof(indicesPart[0]) / 1024 << "kb" << "\n";
 
 	//aabb nodes
-	m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &m_indices[0], false);
-	intTexture = m_aabbNodesTexture.GetID();
+	//m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &m_indices[0], false);
+	//intTexture = m_aabbNodesTexture.GetID();
 
 	std::vector<glm::vec3> minvec;
 	//auto GetMin = [](AABB& aabb) { return aabb.min; };
@@ -281,7 +281,7 @@ void BVH::CreateBVHTextures()
 
 
 
-	m_minTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &minvec[0], false);
+	//m_minTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &minvec[0], false);
 	//minVecTexture = m_minVecTex.GetID();
 
 	//max bounds
@@ -290,7 +290,7 @@ void BVH::CreateBVHTextures()
 	std::vector<glm::vec3> maxVec;
 	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(maxVec), Getmax);
 
-	m_maxTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &maxVec[0], false);
+	//m_maxTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &maxVec[0], false);
 
 	//triangle texture
 	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
@@ -305,8 +305,8 @@ void BVH::CreateBVHTextures()
 		triBuffer.emplace_back(t.C);
 	}
 
-	m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
-	m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
+	//m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
+	//m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
 }
 void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 {

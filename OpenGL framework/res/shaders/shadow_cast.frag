@@ -5,7 +5,7 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-const int StackSize = 32;
+const int StackSize = 20;
 const int LEAFSIZE = 2;
 
 uniform bool u_shadowCast;
@@ -46,12 +46,12 @@ layout (std430,  binding = 0) readonly buffer BVH_buffer
 
 layout (std430, binding = 1) readonly buffer Triangle_buffer
 {
-	Triangle triangles[] ;	
+	Triangle triangles[];	
 };
 
 layout (std430, binding = 2) readonly buffer Index_buffer
 {
-	uint tri_indices[] ;	
+	uint tri_indices[];	
 };
 
 struct AABB
@@ -99,18 +99,16 @@ HitData triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 	return HitData(t > -1.0f, u , v, t); 
 	 //vec3(t, u, v); 
 }
-
-bool IntersectAABB(vec3 rayOrigin, vec3 rayDirection, AABB bbox)
+struct AABBresult
 {
-	//vec3  direction rayDirection;
-	//vec3  origin = rayOrigin;
+	bool hit;
+	float dist;
+};
+AABBresult IntersectAABB(vec3 rayOrigin, vec3 rayDirection, AABB bbox)
+{
+	vec3 d = 1.0f / rayDirection;
 
-	vec3 d = vec3(
-		1.0f / rayDirection.x,
-		1.0f / rayDirection.y,
-		1.0f / rayDirection.z);
-
-	float t = 99999999.f;
+	float tinf = 99999999.f;
 	float tx1 = (bbox.m_min.x - rayOrigin.x) * d.x;
 	float tx2 = (bbox.m_max.x - rayOrigin.x) * d.x;
 
@@ -128,9 +126,10 @@ bool IntersectAABB(vec3 rayOrigin, vec3 rayDirection, AABB bbox)
 
 	tmin = max(tmin, min(tz1, tz2));
 	tmax = min(tmax, max(tz1, tz2));
-	//tCurrent = tmin;
-	//return vec3(tmax, tmin)
-	return tmax >= max(0.0f, tmin) && tmin < t;
+	AABBresult res;
+	res.dist  =  tmin ;
+	res.hit = tmax >= max(0.0f, tmin) && tmin < tinf;
+	return res;
 }
 
 
@@ -190,10 +189,17 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	float t = 999999.f;
 	float _u = 0;
 	float _v = 0; 
-	
+	//BVHNode rootNode = BVH[0];
+	//AABB rootAABB = AABB(rootNode.m_min.xyz, rootNode.m_max.xyz);
+	//float memet = 12;
+	//if(!IntersectAABB(rayOrigin, rayDir, rootAABB,memet))
+	//{
+	//	result.hasHit = false;
+	//	return result;
+	//}
 	//loop---------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------
-	while (currentIdx > 0 && currentIdx < StackSize && !hasHit )
+	while (currentIdx > 0 && currentIdx < StackSize)
 	{
 		uint bboxIdx = stackPtr[currentIdx - 1];
 		currentIdx--;
@@ -201,22 +207,27 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 
 		uint childCount =  floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
 		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
-		//vec3 BBmin = vec3(currentBVH.minX,currentBVH.minY,currentBVH.minZ);
-		//vec3 BBmax = vec3(currentBVH.maxX,currentBVH.maxY,currentBVH.maxZ);
 		
-		AABB currentAABB = AABB(currentBVH.m_min.xyz , currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
-
-		if (IntersectAABB(rayOrigin, rayDir, currentAABB))
-		{
+		//{
 			if (isInterior)
 			{
 				uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
 				uint rightFirst = leftFirst + 1;
-				//BVHNode lBVH = BVH[leftChild];
-				 
-				//atomicCompSwap(leftFir)
-				stackPtr[currentIdx++] = leftFirst;  //leftFirst ? leftChild  : rightChild;
-				stackPtr[currentIdx++] = rightFirst;  //leftFirst ? rightChild : leftChild ;
+				
+
+				BVHNode Nleft = BVH[leftFirst];
+				BVHNode Nright = BVH[rightFirst];
+				AABB AABBL = AABB(Nleft.m_min.xyz, Nleft.m_max.xyz);
+				AABB AABBR = AABB(Nright.m_min.xyz, Nright.m_max.xyz);
+
+				AABBresult iL = IntersectAABB(rayOrigin, rayDir, AABBL);
+				AABBresult iR = IntersectAABB(rayOrigin, rayDir, AABBR);
+ 
+				float tL = iL.dist;
+				float tR = iR.dist;
+				if(iL.hit  ) stackPtr[currentIdx++] = tL <= tR ? leftFirst : rightFirst;  //leftFirst ? leftChild  : rightChild;
+			 	if(iR.hit  ) stackPtr[currentIdx++] = tR <= tL ? rightFirst : leftFirst;  //leftFirst ? rightChild : leftChild ;
+				//t = min(min(t, tL), tR);
 			}
 			else //leaf node
 			{
@@ -248,8 +259,8 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 					} 
 				}
 			}
-		}
-	}
+	//	}
+ 	}
 	 
 	result.u = _u;
 	result.v = _v;
@@ -331,18 +342,20 @@ void main()
 	
 	if(u_shadowCast)
 	{
-		if(NdotL > 0 && zValue < 1) 
+		//if(NdotL > 0 && zValue < 1) 
 		{
 				float bias = 0.005*tan(acos(clamp(NdotL,0,1))); 
 				bias = clamp(bias, 0., 0.01);
 				float slope = 2 - NdotL ; //1 + 1 - ndotl
 				 
-				BVHhit bvhR = TraverseBVH(wpos + (u_epsilon*slope ) * normal, u_lightDir);
+				//BVHhit bvhR = TraverseBVH(wpos + (u_epsilon*slope ) * normal, u_lightDir);
+				BVHhit bvhR = TraverseBVH(rayOrigin, rayDir);
 				if(bvhR.hasHit)
 				{
-						//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
-					finalColor = vec4(finalColor.xyz * 0.2f    , 1.0f);
-					//finalColor = vec4(bvhR.u, bvhR.v, 1, 1.0f);
+					
+					//vec3 wpos = rayOrigin + bvhR.t  * rayDir;
+					//finalColor = vec4(finalColor.xyz *0.2f,    1.0f);
+					finalColor = vec4(bvhR.u, bvhR.v, 1, 1.0f);
 				}
 		}
 	}

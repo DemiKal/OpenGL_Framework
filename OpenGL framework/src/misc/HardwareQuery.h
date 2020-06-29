@@ -1,6 +1,19 @@
 #pragma once
 //#include "precomp.h"
+constexpr uint32_t SCREENWIDTH = 1920;
+constexpr uint32_t SCREENHEIGHT = 1080;
 
+const glm::vec3 UP_WORLD(0, 1, 0);
+const glm::vec3 RIGHT_WORLD(1, 0, 0);
+const glm::vec3 FORWARD_WORLD(0, 0, -1);
+
+#define ASSERT(x) if(!(x)) __debugbreak(); 
+#define GLCall(x) GLClearError();\
+	x;\
+	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+void GLClearError();
+bool GLLogCall(const char* function, const char* file, int line);
 //#include "Rendering/Renderer.h"
 class HardwareQuery
 {
