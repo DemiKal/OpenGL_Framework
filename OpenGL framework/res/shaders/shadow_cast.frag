@@ -101,12 +101,13 @@ HitData triIntersect(vec3 ro, vec3 rd, vec3 v0, vec3 v1, vec3 v2)
 }
 struct AABBresult
 {
-	bool hit;
 	float dist;
+	bool hit;
 };
-AABBresult IntersectAABB(vec3 rayOrigin, vec3 rayDirection, AABB bbox)
+
+AABBresult IntersectAABB(const in vec3 rayOrigin, const in vec3 rayDirection, const in AABB bbox)
 {
-	vec3 d = 1.0f / rayDirection;
+	vec3 d = vec3(1.0f / rayDirection.x,1.0f / rayDirection.y, 1.0f / rayDirection.z);
 
 	float tinf = 99999999.f;
 	float tx1 = (bbox.m_min.x - rayOrigin.x) * d.x;
@@ -126,8 +127,9 @@ AABBresult IntersectAABB(vec3 rayOrigin, vec3 rayDirection, AABB bbox)
 
 	tmin = max(tmin, min(tz1, tz2));
 	tmax = min(tmax, max(tz1, tz2));
+	
 	AABBresult res;
-	res.dist  =  tmin ;
+	res.dist =    tmin ;
 	res.hit = tmax >= max(0.0f, tmin) && tmin < tinf;
 	return res;
 }
@@ -168,7 +170,44 @@ struct BVHhit
 	int triIdx;
 	int bbIdx;
 };
- 
+
+ bool RayAABB2(vec3 rayOrigin, vec3 rayDir, AABB aabb, inout float tmin, inout float tmax) {
+	vec3  invD = 1.0f / rayDir;
+	vec3  t0s = (aabb.m_min.xyz - rayOrigin) * invD;
+  	vec3  t1s = (aabb.m_max.xyz - rayOrigin) * invD;
+    
+  	vec3 tsmaller = min(t0s, t1s);
+    vec3 tbigger  = max(t0s, t1s);
+    
+    tmin = max(tmin, max(tsmaller[0], max(tsmaller[1], tsmaller[2])));
+    tmax = min(tmax, min(tbigger[0],  min(tbigger[1],  tbigger[2])));
+
+	return (tmin <= tmax);
+}
+bool slabs( vec3 rayOrigin, vec3 rayDir, AABB aabb, out float lmin) 
+{
+	vec3 invRayDir = 1.0  / rayDir;
+	vec3 p0 = aabb.m_min.xyz;
+	vec3 p1 = aabb.m_max.xyz;
+	vec3 t0 = (p0 - rayOrigin) * invRayDir;
+	vec3 t1 = (p1 - rayOrigin) * invRayDir;
+	vec3 tmin = min(t0,t1), tmax = max(t0,t1);
+	lmin = max (max (tmin.x, tmin.y), tmin.z); 
+	return  lmin <= min(min(tmax.x, tmax.y), tmax.z);
+}
+
+float minvec(vec3 v)
+{
+	return min(	min(v.x,v.y),	v.z);
+}
+
+void swap(inout uint x, inout uint y)
+{
+	uint temp = x;
+	x = y;
+	y = temp;
+}
+
 BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 {
 	BVHhit result;
@@ -199,7 +238,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	//}
 	//loop---------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------
-	while (currentIdx > 0 && currentIdx < StackSize)
+	while (currentIdx > 0 && currentIdx < StackSize && !hasHit)
 	{
 		uint bboxIdx = stackPtr[currentIdx - 1];
 		currentIdx--;
@@ -213,22 +252,25 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 			{
 				uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
 				uint rightFirst = leftFirst + 1;
-				
 
 				BVHNode Nleft = BVH[leftFirst];
 				BVHNode Nright = BVH[rightFirst];
 				AABB AABBL = AABB(Nleft.m_min.xyz, Nleft.m_max.xyz);
 				AABB AABBR = AABB(Nright.m_min.xyz, Nright.m_max.xyz);
 
-				AABBresult iL = IntersectAABB(rayOrigin, rayDir, AABBL);
-				AABBresult iR = IntersectAABB(rayOrigin, rayDir, AABBR);
- 
-				float tL = iL.dist;
-				float tR = iR.dist;
-				if(iL.hit  ) stackPtr[currentIdx++] = tL <= tR ? leftFirst : rightFirst;  //leftFirst ? leftChild  : rightChild;
-			 	if(iR.hit  ) stackPtr[currentIdx++] = tR <= tL ? rightFirst : leftFirst;  //leftFirst ? rightChild : leftChild ;
-				//t = min(min(t, tL), tR);
+				float lmin, rmin;
+				float cL = min( minvec(AABBL.m_min.xyz - rayOrigin), minvec(AABBL.m_max.xyz - rayOrigin ));
+				float cR = min( minvec(AABBR.m_min.xyz - rayOrigin), minvec(AABBR.m_max.xyz - rayOrigin ));
+				 
+				bool iL = slabs(rayOrigin, rayDir, AABBL, lmin);
+				bool iR = slabs(rayOrigin, rayDir, AABBR, rmin);
+				 
+				if(lmin > rmin && iL && iR) swap(rightFirst, leftFirst);  
+				if(iL /* && t > lmin */) stackPtr[currentIdx++] = leftFirst;
+				if(iR /* && t > rmin */) stackPtr[currentIdx++] = rightFirst;
+				//t = min(t, min(lmin, rmin));
 			}
+
 			else //leaf node
 			{
 				uint nodeStart = floatBitsToUint(currentBVH.m_min.w);
@@ -249,9 +291,9 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 					float newT = Thit.dist;
 					if (newT > 0 && newT >= u_epsilon)
 					{
-						hasHit = true;
 						if (newT < t )
 						{
+							hasHit = true;
 							t = newT;
 							_u = Thit.u;
 							_v = Thit.v;
