@@ -1,7 +1,9 @@
 #pragma once
 #define PRINTAPI(x)  std::string(#x) ;
+
 #include "ScreenQuad.h"
 
+class FrameBuffer;
 class IndexBuffer;
 class VertexArray;
 class Shader;
@@ -26,6 +28,7 @@ public:
 	static void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
 	void SetAlphaBlending(bool alphaValue);
 	void SetVSync(bool cond);
+	static void BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> target  );
 	static void SwapBuffers(GLFWwindow* window);
 	static void BlitFrameBuffer(unsigned int from,
 		unsigned int to,

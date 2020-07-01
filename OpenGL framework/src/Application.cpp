@@ -210,10 +210,6 @@ int main(void)
 
 			spyro.Draw(camera);
 
-			renderer.SetAlphaBlending(true);
-
-			
-
 
 			gBuffer.LightingPass(frameBuffer);
 
@@ -222,19 +218,13 @@ int main(void)
 
 			FrameBuffer::Unbind();
 
-			auto frameTex = frameBuffer.GetTexture().GetID();
-
-			auto& shader = ShaderManager::GetShader("framebuffer_screen");
-			shader.Bind();
-			GLCall(glActiveTexture(GL_TEXTURE0));
-			GLCall(glBindTexture(GL_TEXTURE_2D, frameTex));
-
-			Renderer::DrawScreenQuad();
-
+			Renderer::BlitTexture(frameBuffer, {});
+			
 			//PostProcessing::ShadowCastGLSL(camera, gBuffer);
 
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
+			renderer.SetAlphaBlending(true);
 			ImGui::Checkbox("draw bvh", &drawBvh);
 			if (drawBvh) bvh.Draw(camera, renderer);
 			UserInterface::Draw();

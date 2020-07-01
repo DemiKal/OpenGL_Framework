@@ -14,7 +14,7 @@ public:
 	explicit FrameBuffer(const unsigned int width = SCREENWIDTH, const unsigned int height = SCREENHEIGHT);
 
 	Texture2D& GetTexture() { return m_renderTarget; }
-
+	unsigned int GetID() { return m_rendererID; }
 	void Bind() const { GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID)); }
 	static void Unbind() { GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0)); }
 };

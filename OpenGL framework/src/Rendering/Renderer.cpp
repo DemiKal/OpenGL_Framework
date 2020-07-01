@@ -4,7 +4,9 @@
 #include "Buffer/VertexArray.h"
 #include "Shader.h"
 #include "Rendering/ShaderManager.h"
+#include "Rendering/Buffer/FrameBuffer.h"
 #include "GameObject/Camera.h"
+
 ScreenQuad Renderer::screenQuad;
 
 void Renderer::CreateCubeMesh()
@@ -192,6 +194,16 @@ void Renderer::SetVSync(const bool cond)
 	if (cond != m_VSync) m_VSync = cond;
 
 	GLCall(glfwSwapInterval(m_VSync));
+}
+
+void Renderer::BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> target)
+{
+	const GLuint targetID = target ? target->GetID() : 0;
+	glBindFramebuffer(GL_FRAMEBUFFER, targetID);
+
+	ShaderManager::GetShader("framebuffer_screen").Bind();
+	frameBuffer.GetTexture().Bind();
+	DrawScreenQuad();
 }
 
 void Renderer::SwapBuffers(GLFWwindow* window)
