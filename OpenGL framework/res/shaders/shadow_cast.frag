@@ -326,8 +326,8 @@ void main()
 
 	vec3 wpos = u_useZbuffer ? wposFromZ : wposFromG;
 
-	finalColor = vec4(diffuse * albedo4.rgb, 1.0f);
-	//finalColor = vec4(wpos, 1.0);
+	//finalColor = vec4((1 - zLinear) * diffuse * albedo4.rgb, 1.0f);
+	 finalColor = vec4((1 - zLinear).xxx , 1.0);
 	
 	if(u_shadowCast)
 	{
@@ -348,6 +348,7 @@ void main()
 	}
 	 
 	// finalColor = vec4(vec3(zLinear), 1.0);
-	if(u_showNormal) finalColor =vec4(normal,1.0);
+	//if(u_showNormal) finalColor = vec4(normal,1.0);
+	
 	FragColor = finalColor;
 }

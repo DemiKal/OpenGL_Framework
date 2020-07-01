@@ -1,6 +1,6 @@
 #include "precomp.h"
 #include "PostProcessing.h"
-
+#include "Renderer.h"
 #include "ScreenQuad.h"
 #include "ShaderManager.h" 
 #include "Light/LightManager.h"
@@ -8,6 +8,7 @@
 
 void PostProcessing::ShadowCastGLSL(Camera& camera, Gbuffer& gBuffer)
 {
+	Renderer::DisableDepth();
 	Shader& shader = ShaderManager::GetShader("shadow_cast");
 
 	static bool castShadows = false;

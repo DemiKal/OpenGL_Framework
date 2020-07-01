@@ -7,6 +7,6 @@ public:
 	static void UnBind();
 	static void Draw();
 private:
-		unsigned int m_VAO, m_VBO;
+	unsigned int m_VAO, m_VBO;
 };
 

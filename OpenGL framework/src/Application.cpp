@@ -88,7 +88,7 @@ int main(void)
 		BVH bvh;
 		bvh.BuildBVH(renderer);
 
-		FrameBuffer framebuffer;
+		FrameBuffer frameBuffer;
 
 		// configure g-buffer framebuffer
 		// ------------------------------
@@ -125,9 +125,9 @@ int main(void)
 
 		ScreenQuad screenQuad;
 
-		LightManager::AddLight({ 0,  5, 0 }, { 1, 0,0 });
-		LightManager::AddLight({ -2,  3, 0 }, { 0,1,0 });
-		LightManager::AddLight({ 2,  3, 0 }, { 0,0,1 });
+		LightManager::AddLight({ 0, 5, 0 }, { 1, 0, 0 });
+		LightManager::AddLight({ -2, 3, 0 }, { 0, 1, 0 });
+		LightManager::AddLight({ 2, 3, 0 }, { 0, 0, 1 });
 
 		double prevFrameTime = glfwGetTime();
 
@@ -136,9 +136,9 @@ int main(void)
 
 		double totalTime = 0;
 		float rotation = 0;
-		int fbw, fbh,w,h;
+		int fbw, fbh, w, h;
 		glfwGetFramebufferSize(window, &fbw, &fbh);
-		glfwGetWindowSize(window,&w  , &h );
+		glfwGetWindowSize(window, &w, &h);
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -212,31 +212,38 @@ int main(void)
 
 			renderer.SetAlphaBlending(true);
 
-			framebuffer.Bind();
+			
 
-			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			gBuffer.PrepareShader();
+			gBuffer.LightingPass(frameBuffer);
 
 			screenQuad.Bind();
 			ScreenQuad::Draw();	//Draw to custom frame buffer
 
-			ImGui::Checkbox("draw bvh", &drawBvh);
 
 			FrameBuffer::Unbind();
 
-			PostProcessing::ShadowCastGLSL(camera, gBuffer);
+			auto frameTex = frameBuffer.GetTexture().GetID();
+
+			auto& shader = ShaderManager::GetShader("framebuffer_screen");
+			shader.Bind();
+			GLCall(glActiveTexture(GL_TEXTURE0));
+			GLCall(glBindTexture(GL_TEXTURE_2D, frameTex));
+
+			screenQuad.Bind();
+			ScreenQuad::Draw();
+
+			 PostProcessing::ShadowCastGLSL(camera, gBuffer);
+			 //screenQuad.Bind();
+			 //ScreenQuad::Draw();
+
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
-			///
-			/// Draw extra widgets, gizmos, debug info, and more below
-			//
-			static float angle = 0; 	angle += 0.01f;
-			renderer.DrawCube(camera,
-				glm::rotate(glm::mat4(1.0f), angle, { 0,1,0 })
-				* glm::scale(glm::mat4(1.0f),
-					{ cos(angle), 0.5 + 0.5 * sin(angle), -cos(angle) }), { 0,1,1,1 });
 
+
+
+
+			ImGui::Checkbox("draw bvh", &drawBvh);
 			if (drawBvh) bvh.Draw(camera, renderer);
 			UserInterface::Draw();
 

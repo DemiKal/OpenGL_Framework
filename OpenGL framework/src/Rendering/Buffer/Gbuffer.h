@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject/Components/Texture2D.h"
+#include "FrameBuffer.h"
 
 class Gbuffer
 {
@@ -17,7 +18,7 @@ public:
 	unsigned int GetID() const;
 	void Bind() const;
 	void BindShader() const;
-	void PrepareShader() const;
+	void LightingPass(const FrameBuffer& frameBuffer) const;
 	[[nodiscard]] unsigned int GetPositionID() const;
 	[[nodiscard]] unsigned int GetNormalID() const;
 	[[nodiscard]] unsigned int GetAlbedoSpecID() const;

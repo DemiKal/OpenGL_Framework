@@ -1,9 +1,9 @@
 #include "precomp.h"
 #include "Gbuffer.h"
-
 #include "GameObject/Components/Texture2D.h"
 #include "Light/Light.h"
 #include "Light/LightManager.h"
+#include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h"
 
 Gbuffer::Gbuffer(const unsigned int width, const unsigned int height)
@@ -12,7 +12,7 @@ Gbuffer::Gbuffer(const unsigned int width, const unsigned int height)
 	m_gPosition(0),
 	m_gNormal(0),
 	m_gAlbedoSpec(0),
-	m_RBO(0),	//depth
+	m_RBO(0),				//depth
 	m_lightingShader(0)
 {
 	GLCall(glGenFramebuffers(1, &m_bufferID));
@@ -75,7 +75,8 @@ uint32_t Gbuffer::GetZBufferTexID() const
 
 void Gbuffer::SetShader(const std::string& shaderName)
 {
-	m_lightingShader = ShaderManager::GetShader(shaderName).GetID();
+	m_lightingShader = ShaderManager::GetShaderIdx(shaderName);
+	//m_lightingShader = ShaderManager::GetShader(shaderName).GetID();
 }
 
 unsigned int Gbuffer::GetID() const
@@ -102,8 +103,11 @@ void Gbuffer::BindShader() const
 	ShaderManager::GetShader(m_lightingShader).Bind();
 }
 
-void Gbuffer::PrepareShader() const
+void Gbuffer::LightingPass(const FrameBuffer& frameBuffer) const
 {
+	frameBuffer.Bind();
+	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	Shader& shader = ShaderManager::GetShader(m_lightingShader);
 	shader.Bind();
 	GLCall(glActiveTexture(GL_TEXTURE0));

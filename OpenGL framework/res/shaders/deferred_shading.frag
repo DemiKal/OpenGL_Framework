@@ -38,15 +38,15 @@ void main()
     float diffuseFactor = clamp(max(dot(Normal, u_globalLightDir), 0) + u_ambientLight, 0, 1);
 
     vec3 diffuse = Albedo * diffuseFactor;
-    vec3 black = vec3(0);
+
+    FragColor = vec4(diffuse, 1.0);
     
     
-    
-    if(u_displayMode == 0)  FragColor = vec4(diffuse, 1.0f);
-    else if(u_displayMode == 1)  FragColor = vec4(Albedo, 1.0f);
-    else if(u_displayMode == 2)  FragColor = vec4(Normal,1.0f);
-    else if(u_displayMode == 3)  FragColor = vec4(FragPos, 1.0f);
-    else if(u_displayMode == 4)  FragColor = vec4(vec3(Specular), 1.0f);
+    //if(u_displayMode == 0)  FragColor = vec4(diffuse, 1.0f);
+    //else if(u_displayMode == 1)  FragColor = vec4(Albedo, 1.0f);
+    //else if(u_displayMode == 2)  FragColor = vec4(Normal,1.0f);
+    //else if(u_displayMode == 3)  FragColor = vec4(FragPos, 1.0f);
+    //else if(u_displayMode == 4)  FragColor = vec4(vec3(Specular), 1.0f);
     
     // then calculate lighting as usual
    // vec3 lighting  = Diffuse * 0.1; // hard-coded ambient component
@@ -67,5 +67,4 @@ void main()
    //    specular *= attenuation;
    //    lighting += diffuse + specular;        
    //}
-   // FragColor = vec4(lighting, 1.0);
 }

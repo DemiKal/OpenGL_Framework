@@ -27,8 +27,8 @@ public:
 	~Texture2D() = default;
 
 	inline unsigned int GetID()const { return m_rendererID; }
-	inline  std::string GetType() const { return m_type; }
-	inline  std::string GetPath() const { return m_path; }
+	inline std::string GetType() const { return m_type; }
+	inline std::string GetPath() const { return m_path; }
 	inline unsigned int GetWidth()  const { return m_width; }
 	inline unsigned int GetHeight()  const { return m_height; }
 	inline void Bind(const int textureIndex = 0) const
