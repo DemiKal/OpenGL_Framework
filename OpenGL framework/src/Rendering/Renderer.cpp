@@ -57,7 +57,8 @@ void Renderer::CreatePlane()
 void Renderer::DrawInstancedCubes(const GLsizei instanceCount ) const
 {
 	GLCall(glBindVertexArray(cubeVAO));
-	GLCall(glDrawElementsInstanced(GL_LINES, cubeIndices.size(), GL_UNSIGNED_INT, nullptr, instanceCount));
+	const GLsizei indxSize = static_cast<GLsizei>(cubeIndices.size());
+	GLCall(glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount));
 	GLCall(glBindVertexArray(0));
 	GLCall(glActiveTexture(GL_TEXTURE0));
 }

@@ -35,7 +35,7 @@ std::tuple<GLenum, GLenum, GLenum> GetType(dataType datatype, const unsigned int
 	}
 
 	ASSERT(false);
-
+	return {};
 }
 
 Texture1D::Texture1D(const uint32_t width, const uint32_t channels,

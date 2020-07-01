@@ -15,7 +15,7 @@ void PostProcessing::ShadowCastGLSL(Camera& camera, Gbuffer& gBuffer)
 	static bool useZbuffer = false;
 	static float epsilon = 0.00001f;
 	ImGui::Checkbox("Cast Shadows", &castShadows);
-	ImGui::SliderFloat("epsilon", &epsilon, 0, 0.1, "%.7f");
+	ImGui::SliderFloat("epsilon", &epsilon, 0, 0.1f, "%.5f");
 
 	if(castShadows)	ImGui::Checkbox("Use Z-buffer", &useZbuffer);
 	

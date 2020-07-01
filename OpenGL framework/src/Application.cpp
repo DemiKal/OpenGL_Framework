@@ -149,7 +149,7 @@ int main(void)
 			renderer.SetDepthFunc(GL_LEQUAL);
 			renderer.SetCullingMode(GL_BACK);
 			const double currentFrameTime = glfwGetTime();
-			float deltaTime = currentFrameTime - prevFrameTime;
+			float deltaTime = static_cast<float>(currentFrameTime - prevFrameTime);
 			renderer.SetAlphaBlending(false);
 
 #pragma region input
@@ -237,7 +237,8 @@ int main(void)
 			for (auto [texID, name] : bufferTargets)
 			{
 				ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texID)),
-					ImVec2(my_image_width, my_image_height),
+					ImVec2(static_cast<float>(my_image_width),
+							static_cast<float>(my_image_height)),
 					ImVec2(0, 1), ImVec2(1, 0));
 
 				ImGui::Text(name.c_str());

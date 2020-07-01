@@ -47,7 +47,7 @@ private:
 #endif
 
 public:
-	AABB()
+	AABB() : m_leftFirst(0), m_count(0), min(), max()
 	{
 	}
 

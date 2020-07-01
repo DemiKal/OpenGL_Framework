@@ -2,7 +2,8 @@
 #define PRECOMP_H
 #define GLM_ENABLE_EXPERIMENTAL 
 
-#pragma warning(push, 0)	//disable warnings on external header files
+__pragma(warning(push))	//disable warnings on external header files
+__pragma(warning(disable : 26495))
 #include <filesystem>
 #include <iostream>
 #include <ostream>
@@ -41,7 +42,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#pragma warning(pop)
+__pragma(warning(pop))
 
 constexpr uint32_t SCREENWIDTH = 1920;
 constexpr uint32_t SCREENHEIGHT = 1017;

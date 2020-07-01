@@ -40,7 +40,11 @@ public:
 		m_shaderIdx(0)
 	{}
 
-	~Model() = default;
+	~Model() 
+	{
+		fmt::print("MODEL DESTRUCTED!");
+
+	} 
 
 	Model(const std::string& path, const aiPostProcessSteps loadFlags);
 

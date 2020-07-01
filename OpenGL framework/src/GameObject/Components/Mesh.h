@@ -30,7 +30,7 @@ public:
 	AABB m_aabb;
 	AABB m_aabb_OG;
 
-	Mesh() : VAO(0), VBO(0), EBO(0), indices(), m_textures() {};
+	Mesh() : m_wireVAO(0), m_wireVBO(0), VAO(0), VBO(0), EBO(0), indices(), m_textures() {};
 
 	~Mesh() = default;
 	//Mesh(Mesh& a) = default;
@@ -55,7 +55,7 @@ public:
 	static Mesh CreateCube();
 
 	inline bool HasFaceIndices() const { return indices.size() > 0; }
-	inline size_t GetVertexCount() const { return vertices.size(); }
+	inline unsigned int GetVertexCount() const { return static_cast<unsigned int>(vertices.size()); }
 
 	//void SetVAO(unsigned int val) { VAO = val; }
 	//void SetVBO(unsigned int val) { VBO = val; }

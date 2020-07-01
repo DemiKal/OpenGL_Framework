@@ -2,7 +2,7 @@
 #include "Components/Model.h"
 #include "Geometry/TriangleBuffer.h"
 
-class Model; 
+class Model;
 class TriangleBuffer;
 
 class EntityManager
@@ -22,7 +22,7 @@ public:
 		TriangleBuffer::AddTriangles(model);
 	}
 
-	static Model& GetEntity(const std::string& ent_name);
+	static std::optional<std::reference_wrapper<Model>> GetEntity(const std::string& ent_name);
 private:
 	static EntityManager& GetInstance()
 	{

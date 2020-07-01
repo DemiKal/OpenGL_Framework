@@ -23,7 +23,7 @@ void Animator::UpdateAnimation(float deltaTime)
 		AnimationChannel& channel = current.m_animationChannels[joint.m_index];
 		float tick = animTime * m_ticks;
 
-		size_t prev_indexPos = channel.FindPositionIndex(animTime);
+		unsigned int prev_indexPos = channel.FindPositionIndex(animTime);
 
 		auto prevPos = channel.GetPositionByIndex(prev_indexPos);
 		auto nextPos = channel.GetPositionByIndex(prev_indexPos + 1);
@@ -36,9 +36,9 @@ void Animator::UpdateAnimation(float deltaTime)
 		glm::vec3 interpPos = glm::mix(pos1, pos2, interp);
 		glm::mat4 posMat = glm::translate(glm::mat4(1.0f), interpPos);
 
-		size_t prev_indexRot = channel.FindRotationIndex(tick);
-		auto prevRot = channel.GetRotationByIndex(prev_indexRot);
-		auto nextRot = channel.GetRotationByIndex(prev_indexRot + 1);
+		unsigned int prev_indexRot = channel.FindRotationIndex(tick);
+		const RotationKey& prevRot = channel.GetRotationByIndex(prev_indexRot);
+		const RotationKey& nextRot = channel.GetRotationByIndex(prev_indexRot + 1);
 
 		float deltaRot = nextRot.time - prevRot.time;
 		float interpolantRot = (tick - prevRot.time) / delta;

@@ -40,18 +40,18 @@ struct _CompareKeys
 
 }CompareKeys;
 
-size_t AnimationChannel::FindPositionIndex(const float timer)
+unsigned int AnimationChannel::FindPositionIndex(const float timer)
 {
-	auto it = std::upper_bound(m_positionKeys.begin(), m_positionKeys.end(), timer, CompareKeys);
-	return it - m_positionKeys.begin() - 1;
+	const auto it = std::upper_bound(m_positionKeys.begin(), m_positionKeys.end(), timer, CompareKeys);
+	return static_cast<unsigned int>(it - m_positionKeys.begin() - 1);
 
 	assert(false);//shouldn't happen
 }
 
-size_t  AnimationChannel::FindRotationIndex(const float timer)
+unsigned int AnimationChannel::FindRotationIndex(const float timer)
 {
 	auto it = std::upper_bound(m_rotationKeys.begin(), m_rotationKeys.end(), timer, CompareKeys);
-	return it - m_rotationKeys.begin() - 1;
+	return static_cast<unsigned int>(it - m_rotationKeys.begin() - 1);
 
 	assert(false); //should not happen
 }

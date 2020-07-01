@@ -94,6 +94,7 @@ public:
 			}
 		}
 		ASSERT(false);
+		return 0;
 	}
 
 

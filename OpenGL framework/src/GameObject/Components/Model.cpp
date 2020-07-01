@@ -67,6 +67,7 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
 			FindRootNode(node->mChildren[i], name);
 	}
+	return nullptr;
 }
 
 void Model::LoadModel(const std::string& path, const aiPostProcessSteps loadFlags)
@@ -211,23 +212,23 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 	//finally create vertex buffer
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		vertices.emplace_back(mesh->mVertices[i].x);
-		vertices.emplace_back(mesh->mVertices[i].y);
-		vertices.emplace_back(mesh->mVertices[i].z);
+		vertices.push_back(mesh->mVertices[i].x);
+		vertices.push_back(mesh->mVertices[i].y);
+		vertices.push_back(mesh->mVertices[i].z);
 
 	
 
 		if (hasNormals)
 		{
-			vertices.emplace_back(mesh->mNormals[i].x);
-			vertices.emplace_back(mesh->mNormals[i].y);
-			vertices.emplace_back(mesh->mNormals[i].z);
+			vertices.push_back(mesh->mNormals[i].x);
+			vertices.push_back(mesh->mNormals[i].y);
+			vertices.push_back(mesh->mNormals[i].z);
 		}
 
 		if (hasTexCoords)
 		{
-			vertices.emplace_back(mesh->mTextureCoords[0][i].x);
-			vertices.emplace_back(mesh->mTextureCoords[0][i].y);
+			vertices.push_back(mesh->mTextureCoords[0][i].x);
+			vertices.push_back(mesh->mTextureCoords[0][i].y);
 		}
 		//manage morph animation by interleaving
 		for (unsigned int j = 0; j < morphTargetCount; j++)
@@ -235,28 +236,28 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 			aiAnimMesh* morph = mesh->mAnimMeshes[j];
 			//TODO: check for each vertex element to see if they are in animation
 			if (morph->HasPositions())
-				vertices.emplace_back(morph->mVertices[i].x);
-			vertices.emplace_back(morph->mVertices[i].y);
-			vertices.emplace_back(morph->mVertices[i].z);
+				vertices.push_back(morph->mVertices[i].x);
+			vertices.push_back(morph->mVertices[i].y);
+			vertices.push_back(morph->mVertices[i].z);
 		}
 
 		if (hasTangents)
 		{
-			vertices.emplace_back(mesh->mTangents[i].x);
-			vertices.emplace_back(mesh->mTangents[i].y);
-			vertices.emplace_back(mesh->mTangents[i].z);
+			vertices.push_back(mesh->mTangents[i].x);
+			vertices.push_back(mesh->mTangents[i].y);
+			vertices.push_back(mesh->mTangents[i].z);
 			// bitangemplace_back( 
-			vertices.emplace_back(mesh->mBitangents[i].x);
-			vertices.emplace_back(mesh->mBitangents[i].y);
-			vertices.emplace_back(mesh->mBitangents[i].z);
+			vertices.push_back(mesh->mBitangents[i].x);
+			vertices.push_back(mesh->mBitangents[i].y);
+			vertices.push_back(mesh->mBitangents[i].z);
 		}
 		if (hasBones) {
-			vertices.emplace_back(0);
-			vertices.emplace_back(0);
-			vertices.emplace_back(0);
-			vertices.emplace_back(0);
-			vertices.emplace_back(0);
-			vertices.emplace_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
 		}
 
 	}
@@ -324,7 +325,8 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 		animator.m_bones.resize(bones.size());
 		std::copy(bones.begin(), bones.end(), animator.m_bones.begin());
 
-		for (size_t i = 0; i < bonemapping.size(); i++) {
+		const unsigned int bmapSize = static_cast<unsigned int>(bonemapping.size());
+		for (unsigned int i = 0; i < bmapSize; i++) {
 
 			float sum = 0;
 			for (auto& bm : bonemapping[i]) sum += bm.second;
@@ -349,7 +351,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 
 			}
 
-			size_t j = 0;
+			unsigned int j = 0;
 			for (auto& bm : bonemapping[i])
 			{
 				const unsigned int elementIdxV1 = vbLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
@@ -381,38 +383,26 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 				const aiNodeAnim* ai_channel = anim->mChannels[j];
 				const std::string channelName = ai_channel->mNodeName.C_Str();
 
-				std::vector<  PositionKey> positionkeys;
+				std::vector< PositionKey> positionkeys;
 				std::vector< RotationKey > rotationKeys;
 				std::vector< ScaleKey> scalingKeys;
 
 				for (size_t k = 0; k < ai_channel->mNumPositionKeys; k++)
 				{
 					aiVectorKey ai_key = ai_channel->mPositionKeys[k];
-					std::pair<float, glm::vec3> positionKey
-						= { ai_key.mTime ,
-						glm::vec3{ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z } };
-
-					positionkeys.emplace_back(positionKey);
+					positionkeys.emplace_back(ai_key.mTime, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
 				}
 
 				for (size_t k = 0; k < ai_channel->mNumRotationKeys; k++)
 				{
 					aiQuatKey ai_key = ai_channel->mRotationKeys[k];
-					std::pair<float, glm::quat> rotationKey
-						= { ai_key.mTime  ,
-						glm::quat{ ai_key.mValue.w, ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z  } };
-
-					rotationKeys.emplace_back(rotationKey);
+					rotationKeys.emplace_back(ai_key.mTime, ai_key.mValue.w, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
 				}
 
 				for (size_t k = 0; k < ai_channel->mNumScalingKeys; k++)
 				{
 					aiVectorKey ai_key = ai_channel->mScalingKeys[k];
-					std::pair<float, glm::vec3>
-						scalingKey = { ai_key.mTime    ,
-						glm::vec3(ai_key.mValue.x,ai_key.mValue.y,ai_key.mValue.z) };
-
-					scalingKeys.emplace_back(scalingKey);
+					scalingKeys.emplace_back(ai_key.mTime, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
 				}
 
 				//AnimationChannels.emplace_back(AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys));

@@ -41,7 +41,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
 		);
 
-	const uint32_t N = triangles.size();	//WARNING: max is 4G tris!
+	const uint32_t N = static_cast<uint32_t>(triangles.size());	//WARNING: max is 4G tris!
 	m_indices.resize(N);
 	std::iota(m_indices.begin(), m_indices.end(), 0);
 
@@ -250,63 +250,63 @@ void BVH::InitTriangleRenderer()
 }
 void BVH::CreateBVHTextures()
 {
-	//split bvh node into 2 textures
-	//tex 1: indices:  4 ints
-	//tex  2: min vecs: 3 floats
-	//tex 3: max vecs : 3 floats
-	const unsigned int aabbCount = m_poolPtr;
-	unsigned int intTexture;
-	//std::vector<glm::ivec4> indicesPart;
-	//std::copy( m_pool ,std::)
-	for (uint32_t i = 0; i < m_poolPtr; i++)
-	{
-		//const int start = m_pool[i].m_bounds.m_start;
-		//const int end = m_pool[i].m_end;
-		//const int leftFirst = m_pool[i].m_leftFirst;
-		//const int count = m_pool[i].m_count;
+	////split bvh node into 2 textures
+	////tex 1: indices:  4 ints
+	////tex  2: min vecs: 3 floats
+	////tex 3: max vecs : 3 floats
+	//const unsigned int aabbCount = m_poolPtr;
+	//unsigned int intTexture;
+	////std::vector<glm::ivec4> indicesPart;
+	////std::copy( m_pool ,std::)
+	//for (uint32_t i = 0; i < m_poolPtr; i++)
+	//{
+	//	//const int start = m_pool[i].m_bounds.m_start;
+	//	//const int end = m_pool[i].m_end;
+	//	//const int leftFirst = m_pool[i].m_leftFirst;
+	//	//const int count = m_pool[i].m_count;
 
-		//indicesPart.emplace_back(glm::ivec4(start, end, leftFirst, count));
-	}
+	//	//indicesPart.emplace_back(glm::ivec4(start, end, leftFirst, count));
+	//}
 
-	//std::cout << "nodes tex size: " << indicesPart.size() * sizeof(indicesPart[0]) / 1024 << "kb" << "\n";
+	////std::cout << "nodes tex size: " << indicesPart.size() * sizeof(indicesPart[0]) / 1024 << "kb" << "\n";
 
-	//aabb nodes
-	m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &m_indices[0], false);
-	intTexture = m_aabbNodesTexture.GetID();
+	////aabb nodes
+	//m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &m_indices[0], false);
+	//intTexture = m_aabbNodesTexture.GetID();
 
-	std::vector<glm::vec3> minvec;
-	//auto GetMin = [](AABB& aabb) { return aabb.min; };
+	//std::vector<glm::vec3> minvec;
+	////auto GetMin = [](AABB& aabb) { return aabb.min; };
 
-	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
+	////std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(minvec), GetMin);
 
 
 
-	m_minTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &minvec[0], false);
-	//minVecTexture = m_minVecTex.GetID();
+	//m_minTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &minvec[0], false);
+	////minVecTexture = m_minVecTex.GetID();
 
-	//max bounds
-	//auto Getmax = [](AABB& aabb) { return aabb.m_max.v; };
+	////max bounds
+	////auto Getmax = [](AABB& aabb) { return aabb.m_max.v; };
 
-	std::vector<glm::vec3> maxVec;
-	//std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(maxVec), Getmax);
+	//std::vector<glm::vec3> maxVec;
+	////std::transform(std::begin(m_localBounds), std::end(m_localBounds), std::back_inserter(maxVec), Getmax);
 
-	m_maxTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &maxVec[0], false);
+	//m_maxTexture = Texture1D(aabbCount, 3, dataType::FLOAT32, &maxVec[0], false);
 
-	//triangle texture
-	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
-	const uint32_t triangleCount = static_cast<uint32_t>(triangles.size());
+	////triangle texture
+	//const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
+	//const uint32_t triangleCount = static_cast<uint32_t>(triangles.size());
 
-	std::vector<glm::vec3> triBuffer;
+	//std::vector<glm::vec3> triBuffer;
 
-	for (const auto& t : triangles)
-	{
-		triBuffer.emplace_back(t.A);
-		triBuffer.emplace_back(t.B);
-		triBuffer.emplace_back(t.C);
-	}
-
-	m_triangleTexture = Texture1D(triBuffer.size(), 3, dataType::FLOAT32, &triBuffer[0], false);
-	m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
+	//for (const auto& t : triangles)
+	//{
+	//	triBuffer.emplace_back(t.A);
+	//	triBuffer.emplace_back(t.B);
+	//	triBuffer.emplace_back(t.C);
+	//}
+	//const uint32_t triBuffSize = static_cast<uint32_t>(triBuffer.size());
+	//m_triangleTexture = Texture1D(triBuffSize, 3, dataType::FLOAT32, &triBuffer[0], false);
+	//m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
 }
 void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 {

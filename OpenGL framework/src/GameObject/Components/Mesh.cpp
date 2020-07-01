@@ -51,7 +51,7 @@ void Mesh::Draw(Shader& shader)
 	glBindVertexArray(VAO);
 	if (!indices.empty())
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
-	else glDrawArrays(GetElemDrawType(), 0, GetVertexCount()); //plane!
+	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetVertexCount())); //plane!
 
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
@@ -314,7 +314,7 @@ void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) co
 
 	glBindVertexArray(m_wireVAO);
 
-	GLCall(glDrawArrays(GL_TRIANGLES, 0, positionVertices.size()));
+	GLCall(glDrawArrays(GL_TRIANGLES, 0,static_cast<GLsizei>(positionVertices.size())));
 
 }
 

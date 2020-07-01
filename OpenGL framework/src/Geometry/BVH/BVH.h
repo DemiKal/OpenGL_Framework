@@ -15,9 +15,9 @@ struct HitData
 		:
 		triangleIdx(0),
 		distance(_distance),
-		nodeIdx(_nodeIdx) 
+		nodeIdx(_nodeIdx)
 	{}
-	
+
 	unsigned int triangleIdx;
 	float distance;
 	unsigned int nodeIdx;
@@ -25,42 +25,27 @@ struct HitData
 
 class BVH
 {
-private: 
-	Texture1D	m_aabbNodesTexture;
-	Texture1D	m_minTexture;
-	Texture1D	m_maxTexture;
-	Texture1D	m_triangleTexture;
-	Texture1D	m_triangleIdxTexture;
-	uint32_t	m_bvh_ssbo;
-	bool		m_isBuilt = false;
-	BVHNode*	m_root;
-	uint32_t	m_poolPtr; //points to current idx while building, becomes size pointer at end
-	//std::vector<unsigned int> m_indices;
-	std::vector<uint32_t> m_indices;
-	std::vector<uint32_t> m_indicesX;
-	std::vector<uint32_t> m_indicesY;
-	std::vector<uint32_t> m_indicesZ;
-	std::vector<BVHNode> m_pool;
-	std::vector<AABB> m_triAABBs;
+	friend class BVHNode;
+private:
+	bool m_isBuilt = false;
+	BVHNode* m_root = nullptr;
+	uint32_t m_bvh_ssbo = 0;
+	uint32_t m_poolPtr = 0; //points to current idx while building, becomes size pointer at end
 	unsigned int m_triangleVAO = 0;
 	unsigned int m_triangleVBO = 0;
+	std::vector<BVHNode> m_pool;
+	std::vector<AABB> m_triAABBs;
+	std::vector<uint32_t> m_indices;
 public:
-	friend class BVHNode;
-
 	uint32_t count = 0;
 
+
 	BVH() = default;
-	std::vector<unsigned>& GetAxis(unsigned axis);
 	BVH(std::vector<uint32_t> indices, std::vector<BVHNode> pool, uint32_t poolPtr);
-
-	Texture1D& GetAABBNodesTexture() { return  m_aabbNodesTexture; }
-	Texture1D& GetMinTexture() { return  m_minTexture; }
-	Texture1D& GetMaxTexture() { return  m_maxTexture; }
-	Texture1D& GetTriangleTexture() { return  m_triangleTexture; }
-	Texture1D& GetTriangleIndexTexture() { return  m_triangleIdxTexture; }
-
 	BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, int poolPtr);
- 	void BuildBVH(const  Renderer& renderer);
+	
+	
+	void BuildBVH(const Renderer& renderer);
 	void Draw(const Camera& camera, Renderer& renderer) const;
 	void CastRay(const Ray& ray);
 	void DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) const;
@@ -68,7 +53,7 @@ public:
 	void CreateBVHTextures();
 	void DrawSingleAABB(Camera& cam, uint32_t index);
 	void CreateBuffers();
-	bool IsBuilt() const { return m_isBuilt; }
+	[[nodiscard]] bool IsBuilt() const { return m_isBuilt; }
 	[[nodiscard]] uint32_t GetBVHSize() const { return m_poolPtr; }
 };
 
