@@ -15,7 +15,7 @@ void Renderer::CreateCubeMesh()
 		{-0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, {-0.5f,0.5f, 0.5f},
 		{-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f,0.5f, -0.5f},
 	};
-  
+
 	cubeIndices = {
 	   0,1, 1,2, 2,3, 3,0,
 	   1,5, 5,6, 6,2,
@@ -29,7 +29,7 @@ void Renderer::CreateCubeMesh()
 	GLCall(glBindVertexArray(cubeVAO));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, cubeVBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cubeVertices.size(), &cubeVertices[0], GL_STATIC_DRAW));
-	
+
 	GLCall(glEnableVertexAttribArray(0));
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr));
 	GLCall(glVertexAttribDivisor(1, 1));
@@ -54,7 +54,7 @@ void Renderer::CreatePlane()
 
 }
 
-void Renderer::DrawInstancedCubes(const GLsizei instanceCount ) const
+void Renderer::DrawInstancedCubes(const GLsizei instanceCount) const
 {
 	GLCall(glBindVertexArray(cubeVAO));
 	const GLsizei indxSize = static_cast<GLsizei>(cubeIndices.size());
@@ -160,6 +160,34 @@ Renderer::Renderer()
 	CreateTriangle();
 	CreatePlane();
 	screenQuad.Init();
+}
+
+void Renderer::CalcFrameTime(float deltaTime)
+{
+	m_prevFrameTime = m_currentFrameTime;
+	const double endtime = glfwGetTime();
+	const double diffms = 1000 * (endtime - m_currentFrameTime);
+	m_frameTimes.push_back(static_cast<float>(diffms));
+	m_totalTime += deltaTime;
+
+}
+void Renderer::UpdateUI(float deltaTime)
+{
+	SetAlphaBlending( alphaBlend);
+	SetVSync( vsync);
+
+	const float average = (float)std::accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.0) / m_frameTimes.size();
+	const float avgFPS = 1000.0f * static_cast<float>(1.0f / average);
+
+	ImGui::Text("FPS: %f, %f ms", avgFPS, average);
+
+
+	if (m_frameTimes.size() >= 100) m_frameTimes.clear();
+
+
+	ImGui::Checkbox("Alpha Blend", &alphaBlend);
+	ImGui::Checkbox("VSync", &vsync);
+
 }
 
 void Renderer::Clear()

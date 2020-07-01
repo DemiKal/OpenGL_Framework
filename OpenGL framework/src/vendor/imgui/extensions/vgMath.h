@@ -11,6 +11,7 @@
 //  This software is distributed under the terms of the BSD 2-Clause license
 //------------------------------------------------------------------------------
 #pragma once
+#define VGIZMO_USES_GLM
 
 #include "vgConfig.h"
 

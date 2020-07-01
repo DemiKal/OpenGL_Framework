@@ -255,6 +255,9 @@
     <ClInclude Include="src\vendor\glm\detail\type_mat.hpp" />
     <ClInclude Include="src\vendor\glm\detail\type_vec.hpp" />
     <ClInclude Include="src\vendor\glm\ext\vec1.hpp" />
+    <ClInclude Include="src\vendor\imgui\extensions\imGuIZMOquat.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />
     <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />

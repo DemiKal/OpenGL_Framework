@@ -2,6 +2,7 @@
 #define PRECOMP_H
 #define GLM_ENABLE_EXPERIMENTAL 
 
+
 __pragma(warning(push))	//disable warnings on external header files
 __pragma(warning(disable : 26495))
 #include <filesystem>

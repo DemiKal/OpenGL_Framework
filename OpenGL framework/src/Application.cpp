@@ -46,17 +46,13 @@ int main(void)
 
 	InputManager::SetWindow(window);
 	glfwMakeContextCurrent(window);
-	bool pauseLight = false;
-	bool alphaBlend = false;
-	bool vsync = true;
 
 	if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
 
 	HardwareQuery::Query();
 	{
 		Renderer renderer;
-		renderer.SetAlphaBlending(alphaBlend);
-		renderer.SetVSync(vsync);
+
 
 		//init before any model
 		ShaderManager::Init();
@@ -121,7 +117,6 @@ int main(void)
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
-		std::vector<float>  frameTimes;
 
 		//ScreenQuad screenQuad;
 
@@ -129,61 +124,40 @@ int main(void)
 		LightManager::AddLight({ -2, 3, 0 }, { 0, 1, 0 });
 		LightManager::AddLight({ 2, 3, 0 }, { 0, 0, 1 });
 
-		double prevFrameTime = glfwGetTime();
+		renderer.m_prevFrameTime = (float)glfwGetTime();
 
 		bool drawBvh = false;
 
 
-		double totalTime = 0;
-		float rotation = 0;
+		//double totalTime = 0;
+		//float rotation = 0;
 		int fbw, fbh, w, h;
 		glfwGetFramebufferSize(window, &fbw, &fbh);
 		glfwGetWindowSize(window, &w, &h);
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
+			renderer.m_currentFrameTime = glfwGetTime();
+			float deltaTime = static_cast<float>(renderer.m_currentFrameTime - renderer.m_prevFrameTime);
+
 			Renderer::ClearColor(1, 1, 1, 1);
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			Renderer::EnableDepth();
 			renderer.SetDepthFunc(GL_LEQUAL);
 			renderer.SetCullingMode(GL_BACK);
-			const double currentFrameTime = glfwGetTime();
-			float deltaTime = static_cast<float>(currentFrameTime - prevFrameTime);
 			renderer.SetAlphaBlending(false);
 
 #pragma region input
-			userInterface.Update();
+			userInterface.Update(deltaTime);
 			InputManager::Update(camera, deltaTime);
+			renderer.UpdateUI(deltaTime);
 
-			ImGui::Checkbox("Alpha Blend", &alphaBlend);
-			ImGui::Checkbox("VSync", &vsync);
-			ImGui::Checkbox("Pause Light", &pauseLight);
+			//renderer.SetAlphaBlending(alphaBlend);
+			//renderer.SetVSync(vsync);
 
 
 
-			renderer.SetAlphaBlending(alphaBlend);
-			renderer.SetVSync(vsync);
-
-			const float average = (float)std::accumulate(frameTimes.begin(), frameTimes.end(), 0.0) / frameTimes.size();
-			const float avgFPS = 1000.0f * static_cast<float>(1.0f / average);
-
-			ImGui::Text("FPS: %f, %f ms", avgFPS, average);
-
-			if (frameTimes.size() >= 100) frameTimes.clear();
-
-			glm::vec3& lightDir = LightManager::GetDirectionalLight();
-			if (!pauseLight)
-			{
-				rotation += 1.f * deltaTime;
-				lightDir.x = sinf(rotation);
-				lightDir.z = cosf(rotation);
-			}
-			vgm::Vec3 light(-lightDir.x, -lightDir.y, -lightDir.z);
-
-			if (ImGui::gizmo3D("##Dir1", light)) lightDir = glm::vec3(-light.x, -light.y, -light.z);
-			float& ambientLight = LightManager::GetAmbientLight();
-			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
 #pragma endregion input
 
 			//update meshes
@@ -238,7 +212,7 @@ int main(void)
 			{
 				ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texID)),
 					ImVec2(static_cast<float>(my_image_width),
-							static_cast<float>(my_image_height)),
+						static_cast<float>(my_image_height)),
 					ImVec2(0, 1), ImVec2(1, 0));
 
 				ImGui::Text(name.c_str());
@@ -252,12 +226,8 @@ int main(void)
 
 			UserInterface::Draw();
 			Renderer::SwapBuffers(window);
+			renderer.CalcFrameTime(deltaTime);
 
-			prevFrameTime = currentFrameTime;
-			const double endtime = glfwGetTime();
-			const double diffms = 1000 * (endtime - currentFrameTime);
-			frameTimes.push_back(static_cast<float>(diffms));
-			totalTime += deltaTime;
 		}
 	}
 

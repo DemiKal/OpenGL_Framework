@@ -2,8 +2,10 @@
 #include "UserInterface.h"
 #include "GameObject/EntityManager.h"
 #include "misc/InputManager.h"
+#include "Light/LightManager.h"
+#include "GameObject/Camera.h"
 
-void UserInterface::Update()
+void UserInterface::Update(float dt)
 {
 	//prepare frame
 	ImGui_ImplOpenGL3_NewFrame();
@@ -12,8 +14,9 @@ void UserInterface::Update()
 
 	EntityBrowser();
 	EntityInspector();
-	MainMenu();
+	MainMenu(dt);
 }
+
 
 void UserInterface::Draw()
 {
@@ -21,7 +24,7 @@ void UserInterface::Draw()
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void UserInterface::MainMenu() const
+void UserInterface::MainMenu(float deltaTime) const
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -48,6 +51,29 @@ void UserInterface::MainMenu() const
 
 		ImGui::EndMainMenuBar();
 	}
+	glm::vec3& lightDir = LightManager::GetDirectionalLight();
+	static float rotation = 0;
+
+	static bool pauseLight;
+	ImGui::Checkbox("Pause Light", &pauseLight);
+
+	Camera* camera = Camera::GetMain();
+	glm::vec3 lightCopy = camera->GetViewMatrix() * glm::vec4(-lightDir, 0.0f);
+	if (ImGui::gizmo3D("##Dir1", lightCopy))
+	{
+		lightDir = glm::inverse(camera->GetViewMatrix()) * glm::vec4(-lightCopy, 0.0f);
+		rotation = atan2f(sinf(lightDir.z), cosf(lightDir.x));
+	}
+	else if (!pauseLight)
+	{
+		lightDir.x = sinf(rotation);
+		lightDir.z = cosf(rotation);
+
+		rotation += 1.f * deltaTime;
+	}
+	float& ambientLight = LightManager::GetAmbientLight();
+	ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
+
 }
 
 void UserInterface::EntityBrowser() const

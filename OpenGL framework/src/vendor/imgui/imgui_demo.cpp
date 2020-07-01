@@ -106,7 +106,7 @@ Index of this file:
 #pragma GCC diagnostic ignored "-Wmisleading-indentation"       // [__GNUC__ >= 6] warning: this 'if' clause does not guard this statement      // GCC 6.0+ only. See #883 on GitHub.
 #endif
 
-// Play it nice with Windows users (Update: since 2018-05, Notepad finally appears to support Unix-style carriage returns!)
+// Play it nice with Windows users (UpdateUI: since 2018-05, Notepad finally appears to support Unix-style carriage returns!)
 #ifdef _WIN32
 #define IM_NEWLINE  "\r\n"
 #else
@@ -684,7 +684,7 @@ static void ShowDemoWindowWidgets()
             }
             if (node_clicked != -1)
             {
-                // Update selection state. Process outside of tree loop to avoid visual inconsistencies during the clicking-frame.
+                // UpdateUI selection state. Process outside of tree loop to avoid visual inconsistencies during the clicking-frame.
                 if (ImGui::GetIO().KeyCtrl)
                     selection_mask ^= (1 << node_clicked);          // CTRL+click to toggle
                 else //if (!(selection_mask & (1 << node_clicked))) // Depending on selection behavior you want, this commented bit preserve selection when clicking on item that is part of the selection
@@ -4779,7 +4779,7 @@ void ShowExampleAppDocuments(bool* p_open)
         }
     }
 
-    // Update closing queue
+    // UpdateUI closing queue
     static ImVector<MyDocument*> close_queue;
     if (close_queue.empty())
     {

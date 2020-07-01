@@ -20,15 +20,20 @@ private:
 	GLenum m_cullingMode = GL_BACK;
 	bool m_VSync;
 	static ScreenQuad screenQuad;
-
+	std::vector<float> m_frameTimes;
+	double m_totalTime;
 public:
+	float m_prevFrameTime, m_currentFrameTime;
 	Renderer();
-
+	bool alphaBlend;
+	bool vsync = true;
+	void CalcFrameTime(float deltaTime);
+	void UpdateUI(float deltaTime);
 	static void Clear();
 	static void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
 	void SetAlphaBlending(bool alphaValue);
 	void SetVSync(bool cond);
-	static void BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> target  );
+	static void BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> target);
 	static void SwapBuffers(GLFWwindow* window);
 	static void BlitFrameBuffer(unsigned int from,
 		unsigned int to,
