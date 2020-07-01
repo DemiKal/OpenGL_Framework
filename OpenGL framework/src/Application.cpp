@@ -123,7 +123,7 @@ int main(void)
 
 		std::vector<float>  frameTimes;
 
-		ScreenQuad screenQuad;
+		//ScreenQuad screenQuad;
 
 		LightManager::AddLight({ 0, 5, 0 }, { 1, 0, 0 });
 		LightManager::AddLight({ -2, 3, 0 }, { 0, 1, 0 });
@@ -217,9 +217,8 @@ int main(void)
 
 			gBuffer.LightingPass(frameBuffer);
 
-			screenQuad.Bind();
-			ScreenQuad::Draw();	//Draw to custom frame buffer
-
+			 
+			Renderer::DrawScreenQuad();
 
 			FrameBuffer::Unbind();
 
@@ -230,23 +229,15 @@ int main(void)
 			GLCall(glActiveTexture(GL_TEXTURE0));
 			GLCall(glBindTexture(GL_TEXTURE_2D, frameTex));
 
-			screenQuad.Bind();
-			ScreenQuad::Draw();
+			Renderer::DrawScreenQuad();
 
-			 PostProcessing::ShadowCastGLSL(camera, gBuffer);
-			 //screenQuad.Bind();
-			 //ScreenQuad::Draw();
+			//PostProcessing::ShadowCastGLSL(camera, gBuffer);
 
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
-
-
-
-
 
 			ImGui::Checkbox("draw bvh", &drawBvh);
 			if (drawBvh) bvh.Draw(camera, renderer);
 			UserInterface::Draw();
-
 
 			Renderer::SwapBuffers(window);
 

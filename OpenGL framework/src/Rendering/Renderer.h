@@ -1,6 +1,6 @@
 #pragma once
 #define PRINTAPI(x)  std::string(#x) ;
-//constexpr std::string printname(GLenum x) { return std::string(x); }
+#include "ScreenQuad.h"
 
 class IndexBuffer;
 class VertexArray;
@@ -17,7 +17,7 @@ private:
 	GLenum m_depthFunction = GL_LEQUAL;
 	GLenum m_cullingMode = GL_BACK;
 	bool m_VSync;
-
+	static ScreenQuad screenQuad;
 
 public:
 	Renderer();
@@ -28,32 +28,33 @@ public:
 	void SetVSync(bool cond);
 	static void SwapBuffers(GLFWwindow* window);
 	static void BlitFrameBuffer(unsigned int from,
-	                            unsigned int to,
-	                            GLenum type,
-	                            glm::ivec2 srcStart = { 0,0 },
-	                            glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT },
-	                            glm::ivec2 destStart = { 0,0 },
-	                            glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
-	                            GLenum filterMethod = GL_NEAREST);
+		unsigned int to,
+		GLenum type,
+		glm::ivec2 srcStart = { 0,0 },
+		glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT },
+		glm::ivec2 destStart = { 0,0 },
+		glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
+		GLenum filterMethod = GL_NEAREST);
+
+	[[nodiscard]] bool GetAlphaBlending() const { return m_alphaBlending; }
+	[[nodiscard]] uint32_t GetCubeVAO() const { return cubeVAO; }
+	[[nodiscard]] GLenum GetDepthFunc() const { return m_depthFunction; }
+	[[nodiscard]] GLenum GetCullingMode() const { return m_cullingMode; }
 
 	static void ClearColor(float r, float g, float b, float a);
 	static void ClearColor(const glm::vec4& color);
 	static void Clear(GLenum type);
+	static void Enable(GLenum type);
+	static void DrawScreenQuad();
+	static void EnableDepth();
+	static void DisableDepth();
 
-	[[nodiscard]] bool GetAlphaBlending() const { return m_alphaBlending; }
+
 	void CreateCubeMesh();
 	void CreateTriangle();
 	void CreatePlane();
 	void DrawInstancedCubes(GLsizei instanceCount) const;
-	void DrawCube(const Camera& cam, const glm::mat4& transform,  glm::vec4 color) const;
-	uint32_t GetCubeVAO() const { return cubeVAO; }
-
-	static void Enable(GLenum type);
-	static void EnableDepth();
-	static void DisableDepth();
+	void DrawCube(const Camera& cam, const glm::mat4& transform, glm::vec4 color) const;
 	void SetDepthFunc(GLenum depthFunc);
-	GLenum GetDepthFunc() const { return m_depthFunction; }
-
-	GLenum GetCullingMode() const { return m_cullingMode; }
 	void SetCullingMode(GLenum cullingMode);
 };

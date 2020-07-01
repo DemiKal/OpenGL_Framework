@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "GameObject/Camera.h"
+ScreenQuad Renderer::screenQuad;
 
 void Renderer::CreateCubeMesh()
 {
@@ -118,6 +119,12 @@ void Renderer::SetDepthFunc(const GLenum depthFunc)
 	GLCall(glDepthFunc(depthFunc));
 }
 
+void Renderer::DrawScreenQuad()
+{
+	screenQuad.Bind(); //TODO use some binding management!
+	screenQuad.Draw();
+}
+
 void Renderer::SetCullingMode(const GLenum cullingMode)
 {
 	if (m_cullingMode == cullingMode)
@@ -149,6 +156,7 @@ Renderer::Renderer()
 	CreateCubeMesh();
 	CreateTriangle();
 	CreatePlane();
+	screenQuad.Init();
 }
 
 void Renderer::Clear()

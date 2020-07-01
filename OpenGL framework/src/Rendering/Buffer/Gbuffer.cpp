@@ -76,7 +76,7 @@ uint32_t Gbuffer::GetZBufferTexID() const
 void Gbuffer::SetShader(const std::string& shaderName)
 {
 	m_lightingShader = ShaderManager::GetShaderIdx(shaderName);
-	//m_lightingShader = ShaderManager::GetShader(shaderName).GetID();
+	 //m_lightingShader = ShaderManager::GetShader(shaderName).GetID();
 }
 
 unsigned int Gbuffer::GetID() const

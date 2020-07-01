@@ -56,5 +56,5 @@ void PostProcessing::ShadowCastGLSL(Camera& camera, Gbuffer& gBuffer)
 	shader.SetInt("u_shadowCast", castShadows);
 	shader.SetInt("u_useZbuffer", useZbuffer);
 
-	ScreenQuad::Draw();
+	Renderer::DrawScreenQuad();
 }

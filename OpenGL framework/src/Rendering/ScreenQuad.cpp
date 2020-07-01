@@ -3,6 +3,11 @@
 
 ScreenQuad::ScreenQuad() : m_VAO(0), m_VBO(0)
 {
+
+}
+
+void ScreenQuad::Init()
+{
 	float quadVertices[] = {
 		// positions   // texCoords
 		-1.0f,  1.0f,  0.0f, 1.0f,
@@ -24,7 +29,7 @@ ScreenQuad::ScreenQuad() : m_VAO(0), m_VBO(0)
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-
+	
 }
 void ScreenQuad::Bind() const
 {

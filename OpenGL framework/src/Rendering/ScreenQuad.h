@@ -1,12 +1,13 @@
 #pragma once
 class ScreenQuad
 {
-public:
+friend class Renderer;
+private:
 	ScreenQuad();
+	void Init();
 	void Bind() const;
 	static void UnBind();
 	static void Draw();
-private:
 	unsigned int m_VAO, m_VBO;
 };
 
