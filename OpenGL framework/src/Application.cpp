@@ -160,6 +160,8 @@ int main(void)
 			ImGui::Checkbox("VSync", &vsync);
 			ImGui::Checkbox("Pause Light", &pauseLight);
 
+
+
 			renderer.SetAlphaBlending(alphaBlend);
 			renderer.SetVSync(vsync);
 
@@ -184,16 +186,14 @@ int main(void)
 			ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
 #pragma endregion input
 
-#ifndef _DEBUG //update meshes
+			//update meshes
 			artisans.Update(deltaTime);
 
 #ifdef BUNNY//update meshes
 			bunny.Update(deltaTime);
 #endif
-#endif
 
 			spyro.Update(deltaTime);
-
 			Renderer::EnableDepth();
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -207,19 +207,13 @@ int main(void)
 #ifdef DRAGON
 			dragon.Draw(camera);
 #endif
-
 			spyro.Draw(camera);
-
-
 			gBuffer.LightingPass(frameBuffer);
 
-			 
 			Renderer::DrawScreenQuad();
-
 			FrameBuffer::Unbind();
-
 			Renderer::BlitTexture(frameBuffer, {});
-			
+
 			//PostProcessing::ShadowCastGLSL(camera, gBuffer);
 
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
@@ -227,8 +221,35 @@ int main(void)
 			renderer.SetAlphaBlending(true);
 			ImGui::Checkbox("draw bvh", &drawBvh);
 			if (drawBvh) bvh.Draw(camera, renderer);
-			UserInterface::Draw();
 
+			std::pair<GLuint, std::string> bufferTargets[4] = {
+				{ gBuffer.GetAlbedoSpecID(), "Albedo"},
+				{ gBuffer.GetPositionID(), "Position"},
+				{ gBuffer.GetNormalID(), "Normal"},
+				{ gBuffer.GetZBufferTexID(), "Zbuffer" } };
+
+			int my_image_width = SCREENWIDTH / 5;
+			int my_image_height = SCREENHEIGHT / 5;
+
+			ImGui::Begin("G-buffer Textures");
+			ImGui::Columns(4, "mixed", false);
+			ImGui::Separator();
+			for (auto [texID, name] : bufferTargets)
+			{
+				ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texID)),
+					ImVec2(my_image_width, my_image_height),
+					ImVec2(0, 1), ImVec2(1, 0));
+
+				ImGui::Text(name.c_str());
+				ImGui::Text("ID = %i", texID);
+				ImGui::Text("Size = %i x %i", my_image_width, my_image_height);
+
+				ImGui::NextColumn();
+			}
+
+			ImGui::End();
+
+			UserInterface::Draw();
 			Renderer::SwapBuffers(window);
 
 			prevFrameTime = currentFrameTime;
