@@ -1,6 +1,7 @@
 #include "precomp.h"
 #include "FrameBuffer.h"
 
+
 FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
 	:
 	m_rendererID(0),
@@ -63,4 +64,24 @@ FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
 	//
 	//m_RBO = rbo;
 
+}
+
+Texture2D& FrameBuffer::GetTexture()
+{
+	return m_renderTarget;
+}
+
+unsigned FrameBuffer::GetID() const
+{
+	return m_rendererID;
+}
+
+void FrameBuffer::Bind() const
+{
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID));
+}
+
+void FrameBuffer::Unbind()
+{
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }

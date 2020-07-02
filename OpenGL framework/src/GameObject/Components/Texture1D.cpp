@@ -9,6 +9,27 @@ Texture1D::Texture1D()
 
 }
 
+unsigned Texture1D::GetID() const
+{
+	return m_rendererID;
+}
+
+unsigned Texture1D::GetWidth() const
+{
+	return m_width;
+}
+
+std::string Texture1D::GetName() const
+{
+	return m_name;
+}
+
+void Texture1D::Bind(const unsigned slot) const
+{
+	GLCall(glActiveTexture(GL_TEXTURE0 + slot));
+	GLCall(glBindTexture(GL_TEXTURE_1D, m_rendererID));
+}
+
 std::tuple<GLenum, GLenum, GLenum> GetType(dataType datatype, const unsigned int channels)
 {
 	if (datatype == dataType::INT32)

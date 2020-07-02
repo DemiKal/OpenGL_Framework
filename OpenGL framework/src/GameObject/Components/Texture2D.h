@@ -2,17 +2,18 @@
 class Texture2D
 {
 private:
-	unsigned int m_rendererID{};
-	std::string m_type;
-	std::string m_path;
-	unsigned int m_width{};
-	unsigned int m_height{};
-	GLuint TextureFromFile(const std::string& fullpath);
+	std::string m_type = "";
+	std::string m_path = "";
+	unsigned int m_rendererID = 0;
+	unsigned int m_width = 0;
+	unsigned int m_height= 0;
+
+	GLuint TextureFromFile(const std::string& fullPath);
 
 public:
 	Texture2D(const std::string& fullPath, const std::string& typeName);
 	Texture2D(
-		const GLenum internalformat,
+		const GLenum internalFormat,
 		const unsigned int p_width,  
 		const unsigned int p_height,
 		const unsigned int border,
@@ -26,15 +27,12 @@ public:
 
 	~Texture2D() = default;
 
-	inline unsigned int GetID()const { return m_rendererID; }
-	inline std::string GetType() const { return m_type; }
-	inline std::string GetPath() const { return m_path; }
-	inline unsigned int GetWidth()  const { return m_width; }
-	inline unsigned int GetHeight()  const { return m_height; }
-	inline void Bind(const int textureIndex = 0) const
-	{
-		GLCall(glActiveTexture(GL_TEXTURE0 + textureIndex));
-		GLCall(glBindTexture(GL_TEXTURE_2D, m_rendererID));
-	}
+	[[nodiscard]] std::string GetType() const;
+	[[nodiscard]] std::string GetPath() const;
+	[[nodiscard]] unsigned int GetID() const;
+	[[nodiscard]] unsigned int GetWidth() const;
+	[[nodiscard]] unsigned int GetHeight() const;
+
+	void Bind(const int textureIndex = 0) const;
 };
 

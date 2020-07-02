@@ -1,7 +1,8 @@
 #include "precomp.h"
 #include "Gbuffer.h"
+
+#include "FrameBuffer.h"
 #include "GameObject/Components/Texture2D.h"
-#include "Light/Light.h"
 #include "Light/LightManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h"

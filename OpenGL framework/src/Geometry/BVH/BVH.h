@@ -1,12 +1,11 @@
 #pragma once
 //#include "Geometry/BVHNode.h"
-#include "Geometry/TriangleBuffer.h"
+
 #include "GameObject/Components/AABB.h"
-#include "Geometry/Ray.h"
-#include "GameObject/Components/Texture1D.h"
 
 class Renderer;
 class BVHNode;
+class Ray;
 struct Triangle;
 
 struct HitData
@@ -53,7 +52,7 @@ public:
 	void CreateBVHTextures();
 	void DrawSingleAABB(Camera& cam, uint32_t index);
 	void CreateBuffers();
-	[[nodiscard]] bool IsBuilt() const { return m_isBuilt; }
-	[[nodiscard]] uint32_t GetBVHSize() const { return m_poolPtr; }
+	[[nodiscard]] bool IsBuilt() const;
+	[[nodiscard]] uint32_t GetBVHSize() const;
 };
 

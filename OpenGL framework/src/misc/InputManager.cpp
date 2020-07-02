@@ -1,6 +1,6 @@
 #include "precomp.h"
 #include "InputManager.h"
-
+#include "Geometry/Ray.h"
 #include "GameObject/Camera.h"
 #include "GameObject/Components/Model.h"
 #include "Light/Light.h"
@@ -73,14 +73,14 @@ void InputManager::Update(Camera& camera, const float dt)
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)			camera.RotateLocalX(turnSpeed * dt);
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)			camera.RotateLocalX(-turnSpeed * dt);
 
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)			LightManager::GetLight(0).get_position() += (2 * camSpeed * upWorld);
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)			LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * -rightWorld;
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * rightWorld;
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)			LightManager::GetLight(0).get_position() += 2 * camSpeed * forwardWorld;
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * -forwardWorld;
-	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)		LightManager::GetLight(0).get_position() += 2 * camSpeed * upWorld;
-	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)	LightManager::GetLight(0).get_position() += 2 * camSpeed * -upWorld;
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)			LightManager::GetLight(0).GetPosition() += (2 * camSpeed * upWorld);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)			LightManager::GetLight(0).GetPosition() += 2 * camSpeed * -upWorld;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)		LightManager::GetLight(0).GetPosition() += 2 * camSpeed * -rightWorld;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)		LightManager::GetLight(0).GetPosition() += 2 * camSpeed * rightWorld;
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)			LightManager::GetLight(0).GetPosition() += 2 * camSpeed * forwardWorld;
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)		LightManager::GetLight(0).GetPosition() += 2 * camSpeed * -forwardWorld;
+	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)		LightManager::GetLight(0).GetPosition() += 2 * camSpeed * upWorld;
+	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)	LightManager::GetLight(0).GetPosition() += 2 * camSpeed * -upWorld;
 
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -111,4 +111,14 @@ void InputManager::Update(Camera& camera, const float dt)
 	//}
 
 	camera.GetPosition() += camMovement;
+}
+
+Model* InputManager::GetSelectedModel()
+{
+	return GetInstance().m_selectedModel;
+}
+
+void InputManager::SetSelectedModel(Model* model)
+{
+	GetInstance().m_selectedModel = model;
 }

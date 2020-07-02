@@ -1,6 +1,6 @@
 #pragma once
-#include "GameObject/Components/Texture2D.h"
-#include "FrameBuffer.h"
+
+class FrameBuffer;
 
 class Gbuffer
 {
@@ -16,15 +16,17 @@ private:
 public:
 	Gbuffer(unsigned int width = SCREENWIDTH, unsigned int height = SCREENHEIGHT);
 	unsigned int GetID() const;
+
 	void Bind() const;
 	void BindShader() const;
 	void LightingPass(const FrameBuffer& frameBuffer) const;
+	void SetShader(const std::string& shaderName);
+	void Enable();
+	
 	[[nodiscard]] unsigned int GetPositionID() const;
 	[[nodiscard]] unsigned int GetNormalID() const;
 	[[nodiscard]] unsigned int GetAlbedoSpecID() const;
 	[[nodiscard]] unsigned int GetRBO_ID() const;
 	[[nodiscard]] uint32_t GetZBufferTexID() const;
-	void SetShader(const std::string& shaderName);
-	void Enable();
 };
 

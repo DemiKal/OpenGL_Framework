@@ -62,3 +62,8 @@ void VertexBuffer::UnBind() const
 {
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
+
+void VertexBuffer::ClearData()
+{
+	delete bufferData;
+}

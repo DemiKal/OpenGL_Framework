@@ -1,7 +1,7 @@
 #pragma once
-#include "Geometry/Ray.h"
 
 
+class Ray;
 class Camera;
 class Model;
 #define SIMD
@@ -72,57 +72,27 @@ public:
 
 	[[nodiscard]] uint32_t GetLongestAxis() const;
 	[[nodiscard]] glm::mat4 GetTransform() const;
-	[[nodiscard]] glm::vec3 GetMin() const { return min; }
+	[[nodiscard]] glm::vec3 GetMin() const;
 	[[nodiscard]] std::vector<glm::vec4> GetVerticesLocal() const;
-	[[nodiscard]] glm::vec3	GetMax() const { return max; }
+	[[nodiscard]] glm::vec3 GetMax() const;
 	[[nodiscard]] glm::vec3 Minimize(const glm::vec3& minA, const glm::vec3& minB) const;
 	[[nodiscard]] glm::vec3	Maximize(const glm::vec3& maxA, const glm::vec3& maxB) const;
 
 	[[nodiscard]]
-	AABB Union(const AABB& a) const
-	{
-		//const glm::vec3 minV = Minimize(a.min, min);
-		//const glm::vec3 maxV = Maximize(a.max, max);
+	AABB Union(const AABB& a) const;
 
-		AABB newB;
-		newB.vmin = _mm_min_ps(a.vmin, vmin);
-		newB.vmax = _mm_max_ps(a.vmax, vmax);
-		return newB;//WARNING DOESN'T PRESERVE COUNT
-	}
 	[[nodiscard]]
-	float  CalcSurfaceArea() const
-	{
-		//const float xlen = max.x - min.x;
-		//const float zlen = max.y - min.y;
-		//const float ylen = max.z - min.z;
-		//const float ground = 2 * xlen * zlen;
-		//const float side1 = 2 * ylen * xlen;
-		//const float side2 = 2 * ylen * zlen;
-		//return ground + side1 + side2;
-		union
-		{
-			__m128 diff; float d[4];
-		};
+	float CalcSurfaceArea() const;
 
-		diff = _mm_sub_ps(vmax, vmin);
+	[[nodiscard]] glm::vec3 GetCenter() const;
 
-		return std::max(0.0f, d[0] * d[1] + d[0] * d[2] + d[1] * d[2]);
+	[[nodiscard]] glm::vec3 Min() const;;
+	[[nodiscard]] glm::vec3 Max() const;;
+	[[nodiscard]] uint32_t GetCount() const;;
+	[[nodiscard]] uint32_t GetLeftFirst() const;;
 
-
-	}
-
-	[[nodiscard]] glm::vec3  GetCenter() const
-	{
-		return 0.5f * (max + min);
-	}
-
-	[[nodiscard]] glm::vec3 Min() const { return min; };
-	[[nodiscard]] glm::vec3 Max() const { return max; };
-	[[nodiscard]] uint32_t GetCount() const { return m_count; };
-	[[nodiscard]] uint32_t GetLeftFirst() const { return m_leftFirst; };
-
-	void SetCount(const uint32_t cnt) { m_count = cnt; };
-	void SetLeftFirst(const uint32_t lf) { m_leftFirst = lf; };
+	void SetCount(const uint32_t cnt);;
+	void SetLeftFirst(const uint32_t lf);;
 
 
 };

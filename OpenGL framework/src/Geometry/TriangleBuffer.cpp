@@ -3,6 +3,18 @@
 #include "GameObject/Components/Model.h"
 
 
+Triangle::Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C):
+	A(_A), meshIdx(0), B(_B), triIdx(0), C(_C), dummy0i(0)
+{
+}
+
+IndexPair::IndexPair(const size_t p_startIdx, const size_t p_endIdx, Model& model): startIdx(p_startIdx),
+                                                                                    endIdx(p_endIdx), modelPtr(&model)
+{
+}
+
+
+
 inline TriangleBuffer& TriangleBuffer::GetInstance()
 {
 	static  TriangleBuffer instance;
@@ -11,7 +23,7 @@ inline TriangleBuffer& TriangleBuffer::GetInstance()
 
 void TriangleBuffer::AddTriangles_I(Model& model)
 {
-	std::vector<glm::vec3>& posVerts = model.getMesh(0).positionVertices;
+	std::vector<glm::vec3>& posVerts = model.GetMesh(0).positionVertices;
 	const size_t currentIdx = m_TriangleBuffer.size();			//global StartIdx
 	const size_t endIdx = currentIdx + posVerts.size() / 3;	//global EndIdx
 	m_TriangleBuffer.reserve(currentIdx + posVerts.size());

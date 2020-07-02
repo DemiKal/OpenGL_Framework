@@ -1,13 +1,13 @@
 #include "precomp.h"
 #include "Texture2D.h"
 
-GLuint Texture2D::TextureFromFile(const std::string& fullpath/*, Texture& texture*/)
+GLuint Texture2D::TextureFromFile(const std::string& fullPath/*, Texture& texture*/)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 	stbi_set_flip_vertically_on_load(true);
 	int width, height, nrComponents;
-	unsigned char* data = stbi_load(fullpath.c_str(), &width, &height, &nrComponents, 0);
+	unsigned char* data = stbi_load(fullPath.c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{
 		GLenum format;
@@ -36,7 +36,7 @@ GLuint Texture2D::TextureFromFile(const std::string& fullpath/*, Texture& textur
 	}
 	else
 	{
-		std::cout << "Texture failed to load at path: " << fullpath << std::endl;
+		std::cout << "Texture failed to load at path: " << fullPath << std::endl;
 		stbi_image_free(data);
 	}
 
@@ -85,6 +85,37 @@ Texture2D::Texture2D(
 	
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+}
+
+unsigned Texture2D::GetID() const
+{
+	return m_rendererID;
+}
+
+std::string Texture2D::GetType() const
+{
+	return m_type;
+}
+
+std::string Texture2D::GetPath() const
+{
+	return m_path;
+}
+
+unsigned Texture2D::GetWidth() const
+{
+	return m_width;
+}
+
+unsigned Texture2D::GetHeight() const
+{
+	return m_height;
+}
+
+void Texture2D::Bind(const int textureIndex) const
+{
+	GLCall(glActiveTexture(GL_TEXTURE0 + textureIndex));
+	GLCall(glBindTexture(GL_TEXTURE_2D, m_rendererID));
 }
 
 

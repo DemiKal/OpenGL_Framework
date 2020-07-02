@@ -3,6 +3,7 @@
 #include "Components/AABB.h"
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/Model.h"
+#include "Geometry/Ray.h"
 
 Camera* Camera::m_mainCam;
 Camera* Camera::m_cam2;
@@ -71,6 +72,26 @@ Ray Camera::RayFromMouse(const double mouseX, const double mouseY) const
 	Ray ray(this->PositionRead(), ray_world);
 
 	return ray;
+}
+
+void Camera::SetCamera2(Camera* camera)
+{
+	m_cam2 = camera;
+}
+
+void Camera::SetMainCamera(Camera* cam)
+{
+	m_mainCam = cam;
+}
+
+Camera* Camera::GetMain()
+{
+	return m_mainCam;
+}
+
+Camera* Camera::GetCam2()
+{
+	return m_cam2;
 }
 
 //TODO: set screen width and other vars dynamically!
@@ -153,6 +174,26 @@ inline void Camera::RotateLocalY(const float angle)
 void Camera::SetViewVector(const glm::vec3& view)
 {
 	m_forward = view;
+}
+
+glm::vec3& Camera::GetPosition()
+{
+	return m_pos;
+}
+
+glm::vec3 Camera::PositionRead() const
+{
+	return m_pos;
+}
+
+float Camera::GetAspectRatio() const
+{
+	return m_aspectRatio;
+}
+
+glm::vec3 Camera::GetForwardVector() const
+{
+	return m_forward;
 }
 
 float Camera::GetNearPlaneDist() const

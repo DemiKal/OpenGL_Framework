@@ -19,7 +19,16 @@ void Light::create_buffer_object()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 }
 
-void Light::draw(const Camera& cam )  
+Light::Light(const glm::vec3 pos, const glm::vec3 col):
+	m_position(pos),
+	m_color(col),
+	m_VAO(0),
+	m_VBO(0)
+{
+	create_buffer_object();
+}
+
+void Light::Draw(const Camera& cam )  
 {
 	const glm::mat4  model = glm::translate(glm::mat4(1.0f), m_position);
 	const glm::mat4& view = cam.GetViewMatrix();
@@ -29,7 +38,7 @@ void Light::draw(const Camera& cam )
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
-	shader.SetVec3f("color", get_color());
+	shader.SetVec3f("color", GetColor());
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(15);
 
@@ -38,7 +47,22 @@ void Light::draw(const Camera& cam )
 	shader.Unbind();
 }
 
-unsigned int Light::get_vbo() const
+glm::vec3& Light::GetPosition()
+{
+	return m_position;
+}
+
+glm::vec3& Light::GetColor()
+{
+	return m_color;
+}
+
+unsigned Light::GetVAO() const
+{
+	return m_VAO;
+}
+
+unsigned int Light::GetVBO() const
 {
 	return m_VBO;
 }

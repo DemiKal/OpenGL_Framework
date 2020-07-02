@@ -1,10 +1,10 @@
 #include "precomp.h"
 #include "PostProcessing.h"
 #include "Renderer.h"
-#include "ScreenQuad.h"
 #include "ShaderManager.h" 
 #include "Light/LightManager.h"
-
+#include "GameObject/Camera.h"
+#include "Buffer/Gbuffer.h"
 
 void PostProcessing::ShadowCastGLSL(Camera& camera, Gbuffer& gBuffer)
 {

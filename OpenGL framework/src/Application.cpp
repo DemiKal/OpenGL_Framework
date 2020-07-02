@@ -154,7 +154,7 @@ int main(void)
 			renderer.UpdateUI(deltaTime);
 
 			//renderer.SetAlphaBlending(alphaBlend);
-			//renderer.SetVSync(vsync);
+			//renderer.SetVSync(m_VSync);
 
 
 

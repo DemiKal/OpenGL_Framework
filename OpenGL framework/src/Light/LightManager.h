@@ -19,42 +19,19 @@ private:
 	}
 
 
-	static inline LightManager& GetInstance()
-	{
-		static LightManager instance;
-		return instance;
-	}
+	static inline LightManager& GetInstance();
 
 public:
-	static void AddLight(const glm::vec3 position, const glm::vec3 color)
-	{
-		GetInstance().m_lights.emplace_back(Light(position, color));
-	}
+	static float& GetAmbientLight();
 
-	static std::vector<Light>& GetLights()
-	{
-		return GetInstance().m_lights;
-	}
+	static std::vector<Light>& GetLights();
 
-	static Light& GetLight(const unsigned int idx)
-	{
-		return GetInstance().m_lights[idx];
-	}
+	static Light& GetLight(const unsigned int idx);
 
-	static void debug_render(const Camera& cam)
-	{
-		for (Light& l : GetLights())
-			l.draw(cam);
-	}
+	static void DebugRender(const Camera& cam);
+	static void AddLight(const glm::vec3 position, const glm::vec3 color);
 
-	static glm::vec3& GetDirectionalLight()
-	{
-		return GetInstance().m_directionalLight;
-	}
+	static glm::vec3& GetDirectionalLight();
 
-	static float& GetAmbientLight()
-	{
-		return GetInstance().m_ambient;
-	}
 };
 

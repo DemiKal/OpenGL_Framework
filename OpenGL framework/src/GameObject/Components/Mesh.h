@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Texture2D.h"
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
 #include "Rendering/Buffer/VertexBufferLayout.h"
@@ -18,8 +19,8 @@ protected:
 public:
 	float lineThickness = 0.1f;
 	static Mesh CreateCubeWireframe();
-	inline GLenum GetElemDrawType() const { return m_elemDrawType; };
-	void SetElemDrawType(const GLenum enm) { m_elemDrawType = enm; }
+	inline GLenum GetElemDrawType() const;;
+	void SetElemDrawType(const GLenum enm);
 
 	std::vector<float> vertices; //TODO make it dynamic for ints and others
 	std::vector<unsigned int> indices;
@@ -41,11 +42,11 @@ public:
 		const Animator& animator,
 		const VertexBufferLayout& vbl);
 
-	void Draw(   Shader& shader);
-	bool hasAnimation() const { return animation_loaded; }
-	unsigned int GetVAO() { return VAO; }
-	unsigned int GetVBO() { return VBO; }
-	unsigned int GetEBO() { return EBO; }
+	void Draw(Shader& shader);
+	bool HasAnimation() const;
+	unsigned int GetVAO();
+	unsigned int GetVBO();
+	unsigned int GetEBO();
 
 	void MakeWireFrame();
 	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const;
@@ -54,16 +55,13 @@ public:
 
 	static Mesh CreateCube();
 
-	inline bool HasFaceIndices() const { return indices.size() > 0; }
-	inline unsigned int GetVertexCount() const { return static_cast<unsigned int>(vertices.size()); }
+	bool HasFaceIndices() const;
+	unsigned int GetVertexCount() const;
 
 	//void SetVAO(unsigned int val) { VAO = val; }
 	//void SetVBO(unsigned int val) { VBO = val; }
 	//void SetEBO(unsigned int val) { EBO = val; }
-	void addTexture(const Texture2D& tex)
-	{
-		m_textures.emplace_back(tex);
-	}
+	void AddTexture(const Texture2D& tex);
 
 	//void AddWeight(std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
 	//	GLuint bone_id, GLfloat weight);

@@ -1,5 +1,18 @@
 #include "precomp.h"
 #include "EntityManager.h"
+#include "Components/Model.h"
+
+std::vector<Model*>& EntityManager::GetEntities()
+{
+	return GetInstance().Entities;
+}
+
+void EntityManager::AddEntity(Model& model)
+{
+	auto& instance = GetInstance();
+	instance.Entities.emplace_back(&model);
+	TriangleBuffer::AddTriangles(model);
+}
 
 std::optional<std::reference_wrapper<Model>> EntityManager::GetEntity(const std::string& ent_name)
 {  

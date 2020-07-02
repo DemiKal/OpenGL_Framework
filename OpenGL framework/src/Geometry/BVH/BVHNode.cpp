@@ -1,8 +1,12 @@
 #include "precomp.h"
 #include "BVHNode.h"
-
+#include "Geometry/TriangleBuffer.h"
 
 glm::vec3 GetCenterTriangle(const Triangle& triangle);
+
+BVHNode::BVHNode()
+{
+}
 
 void BVHNode::Subdivide(
 	BVH& bvh,

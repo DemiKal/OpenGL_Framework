@@ -174,7 +174,7 @@ void Renderer::CalcFrameTime(float deltaTime)
 void Renderer::UpdateUI(float deltaTime)
 {
 	SetAlphaBlending( alphaBlend);
-	SetVSync( vsync);
+	SetVSync( m_VSync);
 
 	const float average = (float)std::accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.0) / m_frameTimes.size();
 	const float avgFPS = 1000.0f * static_cast<float>(1.0f / average);
@@ -186,7 +186,7 @@ void Renderer::UpdateUI(float deltaTime)
 
 
 	ImGui::Checkbox("Alpha Blend", &alphaBlend);
-	ImGui::Checkbox("VSync", &vsync);
+	ImGui::Checkbox("VSync", &m_VSync);
 
 }
 
@@ -273,6 +273,26 @@ void Renderer::BlitFrameBuffer(const unsigned int from,
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, to);
 	glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT,
 		type, filterMethod);
+}
+
+bool Renderer::GetAlphaBlending() const
+{
+	return m_alphaBlending;
+}
+
+uint32_t Renderer::GetCubeVAO() const
+{
+	return cubeVAO;
+}
+
+GLenum Renderer::GetDepthFunc() const
+{
+	return m_depthFunction;
+}
+
+GLenum Renderer::GetCullingMode() const
+{
+	return m_cullingMode;
 }
 
 void Renderer::ClearColor(float r, float g, float b, float a)

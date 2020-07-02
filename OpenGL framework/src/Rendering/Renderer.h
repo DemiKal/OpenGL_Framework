@@ -15,10 +15,11 @@ private:
 	bool m_alphaBlending = true;
 	std::vector<glm::vec3> cubeVertices;
 	std::vector<unsigned int> cubeIndices;
-	unsigned int cubeVAO{}, cubeVBO{}, cubeEBO{};
+	unsigned int cubeVAO = 0, cubeVBO = 0, cubeEBO = 0;
+	
 	GLenum m_depthFunction = GL_LEQUAL;
 	GLenum m_cullingMode = GL_BACK;
-	bool m_VSync;
+	bool m_VSync = true;
 	static ScreenQuad screenQuad;
 	std::vector<float> m_frameTimes;
 	double m_totalTime;
@@ -26,7 +27,6 @@ public:
 	float m_prevFrameTime, m_currentFrameTime;
 	Renderer();
 	bool alphaBlend;
-	bool vsync = true;
 	void CalcFrameTime(float deltaTime);
 	void UpdateUI(float deltaTime);
 	static void Clear();
@@ -44,10 +44,10 @@ public:
 		glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
 		GLenum filterMethod = GL_NEAREST);
 
-	[[nodiscard]] bool GetAlphaBlending() const { return m_alphaBlending; }
-	[[nodiscard]] uint32_t GetCubeVAO() const { return cubeVAO; }
-	[[nodiscard]] GLenum GetDepthFunc() const { return m_depthFunction; }
-	[[nodiscard]] GLenum GetCullingMode() const { return m_cullingMode; }
+	[[nodiscard]] bool GetAlphaBlending() const;
+	[[nodiscard]] uint32_t GetCubeVAO() const;
+	[[nodiscard]] GLenum GetDepthFunc() const;
+	[[nodiscard]] GLenum GetCullingMode() const;
 
 	static void ClearColor(float r, float g, float b, float a);
 	static void ClearColor(const glm::vec4& color);

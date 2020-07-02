@@ -1,6 +1,8 @@
 #pragma once
-#include "GameObject/Camera.h"
-#include "Buffer/Gbuffer.h"
+
+
+class Gbuffer;
+class Camera;
 
 class PostProcessing
 {

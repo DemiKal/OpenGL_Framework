@@ -1,7 +1,5 @@
 #pragma once
-//#include <string>
-//#include <iostream>
-//#include <filesystem>
+
 
 #include "Shader.h"
 enum shaderTypeFlags
@@ -17,7 +15,6 @@ using shaderMap = std::unordered_map<std::string, std::tuple<ShaderType, std::st
 class ShaderManager
 {
 private:
-
 	shaderMap m_vertexShaderSources;
 	shaderMap m_fragmentShaderSources;
 
@@ -35,7 +32,7 @@ public:
 
 	std::string directory;
 	bool initialized = false;
-	std::vector< Shader > shaders;
+	std::vector<Shader> shaders;
 
 	ShaderManager() = default;
 

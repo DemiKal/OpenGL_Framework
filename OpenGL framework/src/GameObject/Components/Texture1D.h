@@ -21,15 +21,12 @@ public:
 	~Texture1D() = default;
 
 
-	unsigned int GetID()const { return m_rendererID; }
-	unsigned int GetWidth()  const { return m_width; }
-	std::string GetName() const { return m_name; }
+	unsigned int GetID() const;
+	unsigned int GetWidth() const;
+	std::string GetName() const;
 
-	void  Bind(const unsigned int slot = 0) const
-	{
-		GLCall(glActiveTexture(GL_TEXTURE0 + slot));
-		GLCall(glBindTexture(GL_TEXTURE_1D, m_rendererID));
-	}
+	void Bind(const unsigned slot) const;
 
+	//void Bind(unsigned int slot = 0) const;
 };
 

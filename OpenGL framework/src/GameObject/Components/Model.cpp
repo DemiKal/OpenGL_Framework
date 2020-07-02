@@ -12,6 +12,7 @@
 #include "GameObject/Components/AABB.h"
 #include "GameObject/Components/mesh.h"
 #include "Light/LightManager.h"
+#include "Rendering/Shader.h"
 
 
 //from assimpviewer
@@ -36,6 +37,16 @@ Model::Model(const std::string& path, const aiPostProcessSteps loadFlags = aiPro
 	m_shaderIdx(0)
 {
 	LoadModel(path, loadFlags);
+}
+
+glm::mat4 Model::GetModelMatrix() const
+{
+	return m_modelMatrix;
+}
+
+void Model::SetModelMatrix(const glm::mat4& mat)
+{
+	m_modelMatrix = mat;
 }
 
 void Model::SetShader(const std::string& shadername)
@@ -461,9 +472,14 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 	return	 meshnew;
 }
 
+Mesh& Model::GetMesh(const unsigned idx)
+{
+	return m_meshes[idx];
+}
+
 
 std::vector<Texture2D> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type,
-	const std::string& typeName)
+                                                   const std::string& typeName)
 {
 	std::vector<Texture2D> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)

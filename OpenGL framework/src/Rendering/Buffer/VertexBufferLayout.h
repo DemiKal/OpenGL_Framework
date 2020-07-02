@@ -19,9 +19,7 @@ struct VertexBufferElement
 	VertexType vertexType;
 	unsigned int vertexIndex; //Get the index of this element
 
-	VertexBufferElement(int classtype, int _count, char _normalized, VertexType semanticType, const unsigned int idx)
-		:
-		type(classtype), count(_count), normalized(_normalized), vertexType(semanticType), vertexIndex(idx) {}
+	VertexBufferElement(int classType, int _count, char _normalized, VertexType semanticType, const unsigned int idx);
 
 
 	GLenum GetType()
@@ -43,6 +41,11 @@ struct VertexBufferElement
 		return 0;
 	}
 };
+
+inline VertexBufferElement::VertexBufferElement(int classType, int _count, char _normalized, VertexType semanticType, const unsigned idx):
+	type(classType), count(_count), normalized(_normalized), vertexType(semanticType), vertexIndex(idx)
+{
+}
 
 class VertexBufferLayout
 {

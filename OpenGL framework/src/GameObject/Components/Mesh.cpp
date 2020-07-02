@@ -1,13 +1,14 @@
 #include "precomp.h"
+#include "Mesh.h"
 #include "Rendering/Buffer/VertexBufferLayout.h"
 #include "GameObject/Components/Texture2D.h"
-#include "Rendering/Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "GameObject/Camera.h"
 #include "Animation/Joint.h"
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
-#include "GameObject/Components/mesh.h"
+
+
 
 void Mesh::Draw(Shader& shader)
 {
@@ -55,6 +56,26 @@ void Mesh::Draw(Shader& shader)
 
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
+}
+
+bool Mesh::HasAnimation() const
+{
+	return animation_loaded;
+}
+
+unsigned Mesh::GetVAO()
+{
+	return VAO;
+}
+
+unsigned Mesh::GetVBO()
+{
+	return VBO;
+}
+
+unsigned Mesh::GetEBO()
+{
+	return EBO;
 }
 
 Mesh::Mesh(
@@ -181,6 +202,16 @@ Mesh Mesh::CreateCubeWireframe()
 	return mesh;
 }
 
+GLenum Mesh::GetElemDrawType() const
+{
+	return m_elemDrawType;
+}
+
+void Mesh::SetElemDrawType(const GLenum enm)
+{
+	m_elemDrawType = enm;
+}
+
 Mesh Mesh::CreateCube()
 {
 	Mesh mesh;
@@ -260,6 +291,21 @@ Mesh Mesh::CreateCube()
 	mesh.VAO = cubeVAO;
 
 	return mesh;
+}
+
+bool Mesh::HasFaceIndices() const
+{
+	return indices.size() > 0;
+}
+
+unsigned Mesh::GetVertexCount() const
+{
+	return static_cast<unsigned int>(vertices.size());
+}
+
+void Mesh::AddTexture(const Texture2D& tex)
+{
+	m_textures.emplace_back(tex);
 }
 
 void Mesh::MakeWireFrame()

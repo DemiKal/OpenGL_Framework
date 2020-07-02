@@ -11,16 +11,14 @@ struct Triangle
 	union { float dummy2f = 0; uint32_t dummy0i; };
 
 
-	Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C) :
-		A(_A), meshIdx(0), B(_B), triIdx(0), C(_C), dummy0i(0) {}
+	Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C);
 };
 
 struct IndexPair
 {
 	size_t startIdx, endIdx;
 	Model* modelPtr;
-	IndexPair(const size_t p_startIdx, const size_t p_endIdx, Model& model)
-		: startIdx(p_startIdx), endIdx(p_endIdx), modelPtr(&model) {}
+	IndexPair(const size_t p_startIdx, const size_t p_endIdx, Model& model);
 };
 
 class TriangleBuffer
@@ -30,7 +28,7 @@ class TriangleBuffer
 	//every mesh has a start and end idx.
 	std::vector<IndexPair> m_IndexRangeBuffer;
 
-	TriangleBuffer() {}
+	TriangleBuffer() = default;
 
 
 	static TriangleBuffer& GetInstance();

@@ -7,6 +7,7 @@
 #include "GameObject/Components/AABB.h"
 #include "Geometry/Ray.h"
 #include "Rendering/ShaderManager.h"
+#include "Geometry/Ray.h"
 
 class Model;
 
@@ -55,7 +56,73 @@ inline glm::vec3 AABB::Maximize(const glm::vec3& maxA, const glm::vec3& maxB) co
 	return { std::max(maxA.x, maxB.x),std::max(maxA.y, maxB.y),std::max(maxA.z, maxB.z) };
 }
 
- 
+AABB AABB::Union(const AABB& a) const
+{
+	//const glm::vec3 minV = Minimize(a.min, min);
+	//const glm::vec3 maxV = Maximize(a.max, max);
+
+	AABB newB;
+	newB.vmin = _mm_min_ps(a.vmin, vmin);
+	newB.vmax = _mm_max_ps(a.vmax, vmax);
+	return newB; //WARNING DOESN'T PRESERVE COUNT
+}
+
+float AABB::CalcSurfaceArea() const
+{
+	//const float xlen = max.x - min.x;
+	//const float zlen = max.y - min.y;
+	//const float ylen = max.z - min.z;
+	//const float ground = 2 * xlen * zlen;
+	//const float side1 = 2 * ylen * xlen;
+	//const float side2 = 2 * ylen * zlen;
+	//return ground + side1 + side2;
+	union
+	{
+		__m128 diff;
+		float d[4];
+	};
+
+	diff = _mm_sub_ps(vmax, vmin);
+
+	return std::max(0.0f, d[0] * d[1] + d[0] * d[2] + d[1] * d[2]);
+}
+
+glm::vec3 AABB::GetCenter() const
+{
+	return 0.5f * (max + min);
+}
+
+glm::vec3 AABB::Min() const
+{
+	return min;
+}
+
+glm::vec3 AABB::Max() const
+{
+	return max;
+}
+
+uint32_t AABB::GetCount() const
+{
+	return m_count;
+}
+
+uint32_t AABB::GetLeftFirst() const
+{
+	return m_leftFirst;
+}
+
+void AABB::SetCount(const uint32_t cnt)
+{
+	m_count = cnt;
+}
+
+void AABB::SetLeftFirst(const uint32_t lf)
+{
+	m_leftFirst = lf;
+}
+
+
 inline std::vector<glm::vec4> AABB::GetVerticesLocal() const
 {
 	return
@@ -67,6 +134,11 @@ inline std::vector<glm::vec4> AABB::GetVerticesLocal() const
 		{min.x, min.y, min.z, 1.0f}, {max.x, min.y, min.z, 1.0f},
 		{max.x, max.y, min.z, 1.0f}, {min.x, max.y, min.z, 1.0f},
 	};
+}
+
+glm::vec3 AABB::GetMax() const
+{
+	return max;
 }
 
 void AABB::RecalcBounds(const glm::mat4& transform, const AABB& original)
@@ -101,6 +173,11 @@ glm::mat4 AABB::GetTransform() const
 	const glm::vec3 center = 0.5f * (max + min);
 
 	return glm::scale(glm::translate(glm::mat4(1.0f), center), scale);
+}
+
+glm::vec3 AABB::GetMin() const
+{
+	return min;
 }
 
 void AABB::Update(const glm::mat4& transform, const AABB& original)

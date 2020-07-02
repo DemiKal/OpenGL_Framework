@@ -34,6 +34,16 @@ Shader::Shader(const std::string& filepath, const ShaderType shaderType)
 	SetupUniforms();
 }
 
+std::string Shader::GetName() const
+{
+	return m_name;
+}
+
+unsigned Shader::GetID() const
+{
+	return m_RendererID;
+}
+
 void Shader::SetupUniforms() {
 
 	GLint uniform_count = 0;

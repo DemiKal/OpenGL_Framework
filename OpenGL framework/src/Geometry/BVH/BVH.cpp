@@ -6,6 +6,9 @@
 #include "misc/InputManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h" 
+#include "Geometry/TriangleBuffer.h"
+//#include "GameObject/Components/Texture1D.h"
+#include "Geometry/Ray.h"
 
 BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
 	m_bvh_ssbo(0),
@@ -78,7 +81,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 //	GLCall(glBufferData(GL_ARRAY_BUFFER, m_aabbMatrices.size() * sizeof(glm::mat4), &m_aabbMatrices[0], GL_STATIC_DRAW));
 //	Model* m_wireCube = &EntityManager::GetEntity("WireCube");
 //
-//	const unsigned int cubeVAO = m_wireCube->getMesh(0).GetVAO();
+//	const unsigned int cubeVAO = m_wireCube->GetMesh(0).GetVAO();
 //	glBindVertexArray(cubeVAO);
 //	// set attribute pointers for matrix (4 times vec4)
 //	glEnableVertexAttribArray(1);
@@ -110,8 +113,8 @@ void BVH::BuildBVH(const Renderer& renderer)
 //	aabbshader.SetUniformMat4f("u_projection", camera.GetProjectionMatrix());
 //	aabbshader.SetVec4f("u_color", { bvhColor[0] , bvhColor[1] ,bvhColor[2] , bvhColor[3] });
 //	Model*  wireCube = &EntityManager::GetEntity("WireCube");
-//	const unsigned int vcount =  wireCube->getMesh(0).GetVertexCount();
-//	glBindVertexArray( wireCube->getMesh(0).GetVAO());
+//	const unsigned int vcount =  wireCube->GetMesh(0).GetVertexCount();
+//	glBindVertexArray( wireCube->GetMesh(0).GetVAO());
 //	glDrawArraysInstanced(GL_LINES, 0, vcount, m_localBounds.size());
 //	glBindVertexArray(0);
 //}
@@ -343,4 +346,14 @@ void BVH::CreateBuffers()
 	glBufferData(GL_SHADER_STORAGE_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_tri_index_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+bool BVH::IsBuilt() const
+{
+	return m_isBuilt;
+}
+
+uint32_t BVH::GetBVHSize() const
+{
+	return m_poolPtr;
 }

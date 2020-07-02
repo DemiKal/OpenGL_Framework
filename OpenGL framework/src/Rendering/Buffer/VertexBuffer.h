@@ -4,7 +4,7 @@ class VertexBuffer
 {
 private:
 	unsigned int m_rendererID{};
-	void* bufferdata;
+	void* bufferData;
 public:
 	VertexBuffer(const void* data, unsigned int size);
 	void InterleaveVertexData(const std::vector<float>& position, const std::vector<float>& uvs) const;
@@ -14,7 +14,7 @@ public:
 
 	void Bind() const;
 	void UnBind() const;
-	void ClearData() { delete bufferdata; }
+	void ClearData();
 };
 
 

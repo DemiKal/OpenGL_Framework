@@ -7,9 +7,9 @@ class InputManager
 {
 public:
 	static void SetWindow(GLFWwindow* window);
-	static void Update(Camera& camera, const float deltaTime);
-	static Model* GetSelectedModel() { return GetInstance().m_selectedModel; }
-	static void SetSelectedModel(Model* model) { GetInstance().m_selectedModel = model; }
+	static void Update(Camera& camera, float deltaTime);
+	static Model* GetSelectedModel();
+	static void SetSelectedModel(Model* model);
 	static bool m_isClicked;
 private:
 	InputManager();
