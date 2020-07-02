@@ -32,8 +32,9 @@ void BVH::BuildBVH(const Renderer& renderer)
 		return;
 	}
 
+	const uint32_t N = static_cast<uint32_t>(triangles.size());	//WARNING: max is 4G tris!
 	std::vector<AABB> triAABBs;
-	triAABBs.reserve(triangles.size());
+	triAABBs.reserve(N);
 	for (const auto& tri : triangles)
 		triAABBs.emplace_back(
 			std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
@@ -44,7 +45,11 @@ void BVH::BuildBVH(const Renderer& renderer)
 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
 		);
 
-	const uint32_t N = static_cast<uint32_t>(triangles.size());	//WARNING: max is 4G tris!
+	m_triangleCenters.reserve(N);
+	for (AABB& aabb : triAABBs)
+		m_triangleCenters.push_back(aabb.GetCenter());
+	
+	
 	m_indices.resize(N);
 	std::iota(m_indices.begin(), m_indices.end(), 0);
 

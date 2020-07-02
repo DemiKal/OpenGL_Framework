@@ -16,9 +16,10 @@
 #include "Rendering/PostProcessing.h"
 #include "Geometry/BVH/BVHNode.h"
 
-//#define BUNNY
-//#define DRAGON
-
+#ifndef _DEBUG
+#define BUNNY
+#define DRAGON
+#endif
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -69,14 +70,14 @@ int main(void)
 		EntityManager::AddEntity(artisans);
 
 #ifdef BUNNY
-		Model bunny("res/meshes/bunny.obj", aiProcess_Triangulate);
+		Model bunny("res/meshes/erato/erato.obj", aiProcess_Triangulate);
 		bunny.SetShader("Gbuffer_basic");
 		bunny.m_name = "Spyro";
 		EntityManager::AddEntity(bunny);
 #endif
 #ifdef DRAGON
 		Model dragon("res/meshes/dragon.obj", aiProcess_Triangulate);
-		dragon.SetShader("Gbuffer_basic");
+		dragon.SetShader("Gbuffer_basic_no_tex");
 		dragon.m_name = "erato";
 		EntityManager::AddEntity(dragon);
 #endif
@@ -137,7 +138,7 @@ int main(void)
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
-			renderer.m_currentFrameTime = glfwGetTime();
+			renderer.m_currentFrameTime = static_cast<float>(glfwGetTime());
 			float deltaTime = static_cast<float>(renderer.m_currentFrameTime - renderer.m_prevFrameTime);
 
 			Renderer::ClearColor(1, 1, 1, 1);

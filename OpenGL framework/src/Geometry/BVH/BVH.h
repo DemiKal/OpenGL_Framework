@@ -35,6 +35,7 @@ private:
 	std::vector<BVHNode> m_pool;
 	std::vector<AABB> m_triAABBs;
 	std::vector<uint32_t> m_indices;
+	std::vector<glm::vec3> m_triangleCenters;
 public:
 	uint32_t count = 0;
 

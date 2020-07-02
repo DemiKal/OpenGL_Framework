@@ -15,7 +15,6 @@ void BVHNode::Subdivide(
 	const uint32_t start,
 	const uint32_t end)
 {
-	//fmt::print("Count at: . {}", bvh.count++);
 	bvh.count++;
 	const uint32_t objCount = end - start;
 	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
@@ -27,7 +26,8 @@ void BVHNode::Subdivide(
 		m_bounds.SetLeftFirst(start);
 		return; //TODO: SET LEAF COUNT DYNAMICALLY!
 	}
-	m_bounds.SetLeftFirst(  bvh.m_poolPtr++);
+	
+	m_bounds.SetLeftFirst(bvh.m_poolPtr++);
 
 
 	BVHNode& l = bvh.m_pool[m_bounds.GetLeftFirst()];
@@ -97,16 +97,14 @@ uint32_t BVHNode::Partition(
 	else if (ylen > xlen && ylen > zlen) longestAxis = 1;
 	else if (zlen > xlen && zlen > ylen) longestAxis = 2;
 
-	//sort indices based on longest axis
+	auto& triangleCenters = bvh.m_triangleCenters;
+	//sort indices based on longest axis;
 	std::sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,
-		[&boundingBoxes, longestAxis](const uint32_t a, const uint32_t b) -> bool {
-			const AABB bb1 = boundingBoxes[a];
-			const AABB bb2 = boundingBoxes[b];
-			const glm::vec3 c1 = bb1.GetCenter();
-			const glm::vec3 c2 = bb2.GetCenter();
-			return c1[longestAxis] < c2[longestAxis];
+		[&triangleCenters, longestAxis](const uint32_t a, const uint32_t b) -> bool 
+		{
+			return triangleCenters[a][longestAxis] < triangleCenters[b][longestAxis];
 		});
-	
+
 	//get lowest SAH
 	float bestSAH = sahParent;
 	uint32_t splitIdx = start + 1;	//index is first triangle of right box
@@ -119,24 +117,24 @@ uint32_t BVHNode::Partition(
 	AABB rightBox = boundingBoxes[bvh.m_indices[end - 1]];
 	rightBoxes.emplace_back(rightBox);
 
-	for(uint32_t k = end - 2; k >= splitIdx; k--)
+	for (uint32_t k = end - 2; k >= splitIdx; k--)
 	{
 		rightBox = rightBox.Union(boundingBoxes[bvh.m_indices[k]]);
 		rightBoxes.push_back(rightBox);
 	}
-	
-	
+
+
 	uint32_t countLeft = 1;
 	for (uint32_t rightFirstIdx = start + 1; rightFirstIdx < end; rightFirstIdx++)
 	{
 		const uint32_t countRight = range - countLeft;
 
-		leftBox = leftBox.Union(boundingBoxes[bvh.m_indices[rightFirstIdx-1]]);
+		leftBox = leftBox.Union(boundingBoxes[bvh.m_indices[rightFirstIdx - 1]]);
 		const float SAH_left = leftBox.CalcSurfaceArea() * countLeft;
 
 		const AABB rBox = rightBoxes[countRight - 1];
 		const float SAH_right = rBox.CalcSurfaceArea() * countRight;
-		
+
 		const float SAH = SAH_left + SAH_right;
 
 		countLeft++;
