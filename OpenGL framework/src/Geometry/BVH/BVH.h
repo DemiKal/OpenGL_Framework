@@ -1,6 +1,5 @@
 #pragma once
-//#include "Geometry/BVHNode.h"
-
+#include "Geometry/BVH/BVHNode.h"
 #include "GameObject/Components/AABB.h"
 
 class Renderer;
@@ -8,19 +7,7 @@ class BVHNode;
 class Ray;
 struct Triangle;
 
-struct HitData
-{
-	HitData(float _distance, unsigned int _nodeIdx)
-		:
-		triangleIdx(0),
-		distance(_distance),
-		nodeIdx(_nodeIdx)
-	{}
 
-	unsigned int triangleIdx;
-	float distance;
-	unsigned int nodeIdx;
-};
 
 class BVH
 {

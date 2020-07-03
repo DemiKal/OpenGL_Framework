@@ -2,7 +2,6 @@
 #include "BVH.h"
 #include "GameObject/Camera.h"
 #include "GameObject/EntityManager.h" 
-#include "Geometry/BVH/BVHNode.h"
 #include "misc/InputManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h" 

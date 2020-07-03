@@ -1,7 +1,6 @@
 #include "precomp.h"
 #include "Application.h"
 #include "Rendering/Buffer/FrameBuffer.h"
-#include "Rendering/Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/Buffer/Gbuffer.h"
@@ -12,9 +11,6 @@
 #include "misc/InputManager.h"	
 #include "Geometry/BVH/BVH.h"
 #include "misc/UserInterface.h"
-#include "Rendering/ScreenQuad.h"
-#include "Rendering/PostProcessing.h"
-#include "Geometry/BVH/BVHNode.h"
 
 #ifndef _DEBUG
 #define BUNNY

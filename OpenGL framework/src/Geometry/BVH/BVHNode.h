@@ -1,6 +1,24 @@
 #pragma once
-#include "Geometry/BVH/BVH.h"
 #include "GameObject/Components/AABB.h"
+#include "Geometry/TriangleBuffer.h"
+
+class BVH;
+
+struct HitData
+{
+	HitData(float _distance, unsigned int _nodeIdx)
+		:
+		triangleIdx(0),
+		distance(_distance),
+		nodeIdx(_nodeIdx)
+	{}
+
+	unsigned int triangleIdx;
+	float distance;
+	unsigned int nodeIdx;
+};
+
+
 
 class BVHNode
 {
