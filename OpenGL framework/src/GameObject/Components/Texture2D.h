@@ -14,16 +14,16 @@ public:
 	Texture2D(const std::string& fullPath, const std::string& typeName);
 	Texture2D(
 		const GLenum internalFormat,
-		const unsigned int p_width,  
+		const unsigned int p_width,
 		const unsigned int p_height,
 		const unsigned int border,
 		const GLenum format,
 		const GLenum type,
-		const void* data = nullptr,
 		const GLenum minFilter = GL_LINEAR,
 		const GLenum magFilter = GL_LINEAR,
-		const GLenum wrap_S = GL_CLAMP_TO_EDGE,
-		const GLenum wrap_T = GL_CLAMP_TO_EDGE);
+		const GLenum wrap_S = GL_CLAMP_TO_BORDER,
+		const GLenum wrap_T = GL_CLAMP_TO_BORDER,
+		const void* data = nullptr);
 
 	~Texture2D() = default;
 

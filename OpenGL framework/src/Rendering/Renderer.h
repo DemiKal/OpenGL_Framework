@@ -16,7 +16,7 @@ private:
 	std::vector<glm::vec3> cubeVertices;
 	std::vector<unsigned int> cubeIndices;
 	unsigned int cubeVAO = 0, cubeVBO = 0, cubeEBO = 0;
-	
+
 	GLenum m_depthFunction = GL_LEQUAL;
 	GLenum m_cullingMode = GL_BACK;
 	bool m_VSync = true;

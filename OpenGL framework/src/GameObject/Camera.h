@@ -26,6 +26,7 @@ public:
 	void RotateLocalX(float angle); 	//yaw 
 	void RotateLocalY(float angle);	//rotate around the y axis, its own up vector
 	void SetViewVector(const glm::vec3& view);
+	void Roll(const float angle);
 
 	[[nodiscard]] float GetAspectRatio() const;
 	[[nodiscard]] float GetNearPlaneDist() const;
@@ -34,7 +35,7 @@ public:
 	[[nodiscard]] glm::vec3 PositionRead() const;;
 	[[nodiscard]] glm::vec3 GetForwardVector() const;
 	[[nodiscard]] glm::vec3 GetUpVector() const;
-	[[nodiscard]] inline glm::mat4 GetViewProjectionMatrix() const;
+	[[nodiscard]] glm::mat4 GetViewProjectionMatrix() const;
 	[[nodiscard]] inline glm::mat4 GetViewMatrix() const;
 	[[nodiscard]] inline glm::mat4 GetProjectionMatrix() const;
 	[[nodiscard]] std::pair<bool, Model*> MousePick(double MouseX, double MouseY) const; //TODO fix without pointer and use optional

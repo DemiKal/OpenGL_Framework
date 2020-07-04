@@ -84,7 +84,7 @@ aiNode* FindRootNode(aiNode* node, const std::string& name) {
 void Model::LoadModel(const std::string& path, const aiPostProcessSteps loadFlags)
 {
 	Assimp::Importer import;
-	const auto standardFlags = aiProcess_GenSmoothNormals| aiProcess_GenBoundingBoxes;
+	const auto standardFlags = aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes;
 	const auto flagsComposed = standardFlags | loadFlags;
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
 
@@ -158,8 +158,7 @@ void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
 		}
 		return;
 	}
-	for (int i = 0; i < arma->children.size(); i++)
-		FindChildren(arma->children[i], joint, bonesDict);
+	for (auto& i : arma->children) FindChildren(i, joint, bonesDict);
 }
 void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 {
@@ -206,10 +205,10 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 	}
 
 	const unsigned int morphTargetCount = mesh->mNumAnimMeshes;
-	
-	if(morphTargetCount)
+
+	if (morphTargetCount)
 	{
-		for(unsigned int i = 0; i < morphTargetCount; i++)
+		for (unsigned int i = 0; i < morphTargetCount; i++)
 		{
 			aiAnimMesh* morph = mesh->mAnimMeshes[i];
 			if (morph->HasPositions())
@@ -227,7 +226,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 		vertices.push_back(mesh->mVertices[i].y);
 		vertices.push_back(mesh->mVertices[i].z);
 
-	
+
 
 		if (hasNormals)
 		{
@@ -479,7 +478,7 @@ Mesh& Model::GetMesh(const unsigned idx)
 
 
 std::vector<Texture2D> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type,
-                                                   const std::string& typeName)
+	const std::string& typeName)
 {
 	std::vector<Texture2D> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
@@ -510,27 +509,42 @@ std::vector<Texture2D> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureTyp
 	return textures;
 }
 
-void Model::Draw(const Camera& cam)
+void Model::Draw(const glm::mat4& projection, Shader& shader)
 {
-	//auto d = shader.get();
-	Shader& shader = ShaderManager::GetShader(m_shaderIdx);
+	static long idx = 1;
 	shader.Bind();
 
-	std::vector < std::string> names;
-
-	const glm::mat4 view = cam.GetViewMatrix();
-	const glm::mat4 proj = cam.GetProjectionMatrix();
-
-
 	shader.SetUniformMat4f("u_model", m_modelMatrix);
-	shader.SetUniformMat4f("u_view", view);
-	shader.SetUniformMat4f("u_projection", proj);
-
+	shader.SetUniformMat4f("u_lightProj", projection);
+	shader.SetVec3f("u_color", idx++ % 2 ? vec3(1.0f, 0, 0) : vec3(0, 1, 0));
 
 	for (auto& mesh : m_meshes)
 		mesh.Draw(shader);
 
 	shader.Unbind();
+}
+
+void Model::Draw(const Camera& cam, Shader& shader)
+{
+	shader.Bind();
+
+	const glm::mat4 view = cam.GetViewMatrix();
+	const glm::mat4 proj = cam.GetProjectionMatrix();
+
+	shader.SetUniformMat4f("u_model", m_modelMatrix);
+	shader.SetUniformMat4f("u_view", view);
+	shader.SetUniformMat4f("u_projection", proj);
+
+	for (auto& mesh : m_meshes)
+		mesh.Draw(shader);
+
+	shader.Unbind();
+}
+
+void Model::Draw(const Camera& cam)
+{
+	Shader& shader = ShaderManager::GetShader(m_shaderIdx);
+	Draw(cam, shader);
 }
 
 Shader& Model::GetShader() const

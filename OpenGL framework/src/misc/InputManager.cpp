@@ -72,6 +72,7 @@ void InputManager::Update(Camera& camera, const float dt)
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)			camera.RotateLocalY(-turnSpeed * dt);
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)			camera.RotateLocalX(turnSpeed * dt);
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)			camera.RotateLocalX(-turnSpeed * dt);
+	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)			camera.Roll(-turnSpeed * dt);
 
 	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)			LightManager::GetLight(0).GetPosition() += (2 * camSpeed * upWorld);
 	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)			LightManager::GetLight(0).GetPosition() += 2 * camSpeed * -upWorld;
@@ -81,7 +82,7 @@ void InputManager::Update(Camera& camera, const float dt)
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)		LightManager::GetLight(0).GetPosition() += 2 * camSpeed * -forwardWorld;
 	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)		LightManager::GetLight(0).GetPosition() += 2 * camSpeed * upWorld;
 	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)	LightManager::GetLight(0).GetPosition() += 2 * camSpeed * -upWorld;
-
+	 
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{

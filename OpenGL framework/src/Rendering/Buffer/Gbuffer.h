@@ -1,4 +1,5 @@
 #pragma once
+#include "GameObject/Camera.h"
 
 class FrameBuffer;
 
@@ -19,7 +20,8 @@ public:
 
 	void Bind() const;
 	void BindShader() const;
-	void LightingPass(const FrameBuffer& frameBuffer) const;
+	void LightingPass(const FrameBuffer& frameBuffer, Camera& lightCam, const GLuint zbufferTex) const;
+	//void LightingPass(const FrameBuffer& frameBuffer) const;
 	void SetShader(const std::string& shaderName);
 	void Enable();
 	

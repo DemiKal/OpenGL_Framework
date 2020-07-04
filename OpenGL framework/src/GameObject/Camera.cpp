@@ -97,12 +97,16 @@ Camera* Camera::GetCam2()
 //TODO: set screen width and other vars dynamically!
 void Camera::SetOrthographic()
 {
-	m_projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -10.0f, 100.0f);
+	float H = SCREENWIDTH;
+	float V = SCREENHEIGHT;
+	//m_projection = glm::ortho(-H, H, -V, V, m_nearPlane, m_farPlane);
+	m_projection = glm::ortho(-10.0f, 10.f, -10.0f, 10.f,  m_nearPlane, m_farPlane);
 }
 
-inline glm::mat4 Camera::GetViewProjectionMatrix() const
+glm::mat4 Camera::GetViewProjectionMatrix() const
 {
-	return m_projection * glm::lookAt(m_pos, m_pos + m_forward, m_up);
+	//return m_projection * glm::lookAt(m_pos, m_pos + m_forward, m_up);
+	return GetProjectionMatrix() * GetViewMatrix();
 }
 
 std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
@@ -136,7 +140,16 @@ std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 
 inline glm::mat4 Camera::GetViewMatrix() const
 {
-	return glm::lookAt(m_pos, m_pos + m_forward, m_up);
+	return glm::lookAt(m_pos, m_pos + m_forward, m_up + vec3(1,1,1) * 0.0001f);
+}
+
+void Camera::Roll(const float angle)
+{
+	const mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_forward);
+	//m_forward = vec3(normalize(rotation * vec4(m_up, 0.0)));
+
+	m_up = vec3(normalize(rotation * vec4(m_up, 0.0)));
+
 }
 
 inline glm::mat4 Camera::GetProjectionMatrix() const
@@ -164,7 +177,6 @@ inline void Camera::RotateLocalX(const float angle)
 //rotate around the y axis, its own up vector
 inline void Camera::RotateLocalY(const float angle)
 {
-	static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
 	const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_up);
 	m_forward = glm::vec3(glm::normalize(rotation * glm::vec4(m_forward, 0.0)));
 

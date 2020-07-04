@@ -125,6 +125,8 @@
     </None>
     <None Include="res\shaders\Gbuffer_basic_no_tex.frag" />
     <None Include="res\shaders\Gbuffer_basic_no_tex.vert" />
+    <None Include="res\shaders\Gbuffer_basic_vertex.frag" />
+    <None Include="res\shaders\Gbuffer_basic_vertex.vert" />
     <None Include="res\shaders\lightShader.frag" />
     <None Include="res\shaders\lightShader.vert">
       <FileType>Document</FileType>

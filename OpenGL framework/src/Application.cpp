@@ -50,11 +50,10 @@ int main(void)
 	{
 		Renderer renderer;
 
-
 		//init before any model
 		ShaderManager::Init();
 		UserInterface userInterface;
-
+		Shader& agnosticShader = ShaderManager::GetShader("Gbuffer_basic_vertex");
 		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 		spyro.SetShader("Gbuffer_basic");
 		spyro.m_name = "Spyro";
@@ -82,6 +81,8 @@ int main(void)
 		bvh.BuildBVH(renderer);
 
 		FrameBuffer frameBuffer;
+		FrameBuffer shadowMap;
+
 
 		// configure g-buffer framebuffer
 		// ------------------------------
@@ -93,10 +94,13 @@ int main(void)
 		const float aspect = static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT);
 		const auto originalCamPos = glm::vec3(0, 3, 16);
 		Camera camera(originalCamPos, 70, aspect, 0.1f, 400.0f);
-		Camera cam2(glm::vec3(-10, 3, 0), 70, aspect, 0.1f, 200.0f);
-		cam2.RotateLocalY(glm::radians(-90.0f));
-		const glm::mat4 cam1Mat = camera.GetViewMatrix();
-		const glm::mat4 cam2Mat = cam2.GetViewMatrix();
+		glm::vec3 dirLightPos = glm::vec3(0, 20, -10);
+
+		Camera cam2(dirLightPos, 70, aspect, 0.1f, 700.0f);
+		cam2.SetOrthographic();
+		
+		//	cam2.RotateLocalX(glm::radians( 90.0f));
+
 		Camera::SetMainCamera(&camera);
 		Camera::SetCamera2(&cam2);
 
@@ -125,6 +129,16 @@ int main(void)
 
 		bool drawBvh = false;
 
+		float nearLight = 0.1f;
+		float farLight = 100.0f;
+		float camLR = 10.0f;
+		float camUD = 10.0f;
+		glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearLight, farLight);
+		//glm::mat4 lightProj = glm::perspective(70.0f, aspect, nearLight, farLight);
+
+
+		int shadowWidth = 1024;
+		int shadowHeight = 1024;
 
 		//double totalTime = 0;
 		//float rotation = 0;
@@ -149,28 +163,61 @@ int main(void)
 			userInterface.Update(deltaTime);
 			InputManager::Update(camera, deltaTime);
 			renderer.UpdateUI(deltaTime);
-
-			//renderer.SetAlphaBlending(alphaBlend);
-			//renderer.SetVSync(m_VSync);
-
-
-
 #pragma endregion input
-
 			//update meshes
 			artisans.Update(deltaTime);
-
+			spyro.Update(deltaTime);
 #ifdef BUNNY//update meshes
 			bunny.Update(deltaTime);
 #endif
 
-			spyro.Update(deltaTime);
 			Renderer::EnableDepth();
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
+			//camera.SetViewVector(cam2.GetForwardVector());
+			//camera.GetPosition() = cam2.PositionRead();
 
 			//draw meshes
 			artisans.Draw(camera);
+			spyro.Draw(camera);
+
+			glm::vec3& lightDir = LightManager::GetDirectionalLight();
+
+			ImGui::SliderFloat("near Light", &nearLight, 0, farLight);
+			ImGui::SliderFloat("far Light", &farLight, nearLight, 500);
+
+			//LightManager::DebugRender(camera);
+
+		//	lightProj = glm::project(-20.0f, 20.0f, -20.0f, 20.0f, nearLight, farLight);
+
+			glm::mat4 lightView = glm::lookAt(dirLightPos, dirLightPos - lightDir, glm::vec3(0.0f, 1.0f, 0.0f));
+			//glm::mat4 rot = glm::eulerAngleYXZ(
+			//	glm::radians(lightDir.y), glm::radians(lightDir.x), glm::radians(lightDir.z));
+			glm::mat4 trans = glm::translate(glm::mat4(1.0f), dirLightPos);
+
+
+
+			glm::mat4 lightMatrix = lightProj * trans * lightView;
+			auto xx = camera.GetPosition();
+			auto xx2 = camera.GetViewMatrix();
+			auto xx3 = xx2 * vec4(0, 0, 0, 1);
+
+			cam2.SetViewVector(-lightDir);
+
+
+			//camera.GetPosition() = dirLightPos;
+
+			//glViewport(0, 0, 1024, 1024);
+			shadowMap.Bind();
+			//renderer.SetCullingMode(GL_FRONT);
+			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			Renderer::ClearColor(1, 1, 1, 1);
+			artisans.Draw(cam2, agnosticShader);
+			spyro.Draw(cam2, agnosticShader);
+			shadowMap.Unbind();
+			//renderer.SetCullingMode(GL_BACK);
+
 #ifdef BUNNY
 			bunny.Draw(camera);
 #endif
@@ -178,8 +225,16 @@ int main(void)
 #ifdef DRAGON
 			dragon.Draw(camera);
 #endif
-			spyro.Draw(camera);
-			gBuffer.LightingPass(frameBuffer);
+			//spyro.Draw(camera);
+
+
+			glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
+
+			gBuffer.Bind();
+			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			gBuffer.LightingPass(frameBuffer, cam2, shadowMap.GetDepthTexture().GetID());
+			//gBuffer.ShadowMap();
 
 			Renderer::DrawScreenQuad();
 			FrameBuffer::Unbind();
@@ -192,9 +247,42 @@ int main(void)
 			renderer.SetAlphaBlending(true);
 			ImGui::Checkbox("draw bvh", &drawBvh);
 			if (drawBvh) bvh.Draw(camera, renderer);
+			//glm::mat4 transformation; // your transformation matrix.
+			//glm::vec3 scale;
+			//glm::quat rotation;
+			//glm::vec3 translation;
+			//glm::vec3 skew;
+			//glm::vec4 perspective;
+			//glm::decompose(transformation, scale, rotation, translation, skew, perspective);
+
+
+
+			//auto t =   glm::translate(mat4(1.0f), cam2.GetPosition());
+			auto rot = glm::eulerAngleYXZ(
+				(lightDir.y),
+				(lightDir.x),
+				(lightDir.z));
+
+			auto rot90 = glm::rotate(mat4(1.0f), glm::radians(90.0f), { 1,0,0 });
+			auto mat3 = cam2.GetViewMatrix();
+			//	renderer.DrawCube(camera, lightView, vec4(0.8f, 0.3f, 0.1f, 1));
+
+			float length = farLight - nearLight;
+			auto scl = scale(mat4(1.0f), vec3(camLR * 2, length, camUD * 2));
+			mat4 trans2 = translate(mat4(1.0f), normalize(lightDir) * (nearLight + length / 2.0f));
+
+			mat4 projBox = trans * rot * scl;
+
+
+			glm::vec3 vScale, vTrans, skew;
+			glm::quat vRot;
+			glm::vec4 persp;
+			glm::decompose(cam2.GetProjectionMatrix() * cam2.GetViewMatrix(), vScale, vRot, vTrans, skew, persp);
+
+			renderer.DrawCube(camera, projBox, vec4(1.0f, 0.0f, 0.1f, 1));
 
 			std::pair<GLuint, std::string> bufferTargets[4] = {
-				{ gBuffer.GetAlbedoSpecID(), "Albedo"},
+				{ shadowMap.GetTexture().GetID(), "Albedo"},
 				{ gBuffer.GetPositionID(), "Position"},
 				{ gBuffer.GetNormalID(), "Normal"},
 				{ gBuffer.GetZBufferTexID(), "Zbuffer" } };
@@ -205,7 +293,7 @@ int main(void)
 			ImGui::Begin("G-buffer Textures");
 			ImGui::Columns(4, "mixed", false);
 			ImGui::Separator();
-			for (auto [texID, name] : bufferTargets)
+			for (auto& [texID, name] : bufferTargets)
 			{
 				ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texID)),
 					ImVec2(static_cast<float>(my_image_width),
@@ -218,6 +306,8 @@ int main(void)
 
 				ImGui::NextColumn();
 			}
+
+			ImGui::InputFloat3("camera pos", &camera.GetPosition()[0]);
 
 			ImGui::End();
 

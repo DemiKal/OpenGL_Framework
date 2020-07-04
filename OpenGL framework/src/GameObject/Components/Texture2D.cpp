@@ -50,7 +50,7 @@ Texture2D::Texture2D(const std::string& fullPath, const std::string& typeName)
 	m_path = fullPath;
 }
 
-//create a texture directly not from a file
+//Create a texture directly, not from a file
 Texture2D::Texture2D(
 	const GLenum internalFormat, 
 	const unsigned int p_width, 
@@ -58,11 +58,11 @@ Texture2D::Texture2D(
 	const unsigned int border, 
 	const GLenum format, 
 	const GLenum type,
-	const void* data,
 	const GLenum minFilter,
 	const GLenum magFilter, 
 	const GLenum wrap_S,
-	const GLenum wrap_T)
+	const GLenum wrap_T,
+	const void* data)
 	:
 	m_width(p_width), m_height(p_height)
 { 
@@ -82,7 +82,9 @@ Texture2D::Texture2D(
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_S);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_T);
-	
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 }

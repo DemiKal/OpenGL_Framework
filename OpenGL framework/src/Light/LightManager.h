@@ -31,7 +31,7 @@ public:
 	static void DebugRender(const Camera& cam);
 	static void AddLight(const glm::vec3 position, const glm::vec3 color);
 
-	static glm::vec3& GetDirectionalLight();
+	[[nodiscard]] static glm::vec3& GetDirectionalLight();
 
 };
 

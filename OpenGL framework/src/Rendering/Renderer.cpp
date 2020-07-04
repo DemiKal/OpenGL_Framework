@@ -128,6 +128,7 @@ void Renderer::DrawScreenQuad()
 	screenQuad.Draw();
 }
 
+// GL_FRONT, GL_BACK, GL_FRONT_AND_BACK
 void Renderer::SetCullingMode(const GLenum cullingMode)
 {
 	if (m_cullingMode == cullingMode)
@@ -303,6 +304,12 @@ void Renderer::ClearColor(const glm::vec4& color)
 {
 	glClearColor(color.x, color.y, color.z, color.w);
 }
+
+
+/**
+ * \brief clear bits of the buffer
+ * \param type OR-mask:  GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_ACCUM_BUFFER_BIT, and GL_STENCIL_BUFFER_BIT
+ */
 void Renderer::Clear(GLenum type)
 {
 	glClear(type);

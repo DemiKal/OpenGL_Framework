@@ -60,7 +60,8 @@ public:
 	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr <Armature> armature);
 	Mesh& GetMesh(const unsigned int idx);
 	std::vector<Texture2D> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
-
+	void Draw(const glm::mat4& projection, Shader& shader);
+	void Draw(const Camera& cam, Shader& shader);
 	void AddWeight(std::vector<float>& vertices, unsigned int vertexIndex, unsigned int boneIndex, GLuint boneId, GLfloat weight);
 
 

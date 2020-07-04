@@ -11,9 +11,10 @@ private:
 	
 
 public:
-	explicit FrameBuffer(const unsigned int width = SCREENWIDTH, const unsigned int height = SCREENHEIGHT);
-
+	FrameBuffer(unsigned int width = SCREENWIDTH, unsigned int height = SCREENHEIGHT);
+	~FrameBuffer();
 	Texture2D& GetTexture();
+	Texture2D& GetDepthTexture();
 	unsigned int GetID() const;
 	void Bind() const;
 	static void Unbind();

@@ -29,6 +29,7 @@ __pragma(warning(disable : 26495))
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/intersect.inl>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 

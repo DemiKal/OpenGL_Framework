@@ -104,7 +104,7 @@ void Gbuffer::BindShader() const
 	ShaderManager::GetShader(m_lightingShader).Bind();
 }
 
-void Gbuffer::LightingPass(const FrameBuffer& frameBuffer) const
+void Gbuffer::LightingPass(const FrameBuffer& frameBuffer, Camera& lightCam, const GLuint zbufferTex) const
 {
 	frameBuffer.Bind();
 	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,8 +117,16 @@ void Gbuffer::LightingPass(const FrameBuffer& frameBuffer) const
 	GLCall(glBindTexture(GL_TEXTURE_2D, GetNormalID()));
 	GLCall(glActiveTexture(GL_TEXTURE0 + 2));
 	GLCall(glBindTexture(GL_TEXTURE_2D, GetAlbedoSpecID()));
+
+	GLCall(glActiveTexture(GL_TEXTURE0 + 3));
+	GLCall(glBindTexture(GL_TEXTURE_2D, zbufferTex));
+
+	
 	glm::vec3  lightDir = LightManager::GetDirectionalLight();
 	float ambientLight = LightManager::GetAmbientLight();
 	shader.SetVec3f("u_globalLightDir", lightDir);
+	shader.SetVec3f("u_lightPos", lightCam.GetPosition());
 	shader.SetFloat("u_ambientLight", ambientLight);
+	shader.SetUniformMat4f("u_lightMatrix", lightCam.GetViewProjectionMatrix());
+	
 }

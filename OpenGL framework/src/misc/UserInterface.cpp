@@ -54,7 +54,7 @@ void UserInterface::MainMenu(float deltaTime) const
 	glm::vec3& lightDir = LightManager::GetDirectionalLight();
 	static float rotation = 0;
 
-	static bool pauseLight;
+	static bool pauseLight = true;
 	ImGui::Checkbox("Pause Light", &pauseLight);
 
 	Camera* camera = Camera::GetMain();

@@ -222,6 +222,8 @@
     <None Include="res\shaders\AABB_instanced_SSBO.vert" />
     <None Include="res\shaders\Gbuffer_basic_no_tex.frag" />
     <None Include="res\shaders\Gbuffer_basic_no_tex.vert" />
+    <None Include="res\shaders\Gbuffer_basic_vertex.vert" />
+    <None Include="res\shaders\Gbuffer_basic_vertex.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">

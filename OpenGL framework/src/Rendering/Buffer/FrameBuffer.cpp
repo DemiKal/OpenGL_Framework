@@ -7,7 +7,7 @@ FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
 	m_rendererID(0),
 	m_RBO(0),
 	m_renderTarget(Texture2D(GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE)),
-	m_depthTexture(Texture2D(GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT))
+	m_depthTexture(Texture2D(GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER))
 {
 	GLCall(glGenFramebuffers(1, &m_rendererID));
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID));
@@ -66,9 +66,18 @@ FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
 
 }
 
+FrameBuffer::~FrameBuffer()
+{
+}
+
 Texture2D& FrameBuffer::GetTexture()
 {
 	return m_renderTarget;
+}
+
+Texture2D& FrameBuffer::GetDepthTexture()
+{
+	return m_depthTexture;
 }
 
 unsigned FrameBuffer::GetID() const
