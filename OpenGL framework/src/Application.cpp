@@ -93,12 +93,17 @@ int main(void)
 
 		const float aspect = static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT);
 		const auto originalCamPos = glm::vec3(0, 3, 16);
-		Camera camera(originalCamPos, 70, aspect, 0.1f, 400.0f);
-		glm::vec3 dirLightPos = glm::vec3(0, 20, -10);
+		Camera camera(originalCamPos, 70, aspect, 0.1f, 700.0f);
+		glm::vec3 dirLightPos = glm::vec3(0, 90, -250);
 
 		Camera cam2(dirLightPos, 70, aspect, 0.1f, 700.0f);
-		cam2.SetOrthographic();
-		
+		//cam2.RotateLocalY(180);
+		//cam2.RotateLocalX(25);
+		float orthoW = 20.0f;
+		float orthoH = 40.0f;
+
+		cam2.SetOrthographic(orthoW, orthoH, -40, 40);
+
 		//	cam2.RotateLocalX(glm::radians( 90.0f));
 
 		Camera::SetMainCamera(&camera);
@@ -136,6 +141,7 @@ int main(void)
 		glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearLight, farLight);
 		//glm::mat4 lightProj = glm::perspective(70.0f, aspect, nearLight, farLight);
 
+		cam2.GetPosition() = { 0,20,-10 };
 
 		int shadowWidth = 1024;
 		int shadowHeight = 1024;
@@ -203,19 +209,20 @@ int main(void)
 			auto xx2 = camera.GetViewMatrix();
 			auto xx3 = xx2 * vec4(0, 0, 0, 1);
 
-			cam2.SetViewVector(-lightDir);
+			//cam2.SetViewVector();
 
-
+			//cam2.LookAt(vec3(0));
 			//camera.GetPosition() = dirLightPos;
 
 			//glViewport(0, 0, 1024, 1024);
 			shadowMap.Bind();
+			renderer.EnableDepth();
 			//renderer.SetCullingMode(GL_FRONT);
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			Renderer::ClearColor(1, 1, 1, 1);
 			artisans.Draw(cam2, agnosticShader);
 			spyro.Draw(cam2, agnosticShader);
-			shadowMap.Unbind();
+			FrameBuffer::Unbind();
 			//renderer.SetCullingMode(GL_BACK);
 
 #ifdef BUNNY
@@ -255,7 +262,7 @@ int main(void)
 			//glm::vec4 perspective;
 			//glm::decompose(transformation, scale, rotation, translation, skew, perspective);
 
-
+			//ImGui::SliderAngle("view dir light", &)
 
 			//auto t =   glm::translate(mat4(1.0f), cam2.GetPosition());
 			auto rot = glm::eulerAngleYXZ(
@@ -270,6 +277,7 @@ int main(void)
 			float length = farLight - nearLight;
 			auto scl = scale(mat4(1.0f), vec3(camLR * 2, length, camUD * 2));
 			mat4 trans2 = translate(mat4(1.0f), normalize(lightDir) * (nearLight + length / 2.0f));
+			mat4 t = translate(mat4(1.0f), cam2.GetPosition());
 
 			mat4 projBox = trans * rot * scl;
 
@@ -279,7 +287,45 @@ int main(void)
 			glm::vec4 persp;
 			glm::decompose(cam2.GetProjectionMatrix() * cam2.GetViewMatrix(), vScale, vRot, vTrans, skew, persp);
 
-			renderer.DrawCube(camera, projBox, vec4(1.0f, 0.0f, 0.1f, 1));
+			//renderer.DrawCube(camera, inverse(cam2.GetViewMatrix()), vec4(0.1f, 1.0f, 0.2f, 1));
+			//renderer.DrawCube(camera, t, vec4(1.0f, 0.0f, 0.1f, 1));
+
+			//static vec3 lineA = vec3(0, 0, 0);
+			//static vec3 lineB = vec3(0, 0, -5);
+			//ImGui::InputFloat3("Draw line A", &lineA[0]);
+			//ImGui::InputFloat3("Draw line B", &lineB[0]);
+			//auto proj = cam2.GetProjectionMatrix();
+
+			float H = SCREENWIDTH / 8;
+			float V = SCREENHEIGHT / 8;
+			float znear = cam2.GetNearPlaneDist();
+			float zfar = cam2.GetFarPlaneDist();
+
+			mat4 scale2 = scale(mat4(1.0f), { H  , V  , (zfar + znear) });
+			cam2.SetViewVector(lightDir);
+			mat4 vmi = inverse(cam2.GetViewMatrix());
+			mat4 scale2x = scale(mat4(1.0f), { 2,2,2 });
+			mat4 Rmat = rotate(mat4(1.0f), 3.1415f/2.0f, { 0, 0, 1 });
+			mat4 pmi =    inverse(cam2.GetProjectionMatrix()) * scale2x  * inverse(Rmat);
+
+			static float lol = 0;
+			lol += 0.01f;
+			//	mat4 tmat = glm::translate(mat4(1.0f), { 0, 0,  -(znear + zfar) / 2.0f });
+
+			//ImGui::InputFloat3("cam2 move", &cam2.GetPosition()[0]);
+			ImGui::SliderFloat3("cam2 pos", &cam2.GetPosition()[0], -100, 100);
+			//lol += 0.01f;
+			glLineWidth(7.0f);
+			renderer.DrawCube(camera, vmi * pmi, vec4(1, 0, 0, 1));
+			renderer.DrawCube(camera, vmi, vec4(0, 1, 0, 1));
+			renderer.DrawCube(camera, translate(mat4(1.0f), vec3(cam2.GetPosition())), vec4(0, 0, 1, 1));
+
+			renderer.DrawLine(mat4(1.0f), camera, vec3(0), vec3(10, 0, 0));
+			renderer.DrawLine(vmi * pmi * Rmat, camera, vec3(0), vec3(-10, 0, 0));
+
+
+			glLineWidth(1.0f);
+
 
 			std::pair<GLuint, std::string> bufferTargets[4] = {
 				{ shadowMap.GetTexture().GetID(), "Albedo"},
@@ -287,18 +333,25 @@ int main(void)
 				{ gBuffer.GetNormalID(), "Normal"},
 				{ gBuffer.GetZBufferTexID(), "Zbuffer" } };
 
-			int my_image_width = SCREENWIDTH / 5;
-			int my_image_height = SCREENHEIGHT / 5;
+			int my_image_width = SCREENWIDTH / 6;
+			int my_image_height = SCREENHEIGHT / 6;
 
 			ImGui::Begin("G-buffer Textures");
 			ImGui::Columns(4, "mixed", false);
 			ImGui::Separator();
 			for (auto& [texID, name] : bufferTargets)
 			{
+				float thumbW = static_cast<float>(my_image_width);
+				float thumbH = static_cast<float>(my_image_height);
 				ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texID)),
-					ImVec2(static_cast<float>(my_image_width),
-						static_cast<float>(my_image_height)),
-					ImVec2(0, 1), ImVec2(1, 0));
+					ImVec2(thumbW, thumbH), ImVec2(0, 1), ImVec2(1, 0));
+				if (ImGui::IsItemHovered() && name == "Albedo")
+				{
+					ImGui::BeginTooltip();
+					ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texID)),
+						ImVec2(thumbW * 4, thumbH * 4), ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::EndTooltip();
+				}
 
 				ImGui::Text(name.c_str());
 				ImGui::Text("ID = %i", texID);
@@ -306,10 +359,9 @@ int main(void)
 
 				ImGui::NextColumn();
 			}
-
-			ImGui::InputFloat3("camera pos", &camera.GetPosition()[0]);
-
 			ImGui::End();
+
+			ImGui::SliderFloat3("camera pos", &camera.GetPosition()[0], -100, 100);
 
 			UserInterface::Draw();
 			Renderer::SwapBuffers(window);

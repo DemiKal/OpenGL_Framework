@@ -1,14 +1,80 @@
 #include "precomp.h"
 #include "Renderer.h"
+
+
+
+#include <glm/common.hpp>
+#include <glm/common.hpp>
+#include <glm/common.hpp>
+#include <glm/common.hpp>
+#include <glm/gtx/compatibility.hpp>
+#include <glm/gtx/compatibility.hpp>
+
 #include "Buffer/IndexBuffer.h"
 #include "Buffer/VertexArray.h"
 #include "Shader.h"
 #include "Rendering/ShaderManager.h"
 #include "Rendering/Buffer/FrameBuffer.h"
 #include "GameObject/Camera.h"
+#include "GameObject/Components/Model.h"
 
 ScreenQuad Renderer::screenQuad;
 
+void Renderer::DrawLine(const mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b)
+{
+	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));
+	std::vector<vec3> data = { a, b };
+	Shader& shader = ShaderManager::GetShader("single_line");
+	shader.Bind();
+	shader.SetUniformMat4f("u_projection", cam.GetProjectionMatrix());
+	shader.SetUniformMat4f("u_view", cam.GetViewMatrix());
+
+	static float rot = 0;
+	//rot += 0.01f;
+	//mat4 rotMat = rotate(mat4(1.0f), rot, { 0,1,0 });
+	//const mat4& mat = model.GetModelMatrix();
+	shader.SetUniformMat4f("u_model", model);
+
+	//GLfloat lineWidthRange[2] = { 0.0f, 0.0f };
+	//glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
+	GLCall(glLineWidth(5.0f));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));
+	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * 2, &data[0]));
+
+	GLCall(glBindVertexArray(lineVAO));
+	GLCall(glDrawArrays(GL_LINES, 0, 2));  
+	GLCall(glBindVertexArray(0));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCall(glActiveTexture(GL_TEXTURE0));
+	
+	GLCall(glLineWidth(1.0f));
+	Shader::Unbind();
+}
+
+void Renderer::CreateLine()
+{
+	//auto lineVerts = { glm::vec3(0,0,0), glm::vec3(1,0,0) };
+	//cubeIndices = { 0,1 };
+
+	GLCall(glGenVertexArrays(1, &lineVAO));
+	GLCall(glGenBuffers(1, &lineVBO));
+
+	GLCall(glBindVertexArray(lineVAO));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 2, nullptr, GL_DYNAMIC_DRAW));
+
+	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr));
+	GLCall(glVertexAttribDivisor(1, 1));
+	//GLCall(glGenBuffers(1, &cubeEBO));
+	//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
+	//GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int), &cubeIndices[0], GL_STATIC_DRAW));
+
+
+	GLCall(glBindVertexArray(0));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+}
 void Renderer::CreateCubeMesh()
 {
 	cubeVertices = {
@@ -128,7 +194,11 @@ void Renderer::DrawScreenQuad()
 	screenQuad.Draw();
 }
 
-// GL_FRONT, GL_BACK, GL_FRONT_AND_BACK
+// 
+/**
+ * \brief Set culling mode for triangles
+ * \param cullingMode: GL_FRONT, GL_BACK, GL_FRONT_AND_BACK
+ */
 void Renderer::SetCullingMode(const GLenum cullingMode)
 {
 	if (m_cullingMode == cullingMode)
@@ -155,10 +225,13 @@ void Renderer::DisableDepth()
 	GLCall(glDisable(GL_DEPTH_TEST));
 }
 
+
+
 Renderer::Renderer()
 {
 	CreateCubeMesh();
 	CreateTriangle();
+	CreateLine();
 	CreatePlane();
 	screenQuad.Init();
 }
@@ -174,8 +247,8 @@ void Renderer::CalcFrameTime(float deltaTime)
 }
 void Renderer::UpdateUI(float deltaTime)
 {
-	SetAlphaBlending( alphaBlend);
-	SetVSync( m_VSync);
+	SetAlphaBlending(alphaBlend);
+	SetVSync(m_VSync);
 
 	const float average = (float)std::accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.0) / m_frameTimes.size();
 	const float avgFPS = 1000.0f * static_cast<float>(1.0f / average);

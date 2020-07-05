@@ -2,6 +2,7 @@
 #define PRINTAPI(x)  std::string(#x) ;
 
 #include "ScreenQuad.h"
+#include "GameObject/Components/AABB.h"
 
 class FrameBuffer;
 class IndexBuffer;
@@ -16,7 +17,8 @@ private:
 	std::vector<glm::vec3> cubeVertices;
 	std::vector<unsigned int> cubeIndices;
 	unsigned int cubeVAO = 0, cubeVBO = 0, cubeEBO = 0;
-
+	GLuint lineVAO = 0;
+	GLuint lineVBO = 0;
 	GLenum m_depthFunction = GL_LEQUAL;
 	GLenum m_cullingMode = GL_BACK;
 	bool m_VSync = true;
@@ -25,6 +27,8 @@ private:
 	double m_totalTime;
 public:
 	float m_prevFrameTime, m_currentFrameTime;
+	void DrawLine(const mat4& model, const ::Camera& cam, const glm::vec3& a, const glm::vec3& b);
+	void CreateLine();
 	Renderer();
 	bool alphaBlend;
 	void CalcFrameTime(float deltaTime);

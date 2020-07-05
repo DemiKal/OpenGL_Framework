@@ -146,6 +146,8 @@
     <None Include="res\shaders\singleTriangle.vert" />
     <None Include="res\shaders\framebuffer_screen.frag" />
     <None Include="res\shaders\framebuffer_screen.vert" />
+    <None Include="res\shaders\single_line.frag" />
+    <None Include="res\shaders\single_line.vert" />
     <None Include="res\shaders\testshader.vert" />
     <None Include="res\shaders\wireframe.frag" />
     <None Include="res\shaders\wireframe.vert" />

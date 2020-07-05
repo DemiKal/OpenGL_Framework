@@ -74,6 +74,11 @@ Ray Camera::RayFromMouse(const double mouseX, const double mouseY) const
 	return ray;
 }
 
+void Camera::LookAt(const glm::vec3& target)
+{
+	SetViewVector(normalize(m_pos - target));
+}
+
 void Camera::SetCamera2(Camera* camera)
 {
 	m_cam2 = camera;
@@ -95,13 +100,19 @@ Camera* Camera::GetCam2()
 }
 
 //TODO: set screen width and other vars dynamically!
-void Camera::SetOrthographic()
+void Camera::SetOrthographic(float halfWidth, float halfHeight, float near, float far)
 {
-	float H = SCREENWIDTH;
-	float V = SCREENHEIGHT;
+	//float H = static_cast<float>(SCREENWIDTH) / 8.0f;
 	//m_projection = glm::ortho(-H, H, -V, V, m_nearPlane, m_farPlane);
-	m_projection = glm::ortho(-10.0f, 10.f, -10.0f, 10.f,  m_nearPlane, m_farPlane);
+	m_nearPlane = near;
+	m_farPlane = far;
+	m_projection = glm::ortho( 0.f,  halfWidth,  0.f, halfHeight, m_nearPlane , m_farPlane    );
 }
+
+//float Camera::GetFrustumWidth()
+//{
+//	return 
+//}
 
 glm::mat4 Camera::GetViewProjectionMatrix() const
 {
