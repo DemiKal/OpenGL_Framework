@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "precomp.h"
 #include "Application.h"
 #include "Rendering/Buffer/FrameBuffer.h"
@@ -11,11 +12,13 @@
 #include "misc/InputManager.h"	
 #include "Geometry/BVH/BVH.h"
 #include "misc/UserInterface.h"
+#include "Rendering/PostProcessing.h"
 
 #ifndef _DEBUG
 #define BUNNY
 #define DRAGON
 #endif
+
 int main(void)
 {
 	if (!glfwInit()) return -1;
@@ -49,7 +52,8 @@ int main(void)
 	HardwareQuery::Query();
 	{
 		Renderer renderer;
-
+		int lelelelel = 1;
+		static int asdasdsa = 1;
 		//init before any model
 		ShaderManager::Init();
 		UserInterface userInterface;
@@ -67,13 +71,13 @@ int main(void)
 #ifdef BUNNY
 		Model bunny("res/meshes/erato/erato.obj", aiProcess_Triangulate);
 		bunny.SetShader("Gbuffer_basic");
-		bunny.m_name = "Spyro";
+		bunny.m_name = "Erato";
 		EntityManager::AddEntity(bunny);
 #endif
 #ifdef DRAGON
-		Model dragon("res/meshes/dragon.obj", aiProcess_Triangulate);
-		dragon.SetShader("Gbuffer_basic_no_tex");
-		dragon.m_name = "erato";
+		Model dragon("res/meshes/black dragon/blackdragon.obj", aiProcess_Triangulate);
+		dragon.SetShader("Gbuffer_basic");
+		dragon.m_name = "Dragon";
 		EntityManager::AddEntity(dragon);
 #endif
 
@@ -94,15 +98,17 @@ int main(void)
 		const float aspect = static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT);
 		const auto originalCamPos = glm::vec3(0, 3, 16);
 		Camera camera(originalCamPos, 70, aspect, 0.1f, 700.0f);
-		glm::vec3 dirLightPos = glm::vec3(0, 90, -250);
+		glm::vec3 dirLightPos = glm::vec3(0, 0, 0);
 
 		Camera cam2(dirLightPos, 70, aspect, 0.1f, 700.0f);
 		//cam2.RotateLocalY(180);
 		//cam2.RotateLocalX(25);
+
 		float orthoW = 20.0f;
 		float orthoH = 40.0f;
+		float orthoN = 0;
+		float orthoF = 40.0f;
 
-		cam2.SetOrthographic(orthoW, orthoH, -40, 40);
 
 		//	cam2.RotateLocalX(glm::radians( 90.0f));
 
@@ -134,6 +140,8 @@ int main(void)
 
 		bool drawBvh = false;
 
+		//glm::vec3 dirLightPos = glm::vec3(0.0f);
+
 		float nearLight = 0.1f;
 		float farLight = 100.0f;
 		float camLR = 10.0f;
@@ -143,9 +151,8 @@ int main(void)
 
 		cam2.GetPosition() = { 0,20,-10 };
 
-		int shadowWidth = 1024;
-		int shadowHeight = 1024;
-
+		int shadowWidth = 2048;
+		int shadowHeight = 2048;
 		//double totalTime = 0;
 		//float rotation = 0;
 		int fbw, fbh, w, h;
@@ -173,10 +180,13 @@ int main(void)
 			//update meshes
 			artisans.Update(deltaTime);
 			spyro.Update(deltaTime);
-#ifdef BUNNY//update meshes
+
+#if defined (BUNNY) && defined(DRAGON) 
 			bunny.Update(deltaTime);
+			dragon.Update(deltaTime);
 #endif
 
+			//DRAW SHADOW
 			Renderer::EnableDepth();
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -184,57 +194,49 @@ int main(void)
 			//camera.SetViewVector(cam2.GetForwardVector());
 			//camera.GetPosition() = cam2.PositionRead();
 
-			//draw meshes
+			// deferred pass
+			//draw meshes regularly
 			artisans.Draw(camera);
 			spyro.Draw(camera);
-
+#if defined (BUNNY) && defined(DRAGON)
+			bunny.Draw(camera);
+			dragon.Draw(camera);
+#endif	
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
 
 			ImGui::SliderFloat("near Light", &nearLight, 0, farLight);
 			ImGui::SliderFloat("far Light", &farLight, nearLight, 500);
+			ImGui::SliderFloat3("dir light position", glm::value_ptr(dirLightPos), -500,500);
 
-			//LightManager::DebugRender(camera);
+			//cam2.Roll(0.5f *  deltaTime);
 
-		//	lightProj = glm::project(-20.0f, 20.0f, -20.0f, 20.0f, nearLight, farLight);
-
-			glm::mat4 lightView = glm::lookAt(dirLightPos, dirLightPos - lightDir, glm::vec3(0.0f, 1.0f, 0.0f));
-			//glm::mat4 rot = glm::eulerAngleYXZ(
-			//	glm::radians(lightDir.y), glm::radians(lightDir.x), glm::radians(lightDir.z));
-			glm::mat4 trans = glm::translate(glm::mat4(1.0f), dirLightPos);
-
-
-
-			glm::mat4 lightMatrix = lightProj * trans * lightView;
-			auto xx = camera.GetPosition();
-			auto xx2 = camera.GetViewMatrix();
-			auto xx3 = xx2 * vec4(0, 0, 0, 1);
-
-			//cam2.SetViewVector();
-
-			//cam2.LookAt(vec3(0));
-			//camera.GetPosition() = dirLightPos;
-
-			//glViewport(0, 0, 1024, 1024);
+			cam2.SetOrthographic(orthoW, orthoH, orthoN, orthoF);
+			cam2.GetPosition() = dirLightPos;
+			
 			shadowMap.Bind();
 			renderer.EnableDepth();
-			//renderer.SetCullingMode(GL_FRONT);
+			renderer.SetCullingMode(GL_FRONT);
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			Renderer::ClearColor(1, 1, 1, 1);
 			artisans.Draw(cam2, agnosticShader);
 			spyro.Draw(cam2, agnosticShader);
-			FrameBuffer::Unbind();
 			//renderer.SetCullingMode(GL_BACK);
 
-#ifdef BUNNY
-			bunny.Draw(camera);
+#ifdef BUNNY 
+			bunny.Draw(cam2);
 #endif
-
 #ifdef DRAGON
-			dragon.Draw(camera);
+			dragon.Draw(cam2);
 #endif
-			//spyro.Draw(camera);
+			renderer.SetCullingMode(GL_BACK);
+
+			ImGui::SliderFloat("cam 2 width", &orthoW, 0.001f, 400.0f);
+			ImGui::SliderFloat("cam 2 height", &orthoH, 0.001f, 400.0f);
+			ImGui::SliderFloat("cam 2 near", &orthoN, -400.0f, 400.0f);
+			ImGui::SliderFloat("cam 2 far", &orthoF, -400.0f, 400.0f);
 
 
+			FrameBuffer::Unbind();
 			glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
 			gBuffer.Bind();
@@ -249,6 +251,8 @@ int main(void)
 
 			//PostProcessing::ShadowCastGLSL(camera, gBuffer);
 
+			//copy zbuffer data from gbuffer to default framebuffer
+			//so debug drawing isn't always in front of geometry of screen.
 			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
 
 			renderer.SetAlphaBlending(true);
@@ -265,21 +269,7 @@ int main(void)
 			//ImGui::SliderAngle("view dir light", &)
 
 			//auto t =   glm::translate(mat4(1.0f), cam2.GetPosition());
-			auto rot = glm::eulerAngleYXZ(
-				(lightDir.y),
-				(lightDir.x),
-				(lightDir.z));
 
-			auto rot90 = glm::rotate(mat4(1.0f), glm::radians(90.0f), { 1,0,0 });
-			auto mat3 = cam2.GetViewMatrix();
-			//	renderer.DrawCube(camera, lightView, vec4(0.8f, 0.3f, 0.1f, 1));
-
-			float length = farLight - nearLight;
-			auto scl = scale(mat4(1.0f), vec3(camLR * 2, length, camUD * 2));
-			mat4 trans2 = translate(mat4(1.0f), normalize(lightDir) * (nearLight + length / 2.0f));
-			mat4 t = translate(mat4(1.0f), cam2.GetPosition());
-
-			mat4 projBox = trans * rot * scl;
 
 
 			glm::vec3 vScale, vTrans, skew;
@@ -287,14 +277,6 @@ int main(void)
 			glm::vec4 persp;
 			glm::decompose(cam2.GetProjectionMatrix() * cam2.GetViewMatrix(), vScale, vRot, vTrans, skew, persp);
 
-			//renderer.DrawCube(camera, inverse(cam2.GetViewMatrix()), vec4(0.1f, 1.0f, 0.2f, 1));
-			//renderer.DrawCube(camera, t, vec4(1.0f, 0.0f, 0.1f, 1));
-
-			//static vec3 lineA = vec3(0, 0, 0);
-			//static vec3 lineB = vec3(0, 0, -5);
-			//ImGui::InputFloat3("Draw line A", &lineA[0]);
-			//ImGui::InputFloat3("Draw line B", &lineB[0]);
-			//auto proj = cam2.GetProjectionMatrix();
 
 			float H = SCREENWIDTH / 8;
 			float V = SCREENHEIGHT / 8;
@@ -302,39 +284,36 @@ int main(void)
 			float zfar = cam2.GetFarPlaneDist();
 
 			mat4 scale2 = scale(mat4(1.0f), { H  , V  , (zfar + znear) });
-			cam2.SetViewVector(lightDir);
+			cam2.SetViewVector(-lightDir);
 			mat4 vmi = inverse(cam2.GetViewMatrix());
 			mat4 scale2x = scale(mat4(1.0f), { 2,2,2 });
-			mat4 Rmat = rotate(mat4(1.0f), 3.1415f/2.0f, { 0, 0, 1 });
-			mat4 pmi =    inverse(cam2.GetProjectionMatrix()) * scale2x  * inverse(Rmat);
+			mat4 Rmat = rotate(mat4(1.0f), 3.1415f / 2.0f, { 0, 0, 1 });
+			mat4 pmi = inverse(cam2.GetProjectionMatrix()) * scale2x * inverse(Rmat);
 
-			static float lol = 0;
-			lol += 0.01f;
-			//	mat4 tmat = glm::translate(mat4(1.0f), { 0, 0,  -(znear + zfar) / 2.0f });
 
 			//ImGui::InputFloat3("cam2 move", &cam2.GetPosition()[0]);
-			ImGui::SliderFloat3("cam2 pos", &cam2.GetPosition()[0], -100, 100);
+			//ImGui::SliderFloat3("cam2 pos", &cam2.GetPosition()[0], -100, 100);
 			//lol += 0.01f;
 			glLineWidth(7.0f);
 			renderer.DrawCube(camera, vmi * pmi, vec4(1, 0, 0, 1));
 			renderer.DrawCube(camera, vmi, vec4(0, 1, 0, 1));
-			renderer.DrawCube(camera, translate(mat4(1.0f), vec3(cam2.GetPosition())), vec4(0, 0, 1, 1));
-
-			renderer.DrawLine(mat4(1.0f), camera, vec3(0), vec3(10, 0, 0));
-			renderer.DrawLine(vmi * pmi * Rmat, camera, vec3(0), vec3(-10, 0, 0));
-
+			//renderer.DrawCube(camera, translate(mat4(1.0f), vec3(cam2.GetPosition())), vec4(0, 0, 1, 1));
+			renderer.DrawLine(mat4(1.0f), camera, vec3(0), 5.0f * LightManager::GetDirectionalLight());
+			//renderer.DrawLine(vmi * pmi * Rmat, camera, vec3(0), vec3(-10, 0, 0));
 
 			glLineWidth(1.0f);
 
-
-			std::pair<GLuint, std::string> bufferTargets[4] = {
+			std::pair<GLuint, std::string> bufferTargets[5] =
+			{
 				{ shadowMap.GetTexture().GetID(), "Albedo"},
 				{ gBuffer.GetPositionID(), "Position"},
 				{ gBuffer.GetNormalID(), "Normal"},
-				{ gBuffer.GetZBufferTexID(), "Zbuffer" } };
+				{ gBuffer.GetZBufferTexID(), "Zbuffer" },
+				{ frameBuffer.GetTexture().GetID(), "frame buffer" }
+			};
 
-			int my_image_width = SCREENWIDTH / 6;
-			int my_image_height = SCREENHEIGHT / 6;
+			int my_image_width = SCREENWIDTH / 5;
+			int my_image_height = SCREENHEIGHT / 5;
 
 			ImGui::Begin("G-buffer Textures");
 			ImGui::Columns(4, "mixed", false);
@@ -345,7 +324,7 @@ int main(void)
 				float thumbH = static_cast<float>(my_image_height);
 				ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texID)),
 					ImVec2(thumbW, thumbH), ImVec2(0, 1), ImVec2(1, 0));
-				if (ImGui::IsItemHovered() && name == "Albedo")
+				if (ImGui::IsItemHovered())
 				{
 					ImGui::BeginTooltip();
 					ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texID)),

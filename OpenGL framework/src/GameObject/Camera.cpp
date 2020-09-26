@@ -100,13 +100,14 @@ Camera* Camera::GetCam2()
 }
 
 //TODO: set screen width and other vars dynamically!
-void Camera::SetOrthographic(float halfWidth, float halfHeight, float near, float far)
+void Camera::SetOrthographic(float halfWidth, float halfHeight, float _near, float _far)
 {
+	m_isOrthographic = true;
 	//float H = static_cast<float>(SCREENWIDTH) / 8.0f;
-	//m_projection = glm::ortho(-H, H, -V, V, m_nearPlane, m_farPlane);
-	m_nearPlane = near;
-	m_farPlane = far;
-	m_projection = glm::ortho( 0.f,  halfWidth,  0.f, halfHeight, m_nearPlane , m_farPlane    );
+	m_nearPlane = _near;
+	m_farPlane = _far;
+	m_projection = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, m_nearPlane, m_farPlane);
+	//m_projection = glm::ortho( 0.f,  halfWidth,  0.f, halfHeight, m_nearPlane , m_farPlane    );
 }
 
 //float Camera::GetFrustumWidth()
@@ -170,6 +171,7 @@ inline glm::mat4 Camera::GetProjectionMatrix() const
 
 void Camera::SetPerspective(const glm::vec3 & pos, float fov, float aspect, float zNear, float zFar)
 {
+	m_isOrthographic = false;
 	m_projection = glm::perspective(fov, aspect, zNear, zFar);
 }
 

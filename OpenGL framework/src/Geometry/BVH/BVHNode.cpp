@@ -28,7 +28,7 @@ void BVHNode::Subdivide(
 		m_bounds.SetLeftFirst(start);
 		return; //TODO: SET LEAF COUNT DYNAMICALLY!
 	}
-	
+
 	m_bounds.SetLeftFirst(bvh.m_poolPtr++);
 
 
@@ -37,8 +37,8 @@ void BVHNode::Subdivide(
 
 	const uint32_t split = Partition(*this, bvh, boundingBoxes, start, end);
 
-	l.Subdivide(bvh, boundingBoxes, triangles, start, split);
 	r.Subdivide(bvh, boundingBoxes, triangles, split, end);
+	l.Subdivide(bvh, boundingBoxes, triangles, start, split);
 }
 
 bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, const unsigned nodeIdx = 0) const
@@ -101,11 +101,19 @@ uint32_t BVHNode::Partition(
 
 	auto& triangleCenters = bvh.m_triangleCenters;
 	//sort indices based on longest axis;
-	std::sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,
-		[&triangleCenters, longestAxis](const uint32_t a, const uint32_t b) -> bool 
-		{
-			return triangleCenters[a][longestAxis] < triangleCenters[b][longestAxis];
-		});
+
+	//tbb::parallel_sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,
+	//	[&triangleCenters, longestAxis](const uint32_t a, const uint32_t b) -> bool
+	//	{
+	//		return triangleCenters[a][longestAxis] < triangleCenters[b][longestAxis];
+	//	});
+
+
+	 std::sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,
+	 	[&triangleCenters, longestAxis](const uint32_t a, const uint32_t b) -> bool 
+	 	{
+	 		return triangleCenters[a][longestAxis] < triangleCenters[b][longestAxis];
+	 	});
 
 	//get lowest SAH
 	float bestSAH = sahParent;

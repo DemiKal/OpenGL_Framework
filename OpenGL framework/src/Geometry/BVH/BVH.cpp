@@ -25,7 +25,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 	InitTriangleRenderer(); //TODO:: relocate it to renderer
 
 	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
-	if(triangles.empty())
+	if (triangles.empty())
 	{
 		fmt::print("Error, Triangle list is empty! Cancelling build");
 		return;
@@ -47,8 +47,8 @@ void BVH::BuildBVH(const Renderer& renderer)
 	m_triangleCenters.reserve(N);
 	for (AABB& aabb : triAABBs)
 		m_triangleCenters.push_back(aabb.GetCenter());
-	
-	
+
+
 	m_indices.resize(N);
 	std::iota(m_indices.begin(), m_indices.end(), 0);
 
@@ -57,17 +57,21 @@ void BVH::BuildBVH(const Renderer& renderer)
 	m_root = &m_pool[0];
 
 	const double startTime = glfwGetTime();
-
+	auto start = std::chrono::steady_clock::now();
 	m_root->Subdivide(*this, triAABBs, triangles, 0, N);
-
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double, std::milli> build_ms = end - start;
 	m_pool.resize(m_poolPtr);
- 
+
+
 	const double endTime = glfwGetTime();
 	double time = endTime - startTime;
+	auto sizeInKB = sizeof(m_pool[0]) * m_poolPtr / 1024;
 	fmt::print("{0} triangles needed {1} recursions\n", N, count);
-	fmt::print("Bvh size: {0} kb\n", sizeof(m_pool[0]) * m_poolPtr / 1024);
-	fmt::print("seconds: {0}\n", time);
-	fmt::print("triangles per second: {0}\n", N / time);
+	fmt::print("Bvh size: {0} kb\n", sizeInKB);
+	fmt::print("Time: {0} ms\n", build_ms.count());
+	fmt::print("triangles per second: {0}\n", N / (build_ms.count() * 1000.0f));
+	fmt::print("triangles per ms: {0}\n", (N / build_ms.count()));
 
 	CreateBuffers();
 	m_isBuilt = true;

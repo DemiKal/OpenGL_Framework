@@ -9,7 +9,7 @@ public:
 	Camera();
 	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 	~Camera();
-
+		
 	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
 	void LookAt(const glm::vec3& target);
 
@@ -19,7 +19,7 @@ public:
 	static Camera* GetMain();
 	static Camera* GetCam2();
 
-	//not working
+	//not working [???]
 	void SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 	void SetOrthographic(float halfWidth, float halfHeight, float near, float far);
 	void SetAspectRatio(const float asp) { m_aspectRatio = asp; } //possible extra stuff to do when setting
@@ -52,6 +52,7 @@ private:
 	glm::mat4 m_projection{};
 	static Camera* m_mainCam;
 	static Camera* m_cam2;
+	bool m_isOrthographic;
 
 };
 

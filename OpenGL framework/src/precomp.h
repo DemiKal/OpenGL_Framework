@@ -1,8 +1,13 @@
+//efine PRECOMP_H
+#pragma once
+
 #ifndef PRECOMP_H
 #define PRECOMP_H
 #define GLM_ENABLE_EXPERIMENTAL 
 
 
+//#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+//#define GLM_FORCE_LEFT_HANDED
 __pragma(warning(push))	//disable warnings on external header files
 __pragma(warning(disable : 26495))
 #include <filesystem>
@@ -20,7 +25,7 @@ __pragma(warning(disable : 26495))
 #include <unordered_set>
 #include <unordered_map>
 #include <map>
-
+//#include <tbb/tbb.h>
 #include <ctime>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -40,10 +45,11 @@ __pragma(warning(disable : 26495))
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h> 
 #include <imgui/extensions/imGuIZMOquat.h> 
-#include <stb_image/stb_image.h>
+#include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
 __pragma(warning(pop))
 
 constexpr uint32_t SCREENWIDTH = 1920;

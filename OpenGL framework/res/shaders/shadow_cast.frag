@@ -29,6 +29,7 @@ uniform vec3 u_lightDir;
 uniform mat4 u_inv_projMatrix;
 uniform mat4 u_inv_viewMatrix; 
 
+//TODO: just pass framebuffer texture
 layout(binding = 0) uniform sampler2D gPosition;
 layout(binding = 1) uniform sampler2D gNormal;
 layout(binding = 2) uniform sampler2D gAlbedoSpec;
@@ -327,7 +328,7 @@ void main()
 	vec3 wpos = u_useZbuffer ? wposFromZ : wposFromG;
 
 	//finalColor = vec4((1 - zLinear) * diffuse * albedo4.rgb, 1.0f);
-	 finalColor = vec4((1 - zLinear).xxx , 1.0);
+	// finalColor = vec4((1 - zLinear).xxx , 1.0);
 	
 	if(u_shadowCast)
 	{

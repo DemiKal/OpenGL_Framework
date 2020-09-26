@@ -1,7 +1,6 @@
 #pragma once
-
-
 #include "Shader.h"
+
 enum shaderTypeFlags
 {
 	POSITION,
@@ -10,6 +9,7 @@ enum shaderTypeFlags
 	BASIC,
 	ERRORSHADER,
 };
+
 using shaderMap = std::unordered_map<std::string, std::tuple<ShaderType, std::string>>;
 
 class ShaderManager
@@ -17,6 +17,7 @@ class ShaderManager
 private:
 	shaderMap m_vertexShaderSources;
 	shaderMap m_fragmentShaderSources;
+	shaderMap m_computeShaders;
 
 	void LoadShaders(const std::string& shaderDirectory);
 
