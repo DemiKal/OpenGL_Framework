@@ -106,6 +106,7 @@ void Gbuffer::BindShader() const
 
 void Gbuffer::LightingPass(const FrameBuffer& frameBuffer, Camera& lightCam, const GLuint zbufferTex) const
 {
+
 	frameBuffer.Bind();
 	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -128,5 +129,7 @@ void Gbuffer::LightingPass(const FrameBuffer& frameBuffer, Camera& lightCam, con
 	shader.SetVec3f("u_lightPos", lightCam.GetPosition());
 	shader.SetFloat("u_ambientLight", ambientLight);
 	shader.SetUniformMat4f("u_lightMatrix", lightCam.GetViewProjectionMatrix());
-	
+	static bool drawShadows = true;
+	ImGui::Checkbox("shadow", &drawShadows);
+	shader.SetInt("u_useShadows", drawShadows);
 }

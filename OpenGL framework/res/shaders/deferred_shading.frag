@@ -26,8 +26,8 @@ uniform float u_fogDistance;
 uniform vec3 u_lightPos;
 uniform vec3 u_globalLightDir;
 uniform float u_ambientLight;
-
 uniform int u_displayMode;
+uniform bool u_useShadows;
 
 float u_near_plane = 0.1;
 float u_far_plane = 200.0;
@@ -89,8 +89,8 @@ void main()
     vec3 lightDir = normalize(u_globalLightDir - FragPos);
     
     vec4 fragPosLightSpace = u_lightMatrix * vec4(FragPos, 1.0);
-    float shadow = ShadowCalculation(fragPosLightSpace, normal);
-   // float shadow = ShadowCalculationPointLight(FragPos);
+    
+    float shadow = u_useShadows ? ShadowCalculation(fragPosLightSpace, normal) : 0;
 
     float diffuseFactor = clamp(max(dot(normal, u_globalLightDir), 0) + u_ambientLight, 0, 1);
     vec3 diffuse = Albedo *  (1.0 - 0.5 * shadow);

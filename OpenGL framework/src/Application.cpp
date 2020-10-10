@@ -52,8 +52,7 @@ int main(void)
 	HardwareQuery::Query();
 	{
 		Renderer renderer;
-		int lelelelel = 1;
-		static int asdasdsa = 1;
+
 		//init before any model
 		ShaderManager::Init();
 		UserInterface userInterface;
@@ -186,7 +185,6 @@ int main(void)
 			dragon.Update(deltaTime);
 #endif
 
-			//DRAW SHADOW
 			Renderer::EnableDepth();
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -196,23 +194,28 @@ int main(void)
 
 			// deferred pass
 			//draw meshes regularly
+
 			artisans.Draw(camera);
 			spyro.Draw(camera);
+
 #if defined (BUNNY) && defined(DRAGON)
 			bunny.Draw(camera);
 			dragon.Draw(camera);
 #endif	
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
+			//SHADOW PASS
+
+
 
 			ImGui::SliderFloat("near Light", &nearLight, 0, farLight);
 			ImGui::SliderFloat("far Light", &farLight, nearLight, 500);
-			ImGui::SliderFloat3("dir light position", glm::value_ptr(dirLightPos), -500,500);
+			ImGui::SliderFloat3("dir light position", glm::value_ptr(dirLightPos), -500, 500);
 
 			//cam2.Roll(0.5f *  deltaTime);
 
 			cam2.SetOrthographic(orthoW, orthoH, orthoN, orthoF);
 			cam2.GetPosition() = dirLightPos;
-			
+
 			shadowMap.Bind();
 			renderer.EnableDepth();
 			renderer.SetCullingMode(GL_FRONT);
@@ -230,10 +233,10 @@ int main(void)
 #endif
 			renderer.SetCullingMode(GL_BACK);
 
-			ImGui::SliderFloat("cam 2 width", &orthoW, 0.001f, 400.0f);
-			ImGui::SliderFloat("cam 2 height", &orthoH, 0.001f, 400.0f);
-			ImGui::SliderFloat("cam 2 near", &orthoN, -400.0f, 400.0f);
-			ImGui::SliderFloat("cam 2 far", &orthoF, -400.0f, 400.0f);
+			//ImGui::SliderFloat("cam 2 width", &orthoW, 0.001f, 400.0f);
+			//ImGui::SliderFloat("cam 2 height", &orthoH, 0.001f, 400.0f);
+			//ImGui::SliderFloat("cam 2 near", &orthoN, -400.0f, 400.0f);
+			//ImGui::SliderFloat("cam 2 far", &orthoF, -400.0f, 400.0f);
 
 
 			FrameBuffer::Unbind();
