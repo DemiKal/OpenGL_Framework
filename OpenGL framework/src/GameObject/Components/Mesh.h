@@ -19,7 +19,7 @@ protected:
 public:
 	float lineThickness = 0.1f;
 	static Mesh CreateCubeWireframe();
-	inline GLenum GetElemDrawType() const;;
+	inline GLenum GetElemDrawType() const;
 	void SetElemDrawType(const GLenum enm);
 
 	std::vector<float> vertices; //TODO make it dynamic for ints and others

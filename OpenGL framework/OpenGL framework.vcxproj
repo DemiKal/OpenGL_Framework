@@ -89,6 +89,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\misc\MeshLoader.cpp" />
     <ClCompile Include="src\Rendering\ComputeShader.cpp" />
     <ClCompile Include="src\precomp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -227,6 +228,8 @@
     <None Include="src\vendor\glm\gtc\vec1.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\misc\MeshLoader.h" />
+    <ClInclude Include="src\GameObject\Components\EntityComponents.h" />
     <ClInclude Include="src\Rendering\ComputeShader.h" />
     <ClInclude Include="src\Rendering\PostProcessing.h" />
     <ClInclude Include="src\misc\HardwareQuery.h" />

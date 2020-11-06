@@ -13,11 +13,13 @@
 #include "Geometry/BVH/BVH.h"
 #include "misc/UserInterface.h"
 #include "Rendering/PostProcessing.h"
+#include <boost/range/adaptor/indexed.hpp>
 
 #ifndef _DEBUG
 #define BUNNY
 #define DRAGON
 #endif
+#include <GameObject\Components\EntityComponents.h>
 
 int main(void)
 {
@@ -62,6 +64,8 @@ int main(void)
 		spyro.m_name = "Spyro";
 		EntityManager::AddEntity(spyro);
 
+		EntityManager::Init();
+
 		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 		artisans.SetShader("Gbuffer_basic");
 		artisans.m_name = "artisans";
@@ -99,9 +103,9 @@ int main(void)
 		Camera camera(originalCamPos, 70, aspect, 0.1f, 700.0f);
 		glm::vec3 dirLightPos = glm::vec3(0, 0, 0);
 
-		Camera cam2(dirLightPos, 70, aspect, 0.1f, 700.0f);
-		//cam2.RotateLocalY(180);
-		//cam2.RotateLocalX(25);
+		Camera shadowCam(dirLightPos, 70, aspect, 0.1f, 700.0f);
+		//shadowCam.RotateLocalY(180);
+		//shadowCam.RotateLocalX(25);
 
 		float orthoW = 20.0f;
 		float orthoH = 40.0f;
@@ -109,10 +113,10 @@ int main(void)
 		float orthoF = 40.0f;
 
 
-		//	cam2.RotateLocalX(glm::radians( 90.0f));
+		//	shadowCam.RotateLocalX(glm::radians( 90.0f));
 
 		Camera::SetMainCamera(&camera);
-		Camera::SetCamera2(&cam2);
+		Camera::SetCamera2(&shadowCam);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -148,18 +152,48 @@ int main(void)
 		glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearLight, farLight);
 		//glm::mat4 lightProj = glm::perspective(70.0f, aspect, nearLight, farLight);
 
-		cam2.GetPosition() = { 0,20,-10 };
+		shadowCam.GetPosition() = { 0,20,-10 };
 
-		int shadowWidth = 2048;
-		int shadowHeight = 2048;
+		int shadowWidth = 1024;
+		int shadowHeight = 1024;
 		//double totalTime = 0;
 		//float rotation = 0;
 		int fbw, fbh, w, h;
 		glfwGetFramebufferSize(window, &fbw, &fbh);
 		glfwGetWindowSize(window, &w, &h);
+
+
+		entt::registry registry;
+
+		vec3 pos(0, 0, 0);
+		vec3 vel(0, -9.81, 0);
+		//vec3 scale(1, 1, 1);
+		struct DirComponent
+		{
+			glm::vec3 dir;
+		};
+		const int count = 3;
+		std::array<glm::vec3, 3> arr { 
+			glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{ 0,1,0 }, glm::vec3{ 0,0,1 } };
+		
+		for (int i = 0; i < count; i++) {
+			auto entity = registry.create();
+			auto trans = glm::translate(glm::mat4(1.0f), vec3(i * 1, 0, 0));
+			registry.emplace<TransformComponent>(entity, trans);
+			entt::hashed_string nm{ "particle " + count };
+			registry.emplace<NameComponent>(entity, nm);
+			registry.emplace<DirComponent>(entity, arr[i]);
+
+			auto& t = registry.get<TransformComponent>(entity);
+			auto& taa = registry.get<NameComponent>(entity).Name;
+
+		}
+
+		long frame = 0;
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
+			
 			renderer.m_currentFrameTime = static_cast<float>(glfwGetTime());
 			float deltaTime = static_cast<float>(renderer.m_currentFrameTime - renderer.m_prevFrameTime);
 
@@ -189,14 +223,30 @@ int main(void)
 			gBuffer.Bind();
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
-			//camera.SetViewVector(cam2.GetForwardVector());
-			//camera.GetPosition() = cam2.PositionRead();
+			//camera.SetViewVector(shadowCam.GetForwardVector());
+			//camera.GetPosition() = shadowCam.PositionRead();
 
 			// deferred pass
 			//draw meshes regularly
 
-			artisans.Draw(camera);
-			spyro.Draw(camera);
+			//artisans.Draw(camera);
+			//spyro.Draw(camera);
+
+			auto view = registry.view<const TransformComponent, NameComponent>();
+			for (auto entity : view)
+			{
+				auto xx = view.size();
+				auto tra = registry.get<TransformComponent>(entity).Transform;
+				auto dir = registry.get<DirComponent>(entity).dir;
+				auto namee = registry.get<NameComponent>(entity).Name;
+
+				ImGui::LabelText("lbl",  std::string(namee).c_str());
+
+				tra = glm::rotate(tra, renderer.m_currentFrameTime, dir);
+
+				spyro.m_modelMatrix = tra;
+				spyro.Draw(camera);
+			}
 
 #if defined (BUNNY) && defined(DRAGON)
 			bunny.Draw(camera);
@@ -211,18 +261,18 @@ int main(void)
 			ImGui::SliderFloat("far Light", &farLight, nearLight, 500);
 			ImGui::SliderFloat3("dir light position", glm::value_ptr(dirLightPos), -500, 500);
 
-			//cam2.Roll(0.5f *  deltaTime);
+			//shadowCam.Roll(0.5f *  deltaTime);
 
-			cam2.SetOrthographic(orthoW, orthoH, orthoN, orthoF);
-			cam2.GetPosition() = dirLightPos;
+			shadowCam.SetOrthographic(orthoW, orthoH, orthoN, orthoF);
+			shadowCam.GetPosition() = dirLightPos;
 
 			shadowMap.Bind();
 			renderer.EnableDepth();
 			renderer.SetCullingMode(GL_FRONT);
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			Renderer::ClearColor(1, 1, 1, 1);
-			artisans.Draw(cam2, agnosticShader);
-			spyro.Draw(cam2, agnosticShader);
+			artisans.Draw(shadowCam, agnosticShader);
+			spyro.Draw(shadowCam, agnosticShader);
 			//renderer.SetCullingMode(GL_BACK);
 
 #ifdef BUNNY 
@@ -233,10 +283,10 @@ int main(void)
 #endif
 			renderer.SetCullingMode(GL_BACK);
 
-			//ImGui::SliderFloat("cam 2 width", &orthoW, 0.001f, 400.0f);
-			//ImGui::SliderFloat("cam 2 height", &orthoH, 0.001f, 400.0f);
-			//ImGui::SliderFloat("cam 2 near", &orthoN, -400.0f, 400.0f);
-			//ImGui::SliderFloat("cam 2 far", &orthoF, -400.0f, 400.0f);
+			ImGui::SliderFloat("cam 2 width", &orthoW, 0.001f, 400.0f);
+			ImGui::SliderFloat("cam 2 height", &orthoH, 0.001f, 400.0f);
+			ImGui::SliderFloat("cam 2 near", &orthoN, -400.0f, 400.0f);
+			ImGui::SliderFloat("cam 2 far", &orthoF, -400.0f, 400.0f);
 
 
 			FrameBuffer::Unbind();
@@ -245,7 +295,7 @@ int main(void)
 			gBuffer.Bind();
 			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			gBuffer.LightingPass(frameBuffer, cam2, shadowMap.GetDepthTexture().GetID());
+			gBuffer.LightingPass(frameBuffer, shadowCam, shadowMap.GetDepthTexture().GetID());
 			//gBuffer.ShadowMap();
 
 			Renderer::DrawScreenQuad();
@@ -261,50 +311,40 @@ int main(void)
 			renderer.SetAlphaBlending(true);
 			ImGui::Checkbox("draw bvh", &drawBvh);
 			if (drawBvh) bvh.Draw(camera, renderer);
-			//glm::mat4 transformation; // your transformation matrix.
-			//glm::vec3 scale;
-			//glm::quat rotation;
-			//glm::vec3 translation;
-			//glm::vec3 skew;
-			//glm::vec4 perspective;
-			//glm::decompose(transformation, scale, rotation, translation, skew, perspective);
-
-			//ImGui::SliderAngle("view dir light", &)
-
-			//auto t =   glm::translate(mat4(1.0f), cam2.GetPosition());
-
 
 
 			glm::vec3 vScale, vTrans, skew;
 			glm::quat vRot;
 			glm::vec4 persp;
-			glm::decompose(cam2.GetProjectionMatrix() * cam2.GetViewMatrix(), vScale, vRot, vTrans, skew, persp);
+			glm::decompose(shadowCam.GetProjectionMatrix() * shadowCam.GetViewMatrix(), vScale, vRot, vTrans, skew, persp);
 
 
 			float H = SCREENWIDTH / 8;
 			float V = SCREENHEIGHT / 8;
-			float znear = cam2.GetNearPlaneDist();
-			float zfar = cam2.GetFarPlaneDist();
+			float znear = shadowCam.GetNearPlaneDist();
+			float zfar = shadowCam.GetFarPlaneDist();
 
 			mat4 scale2 = scale(mat4(1.0f), { H  , V  , (zfar + znear) });
-			cam2.SetViewVector(-lightDir);
-			mat4 vmi = inverse(cam2.GetViewMatrix());
+			shadowCam.SetViewVector(-lightDir);
+			mat4 vmi = inverse(shadowCam.GetViewMatrix());
 			mat4 scale2x = scale(mat4(1.0f), { 2,2,2 });
 			mat4 Rmat = rotate(mat4(1.0f), 3.1415f / 2.0f, { 0, 0, 1 });
-			mat4 pmi = inverse(cam2.GetProjectionMatrix()) * scale2x * inverse(Rmat);
+			mat4 pmi = inverse(shadowCam.GetProjectionMatrix()) * scale2x * inverse(Rmat);
 
 
-			//ImGui::InputFloat3("cam2 move", &cam2.GetPosition()[0]);
-			//ImGui::SliderFloat3("cam2 pos", &cam2.GetPosition()[0], -100, 100);
+			//ImGui::InputFloat3("shadowCam move", &shadowCam.GetPosition()[0]);
+			//ImGui::SliderFloat3("shadowCam pos", &shadowCam.GetPosition()[0], -100, 100);
 			//lol += 0.01f;
 			glLineWidth(7.0f);
 			renderer.DrawCube(camera, vmi * pmi, vec4(1, 0, 0, 1));
 			renderer.DrawCube(camera, vmi, vec4(0, 1, 0, 1));
-			//renderer.DrawCube(camera, translate(mat4(1.0f), vec3(cam2.GetPosition())), vec4(0, 0, 1, 1));
+			//renderer.DrawCube(camera, translate(mat4(1.0f), vec3(shadowCam.GetPosition())), vec4(0, 0, 1, 1));
 			renderer.DrawLine(mat4(1.0f), camera, vec3(0), 5.0f * LightManager::GetDirectionalLight());
 			//renderer.DrawLine(vmi * pmi * Rmat, camera, vec3(0), vec3(-10, 0, 0));
-
 			glLineWidth(1.0f);
+
+
+
 
 			std::pair<GLuint, std::string> bufferTargets[5] =
 			{
@@ -348,7 +388,7 @@ int main(void)
 			UserInterface::Draw();
 			Renderer::SwapBuffers(window);
 			renderer.CalcFrameTime(deltaTime);
-
+			frame++;
 		}
 	}
 
