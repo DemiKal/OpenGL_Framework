@@ -14,16 +14,22 @@
 #include "misc/UserInterface.h"
 #include "Rendering/PostProcessing.h"
 #include <boost/range/adaptor/indexed.hpp>
+#include <GameObject\Components\EntityComponents.h>
+
 
 #ifndef _DEBUG
 #define BUNNY
 #define DRAGON
 #endif
-#include <GameObject\Components\EntityComponents.h>
 
-int main(void)
+void PrintMessage()
+{
+	fmt::print("hi there m8!\n");
+}
+int main23(void)
 {
 	if (!glfwInit()) return -1;
+	
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
