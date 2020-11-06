@@ -1,4 +1,4 @@
-//efine PRECOMP_H
+//#define PRECOMP_H
 #pragma once
 
 #ifndef PRECOMP_H
@@ -10,6 +10,7 @@
 //#define GLM_FORCE_LEFT_HANDED
 __pragma(warning(push))	//disable warnings on external header files
 __pragma(warning(disable : 26495))
+
 #include <filesystem>
 #include <iostream>
 #include <ostream>
