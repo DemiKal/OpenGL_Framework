@@ -23,7 +23,7 @@ If you already have vcpkg installed, just run install the libraries listed below
 3. Add system variable `VCPKG_ROOT` with the installation folder as value, in our case `C:/vcpkg`
 4. Add system variable `VCPKG_DEFAULT_TRIPLET` with value `x64-windows`
 5. Add `C:\vcpkg` as a system path variable. You should now be able to run it directly from the command line (try closing the window and/or restarting Windows to see if it works).
-6. Install the packages. From CMD, run `vcpkg install glm glfw3 magic-enum fmt imgui spdlog stb assimp`
+6. Install the packages. From CMD, run: `vcpkg install glm glfw3 magic-enum fmt spdlog stb assimp imgui:x64-windows-static imgui[glfw-binding]:x64-windows-static imgui[opengl3-glew-binding]:x64-windows-static`
 6. Run `vcpkg integrate install` for good measure, to make sure it's integrated into Visual Studio. 
 
 ## Assets
