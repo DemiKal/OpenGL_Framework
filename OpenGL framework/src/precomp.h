@@ -42,10 +42,8 @@ __pragma(warning(disable : 26495))
 #include <magic_enum.hpp>
 #include <entt/entt.hpp>
 #include <fmt/format.h>
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h> 
-#include <imgui/extensions/imGuIZMOquat.h> 
+
+
 #include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

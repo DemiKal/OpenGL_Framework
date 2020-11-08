@@ -152,15 +152,15 @@ std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 
 inline glm::mat4 Camera::GetViewMatrix() const
 {
-	return glm::lookAt(m_pos, m_pos + m_forward, m_up + vec3(1,1,1) * 0.0001f);
+	return glm::lookAt(m_pos, m_pos + m_forward, m_up + glm::vec3(1,1,1) * 0.0001f);
 }
 
 void Camera::Roll(const float angle)
 {
-	const mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_forward);
+	const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_forward);
 	//m_forward = vec3(normalize(rotation * vec4(m_up, 0.0)));
 
-	m_up = vec3(normalize(rotation * vec4(m_up, 0.0)));
+	m_up = glm::vec3(normalize(rotation * glm::vec4(m_up, 0.0)));
 
 }
 

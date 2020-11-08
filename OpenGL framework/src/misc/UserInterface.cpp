@@ -8,9 +8,9 @@
 void UserInterface::Update(float dt)
 {
 	//prepare frame
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	//ImGui_ImplOpenGL3_NewFrame();
+	//ImGui_ImplGlfw_NewFrame();
+	//ImGui::NewFrame();
 
 	EntityBrowser();
 	EntityInspector();
@@ -20,67 +20,67 @@ void UserInterface::Update(float dt)
 
 void UserInterface::Draw()
 {
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+//	ImGui::Render();
+	//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void UserInterface::MainMenu(float deltaTime) const
 {
-	if (ImGui::BeginMainMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			//ImGui::ShowExampleMenuFile();
-			if (ImGui::MenuItem("Open", "CTRL+O")) {}
-			if (ImGui::MenuItem("Import", "CTRL+I")) {}
-			if (ImGui::MenuItem("Save", "CTRL+S")) {}
-			if (ImGui::MenuItem("Exit", "Alt+F4")) {}
-
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit"))
-		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMainMenuBar();
-	}
-	glm::vec3& lightDir = LightManager::GetDirectionalLight();
-	static float rotation = 0;
-
-	static bool pauseLight = true;
-	ImGui::Checkbox("Pause Light", &pauseLight);
-
-	Camera* camera = Camera::GetMain();
-	glm::vec3 lightCopy = camera->GetViewMatrix() * glm::vec4(-lightDir, 0.0f);
-	if (ImGui::gizmo3D("##Dir1", lightCopy))
-	{
-		lightDir = glm::inverse(camera->GetViewMatrix()) * glm::vec4(-lightCopy, 0.0f);
-		rotation = atan2f(sinf(lightDir.z), cosf(lightDir.x));
-	}
-	else if (!pauseLight)
-	{
-		lightDir.x = sinf(rotation);
-		lightDir.z = cosf(rotation);
-
-		rotation += 1.f * deltaTime;
-	}
-	float& ambientLight = LightManager::GetAmbientLight();
-	ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
+	////if (ImGui::BeginMainMenuBar())
+	//{
+	////	if (ImGui::BeginMenu("File"))
+	//	{
+	//		//ImGui::ShowExampleMenuFile();
+	//		if (ImGui::MenuItem("Open", "CTRL+O")) {}
+	//		if (ImGui::MenuItem("Import", "CTRL+I")) {}
+	//		if (ImGui::MenuItem("Save", "CTRL+S")) {}
+	//		if (ImGui::MenuItem("Exit", "Alt+F4")) {}
+	//
+	//		ImGui::EndMenu();
+	//	}
+	//	if (ImGui::BeginMenu("Edit"))
+	//	{
+	//		if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+	//		if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+	//		ImGui::Separator();
+	//		if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+	//		if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+	//		if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+	//		ImGui::EndMenu();
+	//	}
+	//
+	//	ImGui::EndMainMenuBar();
+	//}
+	//glm::vec3& lightDir = LightManager::GetDirectionalLight();
+	//static float rotation = 0;
+	//
+	//static bool pauseLight = true;
+	//ImGui::Checkbox("Pause Light", &pauseLight);
+	//
+	//Camera* camera = Camera::GetMain();
+	//glm::vec3 lightCopy = camera->GetViewMatrix() * glm::vec4(-lightDir, 0.0f);
+	//if (ImGui::gizmo3D("##Dir1", lightCopy))
+	//{
+	//	lightDir = glm::inverse(camera->GetViewMatrix()) * glm::vec4(-lightCopy, 0.0f);
+	//	rotation = atan2f(sinf(lightDir.z), cosf(lightDir.x));
+	//}
+	//else if (!pauseLight)
+	//{
+	//	lightDir.x = sinf(rotation);
+	//	lightDir.z = cosf(rotation);
+	//
+	//	rotation += 1.f * deltaTime;
+	//}
+	//float& ambientLight = LightManager::GetAmbientLight();
+	//ImGui::SliderFloat("ambient", &ambientLight, 0, 1);
 
 }
 
 void UserInterface::EntityBrowser() const
 {
-	ImGuiWindowFlags window_flags = 0;
-
-	ImGui::Begin("Entities", nullptr, window_flags);
+	//ImGuiWindowFlags window_flags = 0;
+	//
+	//ImGui::Begin("Entities", nullptr, window_flags);
 
 	//for (auto& ent : EntityManager::GetEntities())
 	//{
@@ -97,7 +97,7 @@ void UserInterface::EntityBrowser() const
 	//}
 	Model* selected = InputManager::GetSelectedModel();
 
-	if (ImGui::TreeNode("Entities"))
+	//if (ImGui::TreeNode("Entities"))
 	{
 		for (Model* ent : EntityManager::GetEntities())
 		{
@@ -114,7 +114,7 @@ void UserInterface::EntityBrowser() const
 				else {*/
 			bool isSelected = ent_name == (selected != nullptr ? selected->m_name : "none selected!");
 
-			if (ImGui::Selectable(ent_name.c_str(), isSelected))
+	//		if (ImGui::Selectable(ent_name.c_str(), isSelected))
 			{
 				/*		if (ent_name == "plane") {
 							int i = 0;
@@ -123,24 +123,24 @@ void UserInterface::EntityBrowser() const
 				InputManager::SetSelectedModel(ent);
 			}
 		}
-		ImGui::TreePop();
+	//	ImGui::TreePop();
 	}
 
-	ImGui::End();
+	//ImGui::End();
 }
 
 void UserInterface::EntityInspector()
 {
-	ImGui::Begin("Inspector");
+	//ImGui::Begin("Inspector");
 	Model* selection = InputManager::GetSelectedModel();
 	if (selection != nullptr)
 	{
 		//ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-		ImGui::Text("Currently selected: ", selection->m_name.c_str());
-		ImGui::SliderFloat3("Position", &selection->m_position[0], -100.0f, 100.0f);
-		ImGui::SliderFloat3("Rotation", &selection->m_rotation[0], 0, 360);
-		ImGui::SliderFloat3("Scale", &selection->m_scale[0], 0, 10);
+	//	ImGui::Text("Currently selected: ", selection->m_name.c_str());
+	//	ImGui::SliderFloat3("Position", &selection->m_position[0], -100.0f, 100.0f);
+	//	ImGui::SliderFloat3("Rotation", &selection->m_rotation[0], 0, 360);
+	//	ImGui::SliderFloat3("Scale", &selection->m_scale[0], 0, 10);
 	}
 
-	ImGui::End();
+	//ImGui::End();
 }

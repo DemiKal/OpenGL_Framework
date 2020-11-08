@@ -130,6 +130,6 @@ void Gbuffer::LightingPass(const FrameBuffer& frameBuffer, Camera& lightCam, con
 	shader.SetFloat("u_ambientLight", ambientLight);
 	shader.SetUniformMat4f("u_lightMatrix", lightCam.GetViewProjectionMatrix());
 	static bool drawShadows = true;
-	ImGui::Checkbox("shadow", &drawShadows);
+	//ImGui::Checkbox("shadow", &drawShadows);
 	shader.SetInt("u_useShadows", drawShadows);
 }

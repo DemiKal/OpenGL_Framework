@@ -20,10 +20,10 @@
 
 ScreenQuad Renderer::screenQuad;
 
-void Renderer::DrawLine(const mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b)
+void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b)
 {
 	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));
-	std::vector<vec3> data = { a, b };
+	std::vector<glm::vec3> data = { a, b };
 	Shader& shader = ShaderManager::GetShader("single_line");
 	shader.Bind();
 	shader.SetUniformMat4f("u_projection", cam.GetProjectionMatrix());
@@ -39,7 +39,7 @@ void Renderer::DrawLine(const mat4& model, const Camera& cam, const glm::vec3& a
 	//glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
 	GLCall(glLineWidth(5.0f));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));
-	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * 2, &data[0]));
+	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * 2, &data[0]));
 
 	GLCall(glBindVertexArray(lineVAO));
 	GLCall(glDrawArrays(GL_LINES, 0, 2));  
@@ -253,14 +253,14 @@ void Renderer::UpdateUI(float deltaTime)
 	const float average = (float)std::accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.0) / m_frameTimes.size();
 	const float avgFPS = 1000.0f * static_cast<float>(1.0f / average);
 
-	ImGui::Text("FPS: %f, %f ms", avgFPS, average);
+	//ImGui::Text("FPS: %f, %f ms", avgFPS, average);
 
 
 	if (m_frameTimes.size() >= 100) m_frameTimes.clear();
 
 
-	ImGui::Checkbox("Alpha Blend", &alphaBlend);
-	ImGui::Checkbox("VSync", &m_VSync);
+	//ImGui::Checkbox("Alpha Blend", &alphaBlend);
+	//ImGui::Checkbox("VSync", &m_VSync);
 
 }
 

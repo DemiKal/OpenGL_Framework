@@ -29,7 +29,7 @@ private:
 	//std::vector<Gbuffer> m_gBuffers;
 public:
 	float m_prevFrameTime, m_currentFrameTime;
-	void DrawLine(const mat4& model, const ::Camera& cam, const glm::vec3& a, const glm::vec3& b);
+	void DrawLine(const glm::mat4& model, const ::Camera& cam, const glm::vec3& a, const glm::vec3& b);
 	void CreateLine();
 	Renderer();
 	bool alphaBlend;

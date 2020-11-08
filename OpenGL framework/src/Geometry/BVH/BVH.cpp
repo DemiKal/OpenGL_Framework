@@ -131,7 +131,7 @@ void BVH::Draw(const Camera& camera, Renderer& renderer) const
 {
 	if (!IsBuilt()) return; //has been initialized?
 	static   glm::vec4 bvhColor = { 1, 0.3 , 0.6, 0.4 };
-	ImGui::ColorEdit4("bvh color", &bvhColor[0]);
+	//ImGui::ColorEdit4("bvh color", &bvhColor[0]);
 	auto& aabbShader = ShaderManager::GetShader("AABB_instanced_SSBO");
 
 	aabbShader.Bind();
@@ -146,7 +146,7 @@ void BVH::Draw(const Camera& camera, Renderer& renderer) const
 void BVH::CastRay(const Ray& ray)
 {
 	if (!InputManager::m_isClicked) return;
-	if (ImGui::IsWindowHovered()) return;
+	//if (ImGui::IsWindowHovered()) return;
 	if (!m_isBuilt) return;
 
 	std::vector<HitData> hitData;
@@ -198,8 +198,8 @@ void BVH::CastRay(const Ray& ray)
 			{
 				if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx < rangeIdx.endIdx)
 				{
-					ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->m_name.c_str());
-					ImGui::LabelText("Tri Idx: ", std::to_string(nearestTriIdx).c_str());
+					//ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->m_name.c_str());
+					//ImGui::LabelText("Tri Idx: ", std::to_string(nearestTriIdx).c_str());
 				}
 			}
 
@@ -215,8 +215,8 @@ void BVH::DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& 
 	glm::vec3 toScreen = glm::normalize(cam->GetPosition() - (A + B + C) / 3.0f);
 
 	const  float dot = glm::dot(normal, toScreen);
-	ImGui::Text("Dot: %f", dot);
-	ImGui::Text("Normal: {%f.3, %f.3, %f.3)", normal.x, normal.y, normal.z);
+	//ImGui::Text("Dot: %f", dot);
+	//ImGui::Text("Normal: {%f.3, %f.3, %f.3)", normal.x, normal.y, normal.z);
 	if (dot < 0)
 		normal = -normal;
 

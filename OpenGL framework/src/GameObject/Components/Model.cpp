@@ -516,7 +516,7 @@ void Model::Draw(const glm::mat4& projection, Shader& shader)
 
 	shader.SetUniformMat4f("u_model", m_modelMatrix);
 	shader.SetUniformMat4f("u_lightProj", projection);
-	shader.SetVec3f("u_color", idx++ % 2 ? vec3(1.0f, 0, 0) : vec3(0, 1, 0));
+	shader.SetVec3f("u_color", idx++ % 2 ? glm::vec3(1.0f, 0, 0) : glm::vec3(0, 1, 0));
 
 	for (auto& mesh : m_meshes)
 		mesh.Draw(shader);

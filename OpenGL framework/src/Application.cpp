@@ -1,5 +1,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "precomp.h"
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h> 
+#include <imgui/extensions/imGuIZMOquat.h> 
 #include "Application.h"
 #include "Rendering/Buffer/FrameBuffer.h"
 #include "Rendering/ShaderManager.h"
@@ -13,8 +17,8 @@
 #include "Geometry/BVH/BVH.h"
 #include "misc/UserInterface.h"
 #include "Rendering/PostProcessing.h"
-#include <boost/range/adaptor/indexed.hpp>
 #include <GameObject\Components\EntityComponents.h>
+
 
 
 #ifndef _DEBUG
@@ -26,10 +30,10 @@ void PrintMessage()
 {
 	fmt::print("hi there m8!\n");
 }
-int main23(void)
+int main(void)
 {
 	if (!glfwInit()) return -1;
-	
+
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -179,10 +183,11 @@ int main23(void)
 			glm::vec3 dir;
 		};
 		const int count = 3;
-		std::array<glm::vec3, 3> arr { 
+		std::array<glm::vec3, 3> arr{
 			glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{ 0,1,0 }, glm::vec3{ 0,0,1 } };
-		
-		for (int i = 0; i < count; i++) {
+
+		for (int i = 0; i < count; i++) 
+		{
 			auto entity = registry.create();
 			auto trans = glm::translate(glm::mat4(1.0f), vec3(i * 1, 0, 0));
 			registry.emplace<TransformComponent>(entity, trans);
@@ -199,7 +204,10 @@ int main23(void)
 		//Game Loop
 		while (!glfwWindowShouldClose(window))
 		{
-			
+					ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
 			renderer.m_currentFrameTime = static_cast<float>(glfwGetTime());
 			float deltaTime = static_cast<float>(renderer.m_currentFrameTime - renderer.m_prevFrameTime);
 
@@ -246,7 +254,7 @@ int main23(void)
 				auto dir = registry.get<DirComponent>(entity).dir;
 				auto namee = registry.get<NameComponent>(entity).Name;
 
-				ImGui::LabelText("lbl",  std::string(namee).c_str());
+				//ImGui::LabelText("lbl",  "weewwoo");
 
 				tra = glm::rotate(tra, renderer.m_currentFrameTime, dir);
 
@@ -390,6 +398,10 @@ int main23(void)
 			ImGui::End();
 
 			ImGui::SliderFloat3("camera pos", &camera.GetPosition()[0], -100, 100);
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 
 			UserInterface::Draw();
 			Renderer::SwapBuffers(window);

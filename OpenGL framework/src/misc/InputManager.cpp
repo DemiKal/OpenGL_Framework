@@ -37,10 +37,10 @@ void InputManager::Update(Camera& camera, const float dt)
 	glfwGetCursorPos(window, &instance.m_mouseNew.x, &instance.m_mouseNew.y);
 
 	static float camSpeed = 30.0f;
-	ImGui::SliderFloat("cam speed", &camSpeed, 0.001f, 150.0f);
+	//ImGui::SliderFloat("cam speed", &camSpeed, 0.001f, 150.0f);
 
 	static float turnSpeed = 2.0f;
-	ImGui::SliderFloat("Turn Speed", &turnSpeed, 0.001f, 15.0f);
+	//ImGui::SliderFloat("Turn Speed", &turnSpeed, 0.001f, 15.0f);
 	
 	glm::vec3 camMovement = glm::vec3(0);
 	const glm::vec3 forward = camera.GetForwardVector();
@@ -60,7 +60,7 @@ void InputManager::Update(Camera& camera, const float dt)
 
 	
 	int mb = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
-	ImGui::Text("mouse click %s", mb ? "true" : "false");
+	//ImGui::Text("mouse click %s", mb ? "true" : "false");
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)			camMovement += dt * camSpeed * forward;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)			camMovement -= dt * camSpeed * forward;
