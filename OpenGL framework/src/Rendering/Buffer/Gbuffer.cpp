@@ -132,4 +132,6 @@ void Gbuffer::LightingPass(const FrameBuffer& frameBuffer, Camera& lightCam, con
 	static bool drawShadows = true;
 	//ImGui::Checkbox("shadow", &drawShadows);
 	shader.SetInt("u_useShadows", drawShadows);
+	Renderer::DrawScreenQuad();
+
 }

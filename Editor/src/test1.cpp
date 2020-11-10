@@ -16,7 +16,7 @@
 #include <GameObject\Components\EntityComponents.h>
 
 //#include <src\vendor\imgui\imgui.h>
- 
+
 // #include <src/vendor/imgui/imgui.h>
 // #include <src/vendor/imgui/imgui_impl_glfw.h>
 // #include <src/vendor/imgui/imgui_impl_opengl3.h> 
@@ -30,6 +30,92 @@
 #define DRAGON
 #endif
 
+void ShowDockWindow()
+{
+	static bool opt_fullscreen = true;
+	static bool opt_padding = false;
+	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+	// because it would be confusing to have two docking targets within each others.
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	if (opt_fullscreen)
+	{
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->GetWorkPos());
+		ImGui::SetNextWindowSize(viewport->GetWorkSize());
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	}
+	else
+	{
+		dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
+	}
+
+	// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+	// and handle the pass-thru hole, so we ask Begin() to not render a background.
+	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+		window_flags |= ImGuiWindowFlags_NoBackground;
+
+	// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+	// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+	// all active windows docked into it will lose their parent and become undocked.
+	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+	static bool p_open = true;
+	if (!opt_padding)
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("DockSpace Demo", &p_open, window_flags);
+	if (!opt_padding)
+		ImGui::PopStyleVar();
+
+	if (opt_fullscreen)
+		ImGui::PopStyleVar(2);
+
+	// DockSpace
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+	{
+		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+	}
+	else
+	{
+		//ShowDockingDisabledMessage();
+	}
+
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Options"))
+		{
+			// Disabling fullscreen would allow the window to be moved to the front of other windows,
+			// which we can't undo at the moment without finer window depth/z control.
+			ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen);
+			ImGui::MenuItem("Padding", NULL, &opt_padding);
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Flag: NoSplit", "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoSplit; }
+			if (ImGui::MenuItem("Flag: NoResize", "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoResize; }
+			if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode; }
+			if (ImGui::MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar; }
+			if (ImGui::MenuItem("Flag: PassthruCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0, opt_fullscreen)) { dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode; }
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Close", NULL, false, p_open != NULL))
+				p_open = false;
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenuBar();
+	}
+
+	ImGui::End();
+
+
+}
 void PrintMessage()
 {
 	fmt::print("hi there m8!\n");
@@ -137,7 +223,17 @@ int main(void)
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		auto dockspace_flags = ImGuiDockNodeFlags_::ImGuiDockNodeFlags_None;
+		//if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		//{
+		//	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+		//	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		//}
 
+
+		//ImGui::ShowExampleAppDockSpace(&dock);
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 		//ImGui::StyleColorsClassic();
@@ -190,7 +286,7 @@ int main(void)
 		std::array<glm::vec3, 3> arr{
 			glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{ 0,1,0 }, glm::vec3{ 0,0,1 } };
 
-		for (int i = 0; i < count; i++) 
+		for (int i = 0; i < count; i++)
 		{
 			auto entity = registry.create();
 			auto trans = glm::translate(glm::mat4(1.0f), glm::vec3(i * 1, 0, 0));
@@ -211,6 +307,9 @@ int main(void)
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
+			//ImGui::ShowDemoWindow();
+			//ShowDockWindow();
+			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
 			renderer.m_currentFrameTime = static_cast<float>(glfwGetTime());
 			float deltaTime = static_cast<float>(renderer.m_currentFrameTime - renderer.m_prevFrameTime);
@@ -227,6 +326,7 @@ int main(void)
 			userInterface.Update(deltaTime);
 			InputManager::Update(camera, deltaTime);
 			renderer.UpdateUI(deltaTime);
+
 #pragma endregion input
 			//update meshes
 			artisans.Update(deltaTime);
@@ -273,12 +373,11 @@ int main(void)
 			glm::vec3& lightDir = LightManager::GetDirectionalLight();
 			//SHADOW PASS
 
-
-
+			ImGui::Begin("meme");
 			ImGui::SliderFloat("near Light", &nearLight, 0, farLight);
 			ImGui::SliderFloat("far Light", &farLight, nearLight, 500);
 			ImGui::SliderFloat3("dir light position", glm::value_ptr(dirLightPos), -500, 500);
-
+			ImGui::End();
 			//shadowCam.Roll(0.5f *  deltaTime);
 
 			shadowCam.SetOrthographic(orthoW, orthoH, orthoN, orthoF);
@@ -301,11 +400,12 @@ int main(void)
 #endif
 			renderer.SetCullingMode(GL_BACK);
 
+			ImGui::Begin("meme");
 			ImGui::SliderFloat("cam 2 width", &orthoW, 0.001f, 400.0f);
 			ImGui::SliderFloat("cam 2 height", &orthoH, 0.001f, 400.0f);
 			ImGui::SliderFloat("cam 2 near", &orthoN, -400.0f, 400.0f);
 			ImGui::SliderFloat("cam 2 far", &orthoF, -400.0f, 400.0f);
-
+			ImGui::End();
 
 			FrameBuffer::Unbind();
 			glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
@@ -315,21 +415,26 @@ int main(void)
 
 			gBuffer.LightingPass(frameBuffer, shadowCam, shadowMap.GetDepthTexture().GetID());
 			//gBuffer.ShadowMap();
-
-			Renderer::DrawScreenQuad();
-			FrameBuffer::Unbind();
-			Renderer::BlitTexture(frameBuffer, {});
+			
+			//Renderer::BlitTexture(frameBuffer, {});
 
 			//PostProcessing::ShadowCastGLSL(camera, gBuffer);
 
 			//copy zbuffer data from gbuffer to default framebuffer
 			//so debug drawing isn't always in front of geometry of screen.
-			Renderer::BlitFrameBuffer(gBuffer.GetID(), 0, GL_DEPTH_BUFFER_BIT);
+			Renderer::BlitFrameBuffer(gBuffer.GetID(), frameBuffer.GetID(), GL_DEPTH_BUFFER_BIT);
 
 			renderer.SetAlphaBlending(true);
+			ImGui::Begin("meme");
 			ImGui::Checkbox("draw bvh", &drawBvh);
-			if (drawBvh) bvh.Draw(camera, renderer);
+			ImGui::End();
 
+			frameBuffer.Bind();
+			//Renderer::Clear(GL_COLOR_BUFFER_BIT);
+			//Renderer::ClearColor(1, 1, 1, 1);
+		
+			if (drawBvh) bvh.Draw(camera, renderer);
+			//debugFrame.Unbind();
 
 			glm::vec3 vScale, vTrans, skew;
 			glm::quat vRot;
@@ -353,6 +458,7 @@ int main(void)
 			//ImGui::InputFloat3("shadowCam move", &shadowCam.GetPosition()[0]);
 			//ImGui::SliderFloat3("shadowCam pos", &shadowCam.GetPosition()[0], -100, 100);
 			//lol += 0.01f;
+			//debugFrame.Bind();
 			glLineWidth(7.0f);
 			renderer.DrawCube(camera, vmi * pmi, glm::vec4(1, 0, 0, 1));
 			renderer.DrawCube(camera, vmi, glm::vec4(0, 1, 0, 1));
@@ -360,13 +466,12 @@ int main(void)
 			renderer.DrawLine(glm::mat4(1.0f), camera, glm::vec3(0), 5.0f * LightManager::GetDirectionalLight());
 			//renderer.DrawLine(vmi * pmi * Rmat, camera, vec3(0), vec3(-10, 0, 0));
 			glLineWidth(1.0f);
-
-
-
+			frameBuffer.Unbind();
+			
 
 			std::pair<GLuint, std::string> bufferTargets[5] =
 			{
-				{ shadowMap.GetTexture().GetID(), "Albedo"},
+				{ shadowMap.GetTexture().GetID(), "shadow"},
 				{ gBuffer.GetPositionID(), "Position"},
 				{ gBuffer.GetNormalID(), "Normal"},
 				{ gBuffer.GetZBufferTexID(), "Zbuffer" },
@@ -401,16 +506,38 @@ int main(void)
 			}
 			ImGui::End();
 
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+			ImGui::Begin("Viewport");
+
+			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+			ImVec2 viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
+			uint64_t textureID = frameBuffer.GetTexture().GetID();
+			ImGui::Image(reinterpret_cast<void*>(textureID), viewportSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::End();
+			ImGui::PopStyleVar();
+
+			ImGui::Begin("meme");
 			ImGui::SliderFloat3("camera pos", &camera.GetPosition()[0], -100, 100);
+			ImGui::End();
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
 			UserInterface::Draw();
+			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			{
+				GLFWwindow* backup_current_context = glfwGetCurrentContext();
+				ImGui::UpdatePlatformWindows();
+				ImGui::RenderPlatformWindowsDefault();
+				glfwMakeContextCurrent(backup_current_context);
+			}
+			
 			Renderer::SwapBuffers(window);
 			renderer.CalcFrameTime(deltaTime);
 			frame++;
+
+
 		}
 	}
 
