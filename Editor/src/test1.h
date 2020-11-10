@@ -1,11 +1,6 @@
 #pragma once
 #include <iostream>
-
  
-	//int main(void)
-	//{
-	//
-	//}
 
 	void SayHi()
 	{

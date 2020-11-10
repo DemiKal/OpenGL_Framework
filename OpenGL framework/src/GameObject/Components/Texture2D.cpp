@@ -1,6 +1,5 @@
 #include "precomp.h"
 #include "Texture2D.h"
-
 GLuint Texture2D::TextureFromFile(const std::string& fullPath/*, Texture& texture*/)
 {
 	unsigned int textureID;
@@ -8,6 +7,7 @@ GLuint Texture2D::TextureFromFile(const std::string& fullPath/*, Texture& textur
 	stbi_set_flip_vertically_on_load(true);
 	int width, height, nrComponents;
 	unsigned char* data = stbi_load(fullPath.c_str(), &width, &height, &nrComponents, 0);
+
 	if (data)
 	{
 		GLenum format;

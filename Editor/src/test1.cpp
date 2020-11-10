@@ -1,4 +1,4 @@
-//#include "test1.h"
+#include "test1.h"
 ////#include "Application.h"
 //#include <GL/glew.h>
 //#include <GLFW/glfw3.h>
@@ -13,7 +13,9 @@
 //int SCREENHEIGHT = 1024;
 //
 int main(void)
-{}
+{
+
+}
 //	if (!glfwInit()) return -1;
 //
 //	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);

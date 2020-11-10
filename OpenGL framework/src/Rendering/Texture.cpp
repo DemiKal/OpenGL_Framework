@@ -1,6 +1,5 @@
 #include "precomp.h"
 
-
 Texture::Texture()
 {
 
