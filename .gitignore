@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /External Libraries/assimp
+/Editor/res
