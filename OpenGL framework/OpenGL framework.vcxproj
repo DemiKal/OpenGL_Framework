@@ -90,6 +90,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\misc\MeshLoader.cpp" />
     <ClCompile Include="src\Rendering\ComputeShader.cpp" />
     <ClCompile Include="src\precomp.cpp">
@@ -181,7 +182,7 @@
     <ClCompile Include="src\GameObject\Components\Mesh.cpp" />
     <ClCompile Include="src\GameObject\Camera.cpp" />
     <ClCompile Include="src\Rendering\Shader.cpp" />
-    <ClCompile Include="src\Application.cpp">
+    <ClCompile Include="src\main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Rendering\Buffer\IndexBuffer.cpp" />
@@ -201,6 +202,7 @@
     <None Include="src\vendor\glm\gtc\vec1.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\misc\MeshLoader.h" />
     <ClInclude Include="src\GameObject\Components\EntityComponents.h" />
     <ClInclude Include="src\Rendering\ComputeShader.h" />
@@ -223,7 +225,7 @@
     <ClInclude Include="src\Animation\Keyframe.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\Joint.h" />
-    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\main.h" />
     <ClInclude Include="src\Rendering\Buffer\FrameBuffer.h" />
     <ClInclude Include="src\Rendering\Buffer\RenderBufferObject.h" />
     <ClInclude Include="src\Rendering\ShaderManager.h" />

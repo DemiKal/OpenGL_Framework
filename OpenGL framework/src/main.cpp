@@ -1,20 +1,22 @@
  #define STB_IMAGE_IMPLEMENTATION
  #include "precomp.h"
+#include <Core\Application.h>
+#include <src\Editor.h>
  
- #include "Application.h"
- #include "Rendering/Buffer/FrameBuffer.h"
- #include "Rendering/ShaderManager.h"
- #include "Rendering/Renderer.h"
- #include "Rendering/Buffer/Gbuffer.h"
- #include "GameObject/Camera.h"
- #include "Light/LightManager.h"
- #include "GameObject/EntityManager.h"
- #include "GameObject/Components/Model.h"
- #include "misc/InputManager.h"	
- #include "Geometry/BVH/BVH.h"
- #include "misc/UserInterface.h"
- #include "Rendering/PostProcessing.h"
- #include <GameObject\Components\EntityComponents.h>
+ //#include "Application.h"
+ //#include "Rendering/Buffer/FrameBuffer.h"
+ //#include "Rendering/ShaderManager.h"
+ //#include "Rendering/Renderer.h"
+ //#include "Rendering/Buffer/Gbuffer.h"
+ //#include "GameObject/Camera.h"
+ //#include "Light/LightManager.h"
+ //#include "GameObject/EntityManager.h"
+ //#include "GameObject/Components/Model.h"
+ //#include "misc/InputManager.h"	
+ //#include "Geometry/BVH/BVH.h"
+ //#include "misc/UserInterface.h"
+ //#include "Rendering/PostProcessing.h"
+ //#include <GameObject\Components\EntityComponents.h>
  
 ////#include <src\vendor\imgui\imgui.h>
 // 
@@ -428,8 +430,15 @@
 //}
 //
 //
-int main()
+#include "src/test1.h" 
+
+extern meme::Application* app = meme::CreateApplication();
+
+int main(int argc, char** argv)
 {
-	BVH bvh;
+	std::cout << "lol\n";
+	SayHi();
+	auto app = meme::CreateApplication();
+	app->Run();
 	return 0;
 }
