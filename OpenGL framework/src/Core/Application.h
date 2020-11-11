@@ -4,7 +4,9 @@
 #include "Core/Layer.h"
 #include "GameObject/EntityManager.h"
 #include "Rendering/Renderer.h"
+#include "Rendering/ShaderManager.h"
 //#include "Rendering/ShaderManager.cpp" 
+//#include "Geometry/ShaderManager.cpp" 
 
 
 int main(int argc, char** argv);
@@ -18,7 +20,7 @@ namespace meme
 		{
 			EntityManager::Init();
 			Renderer::Init();
-			//ShaderManager::Init();
+			ShaderManager::Init();
 		}
 
 		void Run() 

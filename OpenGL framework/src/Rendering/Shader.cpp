@@ -75,9 +75,7 @@ void Shader::SetupUniforms() {
 	}
 
 }
-Shader::Shader(): m_shaderType(), m_RendererID(0)
-{
-}
+
 
 void Shader::Bind() const
 {

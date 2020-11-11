@@ -4,7 +4,7 @@
 
 
 
-
+//TODO: set parsing/compilation state as bool or something
 class Shader {
 
 	struct uniform_info_t
@@ -18,7 +18,9 @@ public:
 		NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2, TESSELATION = 3
 	};
 
-	Shader();
+	
+	Shader() : m_shaderType(), m_RendererID(0){}
+
 	Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
 	Shader(const std::string& filepath, const ShaderType shaderType);
 
