@@ -432,7 +432,7 @@
 //
 //#include "src/test1.h" 
 
-extern meme::Application* app = meme::CreateApplication();
+//extern meme::Application* app = meme::CreateApplication();
 
 int main(int argc, char** argv)
 {
