@@ -39,10 +39,10 @@
     <ClInclude Include="src\vendor\imgui\imstb_truetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\test1.h">
+    <ClInclude Include="src\Editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Editor.h">
+    <ClInclude Include="src\EditorLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,10 +65,10 @@
     <ClCompile Include="src\vendor\imgui\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\test1.cpp">
+    <ClCompile Include="src\Editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Editor.cpp">
+    <ClCompile Include="src\EditorLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

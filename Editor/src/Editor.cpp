@@ -10,6 +10,6 @@ namespace meme
 	
 	Application* CreateApplication()
 	{
-		return new Editor();
+		return new Editor("Editor");
 	}
 }

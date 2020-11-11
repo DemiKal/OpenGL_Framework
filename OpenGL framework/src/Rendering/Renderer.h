@@ -25,7 +25,7 @@ private:
 	static ScreenQuad screenQuad;
 	std::vector<float> m_frameTimes;
 	double m_totalTime;
-
+	static GLFWwindow* m_Window;
 	//std::vector<Gbuffer> m_gBuffers;
 public:
 	float m_prevFrameTime, m_currentFrameTime;
@@ -62,7 +62,7 @@ public:
 	static void DrawScreenQuad();
 	static void EnableDepth();
 	static void DisableDepth();
-
+	static void Init();
 
 	void CreateCubeMesh();
 	void CreateTriangle();

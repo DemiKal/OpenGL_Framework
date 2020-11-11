@@ -430,14 +430,14 @@
 //}
 //
 //
-#include "src/test1.h" 
+//#include "src/test1.h" 
 
 extern meme::Application* app = meme::CreateApplication();
 
 int main(int argc, char** argv)
 {
 	std::cout << "lol\n";
-	SayHi();
+
 	auto app = meme::CreateApplication();
 	app->Run();
 	return 0;

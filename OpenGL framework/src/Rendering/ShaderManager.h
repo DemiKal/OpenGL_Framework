@@ -1,19 +1,23 @@
 #pragma once
 #include "Shader.h"
 
-enum shaderTypeFlags
-{
-	POSITION,
-	NORMAL,
-	UV,
-	BASIC,
-	ERRORSHADER,
-};
-
-using shaderMap = std::unordered_map<std::string, std::tuple<ShaderType, std::string>>;
 
 class ShaderManager
 {
+	enum shaderTypeFlags
+	{
+		POSITION,
+		NORMAL,
+		UV,
+		BASIC,
+		ERRORSHADER,
+	};
+	
+	using shaderMap = std::unordered_map<std::string, std::tuple<Shader::ShaderType, std::string>>;
+	
+	
+
+
 private:
 	shaderMap m_vertexShaderSources;
 	shaderMap m_fragmentShaderSources;

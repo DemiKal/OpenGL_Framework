@@ -1,15 +1,6 @@
 #include "precomp.h"
 #include "ShaderManager.h"
-
 #include "Shader.h"
-
-
-//ShaderManager::ShaderManager()
-//{
-//}
-//
-//
-
 
 void ShaderManager::Destroy()
 {
@@ -35,18 +26,18 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 		if (dot != std::string::npos)
 			extension = p.substr(dot + 1);
 
-		ShaderType type = ShaderType::NONE;
+		Shader::ShaderType type = Shader::ShaderType::NONE;
 		const std::string sourceCode = ParseShader(filePath);
 
 		if (extension == "vert")
 		{
-			type = ShaderType::VERTEX;
+			type = Shader::ShaderType::VERTEX;
 			m_vertexShaderSources[name] = std::tie(type, sourceCode);
 		}
 
 		if (extension == "frag")
 		{
-			type = ShaderType::FRAGMENT;
+			type = Shader::ShaderType::FRAGMENT;
 			m_fragmentShaderSources[name] = std::tie(type, sourceCode);
 		}
 

@@ -4,9 +4,6 @@
 
 
 #include <glm/common.hpp>
-#include <glm/common.hpp>
-#include <glm/common.hpp>
-#include <glm/common.hpp>
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtx/compatibility.hpp>
 
@@ -19,6 +16,7 @@
 #include "GameObject/Components/Model.h"
 
 ScreenQuad Renderer::screenQuad;
+GLFWwindow* Renderer::m_Window;
 
 void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b)
 {
@@ -223,6 +221,37 @@ void Renderer::SetCullingMode(const GLenum cullingMode)
 void Renderer::DisableDepth()
 {
 	GLCall(glDisable(GL_DEPTH_TEST));
+}
+
+void Renderer::Init()
+{
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
+
+	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
+	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	// glfwGetPrimaryMonitor() ;
+
+	/* Create a windowed mode window and its OpenGL context */
+	m_Window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, nullptr) ;
+
+	if (!m_Window)
+	{
+		glfwTerminate();
+		throw std::exception("ERROR: Could not create GLFW window!");
+		//return -1;
+	}
+
+	//InputManager::SetWindow(m_Window);
+	glfwMakeContextCurrent( m_Window );
+
+	if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
+
+	HardwareQuery::Query();
 }
 
 

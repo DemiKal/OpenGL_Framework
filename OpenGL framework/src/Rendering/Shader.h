@@ -1,26 +1,22 @@
 #pragma once
 
 
-struct uniform_info_t
-{
-	GLint location;
-	GLsizei count;
-};
 
-enum class ShaderType
-{
-	NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2, TESSELATION = 3
-};
 
-class Shader
-{
-private:
-	unsigned int m_RendererID;
-	ShaderType m_shaderType;
-	std::string m_name;
-	std::string m_FilePath;
-	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
+
+
+class Shader {
+
+	struct uniform_info_t
+	{
+		GLint location;
+		GLsizei count;
+	};
 public:
+	enum class ShaderType
+	{
+		NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2, TESSELATION = 3
+	};
 
 	Shader();
 	Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
@@ -29,7 +25,7 @@ public:
 	std::string GetName() const;
 	unsigned int GetID() const;
 	int GetUniformLocation(const std::string& name);
-	
+
 	static unsigned int CompileShader(const unsigned int type, const std::string& source);
 	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
 
@@ -44,5 +40,12 @@ public:
 	void Destroy() const;
 	void Bind() const;
 	static void Unbind();
+
+private:
+	unsigned int m_RendererID;
+	ShaderType m_shaderType;
+	std::string m_name;
+	std::string m_FilePath;
+	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
 };
 
