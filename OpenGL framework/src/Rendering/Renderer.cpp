@@ -349,8 +349,8 @@ void Renderer::BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> 
 
 void Renderer::SwapBuffers(GLFWwindow* window)
 {
-	GLCall(glfwSwapBuffers(window));
 	GLCall(glfwPollEvents());
+	GLCall(glfwSwapBuffers(window));
 }
 
 void GLClearError()
