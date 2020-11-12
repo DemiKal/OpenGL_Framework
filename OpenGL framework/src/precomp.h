@@ -43,6 +43,10 @@ __pragma(warning(disable : 26495))
 #include <entt/entt.hpp>
 #include <fmt/format.h>
 
+#include "../../Editor/src/vendor/imgui/imgui.h"
+#include "../../Editor/src/vendor/imgui/imgui_impl_glfw.h"
+#include "../../Editor/src/vendor/imgui/imgui_impl_opengl3.h"
+
 
 #include <stb_image.h>
 #include <assimp/Importer.hpp>

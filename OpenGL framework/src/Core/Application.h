@@ -5,9 +5,9 @@
 #include "GameObject/EntityManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h"
-//#include "Rendering/ShaderManager.cpp" 
+#include "Core/ImGuiManager.h"
+ //#include "Rendering/ShaderManager.cpp" 
 //#include "Geometry/ShaderManager.cpp" 
-
 
 int main(int argc, char** argv);
 
@@ -21,26 +21,36 @@ namespace meme
 			EntityManager::Init();
 			Renderer::Init();
 			ShaderManager::Init();
+			ImGuiManager::Init();
 		}
 
 		void Run()
-		{		
-			glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
-
+		{
+			static bool yahoo = true;
 			GLFWwindow* window = Renderer::m_Window;
+			
 			while (!glfwWindowShouldClose(window))
 			{
 				Renderer::ClearColor(1, 0, 1, 1);
 				Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				
+				ImGuiManager::Prepare();
 
+				ImGui::ShowDemoWindow(&yahoo);
+				
+				ImGuiManager::End();
 				Renderer::SwapBuffers(window);
 			}
+			
+			ImGui_ImplOpenGL3_Shutdown();
+			ImGui_ImplGlfw_Shutdown();
+			ImGui::DestroyContext();
 
 			glfwDestroyWindow(window);
 
 			glfwTerminate();
 		}
-		 
+
 	private:
 		friend int ::main(int argc, char** argv);
 		std::vector<Layer*> m_Layers;
