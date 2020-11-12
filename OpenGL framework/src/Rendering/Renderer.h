@@ -25,9 +25,9 @@ private:
 	static ScreenQuad screenQuad;
 	std::vector<float> m_frameTimes;
 	double m_totalTime;
-	static GLFWwindow* m_Window;
 	//std::vector<Gbuffer> m_gBuffers;
 public:
+	static GLFWwindow* m_Window;
 	float m_prevFrameTime, m_currentFrameTime;
 	void DrawLine(const glm::mat4& model, const ::Camera& cam, const glm::vec3& a, const glm::vec3& b);
 	void CreateLine();

@@ -11,7 +11,7 @@
 
 int main(int argc, char** argv);
 
-namespace meme 
+namespace meme
 {
 	class Application
 	{
@@ -23,13 +23,24 @@ namespace meme
 			ShaderManager::Init();
 		}
 
-		void Run() 
-		{ 
-			
+		void Run()
+		{		
+			glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
+
+			GLFWwindow* window = Renderer::m_Window;
+			while (!glfwWindowShouldClose(window))
+			{
+				Renderer::ClearColor(1, 0, 1, 1);
+				Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				Renderer::SwapBuffers(window);
+			}
+
+			glfwDestroyWindow(window);
+
+			glfwTerminate();
 		}
-		
-		//std::vector<Layer*>& GetLayers()
-		
+		 
 	private:
 		friend int ::main(int argc, char** argv);
 		std::vector<Layer*> m_Layers;
