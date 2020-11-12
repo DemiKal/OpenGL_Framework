@@ -34,6 +34,12 @@ namespace meme
 				Renderer::ClearColor(1, 0, 1, 1);
 				Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				
+				//TODO: add sceneLayer, renderingLayer, etc.
+				for (Layer* layer : m_Layers)
+				{
+					layer->OnUpdate(0.16f);
+				}
+
 				ImGuiManager::Prepare();
 
 				ImGui::ShowDemoWindow(&yahoo);
@@ -42,20 +48,16 @@ namespace meme
 				Renderer::SwapBuffers(window);
 			}
 			
-			ImGui_ImplOpenGL3_Shutdown();
-			ImGui_ImplGlfw_Shutdown();
-			ImGui::DestroyContext();
-
-			glfwDestroyWindow(window);
-
-			glfwTerminate();
+			ImGuiManager::ShutDown();
+			Renderer::ShutDown();
+			
 		}
 
 	private:
 		friend int ::main(int argc, char** argv);
-		std::vector<Layer*> m_Layers;
 
 	protected:
+		std::vector<Layer*> m_Layers;
 		std::string m_Name;
 	};
 

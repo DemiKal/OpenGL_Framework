@@ -18,6 +18,13 @@
 ScreenQuad Renderer::screenQuad;
 GLFWwindow* Renderer::m_Window;
 
+void Renderer::ShutDown()
+{
+	glfwDestroyWindow(m_Window);
+
+	glfwTerminate();
+}
+
 void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b)
 {
 	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));

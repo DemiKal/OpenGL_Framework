@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../src/Core/Application.h"
+#include "EditorLayer.h"
+
 namespace meme
 {
 
@@ -9,6 +11,7 @@ namespace meme
 	public:
 		Editor(const std::string& name) : Application(name)
 		{
+			m_Layers.emplace_back( new EditorLayer() );
 
 		}
 

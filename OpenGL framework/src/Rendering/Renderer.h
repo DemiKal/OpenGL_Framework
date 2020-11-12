@@ -29,6 +29,7 @@ private:
 public:
 	static GLFWwindow* m_Window;
 	float m_prevFrameTime, m_currentFrameTime;
+	static void ShutDown();
 	void DrawLine(const glm::mat4& model, const ::Camera& cam, const glm::vec3& a, const glm::vec3& b);
 	void CreateLine();
 	Renderer();

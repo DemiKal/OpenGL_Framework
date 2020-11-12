@@ -1,6 +1,6 @@
 #include "precomp.h"
 #include "ImGuiManager.h"
-#include <Rendering/Renderer.h>
+#include "Rendering/Renderer.h"
 
 
 void ImGuiManager::Prepare()
@@ -27,6 +27,13 @@ void ImGuiManager::Init()
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(Renderer::m_Window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
+}
+
+void ImGuiManager::ShutDown()
+{
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 }
 
 

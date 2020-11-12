@@ -5,5 +5,6 @@ public:
 	static void Prepare();
 	static void End();
 	static void Init();
+	static void ShutDown();
 };
 
