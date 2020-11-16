@@ -50,7 +50,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>src;src\vendor;$(SolutionDir)Editor</AdditionalIncludeDirectories>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -90,7 +90,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\ImGuiManager.cpp" />
     <ClCompile Include="src\misc\MeshLoader.cpp" />
     <ClCompile Include="src\Rendering\ComputeShader.cpp" />
     <ClCompile Include="src\precomp.cpp">
@@ -202,7 +201,6 @@
     <None Include="src\vendor\glm\gtc\vec1.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\ImGuiManager.h" />
     <ClInclude Include="src\Core\Layer.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\misc\MeshLoader.h" />

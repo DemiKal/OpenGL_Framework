@@ -1,10 +1,5 @@
-//#define PRECOMP_H
 #pragma once
-
-#ifndef PRECOMP_H
-#define PRECOMP_H
 #define GLM_ENABLE_EXPERIMENTAL 
-
 
 //#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 //#define GLM_FORCE_LEFT_HANDED
@@ -43,11 +38,6 @@ __pragma(warning(disable : 26495))
 #include <entt/entt.hpp>
 #include <fmt/format.h>
 
-#include "../../Editor/src/vendor/imgui/imgui.h"
-#include "../../Editor/src/vendor/imgui/imgui_impl_glfw.h"
-#include "../../Editor/src/vendor/imgui/imgui_impl_opengl3.h"
-
-
 #include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -71,4 +61,3 @@ void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
 
 #include "misc/HardwareQuery.h"
-#endif PRECOMP_H

@@ -5,7 +5,8 @@
 #include "GameObject/EntityManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h"
-#include "Core/ImGuiManager.h"
+//#include "src/ImGuiManager.h"
+//#include "Core/ImGuiManager.h"
  //#include "Rendering/ShaderManager.cpp" 
 //#include "Geometry/ShaderManager.cpp" 
 
@@ -21,10 +22,10 @@ namespace meme
 			EntityManager::Init();
 			Renderer::Init();
 			ShaderManager::Init();
-			ImGuiManager::Init();
+			//ImGuiManager::Init();
 		}
 
-		void Run()
+		virtual void Run()
 		{
 			static bool yahoo = true;
 			GLFWwindow* window = Renderer::m_Window;
@@ -40,15 +41,16 @@ namespace meme
 					layer->OnUpdate(0.16f);
 				}
 
-				ImGuiManager::Prepare();
-
-				ImGui::ShowDemoWindow(&yahoo);
+				//ImGuiManager::Prepare();
+				//
+				//ImGui::ShowDemoWindow(&yahoo);
+				//
 				
-				ImGuiManager::End();
+				//ImGuiManager::End();
 				Renderer::SwapBuffers(window);
 			}
 			
-			ImGuiManager::ShutDown();
+			//ImGuiManager::ShutDown();
 			Renderer::ShutDown();
 			
 		}

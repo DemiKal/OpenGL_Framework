@@ -1,7 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "precomp.h"
 #include <Core\Application.h>
-#include <src\Editor.h>
+//#include <src\Editor.h>
 
 //#include "Application.h"
 //#include "Rendering/Buffer/FrameBuffer.h"
@@ -438,7 +438,7 @@ int main(int argc, char** argv)
 {
 	std::cout << "lol\n";
 
-	auto app = meme::CreateApplication();
+	auto app =  meme::CreateApplication();
 	app->Run();
 	return 0;
 }

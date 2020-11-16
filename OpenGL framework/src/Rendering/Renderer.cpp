@@ -1,8 +1,6 @@
 #include "precomp.h"
 #include "Renderer.h"
 
-
-
 #include <glm/common.hpp>
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtx/compatibility.hpp>
@@ -243,8 +241,8 @@ void Renderer::Init()
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	// glfwGetPrimaryMonitor() ;
-
+	 
+	//glfwGetPrimaryMonitor()
 	/* Create a windowed mode window and its OpenGL context */
 	m_Window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, nullptr) ;
 
@@ -424,4 +422,9 @@ void Renderer::ClearColor(const glm::vec4& color)
 void Renderer::Clear(GLenum type)
 {
 	glClear(type);
+}
+
+GLFWwindow* Renderer::GetWindow()
+{
+	return m_Window;
 }
