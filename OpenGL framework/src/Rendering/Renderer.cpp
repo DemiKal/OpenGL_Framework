@@ -345,6 +345,11 @@ void Renderer::BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> 
 	DrawScreenQuad();
 }
 
+void Renderer::SwapBuffers()
+{
+	GLCall(glfwPollEvents());
+	GLCall(glfwSwapBuffers(GetWindow()));
+}
 void Renderer::SwapBuffers(GLFWwindow* window)
 {
 	GLCall(glfwPollEvents());

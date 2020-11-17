@@ -9,7 +9,7 @@ namespace meme
 		std::cout << "running application!\n";
 
 		static bool yahoo = true;
-		GLFWwindow* window = Renderer::m_Window;
+		GLFWwindow* window = Renderer::GetWindow();
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -23,18 +23,18 @@ namespace meme
 			}
 
 			ImGuiManager::Prepare();
-			//
-			
-			ImGui::ShowDemoWindow(&yahoo);
-			//
+
+			for (Layer* layer : m_Layers)
+			{
+				layer->OnImGuiRender();
+			}
 
 			ImGuiManager::End();
-			Renderer::SwapBuffers(window);
+			Renderer::SwapBuffers();
 		}
 
 		ImGuiManager::ShutDown();
 		Renderer::ShutDown();
-
 	}
 
 	Application* CreateApplication()

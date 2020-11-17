@@ -1,5 +1,5 @@
 #include "ImGuiManager.h"
-
+#include "Editor.h"
 #include <GLFW/glfw3.h>
 
 void ImGuiManager::Prepare()
@@ -8,9 +8,6 @@ void ImGuiManager::Prepare()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
-
-constexpr int SCREENWIDTH = 1920;
-constexpr int SCREENHEIGHT = 1017;
 
 void ImGuiManager::Init()
 {
@@ -25,10 +22,9 @@ void ImGuiManager::Init()
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
-	const char* glsl_version = "#version 130";
-	// Setup Platform/Renderer bindings
-	ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
-	ImGui_ImplOpenGL3_Init(glsl_version);
+	
+	ImGui_ImplGlfw_InitForOpenGL(Renderer::GetWindow(), true);
+	ImGui_ImplOpenGL3_Init("#version 410");
 }
 
 void ImGuiManager::ShutDown()

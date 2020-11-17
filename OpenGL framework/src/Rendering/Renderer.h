@@ -26,8 +26,8 @@ private:
 	std::vector<float> m_frameTimes;
 	double m_totalTime;
 	//std::vector<Gbuffer> m_gBuffers;
-public:
 	static GLFWwindow* m_Window;
+public:
 	float m_prevFrameTime, m_currentFrameTime;
 	static void ShutDown();
 	void DrawLine(const glm::mat4& model, const  Camera& cam, const glm::vec3& a, const glm::vec3& b);
@@ -64,7 +64,7 @@ public:
 	static void EnableDepth();
 	static void DisableDepth();
 	static void Init();
-
+	static void SwapBuffers();
 	static GLFWwindow* GetWindow();
 	void CreateCubeMesh();
 	void CreateTriangle();

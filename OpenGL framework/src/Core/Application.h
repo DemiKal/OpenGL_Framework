@@ -22,38 +22,11 @@ namespace meme
 			EntityManager::Init();
 			Renderer::Init();
 			ShaderManager::Init();
-			//ImGuiManager::Init();
+			//ImGuiManager::Init(); to editor
 		}
 
-		virtual void Run()
-		{
-			static bool yahoo = true;
-			GLFWwindow* window = Renderer::m_Window;
-			
-			while (!glfwWindowShouldClose(window))
-			{
-				Renderer::ClearColor(1, 0, 1, 1);
-				Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				
-				//TODO: add sceneLayer, renderingLayer, etc.
-				for (Layer* layer : m_Layers)
-				{
-					layer->OnUpdate(0.16f);
-				}
-
-				//ImGuiManager::Prepare();
-				//
-				//ImGui::ShowDemoWindow(&yahoo);
-				//
-				
-				//ImGuiManager::End();
-				Renderer::SwapBuffers(window);
-			}
-			
-			//ImGuiManager::ShutDown();
-			Renderer::ShutDown();
-			
-		}
+		virtual void Run() {};
+		 
 
 	private:
 		friend int ::main(int argc, char** argv);
