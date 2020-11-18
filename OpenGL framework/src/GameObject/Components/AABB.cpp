@@ -201,9 +201,9 @@ void AABB::Draw(const Camera& camera, const glm::vec4& color = { 1.0f, 0.0f, 0.0
 
 	throw std::exception("AABB draw NOT YET IMPLEMENTED!"); //TODO: fix with new renderer.
 	//GLCall(glBindVertexArray(mesh.GetVAO()));
-	//if (mesh.indices.empty())
+	//if (mesh.m_Indices.empty())
 	//	GLCall(glDrawArrays(	mesh.GetElemDrawType(), 0, static_cast<GLsizei>(mesh.GetVertexCount()));)
-	//else GLCall(glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, nullptr);)
+	//else GLCall(glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.m_Indices.size()), GL_UNSIGNED_INT, nullptr);)
 	// 
 	//
 	//GLCall(glBindVertexArray(0));

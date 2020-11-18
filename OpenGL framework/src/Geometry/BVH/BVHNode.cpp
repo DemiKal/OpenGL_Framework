@@ -100,7 +100,7 @@ uint32_t BVHNode::Partition(
 	else if (zlen > xlen && zlen > ylen) longestAxis = 2;
 
 	auto& triangleCenters = bvh.m_triangleCenters;
-	//sort indices based on longest axis;
+	//sort m_Indices based on longest axis;
 
 	//tbb::parallel_sort(bvh.m_indices.begin() + start, bvh.m_indices.begin() + end,
 	//	[&triangleCenters, longestAxis](const uint32_t a, const uint32_t b) -> bool

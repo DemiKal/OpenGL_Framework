@@ -262,7 +262,7 @@ void BVH::InitTriangleRenderer()
 void BVH::CreateBVHTextures()
 {
 	////split bvh node into 2 textures
-	////tex 1: indices:  4 ints
+	////tex 1: m_Indices:  4 ints
 	////tex  2: min vecs: 3 floats
 	////tex 3: max vecs : 3 floats
 	//const unsigned int aabbCount = m_poolPtr;

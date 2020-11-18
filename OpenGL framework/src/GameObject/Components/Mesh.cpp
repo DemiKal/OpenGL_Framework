@@ -8,7 +8,394 @@
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
 
+//static std::vector<Mesh> m_Meshes;
+std::vector<Mesh> Mesh::m_Meshes;
 
+void Mesh::LoadMaterialTextures(
+	const aiMaterial* mat,
+	const aiTextureType type,
+	const std::string& typeName)
+{
+	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+	{
+		aiString fileName;
+		auto r = mat->GetTexture(type, i, &fileName);
+		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+		bool skip = false;
+		for (auto& j : m_Textures)
+		{
+			if (std::strcmp(j.GetPath().data(), fileName.C_Str()) == 0)
+			{
+				//textures.push_back(j);
+				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip)
+		{   // if texture hasn't been loaded already, load it
+			const std::string fullpath = m_Directory + '/' + fileName.C_Str();
+			m_Textures.emplace_back(fullpath, typeName);
+		}
+	}
+}
+
+void Mesh::ProcessNode(
+	const aiNode* node,
+	const aiScene* scene,
+	const std::string& directory
+/*, std::shared_ptr<Armature> armature*/)
+{
+	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	{
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		m_Meshes.emplace_back(mesh, scene, directory);// /*, armature*/));
+	}
+
+	// then do the same for each of its children
+	for (unsigned int i = 0; i < node->mNumChildren; i++)
+	{
+		ProcessNode(node->mChildren[i], scene, directory); /*, armature*/
+	}
+}
+
+std::optional<uint32_t> Mesh::LoadFromFile(const std::string& path, const aiPostProcessSteps loadFlags)
+{
+	//const aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
+
+	Assimp::Importer import;
+	const auto standardFlags = aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes;
+	const auto flagsComposed = standardFlags | loadFlags;
+	const aiScene* scene = import.ReadFile(path, flagsComposed);
+
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	{
+		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+		return std::nullopt;
+	}
+
+	std::string directory = path.substr(0, path.find_last_of('/'));
+
+	int idx = Mesh::m_Meshes.size();
+	ProcessNode(scene->mRootNode, scene, directory);
+	//TODO: delete scene;
+	return idx; //TODO: use std optional?
+}
+
+Mesh::Mesh(
+	const aiMesh* mesh,
+	const aiScene* scene,
+	const std::string& directory)
+{
+	m_Directory = directory;
+	std::vector<float> vertices;
+	std::vector<unsigned int> indices;
+	const unsigned int BONESPERVERTEX = 3;
+
+	VertexBufferLayout vbLayout;
+	unsigned int stride = 0;
+
+	const bool hasPositions = mesh->HasPositions();
+	if (hasPositions) vbLayout.Push<float>(3, VertexType::POSITION);
+
+	const bool hasNormals = mesh->HasNormals();
+	if (hasNormals)
+		vbLayout.Push<float>(3, VertexType::NORMAL);
+
+	const bool hasTexCoords = mesh->HasTextureCoords(0);
+	if (hasTexCoords) vbLayout.Push<float>(2, VertexType::TEXCOORD);
+
+	const bool hasTangents = mesh->HasTangentsAndBitangents();
+	if (hasTangents)
+	{
+		vbLayout.Push<float>(3, VertexType::TANGENT);
+		vbLayout.Push<float>(3, VertexType::BITANGENT);
+	}
+
+	//TODO colors
+	bool colors = mesh->HasVertexColors(1);
+
+	const bool hasBones = mesh->HasBones();
+	if (hasBones)
+	{
+		vbLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_INDEX);	//bone idx
+		vbLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_WEIGHT);	//bone weight
+	}
+
+	const unsigned int morphTargetCount = mesh->mNumAnimMeshes;
+
+	if (morphTargetCount)
+	{
+		for (unsigned int i = 0; i < morphTargetCount; i++)
+		{
+			aiAnimMesh* morph = mesh->mAnimMeshes[i];
+			if (morph->HasPositions())
+				vbLayout.Push<float>(3, VertexType::POSITION);
+
+			if (morph->mNumVertices != mesh->mNumVertices)
+				std::cout << " morph target vertex count != original vertex count!";
+		}
+	}
+
+	//finally create vertex buffer
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	{
+		vertices.push_back(mesh->mVertices[i].x);
+		vertices.push_back(mesh->mVertices[i].y);
+		vertices.push_back(mesh->mVertices[i].z);
+
+		if (hasNormals)
+		{
+			vertices.push_back(mesh->mNormals[i].x);
+			vertices.push_back(mesh->mNormals[i].y);
+			vertices.push_back(mesh->mNormals[i].z);
+		}
+
+		if (hasTexCoords)
+		{
+			vertices.push_back(mesh->mTextureCoords[0][i].x);
+			vertices.push_back(mesh->mTextureCoords[0][i].y);
+		}
+		//manage morph animation by interleaving
+		for (unsigned int j = 0; j < morphTargetCount; j++)
+		{
+			aiAnimMesh* morph = mesh->mAnimMeshes[j];
+			//TODO: check for each vertex element to see if they are in animation
+			if (morph->HasPositions())
+				vertices.push_back(morph->mVertices[i].x);
+			vertices.push_back(morph->mVertices[i].y);
+			vertices.push_back(morph->mVertices[i].z);
+		}
+
+		if (hasTangents)
+		{
+			vertices.push_back(mesh->mTangents[i].x);
+			vertices.push_back(mesh->mTangents[i].y);
+			vertices.push_back(mesh->mTangents[i].z);
+			// bitangemplace_back( 
+			vertices.push_back(mesh->mBitangents[i].x);
+			vertices.push_back(mesh->mBitangents[i].y);
+			vertices.push_back(mesh->mBitangents[i].z);
+		}
+		if (hasBones)
+		{
+			vertices.push_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
+			vertices.push_back(0);
+		}
+
+	}
+
+
+	// now walk through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex m_Indices.
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+		// retrieve all m_Indices of the face and store them in the m_Indices vector
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+
+	//TODO: fix! animator.m_inverse_root = m_inverseRoot;
+
+#pragma region bones
+	Animator  animator;
+	std::unordered_map<std::string, unsigned int> bonesMapping;
+	if (mesh->HasBones())
+	{
+		std::vector<Joint> bones;
+		std::vector< std::unordered_map<unsigned int, float>> bonemapping;
+		bonemapping.resize(mesh->mNumVertices);
+
+		std::unordered_map<std::string, unsigned int> bonesDict;
+		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++) {
+			aiBone* ai_bone = mesh->mBones[boneIdx];
+			std::string boneName = ai_bone->mName.C_Str();
+			bonesDict[boneName] = boneIdx;
+		}
+
+		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++) {
+			aiBone* ai_bone = mesh->mBones[boneIdx];
+			std::string boneName = ai_bone->mName.C_Str();
+
+			//glm::mat4 a1 = glm::make_mat4(ai_bone->mOffsetMatrix[0]);
+			//glm::mat4 a2 = AI2GLMMAT(ai_bone->mOffsetMatrix);
+
+			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
+			bonesMapping[boneName] = boneIdx;
+
+			//TODO FIX:
+			//FindChildren(armature, joint, bonesDict);
+			//AssignMatrices(armature, joint);
+
+			bones.emplace_back(joint);
+
+			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
+
+			for (unsigned int j = 0; j < numWeights; j++) {
+				aiVertexWeight vw = ai_bone->mWeights[j];
+				const unsigned int v_idx = vw.mVertexId;
+				const float v_w = vw.mWeight;
+
+				if (bonemapping[v_idx].find(boneIdx) == bonemapping[v_idx].end())
+				{
+					bonemapping[v_idx][boneIdx] = v_w;
+				}
+				else
+				{
+					ASSERT(false);
+				}
+			}
+		}
+
+		//copy bones
+		animator.m_bones.resize(bones.size());
+		std::copy(bones.begin(), bones.end(), animator.m_bones.begin());
+
+		const unsigned int bmapSize = static_cast<unsigned int>(bonemapping.size());
+		for (unsigned int i = 0; i < bmapSize; i++) {
+
+			float sum = 0;
+			for (auto& bm : bonemapping[i]) sum += bm.second;
+
+			if (fabs(sum - 1) > 0.01) //renormalize values! shouldn't happen with assimp postprocessing
+			{
+				std::vector<std::pair<unsigned int, float>> vec;
+				std::for_each(bonemapping[i].begin(), bonemapping[i].end(),
+					[&](const std::pair<unsigned int, float>& element) {
+						vec.push_back(element);
+					});
+
+				std::sort(vec.begin(), vec.end(),
+					[](const std::pair<unsigned int, float>& L,
+						const std::pair<unsigned int, float>& R) {
+							return L.second < R.second;
+					});
+
+				for (auto& bm : bonemapping[i]) {
+					bm.second = bm.second / sum;
+				}
+
+			}
+
+			unsigned int j = 0;
+			for (auto& bm : bonemapping[i])
+			{
+				const unsigned int elementIdxV1 = vbLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
+				const unsigned int elementIdxV2 = vbLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
+				vertices[elementIdxV1] = bm.first;
+				vertices[elementIdxV2] = bm.second;
+				j++;
+				if (j >= BONESPERVERTEX) break;
+			}
+		}
+	}
+#pragma endregion memelord 
+
+#pragma region anim
+	if (scene->HasAnimations()) {
+		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+			aiAnimation* anim = scene->mAnimations[i];
+			const std::string anim_name = anim->mName.C_Str();
+			float ticks = 1;	//anim->mTicksPerSecond;
+			float duration = static_cast<float>(anim->mDuration);
+			animator.m_duration = duration;
+			animator.m_ticks = ticks;
+
+
+			std::vector<AnimationChannel> AnimationChannels;
+			AnimationChannels.resize(anim->mNumChannels); //resize to sync with bones
+
+			for (size_t j = 0; j < anim->mNumChannels; j++)
+			{
+				const aiNodeAnim* ai_channel = anim->mChannels[j];
+				const std::string channelName = ai_channel->mNodeName.C_Str();
+
+				std::vector< PositionKey> positionkeys;
+				std::vector< RotationKey > rotationKeys;
+				std::vector< ScaleKey> scalingKeys;
+
+				for (size_t k = 0; k < ai_channel->mNumPositionKeys; k++)
+				{
+					aiVectorKey ai_key = ai_channel->mPositionKeys[k];
+					positionkeys.emplace_back(ai_key.mTime, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
+				}
+
+				for (size_t k = 0; k < ai_channel->mNumRotationKeys; k++)
+				{
+					aiQuatKey ai_key = ai_channel->mRotationKeys[k];
+					rotationKeys.emplace_back(ai_key.mTime, ai_key.mValue.w, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
+				}
+
+				for (size_t k = 0; k < ai_channel->mNumScalingKeys; k++)
+				{
+					aiVectorKey ai_key = ai_channel->mScalingKeys[k];
+					scalingKeys.emplace_back(ai_key.mTime, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
+				}
+
+				//AnimationChannels.emplace_back(AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys));
+				unsigned int channel_idx = bonesMapping[channelName];
+				AnimationChannels[channel_idx] = AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys);
+
+			}
+
+			Animation animation(duration, AnimationChannels);
+			animator.current = animation;
+		}
+	}
+
+	// process materials
+	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named
+	// as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
+	// Same applies to other texture as the following list summarizes:
+	// diffuse: texture_diffuseN
+	// specular: texture_specularN
+	// normal: texture_normalN
+	std::vector<Texture2D> textures;
+	//auto& shader = GetShader();
+	// 1. diffuse maps
+	/*std::vector<Texture2D> diffuseMaps = */ LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+	//textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	// 2. specular maps
+	/* std::vector<Texture2D> specularMaps = */ LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+	//textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	// 3. normal maps
+	/* std::vector<Texture2D> normalMaps = */ LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+	//textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+	// 4. height maps
+	/* std::vector<Texture2D> heightMaps = */  LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+	//textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+
+
+	aiAABB  ai_aabb = mesh->mAABB;
+
+	m_aabb = AABB({ ai_aabb.mMin.x, ai_aabb.mMin.y, ai_aabb.mMin.z },
+		{ ai_aabb.mMax.x, ai_aabb.mMax.y, ai_aabb.mMax.z });
+	m_aabb_OG = m_aabb;
+
+	//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	//	meshnew.positionVertices.emplace_back(
+	//		glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
+	for (const int v_idx : indices)
+	{
+		auto& ai_v = mesh->mVertices[v_idx];
+		glm::vec3   v = { ai_v.x, ai_v.y, ai_v.z };
+		positionVertices.emplace_back(v);
+	}
+}
+
+void Mesh::Draw(const Camera& camera, const glm::mat4& transform,  Shader& shader )
+{
+	shader.Bind();
+	//shader.SetInt("texture_diffuse1", 0);
+	shader.SetUniformMat4f("u_model", transform);
+	shader.SetUniformMat4f("u_view", camera.GetViewMatrix());
+	shader.SetUniformMat4f("u_projection", camera.GetProjectionMatrix());
+	Draw(shader);
+}
 
 void Mesh::Draw(Shader& shader)
 {
@@ -17,9 +404,9 @@ void Mesh::Draw(Shader& shader)
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
 
-	for (int i = 0; i < m_textures.size(); i++)
+	for (int i = 0; i < m_Textures.size(); i++)
 	{
-		const Texture2D& tex = m_textures[i];
+		const Texture2D& tex = m_Textures[i];
 		glActiveTexture(GL_TEXTURE0 + i);
 
 		std::string number;
@@ -50,8 +437,8 @@ void Mesh::Draw(Shader& shader)
 
 	// draw mesh
 	glBindVertexArray(VAO);
-	if (!indices.empty())
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
+	if (!m_Indices.empty())
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
 	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetVertexCount())); //plane!
 
 	glBindVertexArray(0);
@@ -86,8 +473,8 @@ Mesh::Mesh(
 	const VertexBufferLayout& vbl)
 {
 	this->vertices = vertices;
-	this->indices = indices;
-	this->m_textures = textures;
+	this->m_Indices = indices;
+	this->m_Textures = textures;
 	this->m_animator = animator;
 	this->m_VertexBufferLayout = vbl;
 
@@ -115,8 +502,8 @@ void Mesh::setupMesh()
 	GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &vertices[0], GL_STATIC_DRAW));
 
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-		&indices[0], GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int),
+		&m_Indices[0], GL_STATIC_DRAW));
 
 	unsigned int i = 0;
 	const unsigned int stride = m_VertexBufferLayout.GetStride();
@@ -179,11 +566,11 @@ Mesh Mesh::CreateCubeWireframe()
 		mesh.positionVertices.emplace_back(
 			glm::vec3(cubeVertices[i], cubeVertices[i + 1], cubeVertices[i + 2]));
 	}
-	 
+
 	//AABB aabb;
 	mesh.m_aabb.CalcBounds(mesh.positionVertices);
 	mesh.m_aabb_OG = mesh.m_aabb;
-	
+
 	mesh.m_VertexBufferLayout = vbl;
 
 	// cube VAO
@@ -295,7 +682,7 @@ Mesh Mesh::CreateCube()
 
 bool Mesh::HasFaceIndices() const
 {
-	return indices.size() > 0;
+	return m_Indices.size() > 0;
 }
 
 unsigned Mesh::GetVertexCount() const
@@ -305,7 +692,7 @@ unsigned Mesh::GetVertexCount() const
 
 void Mesh::AddTexture(const Texture2D& tex)
 {
-	m_textures.emplace_back(tex);
+	m_Textures.emplace_back(tex);
 }
 
 void Mesh::MakeWireFrame()
@@ -320,10 +707,10 @@ void Mesh::MakeWireFrame()
 	int barycentricIdx = 0;
 	for (auto& v : positionVertices)
 	{
-		//this->indices
+		//this->m_Indices
 		newBuffer.emplace_back(v);
 		newBuffer.emplace_back(bary[barycentricIdx]);
-		barycentricIdx = (barycentricIdx + 1) % 3; 
+		barycentricIdx = (barycentricIdx + 1) % 3;
 	}
 
 	unsigned int wireVAO, wireVBO;
@@ -331,10 +718,10 @@ void Mesh::MakeWireFrame()
 	glGenBuffers(1, &wireVBO);
 	glBindVertexArray(wireVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, wireVBO);
-	glBufferData(GL_ARRAY_BUFFER, newBuffer.size() *  sizeof(glm::vec3), &newBuffer[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, newBuffer.size() * sizeof(glm::vec3), &newBuffer[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);					 
+	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	m_wireVAO = wireVAO;
@@ -360,8 +747,7 @@ void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) co
 
 	glBindVertexArray(m_wireVAO);
 
-	GLCall(glDrawArrays(GL_TRIANGLES, 0,static_cast<GLsizei>(positionVertices.size())));
-
+	GLCall(glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(positionVertices.size())));
 }
 
 Mesh Mesh::CreatePlane() {

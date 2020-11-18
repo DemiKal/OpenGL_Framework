@@ -57,7 +57,8 @@ struct DirectoryComponent
 //TODO fix
 struct MeshComponent
 {
-	uint32_t VAO, VBO, EBO;
+	//uint32_t VAO, VBO, EBO;
+	uint32_t meshIdx;//VAO, VBO, EBO;
 	bool initialized = false;
 };
 

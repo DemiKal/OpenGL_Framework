@@ -38,10 +38,10 @@ public:
 		m_shaderIdx(0)
 	{}
 
-	~Model() 
+	~Model()
 	{
 		fmt::print("MODEL DESTRUCTED!");
-	} 
+	}
 
 	Model(const std::string& path, aiPostProcessSteps loadFlags);
 

@@ -16,7 +16,9 @@
 
 
 //from assimpviewer
-glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat) {
+
+glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat)
+{
 	glm::mat4 result;
 	aiMatrix4x4 transposed = ai_mat.Transpose();
 	for (int i = 0; i < 4; i++) {
@@ -116,6 +118,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, std::shared_ptr<Arma
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		m_meshes.push_back(ProcessMesh(mesh, scene, armature));
 	}
+
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
@@ -170,6 +173,7 @@ void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 	}
 	else for (auto& children : armature->children)	AssignMatrices(children, joint);
 }
+
 Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
 {
 	std::vector<float> vertices;
@@ -271,12 +275,12 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 
 	}
 
-
-	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+	// now wak through each of the mesh's faces (a face is a mesh its triangle)
+	// and retrieve the corresponding vertex m_Indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 	{
 		aiFace face = mesh->mFaces[i];
-		// retrieve all indices of the face and store them in the indices vector
+		// retrieve all m_Indices of the face and store them in the m_Indices vector
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
@@ -467,7 +471,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 		meshnew.positionVertices.emplace_back(v);
 	}
 
-	return	 meshnew;
+	return meshnew;
 }
 
 Mesh& Model::GetMesh(const unsigned idx)
@@ -476,7 +480,9 @@ Mesh& Model::GetMesh(const unsigned idx)
 }
 
 
-std::vector<Texture2D> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type,
+std::vector<Texture2D> Model::LoadMaterialTextures(
+	aiMaterial* mat,
+	aiTextureType type,
 	const std::string& typeName)
 {
 	std::vector<Texture2D> textures;

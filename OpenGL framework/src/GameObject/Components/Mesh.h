@@ -13,27 +13,32 @@ protected:
 	//vertex bools
 	bool animation_loaded = false;
 	GLenum m_elemDrawType = GL_TRIANGLES;
-
+	std::string m_Directory;
 	unsigned int m_wireVAO, m_wireVBO;
 	void setupMesh();
 public:
+	static std::vector<Mesh> m_Meshes;
+
 	float lineThickness = 0.1f;
 	static Mesh CreateCubeWireframe();
 	inline GLenum GetElemDrawType() const;
 	void SetElemDrawType(const GLenum enm);
 
 	std::vector<float> vertices; //TODO make it dynamic for ints and others
-	std::vector<unsigned int> indices;
-	std::vector<Texture2D> m_textures;
+	std::vector<unsigned int> m_Indices;
+	std::vector<Texture2D> m_Textures;
 	Animator m_animator;
 	VertexBufferLayout m_VertexBufferLayout;
 	std::vector<glm::vec3> positionVertices; //vertices, but only the positions for other purposes
 	AABB m_aabb;
 	AABB m_aabb_OG;
 
-	Mesh() : m_wireVAO(0), m_wireVBO(0), VAO(0), VBO(0), EBO(0), indices(), m_textures() {};
+	Mesh() : m_wireVAO(0), m_wireVBO(0), VAO(0), VBO(0), EBO(0), m_Indices(), m_Textures() {};
+	Mesh(
+		const aiMesh* mesh, 
+		const aiScene* scene,
+		const std::string& directory);
 
-	~Mesh() = default;
 	//Mesh(Mesh& a) = default;
 	Mesh(
 		const std::vector<float>& vertices,
@@ -42,7 +47,23 @@ public:
 		const Animator& animator,
 		const VertexBufferLayout& vbl);
 
+	~Mesh() = default;
+
+	void LoadMaterialTextures(
+		const aiMaterial* mat, 
+		const aiTextureType type, 
+		const std::string& typeName);
+	
+	static void ProcessNode(
+		const aiNode* node, 
+		const aiScene* scene, 
+		const std::string& directory);
+	//static bool ProcessMesh(aiMesh* mesh, aiScene* scene);
+
+	[[nodiscard]] static std::optional<uint32_t> LoadFromFile(const std::string& path, const aiPostProcessSteps loadFlags);
 	void Draw(Shader& shader);
+	void Draw(const Camera& camera, const glm::mat4& transform, Shader& shader); 
+	
 	bool HasAnimation() const;
 	unsigned int GetVAO();
 	unsigned int GetVBO();
