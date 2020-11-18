@@ -13,12 +13,13 @@ namespace meme
 
 		while (!glfwWindowShouldClose(window))
 		{
-			static float ii = 0;
-			Renderer::ClearColor(fmod(ii,1.0f), 0, fmod(ii,1.0f), 1);
-			ii += 0.01f;
-
+			Renderer::ClearColor(1, 0.0f, 0.5f, 1.0f);
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+			Renderer::EnableDepth();
+			//Renderer::SetDepthFunc(GL_LEQUAL);
+			//Renderer::SetCullingMode(GL_BACK);
+			//Renderer::SetAlphaBlending(false);
+			
 			//TODO: add sceneLayer, renderingLayer, etc.
 			for (Layer* layer : m_Layers)
 			{

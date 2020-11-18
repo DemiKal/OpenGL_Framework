@@ -103,66 +103,10 @@
     <ClCompile Include="src\misc\UserInterface.cpp" />
     <ClCompile Include="src\Rendering\Buffer\SSBO.cpp" />
     <None Include="imgui.ini" />
-    <None Include="res\shaders\AABB_instanced.frag" />
-    <None Include="res\shaders\AABB_instanced_SSBO.frag" />
-    <None Include="res\shaders\AABB_instanced_SSBO.vert" />
-    <None Include="res\shaders\AABB_single.frag" />
-    <None Include="res\shaders\AABB_single.vert">
-      <FileType>Document</FileType>
-    </None>
     <ClCompile Include="src\Geometry\Ray.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVHNode.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVH.cpp" />
     <ClCompile Include="src\Geometry\TriangleBuffer.cpp" />
-    <None Include="res\shaders\AABB_instanced.vert" />
-    <None Include="res\shaders\anim.frag" />
-    <None Include="res\shaders\anim.vert" />
-    <None Include="res\shaders\basic.frag" />
-    <None Include="res\shaders\bones.frag" />
-    <None Include="res\shaders\bones.vert" />
-    <None Include="res\shaders\deferred_shading.frag" />
-    <None Include="res\shaders\deferred_shading.vert" />
-    <None Include="res\shaders\full_color.frag" />
-    <None Include="res\shaders\full_color.vert" />
-    <None Include="res\shaders\Gbuffer_basic.frag" />
-    <None Include="res\shaders\Gbuffer_basic.vert" />
-    <None Include="res\shaders\framebuffers.frag" />
-    <None Include="res\shaders\framebuffers.vert" />
-    <None Include="res\shaders\framebuffers_screen.frag" />
-    <None Include="res\shaders\framebuffers_screen.vert">
-      <FileType>Text</FileType>
-    </None>
-    <None Include="res\shaders\Gbuffer_basic_no_tex.frag" />
-    <None Include="res\shaders\Gbuffer_basic_no_tex.vert" />
-    <None Include="res\shaders\Gbuffer_basic_vertex.frag" />
-    <None Include="res\shaders\Gbuffer_basic_vertex.vert" />
-    <None Include="res\shaders\lightShader.frag" />
-    <None Include="res\shaders\lightShader.vert">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="res\shaders\lineshader.frag" />
-    <None Include="res\shaders\lineshader.vert" />
-    <None Include="res\shaders\morph_target_simple.frag" />
-    <None Include="res\shaders\morph_target_simple.vert" />
-    <None Include="res\shaders\normalmapshader.frag" />
-    <None Include="res\shaders\plane.frag" />
-    <None Include="res\shaders\plane.vert" />
-    <None Include="res\shaders\shadow_cast.frag" />
-    <None Include="res\shaders\shadow_cast.vert" />
-    <None Include="res\shaders\singlecolor.frag" />
-    <None Include="res\shaders\singledotshader.frag" />
-    <None Include="res\shaders\singleTriangle.frag" />
-    <None Include="res\shaders\singleTriangle.vert" />
-    <None Include="res\shaders\framebuffer_screen.frag" />
-    <None Include="res\shaders\framebuffer_screen.vert" />
-    <None Include="res\shaders\single_line.frag" />
-    <None Include="res\shaders\single_line.vert" />
-    <None Include="res\shaders\testshader.vert" />
-    <None Include="res\shaders\wireframe.frag" />
-    <None Include="res\shaders\wireframe.vert" />
-    <None Include="res\shaders\singlecolor.vert" />
-    <None Include="res\shaders\singledotshader.vert" />
-    <None Include="res\shaders\testshader.frag" />
     <ClCompile Include="src\GameObject\EntityManager.cpp" />
     <ClCompile Include="src\GameObject\Components\AABB.cpp" />
     <ClCompile Include="src\misc\InputManager.cpp" />
@@ -193,7 +137,6 @@
     <ClCompile Include="src\GameObject\Components\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\basic.vert" />
     <None Include="src\vendor\glm\detail\type_gentype.inl" />
     <None Include="src\vendor\glm\detail\type_mat.inl" />
     <None Include="src\vendor\glm\detail\type_vec.inl" />
@@ -250,14 +193,6 @@
     <ClInclude Include="src\Geometry\TriangleBuffer.h" />
     <ClInclude Include="src\misc\UserInterface.h" />
     <ClInclude Include="src\Rendering\Buffer\SSBO.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="res\textures\ChernoLogo.png" />
-    <Image Include="res\textures\ChernoLogo2.png" />
-    <Image Include="res\textures\mario.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="res\shaders\normalmapshader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -156,61 +156,6 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="imgui.ini" />
-    <None Include="res\shaders\testshader.vert" />
-    <None Include="res\shaders\testshader.frag" />
-    <None Include="res\shaders\AABB_instanced.vert" />
-    <None Include="res\shaders\AABB_single.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="res\shaders\anim.vert" />
-    <None Include="res\shaders\basic.vert" />
-    <None Include="res\shaders\bones.vert" />
-    <None Include="res\shaders\framebuffers.vert" />
-    <None Include="res\shaders\framebuffers_screen.vert" />
-    <None Include="res\shaders\lightShader.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="res\shaders\lineshader.vert" />
-    <None Include="res\shaders\singlecolor.vert" />
-    <None Include="res\shaders\singledotshader.vert" />
-    <None Include="res\shaders\singleTriangle.vert" />
-    <None Include="res\shaders\wireframe.vert" />
-    <None Include="res\shaders\AABB_instanced.frag" />
-    <None Include="res\shaders\AABB_single.frag" />
-    <None Include="res\shaders\anim.frag" />
-    <None Include="res\shaders\basic.frag" />
-    <None Include="res\shaders\bones.frag" />
-    <None Include="res\shaders\framebuffers.frag" />
-    <None Include="res\shaders\framebuffers_screen.frag" />
-    <None Include="res\shaders\lightShader.frag" />
-    <None Include="res\shaders\lineshader.frag" />
-    <None Include="res\shaders\wireframe.frag" />
-    <None Include="res\shaders\singleTriangle.frag" />
-    <None Include="res\shaders\singledotshader.frag" />
-    <None Include="res\shaders\plane.frag" />
-    <None Include="res\shaders\singlecolor.frag" />
-    <None Include="res\shaders\normalmapshader.frag" />
-    <None Include="res\shaders\plane.vert" />
-    <None Include="res\shaders\Gbuffer_basic.vert" />
-    <None Include="res\shaders\Gbuffer_basic.frag" />
-    <None Include="res\shaders\deferred_shading.vert" />
-    <None Include="res\shaders\deferred_shading.frag" />
-    <None Include="res\shaders\morph_target_simple.frag" />
-    <None Include="res\shaders\morph_target_simple.vert" />
-    <None Include="res\shaders\framebuffer_screen.frag" />
-    <None Include="res\shaders\framebuffer_screen.vert" />
-    <None Include="res\shaders\full_color.frag" />
-    <None Include="res\shaders\full_color.vert" />
-    <None Include="res\shaders\shadow_cast.frag" />
-    <None Include="res\shaders\shadow_cast.vert" />
-    <None Include="res\shaders\AABB_instanced_SSBO.frag" />
-    <None Include="res\shaders\AABB_instanced_SSBO.vert" />
-    <None Include="res\shaders\Gbuffer_basic_no_tex.frag" />
-    <None Include="res\shaders\Gbuffer_basic_no_tex.vert" />
-    <None Include="res\shaders\Gbuffer_basic_vertex.vert" />
-    <None Include="res\shaders\Gbuffer_basic_vertex.frag" />
-    <None Include="res\shaders\single_line.frag" />
-    <None Include="res\shaders\single_line.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\glm\detail\type_gentype.hpp">
@@ -360,19 +305,5 @@
     <ClInclude Include="src\Core\Layer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="res\textures\ChernoLogo.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\textures\ChernoLogo2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\textures\mario.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="res\shaders\normalmapshader.vert" />
   </ItemGroup>
 </Project>
