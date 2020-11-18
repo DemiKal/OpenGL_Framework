@@ -2,6 +2,7 @@
 
 #include "Core/Application.h"
 #include "EditorLayer.h"
+#include "renderLayer.h"
 #include "ImGuiManager.h"
 
 namespace meme
@@ -12,7 +13,11 @@ namespace meme
 		Editor(const std::string& name) : Application(name)
 		{
 			ImGuiManager::Init();
-			m_Layers.emplace_back(new EditorLayer());
+			auto edl = std::make_shared<EditorLayer>();
+			m_Layers.emplace_back(edl);
+			m_Layers.back()->OnAttach();
+
+			m_Layers.emplace_back(std::make_unique<RenderLayer>(edl));
 			m_Layers.back()->OnAttach();
 		}
 

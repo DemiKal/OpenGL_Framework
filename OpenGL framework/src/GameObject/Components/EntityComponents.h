@@ -1,7 +1,8 @@
 #pragma once
 #include "precomp.h"
+#include "GameObject/Components/Mesh.h"
 
-struct PositionComponent 
+struct PositionComponent
 {
 	glm::vec3 Position;
 };
@@ -39,8 +40,8 @@ struct TransformComponent
 {
 	TransformComponent(const glm::mat4& transform) : Transform(transform) {};
 	TransformComponent() : Transform(glm::mat4(1.0f)) {};
-	
-	
+
+
 	glm::mat4 Transform;
 };
 
@@ -57,13 +58,23 @@ struct DirectoryComponent
 //TODO fix
 struct MeshComponent
 {
-	//uint32_t VAO, VBO, EBO;
-	uint32_t meshIdx;//VAO, VBO, EBO;
-	bool initialized = false;
+	MeshComponent() = default;
+	MeshComponent(const std::string& path, const aiPostProcessSteps postProcessing)
+	{
+		auto ret = Mesh::LoadFromFile(path, postProcessing);
+		if (ret)
+		{
+			Initialized = true;
+			MeshIdx = ret.value();
+		}
+	}
+
+	uint32_t MeshIdx = 0;
+	bool Initialized = false;
 };
 
 struct Texture2DComponent
-{	
+{
 	uint32_t texId = 0; //GLid for tex 
 	bool loaded = false;
 	//struct Texture2DComponent(const std::string& path)

@@ -1,22 +1,16 @@
 #pragma once
-#include "Core/layer.h"
+#include "EditorLayer.h"
+#include "Core/Layer.h"
 
-class EditorLayer : public Layer
+class RenderLayer : public Layer
 {
 public:
+	EditorLayer* m_Editor;
 
-	entt::registry m_Registry;
-
-
-	EditorLayer() : Layer("EditorLayer")
-	{
-
-	}
-
+	RenderLayer(std::shared_ptr<EditorLayer> edl);
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 	virtual void OnUpdate(float dt) override;
 	virtual void OnImGuiRender();
-
-
 };
+

@@ -32,7 +32,7 @@ namespace meme
 		friend int ::main(int argc, char** argv);
 
 	protected:
-		std::vector<Layer*> m_Layers;
+		std::vector<std::shared_ptr<Layer>> m_Layers;
 		std::string m_Name;
 	};
 

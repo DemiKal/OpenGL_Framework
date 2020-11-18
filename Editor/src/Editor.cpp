@@ -21,14 +21,14 @@ namespace meme
 			//Renderer::SetAlphaBlending(false);
 			
 			//TODO: add sceneLayer, renderingLayer, etc.
-			for (Layer* layer : m_Layers)
+			for (auto  layer : m_Layers)
 			{
 				layer->OnUpdate(0.16f);	//todo: calc frametime
 			}
 
 			ImGuiManager::Prepare();
 
-			for (Layer* layer : m_Layers)
+			for (auto  layer : m_Layers)
 			{
 				layer->OnImGuiRender();
 			}
