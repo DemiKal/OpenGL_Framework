@@ -3,7 +3,7 @@
 #include "Components/Model.h"
 #include "Components/EntityComponents.h"
 
-std::vector<Model*>& EntityManager::GetEntities()
+std::vector<std::shared_ptr<Model>>& EntityManager::GetEntities()
 {
 	return GetInstance().Entities;
 }
@@ -15,21 +15,30 @@ void EntityManager::AddEntity(Model& model)
 	TriangleBuffer::AddTriangles(model);
 }
 
-std::optional<std::reference_wrapper<Model>> EntityManager::GetEntity(const std::string& ent_name)
+void EntityManager::LoadModel(const std::string& path, const std::string& name)
+{
+	const auto& instance = GetInstance();
+	auto& vec = instance.GetEntities();
+	vec.emplace_back(std::make_shared<Model>(path, aiProcess_Triangulate));
+	vec.back()->m_name = name;
+}
+
+std::optional<std::shared_ptr<Model>> EntityManager::GetEntity(const std::string& ent_name)
 {
 	const auto& instance = GetInstance();
 	const auto& entities = instance.GetEntities();
 
-	for (Model* m : entities)
+	for (auto m : entities)
 	{
 		if (m->m_name == ent_name)
-			return *m;
+			return m;
 	}
 
 	fmt::print("Could not find entity of name {}\n", ent_name);
 	ASSERT(false);
 	return {};
 }
+
 class ComponentManager
 {
 public:

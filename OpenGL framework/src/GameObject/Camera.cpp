@@ -130,7 +130,7 @@ std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 	Model* m_current = nullptr;
 	bool totalHit = false;
 
-	for (Model* mdl : EntityManager::GetEntities())
+	for (std::shared_ptr<Model> mdl : EntityManager::GetEntities())
 	{
 		float tCurrent = -1111;
 		bool hit = mdl->m_meshes[0].m_aabb.IntersectAABB(ray, tCurrent);
@@ -138,7 +138,7 @@ std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 		totalHit |= hit;
 		if (hit && tCurrent < t_min)
 		{
-			m_current = mdl;
+			m_current = mdl.get();
 			t_min = tCurrent;
 		}
 	}

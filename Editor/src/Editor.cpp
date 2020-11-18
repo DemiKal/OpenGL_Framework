@@ -13,13 +13,16 @@ namespace meme
 
 		while (!glfwWindowShouldClose(window))
 		{
-			Renderer::ClearColor(1, 0, 1, 1);
+			static float ii = 0;
+			Renderer::ClearColor(fmod(ii,1.0f), 0, fmod(ii,1.0f), 1);
+			ii += 0.01f;
+
 			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//TODO: add sceneLayer, renderingLayer, etc.
 			for (Layer* layer : m_Layers)
 			{
-				layer->OnUpdate(0.16f);
+				layer->OnUpdate(0.16f);	//todo: calc frametime
 			}
 
 			ImGuiManager::Prepare();

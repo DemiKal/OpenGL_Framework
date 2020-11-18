@@ -3,6 +3,7 @@
 #include "Core/Application.h"
 #include "EditorLayer.h"
 #include "ImGuiManager.h"
+
 namespace meme
 {
 	class Editor : public Application
@@ -12,12 +13,9 @@ namespace meme
 		{
 			ImGuiManager::Init();
 			m_Layers.emplace_back(new EditorLayer());
+			m_Layers.back()->OnAttach();
 		}
 
-		void Run()  override;
-
+		void Run() override;
 	};
-
-
-
 }

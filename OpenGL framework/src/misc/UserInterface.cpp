@@ -99,7 +99,7 @@ void UserInterface::EntityBrowser() const
 
 	//if (ImGui::TreeNode("Entities"))
 	{
-		for (Model* ent : EntityManager::GetEntities())
+		for (auto  ent : EntityManager::GetEntities())
 		{
 			const std::string ent_name = ent->m_name;
 
@@ -119,8 +119,8 @@ void UserInterface::EntityBrowser() const
 				/*		if (ent_name == "plane") {
 							int i = 0;
 						}*/
-				selected = ent;
-				InputManager::SetSelectedModel(ent);
+				selected = ent.get();
+				InputManager::SetSelectedModel(ent.get());
 			}
 		}
 	//	ImGui::TreePop();

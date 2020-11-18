@@ -244,6 +244,7 @@ void Renderer::Init()
 	 
 	//glfwGetPrimaryMonitor()
 	/* Create a windowed mode window and its OpenGL context */
+	//auto xx = glfwGetPrimaryMonitor();
 	m_Window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, nullptr) ;
 
 	if (!m_Window)
