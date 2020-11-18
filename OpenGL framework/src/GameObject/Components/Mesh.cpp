@@ -384,7 +384,7 @@ Mesh::Mesh(
 		positionVertices.emplace_back(v);
 	}
 
-	setupMesh();
+	CreateBuffers();
 }
 
 void Mesh::Draw(const Camera& camera, const glm::mat4& transform,  Shader& shader )
@@ -436,7 +436,7 @@ void Mesh::Draw(Shader& shader)
 	}
 
 	// draw mesh
-	glBindVertexArray(VAO);
+	glBindVertexArray(m_VAO);
 	if (!m_Indices.empty())
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
 	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetVertexCount())); //plane!
@@ -447,22 +447,22 @@ void Mesh::Draw(Shader& shader)
 
 bool Mesh::HasAnimation() const
 {
-	return animation_loaded;
+	return m_AnimationLoaded;
 }
 
 unsigned Mesh::GetVAO()
 {
-	return VAO;
+	return m_VAO;
 }
 
 unsigned Mesh::GetVBO()
 {
-	return VBO;
+	return m_VBO;
 }
 
 unsigned Mesh::GetEBO()
 {
-	return EBO;
+	return m_EBO;
 }
 
 Mesh::Mesh(
@@ -486,22 +486,22 @@ Mesh::Mesh(
 	//		//m_aabb.CalcBounds(positionVertices);
 	//	}
 
-	setupMesh();
+	CreateBuffers();
 }
 
-void Mesh::setupMesh()
+void Mesh::CreateBuffers()
 {
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	glGenVertexArrays(1, &m_VAO);
+	glGenBuffers(1, &m_VBO);
+	glGenBuffers(1, &m_EBO);
 
-	glBindVertexArray(VAO);
+	glBindVertexArray(m_VAO);
 
 	const GLsizeiptr bufferSize = sizeof(vertices[0]) * vertices.size();
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &vertices[0], GL_STATIC_DRAW));
 
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int),
 		&m_Indices[0], GL_STATIC_DRAW));
 
@@ -573,7 +573,7 @@ Mesh Mesh::CreateCubeWireframe()
 
 	mesh.m_VertexBufferLayout = vbl;
 
-	// cube VAO
+	// cube m_VAO
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &cubeVBO);
@@ -583,20 +583,20 @@ Mesh Mesh::CreateCubeWireframe()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr);
 
-	mesh.VAO = cubeVAO;
-	mesh.VBO = cubeVBO;
+	mesh.m_VAO = cubeVAO;
+	mesh.m_VBO = cubeVBO;
 
 	return mesh;
 }
 
 GLenum Mesh::GetElemDrawType() const
 {
-	return m_elemDrawType;
+	return m_ElemDrawType;
 }
 
 void Mesh::SetElemDrawType(const GLenum enm)
 {
-	m_elemDrawType = enm;
+	m_ElemDrawType = enm;
 }
 
 Mesh Mesh::CreateCube()
@@ -662,7 +662,7 @@ Mesh Mesh::CreateCube()
 	vbl.Push<float>(2, VertexType::TEXCOORD);
 
 	mesh.m_VertexBufferLayout = vbl;
-	// cube VAO
+	// cube m_VAO
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &cubeVBO);
@@ -674,8 +674,8 @@ Mesh Mesh::CreateCube()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-	mesh.VAO = cubeVAO;
-	mesh.VAO = cubeVAO;
+	mesh.m_VAO = cubeVAO;
+	mesh.m_VAO = cubeVAO;
 
 	return mesh;
 }
@@ -724,8 +724,8 @@ void Mesh::MakeWireFrame()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
-	m_wireVAO = wireVAO;
-	m_wireVBO = wireVBO;
+	m_WireVAO = wireVAO;
+	m_WireVBO = wireVBO;
 
 
 
@@ -740,12 +740,12 @@ void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) co
 
 	auto& shader = ShaderManager::GetShader("wireframe");
 	shader.Bind();
-	shader.SetFloat("lineThickness", lineThickness);
+	shader.SetFloat("lineThickness", m_LineThickness);
 	shader.SetUniformMat4f("model", model);
 	shader.SetUniformMat4f("view", view);
 	shader.SetUniformMat4f("projection", projection);
 
-	glBindVertexArray(m_wireVAO);
+	glBindVertexArray(m_WireVAO);
 
 	GLCall(glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(positionVertices.size())));
 }
@@ -790,8 +790,8 @@ Mesh Mesh::CreatePlane() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
 
-	mesh.VBO = planeVBO;
-	mesh.VAO = planeVAO;
+	mesh.m_VBO = planeVBO;
+	mesh.m_VAO = planeVAO;
 
 	return mesh;
 }

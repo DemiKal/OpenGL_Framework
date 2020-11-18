@@ -9,20 +9,17 @@
 class Mesh
 {
 protected:
-	unsigned int VAO, VBO, EBO;
+	unsigned int m_VAO, m_VBO, m_EBO;
 	//vertex bools
-	bool animation_loaded = false;
-	GLenum m_elemDrawType = GL_TRIANGLES;
+	bool m_AnimationLoaded = false;
+	GLenum m_ElemDrawType = GL_TRIANGLES;
 	std::string m_Directory;
-	unsigned int m_wireVAO, m_wireVBO;
-	void setupMesh();
+	unsigned int m_WireVAO, m_WireVBO;
+	void CreateBuffers();
 public:
 	static std::vector<Mesh> m_Meshes;
 
-	float lineThickness = 0.1f;
-	static Mesh CreateCubeWireframe();
-	inline GLenum GetElemDrawType() const;
-	void SetElemDrawType(const GLenum enm);
+	float m_LineThickness = 0.1f;
 
 	std::vector<float> vertices; //TODO make it dynamic for ints and others
 	std::vector<unsigned int> m_Indices;
@@ -33,13 +30,12 @@ public:
 	AABB m_aabb;
 	AABB m_aabb_OG;
 
-	Mesh() : m_wireVAO(0), m_wireVBO(0), VAO(0), VBO(0), EBO(0), m_Indices(), m_Textures() {};
+	Mesh() : m_WireVAO(0), m_WireVBO(0), m_VAO(0), m_VBO(0), m_EBO(0), m_Indices(), m_Textures() {};
 	Mesh(
-		const aiMesh* mesh, 
+		const aiMesh* mesh,
 		const aiScene* scene,
 		const std::string& directory);
 
-	//Mesh(Mesh& a) = default;
 	Mesh(
 		const std::vector<float>& vertices,
 		const std::vector <unsigned int>& indices,
@@ -49,46 +45,30 @@ public:
 
 	~Mesh() = default;
 
-	void LoadMaterialTextures(
-		const aiMaterial* mat, 
-		const aiTextureType type, 
-		const std::string& typeName);
-	
-	static void ProcessNode(
-		const aiNode* node, 
-		const aiScene* scene, 
-		const std::string& directory);
-	//static bool ProcessMesh(aiMesh* mesh, aiScene* scene);
-
+	static Mesh CreatePlane();
+	static Mesh CreateCube();
+	static Mesh CreateCubeWireframe();
+	static void ProcessNode(const aiNode* node, const aiScene* scene, const std::string& directory);
 	[[nodiscard]] static std::optional<uint32_t> LoadFromFile(const std::string& path, const aiPostProcessSteps loadFlags);
-	void Draw(Shader& shader);
-	void Draw(const Camera& camera, const glm::mat4& transform, Shader& shader); 
 	
-	bool HasAnimation() const;
+	inline GLenum GetElemDrawType() const;
+	void SetElemDrawType(const GLenum enm);
+
 	unsigned int GetVAO();
 	unsigned int GetVBO();
 	unsigned int GetEBO();
-
-	void MakeWireFrame();
-	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const;
-
-	static Mesh CreatePlane();
-
-	static Mesh CreateCube();
-
-	bool HasFaceIndices() const;
 	unsigned int GetVertexCount() const;
 
-	//void SetVAO(unsigned int val) { VAO = val; }
-	//void SetVBO(unsigned int val) { VBO = val; }
-	//void SetEBO(unsigned int val) { EBO = val; }
+	bool HasAnimation() const;
+	bool HasFaceIndices() const;
+	
+	void MakeWireFrame();
+	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const;
 	void AddTexture(const Texture2D& tex);
+	void LoadMaterialTextures(const aiMaterial* mat, const aiTextureType type, const std::string& typeName);
+	void Draw(const Camera& camera, const glm::mat4& transform, Shader& shader);
+	void Draw(Shader& shader);
 
-	//void AddWeight(std::vector<float>& vertices, unsigned int vertex_index, unsigned int bone_index,
-	//	GLuint bone_id, GLfloat weight);
-
-	//void AddWeight(std::vector<float> vertices&, unsigned int vertex_index, unsigned int bone_index, GLuint bone_id, GLfloat weight);
-	//void AddTexture(const Texture2D& tex) { textures.emplace_back(tex); } 
 };
 
 

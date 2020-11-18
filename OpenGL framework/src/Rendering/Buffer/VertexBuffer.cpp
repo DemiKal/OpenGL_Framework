@@ -30,7 +30,7 @@ void VertexBuffer::BufferSubData(
 {
 	//glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
 	//glEnableVertexAttribArray(0);    // We like submitting vertices on stream 0 for no special reason
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)0 );      // The starting point of the VBO, for the vertices
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)0 );      // The starting point of the m_VBO, for the vertices
 	//glEnableVertexAttribArray(1);    // We like submitting normals on stream 1 for no special reason
 	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*) 12 );     // The starting point of normals, 12 bytes away
 	//glEnableVertexAttribArray(2);    // We like submitting texcoords on stream 2 for no special reason
