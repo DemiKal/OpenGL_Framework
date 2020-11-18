@@ -554,7 +554,7 @@ void Model::Draw(const Camera& cam)
 
 Shader& Model::GetShader() const
 {
-	return   ShaderManager::GetShader(m_shaderIdx);
+	return ShaderManager::GetShader(m_shaderIdx);
 }
 
 Model Model::CreateCube() {

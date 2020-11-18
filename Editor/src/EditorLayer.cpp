@@ -57,14 +57,6 @@ void EditorLayer::OnUpdate(float dt)
 		
 		mesh.Draw(camera, transf.Transform, shader);
 	}
-
-	// auto& entities = EntityManager::GetEntities();
-	//
-	//for (auto entity : entities)
-	//{
-	//	entity->SetShader("basic");
-	//	entity->Draw(camera);
-	//}
 }
 
 void EditorLayer::OnImGuiRender()
@@ -72,9 +64,4 @@ void EditorLayer::OnImGuiRender()
 	static bool yahoo = true;
 	//ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 	ImGui::ShowDemoWindow(&yahoo);
-
-
-	ImGui::Begin("Debug");
-	ImGui::Text("Ayy lmao");
-	ImGui::End();
 }

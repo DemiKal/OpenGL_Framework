@@ -87,28 +87,26 @@ Mesh::Mesh(
 	const std::string& directory)
 {
 	m_Directory = directory;
-	std::vector<float> vertices;
-	std::vector<unsigned int> indices;
 	const unsigned int BONESPERVERTEX = 3;
 
-	VertexBufferLayout vbLayout;
+	//VertexBufferLayout vbLayout;
 	unsigned int stride = 0;
-
+	//this->m_VertexBufferLayout
 	const bool hasPositions = mesh->HasPositions();
-	if (hasPositions) vbLayout.Push<float>(3, VertexType::POSITION);
+	if (hasPositions) m_VertexBufferLayout.Push<float>(3, VertexType::POSITION);
 
 	const bool hasNormals = mesh->HasNormals();
 	if (hasNormals)
-		vbLayout.Push<float>(3, VertexType::NORMAL);
+		m_VertexBufferLayout.Push<float>(3, VertexType::NORMAL);
 
 	const bool hasTexCoords = mesh->HasTextureCoords(0);
-	if (hasTexCoords) vbLayout.Push<float>(2, VertexType::TEXCOORD);
+	if (hasTexCoords) m_VertexBufferLayout.Push<float>(2, VertexType::TEXCOORD);
 
 	const bool hasTangents = mesh->HasTangentsAndBitangents();
 	if (hasTangents)
 	{
-		vbLayout.Push<float>(3, VertexType::TANGENT);
-		vbLayout.Push<float>(3, VertexType::BITANGENT);
+		m_VertexBufferLayout.Push<float>(3, VertexType::TANGENT);
+		m_VertexBufferLayout.Push<float>(3, VertexType::BITANGENT);
 	}
 
 	//TODO colors
@@ -117,8 +115,8 @@ Mesh::Mesh(
 	const bool hasBones = mesh->HasBones();
 	if (hasBones)
 	{
-		vbLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_INDEX);	//bone idx
-		vbLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_WEIGHT);	//bone weight
+		m_VertexBufferLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_INDEX);	//bone idx
+		m_VertexBufferLayout.Push<float>(BONESPERVERTEX, VertexType::BONE_WEIGHT);	//bone weight
 	}
 
 	const unsigned int morphTargetCount = mesh->mNumAnimMeshes;
@@ -129,7 +127,7 @@ Mesh::Mesh(
 		{
 			aiAnimMesh* morph = mesh->mAnimMeshes[i];
 			if (morph->HasPositions())
-				vbLayout.Push<float>(3, VertexType::POSITION);
+				m_VertexBufferLayout.Push<float>(3, VertexType::POSITION);
 
 			if (morph->mNumVertices != mesh->mNumVertices)
 				std::cout << " morph target vertex count != original vertex count!";
@@ -195,7 +193,7 @@ Mesh::Mesh(
 		aiFace face = mesh->mFaces[i];
 		// retrieve all m_Indices of the face and store them in the m_Indices vector
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
-			indices.push_back(face.mIndices[j]);
+			m_Indices.push_back(face.mIndices[j]);
 	}
 
 	//TODO: fix! animator.m_inverse_root = m_inverseRoot;
@@ -283,8 +281,8 @@ Mesh::Mesh(
 			unsigned int j = 0;
 			for (auto& bm : bonemapping[i])
 			{
-				const unsigned int elementIdxV1 = vbLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
-				const unsigned int elementIdxV2 = vbLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
+				const unsigned int elementIdxV1 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
+				const unsigned int elementIdxV2 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
 				vertices[elementIdxV1] = bm.first;
 				vertices[elementIdxV2] = bm.second;
 				j++;
@@ -379,12 +377,14 @@ Mesh::Mesh(
 	//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	//	meshnew.positionVertices.emplace_back(
 	//		glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
-	for (const int v_idx : indices)
+	for (const int v_idx : m_Indices)
 	{
 		auto& ai_v = mesh->mVertices[v_idx];
 		glm::vec3   v = { ai_v.x, ai_v.y, ai_v.z };
 		positionVertices.emplace_back(v);
 	}
+
+	setupMesh();
 }
 
 void Mesh::Draw(const Camera& camera, const glm::mat4& transform,  Shader& shader )
