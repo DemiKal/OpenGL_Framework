@@ -2,13 +2,26 @@
 #include "ImGuiManager.h"
 #include "GameObject/EntityManager.h"
 #include "GameObject/Camera.h"
+#include "GameObject/Components/EntityComponents.h"
 
 void EditorLayer::OnAttach()
 {
 	//EntityManager em;
 	//em.GetEntities();
-	EntityManager::LoadModel("res/meshes/spyro/spyro.obj", "spyro"); //todo fix addenetity!
+	//EntityManager::LoadModel("res/meshes/spyro/spyro.obj", "spyro"); //todo fix addenetity!
 	fmt::print("on attach!");
+
+	auto e  = m_Registry.create();
+	m_Registry.emplace<TransformComponent>(e);
+	auto& meshComp = m_Registry.emplace<MeshComponent>(e);
+
+	//mkonjibuvgyv
+	//m_Registry.get<MeshCOmponent
+	//m_Registry.emplace<>();
+	//m_Registry.emplace<Texture2DComponent>(e);
+	//....m_Registry.emplace<MeshComponent>(e);
+	//m_Registry.emplace<> 
+
 }
 
 void EditorLayer::OnDetach()
@@ -27,7 +40,6 @@ void EditorLayer::OnUpdate(float dt)
 	for (auto entity : entities)
 	{
 		entity->SetShader("basic");
-		entity->m_modelMatrix = glm::mat4(1.0f);
 		entity->Draw(camera);
 	}
 }
@@ -35,8 +47,9 @@ void EditorLayer::OnUpdate(float dt)
 void EditorLayer::OnImGuiRender()
 {
 	static bool yahoo = true;
-	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+	//ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 	ImGui::ShowDemoWindow(&yahoo);
+
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Ayy lmao");

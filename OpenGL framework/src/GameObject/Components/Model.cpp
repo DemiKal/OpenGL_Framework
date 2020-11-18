@@ -144,10 +144,10 @@ void Model::Update(float deltaTime)
 		mesh.m_aabb.UpdateArvo(m_modelMatrix, mesh.m_aabb_OG);
 }
 
-
-
-void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
-	std::unordered_map<std::string, unsigned int > bonesDict)
+void FindChildren(
+	std::shared_ptr<Model::Armature> arma,
+	Joint& joint,
+	std::unordered_map<std::string, unsigned int> bonesDict)
 {
 	if (arma->name == joint.GetName())
 	{
@@ -160,6 +160,7 @@ void FindChildren(std::shared_ptr<Model::Armature> arma, Joint& joint,
 	}
 	for (auto& i : arma->children) FindChildren(i, joint, bonesDict);
 }
+
 void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 {
 	if (armature->name == joint.m_name)
@@ -225,8 +226,6 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 		vertices.push_back(mesh->mVertices[i].x);
 		vertices.push_back(mesh->mVertices[i].y);
 		vertices.push_back(mesh->mVertices[i].z);
-
-
 
 		if (hasNormals)
 		{

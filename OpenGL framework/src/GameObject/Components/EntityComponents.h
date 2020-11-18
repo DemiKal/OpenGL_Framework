@@ -51,12 +51,25 @@ struct NameComponent
 
 struct DirectoryComponent
 {
-	entt::hashed_string::hash_type  Directory;
+	entt::hashed_string directory;
 };
+
 //TODO fix
 struct MeshComponent
 {
-	unsigned int VAO, VBO, EBO;
+	uint32_t VAO, VBO, EBO;
+	bool initialized = false;
+};
+
+struct Texture2DComponent
+{	
+	uint32_t texId = 0; //GLid for tex 
+	bool loaded = false;
+	//struct Texture2DComponent(const std::string& path)
+	//{
+	//		
+	//}
+
 };
 
 struct CameraComponent
@@ -68,6 +81,7 @@ struct AABBComponent
 {
 	glm::vec3 min, max;
 };
+
 //std::shared_ptr <Armature> m_armature;
 //glm::mat4 m_modelMatrix;
 //std::vector<Mesh> m_meshes;
@@ -75,8 +89,8 @@ struct AABBComponent
 //std::vector<Texture2D> m_textures_loaded;
 //glm::mat4 m_inverseRoot;
 //glm::vec3 m_velocity = { 0.001f, 0, 0 };
-//glm::vec3 m_position = { 0,0,0 };
-//glm::vec3 m_rotation = { 0,0,0 };
+//glm::vec3 m_position = { 0, 0, 0 };
+//glm::vec3 m_rotation = { 0, 0, 0 };
 //glm::vec3 m_scale = { 1,1,1 };
 //std::string m_name;
 //unsigned int m_shaderIdx; //TODO check with reference inside entt

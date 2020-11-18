@@ -438,7 +438,7 @@ int main(int argc, char** argv)
 {
 	std::cout << "lol\n";
 
-	auto app =  meme::CreateApplication();
+	auto app = meme::CreateApplication();
 	app->Run();
 	return 0;
 }
