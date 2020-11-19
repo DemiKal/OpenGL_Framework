@@ -9,18 +9,12 @@ namespace meme
 {
 	class Editor : public Application
 	{
+		bool m_IsRunning = false;
+		
 	public:
-		Editor(const std::string& name) : Application(name)
-		{
-			ImGuiManager::Init();
-			auto edl = std::make_shared<EditorLayer>();
-			m_Layers.emplace_back(edl);
-			m_Layers.back()->OnAttach();
-
-			m_Layers.emplace_back(std::make_unique<RenderLayer>(edl));
-			m_Layers.back()->OnAttach();
-		}
+		Editor(const std::string& name);
 
 		void Run() override;
+		void StopRunning();
 	};
 }

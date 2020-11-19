@@ -45,8 +45,9 @@ struct TransformComponent
 	glm::mat4 Transform;
 };
 
-struct NameComponent
+struct TagComponent
 {
+	TagComponent(const entt::hashed_string& name) : Name(name) {}
 	entt::hashed_string Name;
 };
 

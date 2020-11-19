@@ -1,14 +1,18 @@
 #pragma once
 #include "Core/layer.h"
 
+namespace meme {
+	class Editor;
+}
+
 class EditorLayer : public Layer
 {
 public:
 
 	entt::registry m_Registry;
+	meme::Editor* m_Editor;
 
-
-	EditorLayer() : Layer("EditorLayer")
+	EditorLayer(meme::Editor* editor) : Layer("EditorLayer"), m_Editor(editor)
 	{
 
 	}
@@ -17,6 +21,9 @@ public:
 	virtual void OnDetach() override;
 	virtual void OnUpdate(float dt) override;
 	virtual void OnImGuiRender();
-
-
+	void OnInput();
+	void EnableDockSpace();
+	void DrawMenuBar();
+	void DrawEntityPanel();
+	void DrawInspectorPanel();
 };
