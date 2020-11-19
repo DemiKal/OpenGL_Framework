@@ -159,7 +159,7 @@ void Renderer::Enable(GLenum type)
 	GLCall(glEnable(type));
 }
 
-void Renderer::EnableDepth()
+void Renderer::EnableDepth()//TODO: add some cached binding stuff
 {
 	Enable(GL_DEPTH_TEST);
 }

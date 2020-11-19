@@ -23,7 +23,9 @@ public:
 	virtual void OnImGuiRender();
 	void OnInput();
 	void EnableDockSpace();
-	void DrawMenuBar();
+	//void DrawMenuBar();
 	void DrawEntityPanel();
 	void DrawInspectorPanel();
+	//void DrawEntityComponent(TransformComponent& tfc);
+ 
 };

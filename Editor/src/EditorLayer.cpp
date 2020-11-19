@@ -33,7 +33,7 @@ void EditorLayer::OnImGuiRender()
 	ImGui::ShowDemoWindow(&yahoo);
 
 	EnableDockSpace();
-	DrawMenuBar();
+	//DrawMenuBar();
 	DrawEntityPanel();
 	DrawInspectorPanel();
 }
@@ -136,38 +136,7 @@ void EditorLayer::EnableDockSpace()
 	}
 
 	ImGui::End();
-
 }
-
-void EditorLayer::DrawMenuBar()
-{
-
-	//if (ImGui::BeginMenuBar())
-	//{
-	//	if (ImGui::BeginMenu("File"))
-	//	{
-	//		// Disabling fullscreen would allow the window to be moved to the front of other windows, 
-	//		// which we can't undo at the moment without finer window depth/z control.
-	//		//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);1
-	//		if (ImGui::MenuItem("New", "Ctrl+N"))
-	//			fmt::print("new scene");
-	//
-	//		if (ImGui::MenuItem("Open...", "Ctrl+O"))
-	//			fmt::print("Open file");
-	//
-	//		if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
-	//			fmt::print("Save as");
-	//
-	//		if (ImGui::MenuItem("Exit")) fmt::print("Close App!"); //Application::Get().Close();
-	//		ImGui::EndMenu();
-	//	}
-	//
-	//	ImGui::EndMenuBar();
-	//}
-}   //
-
-
-
 
 void EditorLayer::DrawEntityPanel()
 {
@@ -185,6 +154,17 @@ void EditorLayer::DrawEntityPanel()
 
 	ImGui::End();
 }
+void  DrawEntityComponent(TransformComponent& tfc)
+{
+	if (ImGui::TreeNode("Transform"))
+	{
+		ImGui::SliderFloat3("Position", glm::value_ptr(tfc.Position), -100, 100);
+		ImGui::SliderFloat3("Rotation", glm::value_ptr(tfc.Rotation), -100, 100);
+		ImGui::SliderFloat3("Scale", glm::value_ptr(tfc.Scale), -100, 100);
+		ImGui::TreePop();
+	}
+
+}
 
 void EditorLayer::DrawInspectorPanel()
 {
@@ -195,25 +175,9 @@ void EditorLayer::DrawInspectorPanel()
 	{
 		auto& tfc = m_Registry.get<TransformComponent>(entity);
 
-		//DrawComponent(tfc);
+		DrawEntityComponent(tfc);
 	}
 	ImGui::End();
 }
 
 
-//void EditorLayer::DrawComponent(TransformComponent& tfc)
-//{
-//	glm::vec3 scl;//, glm::mat4(1.0f);
-//	glm::vec3 transl;//, glm::mat4(1.0f);
-//	auto quat = glm::quat();
-//	glm::vec3 skew;
-//	glm::vec4 persp;
-//	glm::decompose(tfc.Transform, scl, quat, transl, skew, persp);
-//	if (ImGui::TreeNode("Transform:"))
-//	{
-//		ImGui::SliderFloat3("Position", glm::value_ptr(transl), -100, 100);
-//		ImGui::SliderFloat3("Scale", glm::value_ptr(scl), -100, 100);
-//		ImGui::SliderFloat3("Rotation", glm::value_ptr(quat), -100, 100);
-//		ImGui::TreePop();
-//	}
-//}

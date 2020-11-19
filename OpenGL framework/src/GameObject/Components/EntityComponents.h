@@ -38,11 +38,24 @@ struct  Armature
 
 struct TransformComponent
 {
-	TransformComponent(const glm::mat4& transform) : Transform(transform) {};
-	TransformComponent() : Transform(glm::mat4(1.0f)) {};
+	//TransformComponent(const glm::mat4& transform) : Transform(transform) {};
+	//TransformComponent() : Transform(glm::mat4(1.0f)) {};
+	TransformComponent() {};
 
+	glm::vec3 Position{ 0,0,0 };
+	glm::vec3 Rotation{ 0,0,0 }; //TODO ADD QUAT
+	glm::vec3 Scale{ 1,1,1 };
 
-	glm::mat4 Transform;
+	glm::mat4 CalcMatrix()
+	{
+		glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), Scale);
+		glm::mat4 rotationMat = glm::eulerAngleXYZ(
+			glm::radians(Rotation.x), 
+			glm::radians(Rotation.y),
+			glm::radians(Rotation.z));
+		glm::mat4 translMat = glm::translate(glm::mat4(1.0f), Position);
+		return translMat * rotationMat * scaleMat;
+	}
 };
 
 struct TagComponent
