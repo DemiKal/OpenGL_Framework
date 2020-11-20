@@ -12,8 +12,7 @@ void EditorLayer::OnAttach()
 	auto e = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(e);
 	m_Registry.emplace<TagComponent>(e, "spyro");
-
-	auto& meshComp = m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiPostProcessSteps::aiProcess_Triangulate);
+	m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 }
 
 void EditorLayer::OnDetach()
@@ -40,10 +39,8 @@ void EditorLayer::OnImGuiRender()
 
 void EditorLayer::OnInput()
 {
-	//if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_E) == GLFW_KEY_DOWN)
-	//	fmt::print("hihi");
 	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		m_Editor->StopRunning();// fmt::print("hihi");
+		m_Editor->StopRunning();
 
 }
 
@@ -154,8 +151,10 @@ void EditorLayer::DrawEntityPanel()
 
 	ImGui::End();
 }
-void  DrawEntityComponent(TransformComponent& tfc)
+
+void DrawEntityComponent(TransformComponent& tfc)
 {
+	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 	if (ImGui::TreeNode("Transform"))
 	{
 		ImGui::SliderFloat3("Position", glm::value_ptr(tfc.Position), -100, 100);
@@ -163,9 +162,48 @@ void  DrawEntityComponent(TransformComponent& tfc)
 		ImGui::SliderFloat3("Scale", glm::value_ptr(tfc.Scale), -100, 100);
 		ImGui::TreePop();
 	}
-
 }
 
+
+void DrawEntityComponent(MeshComponent& mc)
+{
+	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+	if (ImGui::TreeNode("Mesh"))
+	{
+		ImGui::RadioButton("Initialized", mc.Initialized);
+		const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
+		ImGui::Text(meshStr.c_str());
+
+		Mesh& mesh = Mesh::m_Meshes[mc.MeshIdx];
+		const uint32_t nrTextures = mesh.m_Textures.size();
+
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::TreeNode("Textures"))
+		{
+			for (uint32_t i = 0; i < nrTextures; i++)
+			{
+				const Texture2D tex = mesh.m_Textures[i];
+				const uint32_t id = tex.GetID();
+
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				ImGui::Text("Texture type: %s ", tex.GetType().c_str());
+				const ImVec2 availSize = ImGui::GetContentRegionAvail();
+				const float aspect = static_cast<float>(tex.GetHeight()) / static_cast<float>(tex.GetWidth());
+
+				ImVec2 thumbSize(availSize.x, availSize.x * aspect);
+
+				ImGui::ImageButton(reinterpret_cast<void*>(static_cast<intptr_t>(id)),
+					thumbSize, ImVec2(0, 1), ImVec2(1, 0));
+
+
+				//ImGui::TreePop();
+			}
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
+	}
+}
 void EditorLayer::DrawInspectorPanel()
 {
 	auto view = m_Registry.view<TransformComponent>();
@@ -174,8 +212,10 @@ void EditorLayer::DrawInspectorPanel()
 	for (auto entity : view)
 	{
 		auto& tfc = m_Registry.get<TransformComponent>(entity);
-
 		DrawEntityComponent(tfc);
+
+		auto& mc = m_Registry.get<MeshComponent>(entity);
+		DrawEntityComponent(mc);
 	}
 	ImGui::End();
 }

@@ -62,7 +62,7 @@ void RenderLayer::OnImGuiRender()
 	auto texId = fb->GetTexture().GetID();
 
 	ImGui::Begin("Scene");
-	ImVec2 avail_size = ImGui::GetContentRegionAvail();
+	const ImVec2 avail_size = ImGui::GetContentRegionAvail();
 	ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
 		avail_size, ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();

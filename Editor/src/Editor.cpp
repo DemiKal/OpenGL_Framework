@@ -37,11 +37,12 @@ namespace meme
 		m_IsRunning = true;
 		GLFWwindow* window = Renderer::GetWindow();
 
+		Renderer::EnableDepth();
+
 		while (m_IsRunning && !glfwWindowShouldClose(window))
 		{
-			//Renderer::ClearColor(1, 0.0f, 0.0f, 1.0f);
+			//Renderer::ClearColor(0, 1.0f, 0.0f, 1.0f);
 			//Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			Renderer::EnableDepth();
 			//Renderer::SetDepthFunc(GL_LEQUAL);
 			//Renderer::SetCullingMode(GL_BACK);
 			//Renderer::SetAlphaBlending(false);
