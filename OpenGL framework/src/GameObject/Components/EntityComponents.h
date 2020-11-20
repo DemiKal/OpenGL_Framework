@@ -62,6 +62,7 @@ struct TagComponent
 {
 	TagComponent(const entt::hashed_string& name) : Name(name) {}
 	entt::hashed_string Name;
+	
 };
 
 struct DirectoryComponent

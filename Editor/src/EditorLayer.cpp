@@ -137,15 +137,18 @@ void EditorLayer::EnableDockSpace()
 
 void EditorLayer::DrawEntityPanel()
 {
-	ImGui::Begin("Entities");
+	const auto flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
+	ImGui::Begin("Entities", NULL, flags);
 	auto view = m_Registry.view<TagComponent>();
 	for (auto entity : view)
 	{
 		auto name = m_Registry.get<TagComponent>(entity);
-		if (ImGui::TreeNode(name.Name))
+		const auto nodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
+
+		if (ImGui::TreeNodeEx(name.Name, nodeFlags))
 		{
 			ImGui::Text("Child entity");
-			ImGui::TreePop();
+			 	ImGui::TreePop();
 		}
 	}
 

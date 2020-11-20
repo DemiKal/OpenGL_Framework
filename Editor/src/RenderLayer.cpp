@@ -59,7 +59,7 @@ void RenderLayer::OnUpdate(float dt)
 
 void RenderLayer::OnImGuiRender()
 {
-	auto texId = fb->GetTexture().GetID();
+	const auto texId = fb->GetTexture().GetID();
 
 	ImGui::Begin("Scene");
 	const ImVec2 avail_size = ImGui::GetContentRegionAvail();
