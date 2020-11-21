@@ -24,8 +24,8 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::OnUpdate(float dt)
 {
-	static const auto originalCamPos = glm::vec3(0, 3, 16);
-	static Camera camera(originalCamPos, 70, float(SCREENWIDTH) / float(SCREENHEIGHT), 0.1f, 700.0f);
+	 
+	//static Camera camera(glm::vec3(0, 3, 16), 70, float(SCREENWIDTH) / float(SCREENHEIGHT), 0.1f, 700.0f);
 	Shader& shader = ShaderManager::GetShader("basic");
 
 	//auto& reg = ;
@@ -37,7 +37,7 @@ void RenderLayer::OnUpdate(float dt)
 	//Renderer::ClearColor(1, 0.0f, 0.5f, 1.0f);
 	//Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+	Camera& camera = m_EditorLayer->GetEditorCamera();
 	fb->Bind();
 	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Renderer::ClearColor(1.0F, 1.0f, 1.0f, 1.0f);
@@ -67,3 +67,4 @@ void RenderLayer::OnImGuiRender()
 		avail_size, ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();
 }
+

@@ -16,7 +16,7 @@ Camera::Camera() :
 	m_pos(glm::vec3(0, 0, 0)),
 	m_forward(glm::vec3(0, 0, -1)),
 	m_up(glm::vec3(0, 1, 0)),
-	m_projection(glm::perspective(m_fov, m_aspectRatio, m_nearPlane, m_farPlane)) {}
+	m_projection(glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane)) {}
 
 Camera::Camera(const glm::vec3& p_pos,
 	const float p_fov,
@@ -34,7 +34,6 @@ Camera::Camera(const glm::vec3& p_pos,
 	m_projection(glm::perspective(p_fov, p_aspect, p_zNear, p_zFar))
 {}
 
-Camera::~Camera() = default;
 
 void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mouseVelocity)
 {
@@ -164,6 +163,11 @@ void Camera::Roll(const float angle)
 
 }
 
+float& Camera::GetFieldOfView()  
+{
+	return m_fov;
+}
+
 inline glm::mat4 Camera::GetProjectionMatrix() const
 {
 	return m_projection;
@@ -221,12 +225,12 @@ glm::vec3 Camera::GetForwardVector() const
 	return m_forward;
 }
 
-float Camera::GetNearPlaneDist() const
+float& Camera::GetNearPlaneDist()  
 {
-	return m_nearPlane;
+	return  m_nearPlane;
 }
 
-float Camera::GetFarPlaneDist() const
+float& Camera::GetFarPlaneDist()  
 {
 	return m_farPlane;
 }
@@ -237,3 +241,7 @@ glm::vec3 Camera::GetUpVector() const
 }
 
 
+void Camera::RecalcProjection()
+{
+	m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
+}

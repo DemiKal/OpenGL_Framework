@@ -11,8 +11,9 @@ public:
 
 	RenderLayer(std::shared_ptr<EditorLayer> edl);
 	virtual void OnAttach() override;
-	virtual void OnDetach() override;
+	virtual void OnDetach() override; 
 	virtual void OnUpdate(float dt) override;
 	virtual void OnImGuiRender();
+	 
 };
 

@@ -20,9 +20,9 @@ void EditorLayer::OnDetach()
 
 }
 
-void EditorLayer::OnUpdate(float dt)
+void EditorLayer::OnUpdate(const float dt)
 {
-	OnInput();
+	OnInput(dt);
 }
 
 void EditorLayer::OnImGuiRender()
@@ -35,13 +35,84 @@ void EditorLayer::OnImGuiRender()
 	//DrawMenuBar();
 	DrawEntityPanel();
 	DrawInspectorPanel();
+	DrawCameraInspector();
 }
 
-void EditorLayer::OnInput()
+void DrawMat4(const glm::mat4& m, const char* label )
+{
+	// ImGui::TreeNodeEx("matrix",ImGuiTreeNodeFlags_::)
+	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+	if (ImGui::TreeNode(label))
+	{
+		ImGui::Text("%.2f", m[0].x); ImGui::SameLine();
+		ImGui::Text("%.2f", m[0].y); ImGui::SameLine();
+		ImGui::Text("%.2f", m[0].z);
+
+		ImGui::Text("%.2f", m[1].x); ImGui::SameLine();
+		ImGui::Text("%.2f", m[1].y); ImGui::SameLine();
+		ImGui::Text("%.2f", m[1].z);
+
+		ImGui::Text("%.2f", m[2].x); ImGui::SameLine();
+		ImGui::Text("%.2f", m[2].y); ImGui::SameLine();
+		ImGui::Text("%.2f", m[2].z);
+
+		ImGui::Text("%.2f", m[3].x); ImGui::SameLine();
+		ImGui::Text("%.2f", m[3].y); ImGui::SameLine();
+		ImGui::Text("%.2f", m[3].z);
+		ImGui::TreePop();
+	}
+}
+
+void EditorLayer::DrawCameraInspector()
+{
+	ImGui::Begin("Editor camera debug");
+	auto camPos = m_EditorCamera.GetPosition();
+	ImGui::Text("x: %f", camPos.x);
+	ImGui::SameLine();
+	ImGui::Text("y: %f", camPos.y);
+	ImGui::SameLine();
+	ImGui::Text("z: %f", camPos.z);
+	//ImGui::SameLine();
+	float& fov = m_EditorCamera.GetFieldOfView();
+	float prev = fov;
+	ImGui::SliderFloat("Field of view", &fov, 0, 120, "%.1f");
+	ImGui::Text("Near %f", m_EditorCamera.GetNearPlaneDist());
+	ImGui::Text("Far %f", m_EditorCamera.GetFarPlaneDist());
+	ImGui::Text("Aspect: %.3f", m_EditorCamera.GetAspectRatio());
+
+	const auto viewMat = m_EditorCamera.GetViewMatrix();
+	const auto proj = m_EditorCamera.GetProjectionMatrix();
+
+	DrawMat4(viewMat, "View Matrix");
+	DrawMat4(proj, "Projection Matrix");
+
+	
+
+	m_EditorCamera.RecalcProjection();
+	ImGui::End();
+}
+
+void EditorLayer::OnInput(const float dt)
 {
 	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		m_Editor->StopRunning();
 
+	const glm::vec3 fw = glm::vec3{ 0,0,-1 };
+	const glm::vec3 up = glm::vec3{ 0,1 , 0 };
+	const glm::vec3 left = glm::vec3{ -1 , 0 , 0 };
+
+	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
+		m_EditorCamera.GetPosition() += dt * fw;
+	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_A) == GLFW_PRESS)
+		m_EditorCamera.GetPosition() += dt * left;
+	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_D) == GLFW_PRESS)
+		m_EditorCamera.GetPosition() += dt * -left;
+	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_S) == GLFW_PRESS)
+		m_EditorCamera.GetPosition() += dt * -fw;
+	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+		m_EditorCamera.GetPosition() += dt * up;
+	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_C) == GLFW_PRESS)
+		m_EditorCamera.GetPosition() += dt * -up;
 }
 
 void EditorLayer::EnableDockSpace()
@@ -148,7 +219,7 @@ void EditorLayer::DrawEntityPanel()
 		if (ImGui::TreeNodeEx(name.Name, nodeFlags))
 		{
 			ImGui::Text("Child entity");
-			 	ImGui::TreePop();
+			ImGui::TreePop();
 		}
 	}
 
@@ -166,7 +237,6 @@ void DrawEntityComponent(TransformComponent& tfc)
 		ImGui::TreePop();
 	}
 }
-
 
 void DrawEntityComponent(MeshComponent& mc)
 {
@@ -195,11 +265,14 @@ void DrawEntityComponent(MeshComponent& mc)
 
 				ImVec2 thumbSize(availSize.x, availSize.x * aspect);
 
-				ImGui::ImageButton(reinterpret_cast<void*>(static_cast<intptr_t>(id)),
-					thumbSize, ImVec2(0, 1), ImVec2(1, 0));
+				if (ImGui::ImageButton(reinterpret_cast<void*>(static_cast<intptr_t>(id)), thumbSize, ImVec2(0, 1), ImVec2(1, 0)))
+					ImGui::OpenPopup("texture_popup");
 
-
-				//ImGui::TreePop();
+				if (ImGui::BeginPopup("texture_popup"))
+				{
+					ImGui::Text(("File path: /" + tex.GetPath()).c_str());
+					ImGui::EndPopup();
+				}
 			}
 			ImGui::TreePop();
 		}
@@ -224,3 +297,7 @@ void EditorLayer::DrawInspectorPanel()
 }
 
 
+Camera& EditorLayer::GetEditorCamera()
+{
+	return m_EditorCamera;
+}

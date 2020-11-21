@@ -8,8 +8,8 @@ class Camera
 public:
 	Camera();
 	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
-	~Camera();
-		
+	~Camera() = default;
+
 	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
 	void LookAt(const glm::vec3& target);
 
@@ -20,18 +20,20 @@ public:
 	static Camera* GetCam2();
 
 	//not working [???]
-	void SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
-	void SetOrthographic(float halfWidth, float halfHeight, float near, float far);
-	void SetAspectRatio(const float asp) { m_aspectRatio = asp; } //possible extra stuff to do when setting
 	void MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mouseVelocity);
+	void RecalcProjection();
+	void Roll(float angle);
 	void RotateLocalX(float angle); 	//yaw 
 	void RotateLocalY(float angle);	//rotate around the y axis, its own up vector
+	void SetAspectRatio(const float asp) { m_aspectRatio = asp; } //possible extra stuff to do when setting
+	void SetOrthographic(float halfWidth, float halfHeight, float near, float far);
+	void SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 	void SetViewVector(const glm::vec3& view);
-	void Roll(const float angle);
 
 	[[nodiscard]] float GetAspectRatio() const;
-	[[nodiscard]] float GetNearPlaneDist() const;
-	[[nodiscard]] float GetFarPlaneDist() const;
+	[[nodiscard]] float& GetFieldOfView();
+	[[nodiscard]] float& GetNearPlaneDist();
+	[[nodiscard]] float& GetFarPlaneDist();
 	[[nodiscard]] glm::vec3& GetPosition();
 	[[nodiscard]] glm::vec3 PositionRead() const;
 	[[nodiscard]] glm::vec3 GetForwardVector() const;
