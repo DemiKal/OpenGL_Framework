@@ -10,7 +10,7 @@ Camera* Camera::m_cam2;
 
 Camera::Camera() :
 	m_fov(70),
-	m_aspectRatio((float)SCREENWIDTH / (float)SCREENHEIGHT), //TODO: fix scwidht!
+	m_aspectRatio(static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT)), //TODO: fix scwidht!
 	m_nearPlane(0.1f),
 	m_farPlane(200.0f),
 	m_pos(glm::vec3(0, 0, 0)),
@@ -26,11 +26,11 @@ Camera::Camera(const glm::vec3& p_pos,
 	:
 	m_fov(p_fov),
 	m_aspectRatio(p_aspect),
+	m_nearPlane(p_zNear),
+	m_farPlane(p_zFar),
 	m_pos(p_pos),
 	m_forward(glm::vec3(0, 0, -1)),
 	m_up(glm::vec3(0, 1, 0)),
-	m_nearPlane(p_zNear),
-	m_farPlane(p_zFar),
 	m_projection(glm::perspective(p_fov, p_aspect, p_zNear, p_zFar))
 {}
 

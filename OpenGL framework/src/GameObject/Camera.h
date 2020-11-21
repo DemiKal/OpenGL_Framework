@@ -54,7 +54,7 @@ private:
 	glm::mat4 m_projection{};
 	static Camera* m_mainCam;
 	static Camera* m_cam2;
-	bool m_isOrthographic;
+	bool m_isOrthographic{};
 
 };
 
