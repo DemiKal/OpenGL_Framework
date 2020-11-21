@@ -50,7 +50,7 @@ namespace meme
 			//Renderer::SetAlphaBlending(false);
 			prevFrameTime = currentFrameTime;
 			currentFrameTime = glfwGetTime();
-			float dt = 1000.0f * (currentFrameTime - prevFrameTime);
+			float dt =  (currentFrameTime - prevFrameTime)  ;
 
 			//TODO: add sceneLayer, renderingLayer, etc.
 			for (const auto& layer : m_Layers)

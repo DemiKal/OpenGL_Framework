@@ -40,8 +40,14 @@ public:
 		const std::vector <Texture2D>& textures,
 		const Animator& animator,
 		const VertexBufferLayout& vbl);
+	Mesh(const std::vector<float>& p_vertices, const VertexBufferLayout& vbl);
 
-	~Mesh() = default;
+	Mesh(std::vector<float>& vertices, VertexBufferLayout vbl);
+	
+	~Mesh()
+	{
+		fmt::print("deconstructed!");
+	}
 
 	static Mesh CreatePlane();
 	static Mesh CreateCube();

@@ -37,7 +37,7 @@ public:
 	void DrawInspectorPanel();
 	Camera& GetEditorCamera();
 
-	
+
 	template<typename T>
 	void DrawUIComponent(T t)
 	{
@@ -88,6 +88,31 @@ public:
 			DrawVec3Component("Translation", t.Position);
 			DrawVec3Component("Rotation", t.Rotation);
 			DrawVec3Component("Scale", t.Scale, 1.0f);
+			ImGui::TreePop();
+		}
+	}
+
+	void DrawUIComponent(const glm::mat4& m, const  std::string& label)
+	{
+		// ImGui::TreeNodeEx("matrix",ImGuiTreeNodeFlags_::)
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::TreeNode(label.c_str()))
+		{
+			ImGui::Text("%.2f", m[0].x); ImGui::SameLine();
+			ImGui::Text("%.2f", m[0].y); ImGui::SameLine();
+			ImGui::Text("%.2f", m[0].z);
+
+			ImGui::Text("%.2f", m[1].x); ImGui::SameLine();
+			ImGui::Text("%.2f", m[1].y); ImGui::SameLine();
+			ImGui::Text("%.2f", m[1].z);
+
+			ImGui::Text("%.2f", m[2].x); ImGui::SameLine();
+			ImGui::Text("%.2f", m[2].y); ImGui::SameLine();
+			ImGui::Text("%.2f", m[2].z);
+
+			ImGui::Text("%.2f", m[3].x); ImGui::SameLine();
+			ImGui::Text("%.2f", m[3].y); ImGui::SameLine();
+			ImGui::Text("%.2f", m[3].z);
 			ImGui::TreePop();
 		}
 	}

@@ -12,7 +12,9 @@ void EditorLayer::OnAttach()
 	auto e = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(e);
 	m_Registry.emplace<TagComponent>(e, "spyro");
-	m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
+	//m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
+	m_Registry.emplace<MeshComponent>(e, MeshComponent::PrimitiveType::Cube);
+
 }
 
 
@@ -39,30 +41,7 @@ void EditorLayer::OnImGuiRender(float dt)
 	DrawCameraInspector(dt);
 }
 
-void DrawMat4(const glm::mat4& m, const char* label)
-{
-	// ImGui::TreeNodeEx("matrix",ImGuiTreeNodeFlags_::)
-	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-	if (ImGui::TreeNode(label))
-	{
-		ImGui::Text("%.2f", m[0].x); ImGui::SameLine();
-		ImGui::Text("%.2f", m[0].y); ImGui::SameLine();
-		ImGui::Text("%.2f", m[0].z);
 
-		ImGui::Text("%.2f", m[1].x); ImGui::SameLine();
-		ImGui::Text("%.2f", m[1].y); ImGui::SameLine();
-		ImGui::Text("%.2f", m[1].z);
-
-		ImGui::Text("%.2f", m[2].x); ImGui::SameLine();
-		ImGui::Text("%.2f", m[2].y); ImGui::SameLine();
-		ImGui::Text("%.2f", m[2].z);
-
-		ImGui::Text("%.2f", m[3].x); ImGui::SameLine();
-		ImGui::Text("%.2f", m[3].y); ImGui::SameLine();
-		ImGui::Text("%.2f", m[3].z);
-		ImGui::TreePop();
-	}
-}
 
 void EditorLayer::DrawCameraInspector(float dt)
 {
@@ -85,16 +64,16 @@ void EditorLayer::DrawCameraInspector(float dt)
 		const auto viewMat = m_EditorCamera.GetViewMatrix();
 		const auto proj = m_EditorCamera.GetProjectionMatrix();
 
-		DrawMat4(viewMat, "View Matrix");
-		DrawMat4(proj, "Projection Matrix");
+		DrawUIComponent(viewMat, "View Matrix");
+		DrawUIComponent(proj, "Projection Matrix");
 		ImGui::TreePop();
 	}
 	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 
 	if (ImGui::TreeNode("Render statistics"))
 	{
-		ImGui::Text("ms per frame: %.3f", dt);
-		ImGui::Text("fps: %.3f", 1000.0f / dt);
+		ImGui::Text("ms per frame: %.3f", dt * 1000.0f);
+		ImGui::Text("fps: %.3f", 1.0f / dt);
 		ImGui::TreePop();
 	}
 
@@ -108,9 +87,11 @@ void EditorLayer::OnInput(const float dt)
 	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		m_Editor->StopRunning();
 
-	const glm::vec3 fw = glm::vec3{ 0,0,-1 };
-	const glm::vec3 up = glm::vec3{ 0,1 , 0 };
-	const glm::vec3 left = glm::vec3{ -1 , 0 , 0 };
+
+	const float camSpeed = 25.0f; ;
+	const glm::vec3 fw = camSpeed * glm::vec3{ 0,0,-1 };
+	const glm::vec3 up = camSpeed * glm::vec3{ 0,1 , 0 };
+	const glm::vec3 left = camSpeed * glm::vec3{ -1 , 0 , 0 };
 
 	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * fw;
@@ -237,8 +218,8 @@ void EditorLayer::DrawEntityPanel()
 	ImGui::End();
 }
 
- 
- 
+
+
 void EditorLayer::DrawInspectorPanel()
 {
 	auto view = m_Registry.view<TransformComponent>();
@@ -247,7 +228,7 @@ void EditorLayer::DrawInspectorPanel()
 	for (auto entity : view)
 	{
 		auto& tfc = m_Registry.get<TransformComponent>(entity);
-		DrawUIComponent(tfc,"Transform Component");
+		DrawUIComponent(tfc, "Transform Component");
 		auto& mc = m_Registry.get<MeshComponent>(entity);
 		DrawUIComponent(mc, "Mesh Component");
 	}

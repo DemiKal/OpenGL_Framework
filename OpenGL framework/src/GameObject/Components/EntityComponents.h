@@ -51,7 +51,7 @@ struct TransformComponent
 	{
 		const glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), Scale);
 		const glm::mat4 rotationMat = glm::eulerAngleXYZ(
-			glm::radians(Rotation.x), 
+			glm::radians(Rotation.x),
 			glm::radians(Rotation.y),
 			glm::radians(Rotation.z));
 		const glm::mat4 translMat = glm::translate(glm::mat4(1.0f), Position);
@@ -63,10 +63,10 @@ struct TagComponent
 {
 	TagComponent(const entt::hashed_string& name) : Name(name) {}
 	entt::hashed_string Name;
-	
+
 };
 
-struct CameraComponent 
+struct CameraComponent
 {
 	Camera camera;
 };
@@ -79,7 +79,22 @@ struct DirectoryComponent
 //TODO fix
 struct MeshComponent
 {
-	MeshComponent() = default;
+	enum class PrimitiveType
+	{
+		Cube, Plane, Triangle
+	};
+	MeshComponent() = delete;
+	MeshComponent(PrimitiveType primitiveType)
+	{
+		switch (primitiveType)
+		{
+		case PrimitiveType::Cube:  MeshIdx = 0; break;
+		case PrimitiveType::Plane:  MeshIdx = 1; break;
+		case PrimitiveType::Triangle:  MeshIdx = 2; break;
+		}
+		Initialized = true;
+	}
+
 	MeshComponent(const std::string& path, const aiPostProcessSteps postProcessing)
 	{
 		auto ret = MeshManager::LoadFromFile(path, postProcessing);
@@ -89,7 +104,6 @@ struct MeshComponent
 			MeshIdx = ret.value();
 		}
 	}
-
 	uint32_t MeshIdx = 0;
 	bool Initialized = false;
 };
@@ -105,7 +119,7 @@ struct Texture2DComponent
 
 };
 
- 
+
 
 struct AABBComponent
 {

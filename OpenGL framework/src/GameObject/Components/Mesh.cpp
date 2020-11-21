@@ -437,6 +437,14 @@ Mesh::Mesh(
 	CreateBuffers();
 }
 
+Mesh::Mesh(const std::vector<float>& p_vertices, const VertexBufferLayout& vbl)
+{
+	vertices = p_vertices;
+	m_VertexBufferLayout = vbl;
+
+	CreateBuffers();
+}
+
 void Mesh::CreateBuffers()
 {
 	glGenVertexArrays(1, &m_VAO);
@@ -449,9 +457,12 @@ void Mesh::CreateBuffers()
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &vertices[0], GL_STATIC_DRAW));
 
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int),
-		&m_Indices[0], GL_STATIC_DRAW));
+	if (!m_Indices.empty()) 
+	{
+		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO));
+		GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int),
+			&m_Indices[0], GL_STATIC_DRAW)) 
+	}
 
 	unsigned int i = 0;
 	const unsigned int stride = m_VertexBufferLayout.GetStride();
