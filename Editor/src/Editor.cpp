@@ -19,7 +19,7 @@ namespace meme
 	//}
 
 
-	Editor::Editor(const std::string& name): Application(name)
+	Editor::Editor(const std::string& name) : Application(name)
 	{
 		ImGuiManager::Init();
 		auto edl = std::make_shared<EditorLayer>(this);
@@ -38,6 +38,8 @@ namespace meme
 		GLFWwindow* window = Renderer::GetWindow();
 
 		Renderer::EnableDepth();
+		float prevFrameTime = glfwGetTime();
+		float currentFrameTime = prevFrameTime;
 
 		while (m_IsRunning && !glfwWindowShouldClose(window))
 		{
@@ -46,15 +48,21 @@ namespace meme
 			//Renderer::SetDepthFunc(GL_LEQUAL);
 			//Renderer::SetCullingMode(GL_BACK);
 			//Renderer::SetAlphaBlending(false);
+			prevFrameTime = currentFrameTime;
+			currentFrameTime = glfwGetTime();
+			float dt = 1000.0f * (currentFrameTime - prevFrameTime);
 
 			//TODO: add sceneLayer, renderingLayer, etc.
 			for (const auto& layer : m_Layers)
-				layer->OnUpdate(0.16f);	//todo: calc frametime
+				layer->OnUpdate(dt);	//todo: calc frametime
 
 			ImGuiManager::Prepare();
 
 			for (const auto& layer : m_Layers)
-				layer->OnImGuiRender();
+				layer->OnImGuiRender(dt);
+
+			//ImGui::Text("MS: %f", dt);
+			//ImGui::Text("fps: %f", 1000.0f / dt);
 
 			ImGuiManager::End();
 			Renderer::SwapBuffers();

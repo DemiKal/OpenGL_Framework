@@ -8,9 +8,6 @@
 #include "Animation/Animator.h"
 #include "GameObject/Components/AABB.h"
 
-//static std::vector<Mesh> m_Meshes;
-std::vector<Mesh> Mesh::m_Meshes;
-
 void Mesh::LoadMaterialTextures(
 	const aiMaterial* mat,
 	const aiTextureType type,
@@ -37,48 +34,6 @@ void Mesh::LoadMaterialTextures(
 			m_Textures.emplace_back(fullpath, typeName);
 		}
 	}
-}
-
-void Mesh::ProcessNode(
-	const aiNode* node,
-	const aiScene* scene,
-	const std::string& directory
-/*, std::shared_ptr<Armature> armature*/)
-{
-	for (unsigned int i = 0; i < node->mNumMeshes; i++)
-	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		m_Meshes.emplace_back(mesh, scene, directory);// /*, armature*/));
-	}
-
-	// then do the same for each of its children
-	for (unsigned int i = 0; i < node->mNumChildren; i++)
-	{
-		ProcessNode(node->mChildren[i], scene, directory); /*, armature*/
-	}
-}
-
-std::optional<uint32_t> Mesh::LoadFromFile(const std::string& path, const aiPostProcessSteps loadFlags)
-{
-	//const aiMesh* mesh, const aiScene* scene, std::shared_ptr<Armature>  armature)
-
-	Assimp::Importer import;
-	const auto standardFlags = aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes;
-	const auto flagsComposed = standardFlags | loadFlags;
-	const aiScene* scene = import.ReadFile(path, flagsComposed);
-
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-	{
-		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
-		return std::nullopt;
-	}
-
-	std::string directory = path.substr(0, path.find_last_of('/'));
-
-	int idx = Mesh::m_Meshes.size();
-	ProcessNode(scene->mRootNode, scene, directory);
-	//TODO: delete scene;
-	return idx; //TODO: use std optional?
 }
 
 Mesh::Mesh(
@@ -355,17 +310,10 @@ Mesh::Mesh(
 	std::vector<Texture2D> textures;
 	//auto& shader = GetShader();
 	// 1. diffuse maps
-	/*std::vector<Texture2D> diffuseMaps = */ LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-	//textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-	// 2. specular maps
-	/* std::vector<Texture2D> specularMaps = */ LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-	//textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-	// 3. normal maps
-	/* std::vector<Texture2D> normalMaps = */ LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-	//textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-	// 4. height maps
-	/* std::vector<Texture2D> heightMaps = */  LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-	//textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+	LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+	LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+	LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+	LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 
 
 	aiAABB  ai_aabb = mesh->mAABB;
@@ -387,7 +335,7 @@ Mesh::Mesh(
 	CreateBuffers();
 }
 
-void Mesh::Draw(const Camera& camera, const glm::mat4& transform,  Shader& shader )
+void Mesh::Draw(const Camera& camera, const glm::mat4& transform, Shader& shader)
 {
 	shader.Bind();
 	//shader.SetInt("texture_diffuse1", 0);
@@ -404,7 +352,7 @@ void Mesh::Draw(Shader& shader)
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
 
-	for (int i = 0; i < m_Textures.size(); i++)
+	for (size_t i = 0; i < m_Textures.size(); i++)
 	{
 		const Texture2D& tex = m_Textures[i];
 		glActiveTexture(GL_TEXTURE0 + i);
@@ -682,7 +630,7 @@ Mesh Mesh::CreateCube()
 
 bool Mesh::HasFaceIndices() const
 {
-	return m_Indices.size() > 0;
+	return !m_Indices.empty();
 }
 
 unsigned Mesh::GetVertexCount() const
@@ -726,9 +674,6 @@ void Mesh::MakeWireFrame()
 
 	m_WireVAO = wireVAO;
 	m_WireVBO = wireVBO;
-
-
-
 
 }
 

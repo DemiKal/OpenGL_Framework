@@ -24,7 +24,7 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::OnUpdate(float dt)
 {
-	 
+
 	//static Camera camera(glm::vec3(0, 3, 16), 70, float(SCREENWIDTH) / float(SCREENHEIGHT), 0.1f, 700.0f);
 	Shader& shader = ShaderManager::GetShader("basic");
 
@@ -47,14 +47,14 @@ void RenderLayer::OnUpdate(float dt)
 		auto [meshC, transf] = m_EditorLayer->m_Registry.get<MeshComponent, TransformComponent>(entity);
 
 		uint32_t idx = meshC.MeshIdx;
-		Mesh& mesh = Mesh::m_Meshes[idx];
+		Mesh& mesh = MeshManager::GetMesh(idx);
 		mesh.Draw(camera, transf.CalcMatrix(), shader);
 	}
 
 	fb->Unbind();
 }
 
-void RenderLayer::OnImGuiRender()
+void RenderLayer::OnImGuiRender(float dt)
 {
 	const auto texId = fb->GetTexture().GetID();
 

@@ -17,8 +17,6 @@ protected:
 	unsigned int m_WireVAO, m_WireVBO;
 	void CreateBuffers();
 public:
-	static std::vector<Mesh> m_Meshes;
-
 	float m_LineThickness = 0.1f;
 
 	std::vector<float> vertices; //TODO make it dynamic for ints and others
@@ -50,7 +48,7 @@ public:
 	static Mesh CreateCubeWireframe();
 	static void ProcessNode(const aiNode* node, const aiScene* scene, const std::string& directory);
 	[[nodiscard]] static std::optional<uint32_t> LoadFromFile(const std::string& path, const aiPostProcessSteps loadFlags);
-	
+
 	inline GLenum GetElemDrawType() const;
 	void SetElemDrawType(const GLenum enm);
 
@@ -61,7 +59,7 @@ public:
 
 	bool HasAnimation() const;
 	bool HasFaceIndices() const;
-	
+
 	void MakeWireFrame();
 	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const;
 	void AddTexture(const Texture2D& tex);

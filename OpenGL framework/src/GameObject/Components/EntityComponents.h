@@ -1,7 +1,8 @@
 #pragma once
 #include "precomp.h"
-#include "GameObject/Components/Mesh.h"
+#include "GameObject/Components/Meshmanager.h"
 #include "GameObject/Camera.h"
+
 struct PositionComponent
 {
 	glm::vec3 Position;
@@ -81,7 +82,7 @@ struct MeshComponent
 	MeshComponent() = default;
 	MeshComponent(const std::string& path, const aiPostProcessSteps postProcessing)
 	{
-		auto ret = Mesh::LoadFromFile(path, postProcessing);
+		auto ret = MeshManager::LoadFromFile(path, postProcessing);
 		if (ret)
 		{
 			Initialized = true;

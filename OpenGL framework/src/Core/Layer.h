@@ -15,7 +15,7 @@ public:
 
 	virtual void OnDetach() {}
 	virtual void OnUpdate(float dt) {}
-	virtual void OnImGuiRender() {}
+	virtual void OnImGuiRender(float dt) {}
 	//virtual void OnEvent(Event& event) {}
 
 	const std::string& GetName() const { return m_Name; }

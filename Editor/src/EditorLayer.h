@@ -17,7 +17,7 @@ public:
 	EditorLayer(meme::Editor* editor) :
 		Layer("EditorLayer"),
 		m_Editor(editor),
-		m_EditorCamera(glm::vec3(0, 3, 16), 70, float(SCREENWIDTH) / float(SCREENHEIGHT), 0.1f, 700.0f)
+		m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)
 	{
 
 	}
@@ -25,8 +25,8 @@ public:
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 	virtual void OnUpdate(float dt) override;
-	void OnImGuiRender() override;
-	void DrawCameraInspector();
+	void OnImGuiRender(float dt) override;
+	void DrawCameraInspector(float dt);
 	void OnInput(const float dt);
 	void EnableDockSpace();
 	//void DrawMenuBar();

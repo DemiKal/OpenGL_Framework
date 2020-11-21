@@ -12,7 +12,7 @@ namespace meme
 		bool m_IsRunning = false;
 		
 	public:
-		Editor(const std::string& name);
+		explicit Editor(const std::string& name);
 
 		void Run() override;
 		void StopRunning();

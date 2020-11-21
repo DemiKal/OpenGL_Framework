@@ -1,9 +1,9 @@
 #include "EditorLayer.h"
-#include "ImGuiManager.h"
-//#include "GameObject/EntityManager.h"
 #include "Editor.h"
-#include "Rendering/Renderer.h"
+#include "ImGuiManager.h"
 #include "GameObject/Components/EntityComponents.h"
+#include "Rendering/Renderer.h"
+
 
 void EditorLayer::OnAttach()
 {
@@ -15,6 +15,7 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 }
 
+
 void EditorLayer::OnDetach()
 {
 
@@ -25,7 +26,7 @@ void EditorLayer::OnUpdate(const float dt)
 	OnInput(dt);
 }
 
-void EditorLayer::OnImGuiRender()
+void EditorLayer::OnImGuiRender(float dt)
 {
 	static bool yahoo = true;
 	//ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
@@ -35,7 +36,7 @@ void EditorLayer::OnImGuiRender()
 	//DrawMenuBar();
 	DrawEntityPanel();
 	DrawInspectorPanel();
-	DrawCameraInspector();
+	DrawCameraInspector(dt);
 }
 
 void DrawMat4(const glm::mat4& m, const char* label)
@@ -63,32 +64,43 @@ void DrawMat4(const glm::mat4& m, const char* label)
 	}
 }
 
-void EditorLayer::DrawCameraInspector()
+void EditorLayer::DrawCameraInspector(float dt)
 {
-	ImGui::Begin("Editor camera debug");
-	auto camPos = m_EditorCamera.GetPosition();
-	const ImVec2 buttonSize = { 20,20 };
-	const char* prc = "%.3f";
-	ImGui::Button("X", buttonSize); ImGui::SameLine(); ImGui::Text(prc, camPos.x);
-	ImGui::SameLine(); ImGui::Button("Y", buttonSize); ImGui::SameLine(); ImGui::Text(prc, camPos.y);
-	ImGui::SameLine(); ImGui::Button("Z", buttonSize); ImGui::SameLine(); ImGui::Text(prc, camPos.z);
-	//ImGui::SameLine();
-	float& fov = m_EditorCamera.GetFieldOfView();
-	ImGui::SliderFloat("FOV", &fov, 1, 179, "%.2f");
-	ImGui::SliderFloat("Near", &m_EditorCamera.GetNearPlaneDist(), 0.01f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
-	ImGui::SliderFloat("Far", &m_EditorCamera.GetFarPlaneDist(), 0.1f, 2000.0f,"%.3f", ImGuiSliderFlags_Logarithmic);
-	ImGui::Text("Aspect: %.3f", m_EditorCamera.GetAspectRatio());
+	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
+	ImGui::Begin("Rendering debug");
+	if (ImGui::TreeNode("Editor Camera debug"))
+	{
+		const auto camPos = m_EditorCamera.GetPosition();
+		const ImVec2 buttonSize = { 20,20 };
+		ImGui::Button("X", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.x);
+		ImGui::SameLine(); ImGui::Button("Y", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.y);
+		ImGui::SameLine(); ImGui::Button("Z", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.z);
+		//ImGui::SameLine();
+		float& fov = m_EditorCamera.GetFieldOfView();
+		ImGui::SliderFloat("FOV", &fov, 1, 179, "%.2f");
+		ImGui::SliderFloat("Near", &m_EditorCamera.GetNearPlaneDist(), 0.01f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+		ImGui::SliderFloat("Far", &m_EditorCamera.GetFarPlaneDist(), 0.1f, 2000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+		ImGui::Text("Aspect: %.3f", m_EditorCamera.GetAspectRatio());
 
-	const auto viewMat = m_EditorCamera.GetViewMatrix();
-	const auto proj = m_EditorCamera.GetProjectionMatrix();
+		const auto viewMat = m_EditorCamera.GetViewMatrix();
+		const auto proj = m_EditorCamera.GetProjectionMatrix();
 
-	DrawMat4(viewMat, "View Matrix");
-	DrawMat4(proj, "Projection Matrix");
+		DrawMat4(viewMat, "View Matrix");
+		DrawMat4(proj, "Projection Matrix");
+		ImGui::TreePop();
+	}
+	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
+
+	if (ImGui::TreeNode("Render statistics"))
+	{
+		ImGui::Text("ms per frame: %.3f", dt);
+		ImGui::Text("fps: %.3f", 1000.0f / dt);
+		ImGui::TreePop();
+	}
 
 
-
-	m_EditorCamera.RecalcProjection();
 	ImGui::End();
+	m_EditorCamera.RecalcProjection();
 }
 
 void EditorLayer::OnInput(const float dt)
@@ -246,7 +258,7 @@ void DrawEntityComponent(MeshComponent& mc)
 		const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
 		ImGui::Text(meshStr.c_str());
 
-		Mesh& mesh = Mesh::m_Meshes[mc.MeshIdx];
+		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		const uint32_t nrTextures = mesh.m_Textures.size();
 
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
