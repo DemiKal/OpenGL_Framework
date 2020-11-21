@@ -1,7 +1,7 @@
 #pragma once
 #include "precomp.h"
 #include "GameObject/Components/Mesh.h"
-
+#include "GameObject/Camera.h"
 struct PositionComponent
 {
 	glm::vec3 Position;
@@ -65,6 +65,11 @@ struct TagComponent
 	
 };
 
+struct CameraComponent 
+{
+	Camera camera;
+};
+
 struct DirectoryComponent
 {
 	entt::hashed_string directory;
@@ -99,10 +104,7 @@ struct Texture2DComponent
 
 };
 
-struct CameraComponent
-{
-
-};
+ 
 
 struct AABBComponent
 {

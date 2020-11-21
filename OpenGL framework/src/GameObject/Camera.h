@@ -10,16 +10,15 @@ public:
 	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 	~Camera() = default;
 
-	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
-	void LookAt(const glm::vec3& target);
 
 	static void SetCamera2(Camera* camera);
 	static void SetMainCamera(Camera* cam);
 
-	static Camera* GetMain();
-	static Camera* GetCam2();
+	[[nodiscard]] static Camera* GetMain();
+	[[nodiscard]] static Camera* GetCam2();
 
 	//not working [???]
+	void LookAt(const glm::vec3& target);
 	void MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2& mouseVelocity);
 	void RecalcProjection();
 	void Roll(float angle);
@@ -42,6 +41,7 @@ public:
 	[[nodiscard]] inline glm::mat4 GetViewMatrix() const;
 	[[nodiscard]] inline glm::mat4 GetProjectionMatrix() const;
 	[[nodiscard]] std::pair<bool, Model*> MousePick(double MouseX, double MouseY) const; //TODO fix without pointer and use optional
+	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
 
 private:
 	float m_fov;
