@@ -67,17 +67,16 @@ void EditorLayer::DrawCameraInspector()
 {
 	ImGui::Begin("Editor camera debug");
 	auto camPos = m_EditorCamera.GetPosition();
-	ImGui::Text("x: %f", camPos.x);
-	ImGui::SameLine();
-	ImGui::Text("y: %f", camPos.y);
-	ImGui::SameLine();
-	ImGui::Text("z: %f", camPos.z);
+	const ImVec2 buttonSize = { 20,20 };
+	const char* prc = "%.3f";
+	ImGui::Button("X", buttonSize); ImGui::SameLine(); ImGui::Text(prc, camPos.x);
+	ImGui::SameLine(); ImGui::Button("Y", buttonSize); ImGui::SameLine(); ImGui::Text(prc, camPos.y);
+	ImGui::SameLine(); ImGui::Button("Z", buttonSize); ImGui::SameLine(); ImGui::Text(prc, camPos.z);
 	//ImGui::SameLine();
 	float& fov = m_EditorCamera.GetFieldOfView();
-	ImGui::SliderFloat("Field of view", &fov, 10, 190, "%.1f");
-	//ImGui::DragFloat("Field of view", &fov, 1, 10, 190);
-	ImGui::Text("Near %f", m_EditorCamera.GetNearPlaneDist());
-	ImGui::Text("Far %f", m_EditorCamera.GetFarPlaneDist());
+	ImGui::SliderFloat("FOV", &fov, 1, 179, "%.2f");
+	ImGui::SliderFloat("Near", &m_EditorCamera.GetNearPlaneDist(), 0.01f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+	ImGui::SliderFloat("Far", &m_EditorCamera.GetFarPlaneDist(), 0.1f, 2000.0f,"%.3f", ImGuiSliderFlags_Logarithmic);
 	ImGui::Text("Aspect: %.3f", m_EditorCamera.GetAspectRatio());
 
 	const auto viewMat = m_EditorCamera.GetViewMatrix();
