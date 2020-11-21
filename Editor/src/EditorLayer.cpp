@@ -38,7 +38,7 @@ void EditorLayer::OnImGuiRender()
 	DrawCameraInspector();
 }
 
-void DrawMat4(const glm::mat4& m, const char* label )
+void DrawMat4(const glm::mat4& m, const char* label)
 {
 	// ImGui::TreeNodeEx("matrix",ImGuiTreeNodeFlags_::)
 	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -74,8 +74,8 @@ void EditorLayer::DrawCameraInspector()
 	ImGui::Text("z: %f", camPos.z);
 	//ImGui::SameLine();
 	float& fov = m_EditorCamera.GetFieldOfView();
-	float prev = fov;
-	ImGui::SliderFloat("Field of view", &fov, 0, 120, "%.1f");
+	ImGui::SliderFloat("Field of view", &fov, 10, 190, "%.1f");
+	//ImGui::DragFloat("Field of view", &fov, 1, 10, 190);
 	ImGui::Text("Near %f", m_EditorCamera.GetNearPlaneDist());
 	ImGui::Text("Far %f", m_EditorCamera.GetFarPlaneDist());
 	ImGui::Text("Aspect: %.3f", m_EditorCamera.GetAspectRatio());
@@ -86,7 +86,7 @@ void EditorLayer::DrawCameraInspector()
 	DrawMat4(viewMat, "View Matrix");
 	DrawMat4(proj, "Projection Matrix");
 
-	
+
 
 	m_EditorCamera.RecalcProjection();
 	ImGui::End();

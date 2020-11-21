@@ -48,12 +48,12 @@ namespace meme
 			//Renderer::SetAlphaBlending(false);
 
 			//TODO: add sceneLayer, renderingLayer, etc.
-			for (auto layer : m_Layers)
+			for (const auto& layer : m_Layers)
 				layer->OnUpdate(0.16f);	//todo: calc frametime
 
 			ImGuiManager::Prepare();
 
-			for (auto layer : m_Layers)
+			for (const auto& layer : m_Layers)
 				layer->OnImGuiRender();
 
 			ImGuiManager::End();

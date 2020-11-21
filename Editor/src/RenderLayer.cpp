@@ -48,9 +48,6 @@ void RenderLayer::OnUpdate(float dt)
 
 		uint32_t idx = meshC.MeshIdx;
 		Mesh& mesh = Mesh::m_Meshes[idx];
-		
-		
-
 		mesh.Draw(camera, transf.CalcMatrix(), shader);
 	}
 
