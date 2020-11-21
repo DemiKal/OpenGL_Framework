@@ -237,60 +237,8 @@ void EditorLayer::DrawEntityPanel()
 	ImGui::End();
 }
 
-void DrawEntityComponent(TransformComponent& tfc)
-{
-	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-	if (ImGui::TreeNode("Transform"))
-	{
-		ImGui::SliderFloat3("Position", glm::value_ptr(tfc.Position), -100, 100);
-		ImGui::SliderFloat3("Rotation", glm::value_ptr(tfc.Rotation), -100, 100);
-		ImGui::SliderFloat3("Scale", glm::value_ptr(tfc.Scale), -100, 100);
-		ImGui::TreePop();
-	}
-}
-
-void DrawEntityComponent(MeshComponent& mc)
-{
-	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-	if (ImGui::TreeNode("Mesh"))
-	{
-		ImGui::RadioButton("Initialized", mc.Initialized);
-		const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
-		ImGui::Text(meshStr.c_str());
-
-		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
-		const uint32_t nrTextures = mesh.m_Textures.size();
-
-		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-		if (ImGui::TreeNode("Textures"))
-		{
-			for (uint32_t i = 0; i < nrTextures; i++)
-			{
-				const Texture2D tex = mesh.m_Textures[i];
-				const uint32_t id = tex.GetID();
-
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				ImGui::Text("Texture type: %s ", tex.GetType().c_str());
-				const ImVec2 availSize = ImGui::GetContentRegionAvail();
-				const float aspect = static_cast<float>(tex.GetHeight()) / static_cast<float>(tex.GetWidth());
-
-				ImVec2 thumbSize(availSize.x, availSize.x * aspect);
-
-				if (ImGui::ImageButton(reinterpret_cast<void*>(static_cast<intptr_t>(id)), thumbSize, ImVec2(0, 1), ImVec2(1, 0)))
-					ImGui::OpenPopup("texture_popup");
-
-				if (ImGui::BeginPopup("texture_popup"))
-				{
-					ImGui::Text(("File path: /" + tex.GetPath()).c_str());
-					ImGui::EndPopup();
-				}
-			}
-			ImGui::TreePop();
-		}
-
-		ImGui::TreePop();
-	}
-}
+ 
+ 
 void EditorLayer::DrawInspectorPanel()
 {
 	auto view = m_Registry.view<TransformComponent>();
@@ -299,10 +247,9 @@ void EditorLayer::DrawInspectorPanel()
 	for (auto entity : view)
 	{
 		auto& tfc = m_Registry.get<TransformComponent>(entity);
-		DrawEntityComponent(tfc);
-
+		DrawUIComponent(tfc,"Transform Component");
 		auto& mc = m_Registry.get<MeshComponent>(entity);
-		DrawEntityComponent(mc);
+		DrawUIComponent(mc, "Mesh Component");
 	}
 	ImGui::End();
 }

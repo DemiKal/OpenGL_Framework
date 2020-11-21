@@ -46,7 +46,7 @@ __pragma(warning(disable : 26495))
 __pragma(warning(pop))
 
 constexpr uint32_t SCREENWIDTH = 1920;
-constexpr uint32_t SCREENHEIGHT = 1017;
+constexpr uint32_t SCREENHEIGHT = 1080;
 
 const glm::vec3 UP_WORLD(0, 1, 0);
 const glm::vec3 RIGHT_WORLD(1, 0, 0);
