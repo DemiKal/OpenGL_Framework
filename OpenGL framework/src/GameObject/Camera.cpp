@@ -154,13 +154,18 @@ inline glm::mat4 Camera::GetViewMatrix() const
 	return glm::lookAt(m_pos, m_pos + m_forward, m_up + glm::vec3(1,1,1) * 0.0001f);
 }
 
+//TODO: add this?
+//void Camera::RecalcViewMatrix()
+//{
+//
+//}
+
 void Camera::Roll(const float angle)
 {
 	const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_forward);
 	//m_forward = vec3(normalize(rotation * vec4(m_up, 0.0)));
 
 	m_up = glm::vec3(normalize(rotation * glm::vec4(m_up, 0.0)));
-
 }
 
 float& Camera::GetFieldOfView()  
@@ -205,6 +210,11 @@ void Camera::SetViewVector(const glm::vec3& view)
 	m_forward = view;
 }
 
+void Camera::SetUpVector(const glm::vec3& up)
+{
+	m_up = up;
+}
+
 glm::vec3& Camera::GetPosition()
 {
 	return m_pos;
@@ -245,3 +255,4 @@ void Camera::RecalcProjection()
 {
 	m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
 }
+

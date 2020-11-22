@@ -6,7 +6,7 @@
 #include <ImGuiManager.h>
 #include <Rendering/Renderer.h>
 
-RenderLayer::RenderLayer(std::shared_ptr<EditorLayer> edl)
+RenderLayer::RenderLayer(const std::shared_ptr<EditorLayer> edl)
 	: Layer("RenderLayer"),
 	m_EditorLayer(edl.get())
 {
@@ -63,7 +63,7 @@ void RenderLayer::OnUpdate(float dt)
 		Renderer::EnableDepth();
 
 
-		auto cc = m_EditorLayer->m_Registry.get<CameraComponent>(entity);
+		const auto& cc = m_EditorLayer->m_Registry.get<CameraComponent>(entity);
 
 		for (auto otherEntity : view)
 		{

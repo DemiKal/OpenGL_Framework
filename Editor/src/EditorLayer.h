@@ -119,23 +119,33 @@ public:
 	}
 	void DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity)
 	{
-		auto& pos = m_Registry.get<TransformComponent>(entity).Position;
+		auto& transf = m_Registry.get<TransformComponent>(entity);
 		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 		if (ImGui::TreeNode(label.c_str()))
 		{
 
 			//TODO FIX THIS!
 			auto& camPos = cc.camera.GetPosition();
-			camPos = pos;
+			//camPos = pos;
 
 			const ImVec2 buttonSize = { 20,20 };
-			ImGui::Button("X", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.x);
-			ImGui::SameLine(); ImGui::Button("Y", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.y);
-			ImGui::SameLine(); ImGui::Button("Z", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.z);
+			//ImGui::Button("X", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.x);
+			//ImGui::SameLine(); ImGui::Button("Y", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.y);
+			//ImGui::SameLine(); ImGui::Button("Z", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.z);
+
+			//DrawVec3Component("Translation", camPos);
+
+			auto tmat = transf.CalcMatrix();
+			const glm::vec3 viewVec = tmat * glm::vec4(0, 0, -1, 0);
+			const glm::vec3 upVec = tmat * glm::vec4(0, 1, 0, 0);
+			cc.camera.SetViewVector(viewVec);
+			cc.camera.SetUpVector(upVec);
+			camPos = transf.Position;
+
 			//ImGui::SameLine();
-			float& fov = cc.camera. GetFieldOfView();
+			float& fov = cc.camera.GetFieldOfView();
 			ImGui::SliderFloat("FOV", &fov, 1, 179, "%.2f");
-			ImGui::SliderFloat("Near", &cc.camera .GetNearPlaneDist(), 0.01f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+			ImGui::SliderFloat("Near", &cc.camera.GetNearPlaneDist(), 0.01f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
 			ImGui::SliderFloat("Far", &cc.camera.GetFarPlaneDist(), 0.1f, 2000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
 			ImGui::Text("Aspect: %.3f", cc.camera.GetAspectRatio());
 
@@ -148,7 +158,7 @@ public:
 		}
 		cc.camera.RecalcProjection();
 	}
-	
+
 	void DrawUIComponent(MeshComponent& mc, const std::string& label)
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);

@@ -8,7 +8,7 @@ private:
 	unsigned int m_RBO;
 	Texture2D m_renderTarget;
 	Texture2D m_depthTexture;
-	
+
 
 public:
 	FrameBuffer(unsigned int width = SCREENWIDTH, unsigned int height = SCREENHEIGHT);

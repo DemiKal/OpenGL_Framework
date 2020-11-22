@@ -27,6 +27,7 @@ public:
 	void SetAspectRatio(const float asp) { m_aspectRatio = asp; } //possible extra stuff to do when setting
 	void SetOrthographic(float halfWidth, float halfHeight, float near, float far);
 	void SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
+	void SetUpVector(const glm::vec3& up);
 	void SetViewVector(const glm::vec3& view);
 
 	[[nodiscard]] float GetAspectRatio() const;
