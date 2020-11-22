@@ -26,7 +26,8 @@ private:
 	std::vector<float> m_frameTimes;
 	double m_totalTime{};
 	//std::vector<Gbuffer> m_gBuffers;
-	static GLFWwindow* m_Window;
+	GLFWwindow* m_Window;
+
 public:
 	float m_prevFrameTime{}, m_currentFrameTime{};
 	static void ShutDown();
@@ -53,10 +54,10 @@ public:
 		glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
 		GLenum filterMethod = GL_NEAREST);
 
-	[[nodiscard]] bool GetAlphaBlending() const;
+	[[nodiscard]] static bool GetAlphaBlending();
 	[[nodiscard]] uint32_t GetCubeVAO() const;
-	[[nodiscard]] GLenum GetDepthFunc() const;
-	[[nodiscard]] GLenum GetCullingMode() const;
+	[[nodiscard]] static GLenum GetDepthFunc();
+	[[nodiscard]] static GLenum GetCullingMode();
 
 	static void ClearColor(float r, float g, float b, float a);
 	static void ClearColor(const glm::vec4& color);
@@ -69,6 +70,7 @@ public:
 	static void Init();
 	static void SwapBuffers();
 	static GLFWwindow* GetWindow();
+	static Renderer& GetInstance();
 	void CreateCubeMesh();
 	void CreateTriangle();
 	void CreatePlane();

@@ -15,12 +15,11 @@
 #include "GameObject/Components/Model.h"
 
 ScreenQuad Renderer::screenQuad;
-GLFWwindow* Renderer::m_Window;
+//GLFWwindow* Renderer::m_Window;
 
 void Renderer::ShutDown()
 {
-	glfwDestroyWindow(m_Window);
-
+	glfwDestroyWindow(GetInstance().m_Window);
 	glfwTerminate();
 }
 
@@ -275,12 +274,9 @@ void Renderer::DisableDepth()
 	GLCall(glDisable(GL_DEPTH_TEST))
 }
 
+ 
+
 void Renderer::_Init()
-{
-
-}
-
-void Renderer::Init()
 {
 	if (!glfwInit()) throw std::exception("Cant init glfw");
 
@@ -312,17 +308,19 @@ void Renderer::Init()
 	if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
 
 	HardwareQuery::Query();
+
+	SetAlphaBlending(m_alphaBlending);
 }
 
 
 
 Renderer::Renderer()
 {
-	CreateCubeMesh();
-	CreateTriangle();
-	CreateLine();
-	CreatePlane();
-	screenQuad.Init();
+	//CreateCubeMesh();
+	//CreateTriangle();
+	//CreateLine();
+	//CreatePlane();
+	//screenQuad.Init();
 }
 
 void Renderer::CalcFrameTime(float deltaTime)
@@ -442,24 +440,24 @@ void Renderer::BlitFrameBuffer(const unsigned int from,
 		type, filterMethod);
 }
 
-bool Renderer::GetAlphaBlending() const
+bool Renderer::GetAlphaBlending()
 {
-	return m_alphaBlending;
+	return GetInstance().m_alphaBlending;
 }
 
-uint32_t Renderer::GetCubeVAO() const
+uint32_t Renderer::GetCubeVAO() const //del
 {
 	return cubeVAO;
 }
 
-GLenum Renderer::GetDepthFunc() const
+GLenum Renderer::GetDepthFunc()
 {
-	return m_depthFunction;
+	return GetInstance().m_depthFunction;
 }
 
-GLenum Renderer::GetCullingMode() const
+GLenum Renderer::GetCullingMode()
 {
-	return m_cullingMode;
+	return GetInstance().m_cullingMode;
 }
 
 void Renderer::ClearColor(const float r, const float g, const float b, const float a)
@@ -482,7 +480,18 @@ void Renderer::Clear(GLenum type)
 	glClear(type);
 }
 
-GLFWwindow* Renderer::GetWindow()
+GLFWwindow * Renderer::GetWindow()
 {
-	return m_Window;
+	return GetInstance().m_Window;
+}
+
+Renderer& Renderer::GetInstance()
+{
+	static Renderer instance;
+	return instance;
+}
+
+void Renderer::Init()
+{
+	GetInstance()._Init();
 }

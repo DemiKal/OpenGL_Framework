@@ -29,10 +29,11 @@ void RenderLayer::OnUpdate(float dt)
 	Camera& camera = m_EditorLayer->GetEditorCamera();
 	m_FrameBuffers[0].Bind();
 
-	Renderer::ClearColor(0.5f , 0.4f, 0.4f, 1.0f);
+	Renderer::ClearColor(0.5f, 0.4f, 0.4f, 1.0f);
 	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Renderer::EnableDepth();
-
+	bool a = Renderer::GetAlphaBlending();
+	
 	auto view = m_EditorLayer->m_Registry.view<MeshComponent, TransformComponent>();
 	for (auto entity : view)
 	{
@@ -43,14 +44,14 @@ void RenderLayer::OnUpdate(float dt)
 		const glm::mat4 mat = transf.CalcMatrix();
 		mesh.Draw(camera, mat, shader);
 	}
-
+	//Renderer::SetAlphaBlending(true);
 	//TODO: move to debug layer
-	for( auto entity : reg.view<CameraComponent>())
+	for (auto entity : reg.view<CameraComponent>())
 	{
 		auto debugCam = reg.get<CameraComponent>(entity).camera;
-		Renderer::DrawFrustum(camera, debugCam, {1,0.5f,0.3f,0.5f});
+		Renderer::DrawFrustum(camera, debugCam, { 1.0f, 0.5f, 0.3f, 0.4f });
 	}
-	
+
 	m_FrameBuffers[0].Unbind();
 
 	auto view2 = m_EditorLayer->m_Registry.view<CameraComponent>();
