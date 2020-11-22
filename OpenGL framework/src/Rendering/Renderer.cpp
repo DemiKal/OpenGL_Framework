@@ -24,7 +24,58 @@ void Renderer::ShutDown()
 	glfwTerminate();
 }
 
-void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b)
+//render = the one used to render. debug = one used to extract frustum planes from
+void Renderer::DrawFrustum(const Camera& renderCam, Camera& debugCam, const glm::vec4& color)
+{
+	float fov = debugCam.GetFieldOfView();
+	float aspect = debugCam.GetAspectRatio();
+	float near = debugCam.GetNearPlaneDist();
+	float far = debugCam.GetFarPlaneDist();
+	glm::vec3  p = debugCam.GetPosition();
+	glm::vec3 up = debugCam.GetUpVector();
+	glm::vec3 forward = debugCam.GetForwardVector();
+	glm::vec3 right = glm::cross(forward, up);
+
+	const float Hnear = 2 * glm::tan(glm::radians(fov) / 2.0f) * near;
+	const float Wnear = Hnear * aspect;
+
+	const float Hfar = 2 * glm::tan(glm::radians(fov) / 2.0f) * far;
+	const float Wfar = Hfar * aspect;
+
+	glm::vec3 fc = p + far * forward;
+
+	glm::vec3 ftl = fc + (up * Hfar / 2.0f) - (right * Wfar / 2.0f);
+	glm::vec3 ftr = fc + (up * Hfar / 2.0f) + (right * Wfar / 2.0f);
+	glm::vec3 fbl = fc - (up * Hfar / 2.0f) - (right * Wfar / 2.0f);
+	glm::vec3 fbr = fc - (up * Hfar / 2.0f) + (right * Wfar / 2.0f);
+
+	auto nc = p + near * forward;
+
+	glm::vec3 ntl = nc + (up * Hnear / 2.0f) - (right * Wnear / 2.0f);
+	glm::vec3 ntr = nc + (up * Hnear / 2.0f) + (right * Wnear / 2.0f);
+	glm::vec3 nbl = nc - (up * Hnear / 2.0f) - (right * Wnear / 2.0f);
+	glm::vec3 nbr = nc - (up * Hnear / 2.0f) + (right * Wnear / 2.0f);
+
+	DrawLine(glm::mat4(1.0f), renderCam, ntl, ntr, color);
+	DrawLine(glm::mat4(1.0f), renderCam, ntr, nbr, color);
+	DrawLine(glm::mat4(1.0f), renderCam, nbr, nbl, color);
+	DrawLine(glm::mat4(1.0f), renderCam, nbl, ntl, color);
+
+	DrawLine(glm::mat4(1.0f), renderCam, ftl, ftr, color);
+	DrawLine(glm::mat4(1.0f), renderCam, ftr, fbr, color);
+	DrawLine(glm::mat4(1.0f), renderCam, fbr, fbl, color);
+	DrawLine(glm::mat4(1.0f), renderCam, fbl, ftl, color);
+
+	DrawLine(glm::mat4(1.0f), renderCam, ntl, ftl, color);
+	DrawLine(glm::mat4(1.0f), renderCam, ntr, ftr, color);
+	DrawLine(glm::mat4(1.0f), renderCam, nbl, fbl, color);
+	DrawLine(glm::mat4(1.0f), renderCam, nbr, fbr, color);
+
+}
+
+
+void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b,
+	const glm::vec4& color)
 {
 	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_LineVBO));
 	std::vector<glm::vec3> data = { a, b };
@@ -34,7 +85,7 @@ void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::ve
 	shader.SetUniformMat4f("u_Model", model);
 	shader.SetUniformMat4f("u_Projection", cam.GetProjectionMatrix());
 	shader.SetUniformMat4f("u_View", cam.GetViewMatrix());
-	shader.SetVec4f("u_Color", { 0.0f, 1.0f, 0.0f, 1.0f });
+	shader.SetVec4f("u_Color", color);
 
 	//GLfloat lineWidthRange[2] = { 0.0f, 0.0f };
 	//glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);

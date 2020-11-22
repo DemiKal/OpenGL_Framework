@@ -24,7 +24,7 @@ public:
 	void Roll(float angle);
 	void RotateLocalX(float angle); 	//yaw 
 	void RotateLocalY(float angle);	//rotate around the y axis, its own up vector
-	void SetAspectRatio(const float asp) { m_aspectRatio = asp; } //possible extra stuff to do when setting
+	void SetAspectRatio(const float asp) { m_AspectRatio = asp; } //possible extra stuff to do when setting
 	void SetOrthographic(float halfWidth, float halfHeight, float near, float far);
 	void SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 	void SetUpVector(const glm::vec3& up);
@@ -45,16 +45,17 @@ public:
 	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
 
 private:
-	float m_fov;
-	float m_aspectRatio;
-	float m_nearPlane;
-	float m_farPlane;
-	glm::vec3 m_pos{};
-	glm::vec3 m_forward{};
-	glm::vec3 m_up{};
-	glm::mat4 m_projection{};
-	static Camera* m_mainCam;
-	static Camera* m_cam2;
-	bool m_isOrthographic{};
+	//FOV in degrees!
+	float m_FOV;
+	float m_AspectRatio;
+	float m_NearPlane;
+	float m_FarPlane;
+	glm::vec3 m_Pos{};
+	glm::vec3 m_Forward{};
+	glm::vec3 m_Up{};
+	glm::mat4 m_Projection{};
+	static Camera* m_mainCam;	   //TODO: delete
+	static Camera* m_cam2;		   //TODO: delete
+	bool m_IsOrthographic{};
 };
 

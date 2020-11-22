@@ -9,14 +9,14 @@ Camera* Camera::m_mainCam;
 Camera* Camera::m_cam2;
 
 Camera::Camera() :
-	m_fov(70),
-	m_aspectRatio(static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT)), //TODO: fix scwidht!
-	m_nearPlane(0.1f),
-	m_farPlane(200.0f),
-	m_pos(glm::vec3(0, 0, 0)),
-	m_forward(glm::vec3(0, 0, -1)),
-	m_up(glm::vec3(0, 1, 0)),
-	m_projection(glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane)) {}
+	m_FOV(70),
+	m_AspectRatio(static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT)), //TODO: fix scwidht!
+	m_NearPlane(0.1f),
+	m_FarPlane(200.0f),
+	m_Pos(glm::vec3(0, 0, 0)),
+	m_Forward(glm::vec3(0, 0, -1)),
+	m_Up(glm::vec3(0, 1, 0)),
+	m_Projection(glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearPlane, m_FarPlane)) {}
 
 Camera::Camera(const glm::vec3& p_pos,
 	const float p_fov,
@@ -24,14 +24,14 @@ Camera::Camera(const glm::vec3& p_pos,
 	const float p_zNear,
 	const float p_zFar)
 	:
-	m_fov(p_fov),
-	m_aspectRatio(p_aspect),
-	m_nearPlane(p_zNear),
-	m_farPlane(p_zFar),
-	m_pos(p_pos),
-	m_forward(glm::vec3(0, 0, -1)),
-	m_up(glm::vec3(0, 1, 0)),
-	m_projection(glm::perspective(p_fov, p_aspect, p_zNear, p_zFar))
+	m_FOV(p_fov),
+	m_AspectRatio(p_aspect),
+	m_NearPlane(p_zNear),
+	m_FarPlane(p_zFar),
+	m_Pos(p_pos),
+	m_Forward(glm::vec3(0, 0, -1)),
+	m_Up(glm::vec3(0, 1, 0)),
+	m_Projection(glm::perspective(p_fov, p_aspect, p_zNear, p_zFar))
 {}
 
 
@@ -75,7 +75,7 @@ Ray Camera::RayFromMouse(const double mouseX, const double mouseY) const
 
 void Camera::LookAt(const glm::vec3& target)
 {
-	SetViewVector(normalize(m_pos - target));
+	SetViewVector(normalize(m_Pos - target));
 }
 
 void Camera::SetCamera2(Camera* camera)
@@ -101,12 +101,12 @@ Camera* Camera::GetCam2()
 //TODO: set screen width and other vars dynamically!
 void Camera::SetOrthographic(float halfWidth, float halfHeight, float _near, float _far)
 {
-	m_isOrthographic = true;
+	m_IsOrthographic = true;
 	//float H = static_cast<float>(SCREENWIDTH) / 8.0f;
-	m_nearPlane = _near;
-	m_farPlane = _far;
-	m_projection = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, m_nearPlane, m_farPlane);
-	//m_projection = glm::ortho( 0.f,  halfWidth,  0.f, halfHeight, m_nearPlane , m_farPlane    );
+	m_NearPlane = _near;
+	m_FarPlane = _far;
+	m_Projection = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, m_NearPlane, m_FarPlane);
+	//m_Projection = glm::ortho( 0.f,  halfWidth,  0.f, halfHeight, m_NearPlane , m_FarPlane    );
 }
 
 //float Camera::GetFrustumWidth()
@@ -116,7 +116,7 @@ void Camera::SetOrthographic(float halfWidth, float halfHeight, float _near, flo
 
 glm::mat4 Camera::GetViewProjectionMatrix() const
 {
-	//return m_projection * glm::lookAt(m_pos, m_pos + m_forward, m_up);
+	//return m_Projection * glm::lookAt(m_Pos, m_Pos + m_Forward, m_Up);
 	return GetProjectionMatrix() * GetViewMatrix();
 }
 
@@ -151,7 +151,7 @@ std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
 
 inline glm::mat4 Camera::GetViewMatrix() const
 {
-	return glm::lookAt(m_pos, m_pos + m_forward, m_up + glm::vec3(1,1,1) * 0.0001f);
+	return glm::lookAt(m_Pos, m_Pos + m_Forward, m_Up + glm::vec3(1,1,1) * 0.0001f);
 }
 
 //TODO: add this?
@@ -162,97 +162,96 @@ inline glm::mat4 Camera::GetViewMatrix() const
 
 void Camera::Roll(const float angle)
 {
-	const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_forward);
-	//m_forward = vec3(normalize(rotation * vec4(m_up, 0.0)));
+	const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_Forward);
+	//m_Forward = vec3(normalize(rotation * vec4(m_Up, 0.0)));
 
-	m_up = glm::vec3(normalize(rotation * glm::vec4(m_up, 0.0)));
+	m_Up = glm::vec3(normalize(rotation * glm::vec4(m_Up, 0.0)));
 }
 
 float& Camera::GetFieldOfView()  
 {
-	return m_fov;
+	return m_FOV;
 }
 
 inline glm::mat4 Camera::GetProjectionMatrix() const
 {
-	return m_projection;
+	return m_Projection;
 }
 
 void Camera::SetPerspective(const glm::vec3 & pos, float fov, float aspect, float zNear, float zFar)
 {
-	m_isOrthographic = false;
-	m_projection = glm::perspective(fov, aspect, zNear, zFar);
+	m_IsOrthographic = false;
+	m_Projection = glm::perspective(fov, aspect, zNear, zFar);
 }
 
 
 //yaw 
 inline void Camera::RotateLocalX(const float angle)
 {
-	const glm::vec3 right = glm::normalize(glm::cross(m_up, m_forward));
+	const glm::vec3 right = glm::normalize(glm::cross(m_Up, m_Forward));
 	const glm::mat4 rot = glm::rotate(glm::mat4(1), angle, right);
 
-	m_forward = glm::vec3(glm::normalize(rot * glm::vec4(m_forward, 0.0)));
-	m_up = glm::normalize(glm::cross(m_forward, right));
+	m_Forward = glm::vec3(glm::normalize(rot * glm::vec4(m_Forward, 0.0)));
+	m_Up = glm::normalize(glm::cross(m_Forward, right));
 }
 
 
 //rotate around the y axis, its own up vector
 inline void Camera::RotateLocalY(const float angle)
 {
-	const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_up);
-	m_forward = glm::vec3(glm::normalize(rotation * glm::vec4(m_forward, 0.0)));
+	const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, m_Up);
+	m_Forward = glm::vec3(glm::normalize(rotation * glm::vec4(m_Forward, 0.0)));
 
-	m_up = glm::vec3(glm::normalize(rotation * glm::vec4(m_up, 0.0)));
+	m_Up = glm::vec3(glm::normalize(rotation * glm::vec4(m_Up, 0.0)));
 }
 
 void Camera::SetViewVector(const glm::vec3& view)
 {
-	m_forward = view;
+	m_Forward = view;
 }
 
 void Camera::SetUpVector(const glm::vec3& up)
 {
-	m_up = up;
+	m_Up = up;
 }
 
 glm::vec3& Camera::GetPosition()
 {
-	return m_pos;
+	return m_Pos;
 }
 
 glm::vec3 Camera::PositionRead() const
 {
-	return m_pos;
+	return m_Pos;
 }
 
 float Camera::GetAspectRatio() const
 {
-	return m_aspectRatio;
+	return m_AspectRatio;
 }
 
 glm::vec3 Camera::GetForwardVector() const
 {
-	return m_forward;
+	return m_Forward;
 }
 
 float& Camera::GetNearPlaneDist()  
 {
-	return  m_nearPlane;
+	return  m_NearPlane;
 }
 
 float& Camera::GetFarPlaneDist()  
 {
-	return m_farPlane;
+	return m_FarPlane;
 }
 
 glm::vec3 Camera::GetUpVector() const
 {
-	return m_up;
+	return m_Up;
 }
-
 
 void Camera::RecalcProjection()
 {
-	m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
+	m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearPlane, m_FarPlane);
 }
 

@@ -95,9 +95,9 @@ void EditorLayer::OnInput(const float dt)
 
 
 	const float camSpeed = 25.0f; ;
-	const glm::vec3 fw = camSpeed * glm::vec3{ 0, 0, -1 };
-	const glm::vec3 up = camSpeed * glm::vec3{ 0, 1 , 0 };
-	const glm::vec3 left = camSpeed * glm::vec3{ -1 , 0 , 0 };
+	const glm::vec3 fw = camSpeed * m_EditorCamera.GetForwardVector();
+	const glm::vec3 up = camSpeed * m_EditorCamera.GetUpVector();
+	const glm::vec3 left = camSpeed * normalize(glm::cross(up, fw));
 
 	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * fw;
@@ -111,6 +111,10 @@ void EditorLayer::OnInput(const float dt)
 		m_EditorCamera.GetPosition() += dt * up;
 	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_C) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * -up;
+	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_E) == GLFW_PRESS)
+		m_EditorCamera.RotateLocalY(-1.0f * dt);
+	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_Q) == GLFW_PRESS)
+		m_EditorCamera.RotateLocalY(1.0f * dt);
 }
 
 void EditorLayer::EnableDockSpace()
@@ -225,7 +229,6 @@ void EditorLayer::DrawHierarchyPanel()
 
 	ImGui::End();
 }
-
 
 
 void EditorLayer::DrawInspectorPanel()

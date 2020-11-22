@@ -24,10 +24,12 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::OnUpdate(float dt)
 {
+	auto& reg = m_EditorLayer->m_Registry;
+
 	Camera& camera = m_EditorLayer->GetEditorCamera();
 	m_FrameBuffers[0].Bind();
 
-	Renderer::ClearColor(1.0F, 1.0f, 1.0f, 1.0f);
+	Renderer::ClearColor(0.5f , 0.4f, 0.4f, 1.0f);
 	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Renderer::EnableDepth();
 
@@ -42,9 +44,13 @@ void RenderLayer::OnUpdate(float dt)
 		mesh.Draw(camera, mat, shader);
 	}
 
-	Renderer::DrawLine(glm::mat4(1.0f), camera, { -0.5f,-0.5f, 0 }, { 0.5f,-0.5f, 0 });
-
-
+	//TODO: move to debug layer
+	for( auto entity : reg.view<CameraComponent>())
+	{
+		auto debugCam = reg.get<CameraComponent>(entity).camera;
+		Renderer::DrawFrustum(camera, debugCam, {1,0.5f,0.3f,0.5f});
+	}
+	
 	m_FrameBuffers[0].Unbind();
 
 	auto view2 = m_EditorLayer->m_Registry.view<CameraComponent>();
@@ -74,7 +80,6 @@ void RenderLayer::OnUpdate(float dt)
 
 void RenderLayer::OnImGuiRender(float dt)
 {
-
 	const auto texId = m_FrameBuffers[0].GetTexture().GetID();
 
 	ImGui::Begin("Scene");

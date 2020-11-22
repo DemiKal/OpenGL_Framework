@@ -151,14 +151,14 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 	const unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
 	const unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
-	GLCall(glAttachShader(program, vs));
-	GLCall(glAttachShader(program, fs));
+	GLCall(glAttachShader(program, vs))
+	GLCall(glAttachShader(program, fs))
 
-	GLCall(glLinkProgram(program));
-	GLCall(glValidateProgram(program));
+	GLCall(glLinkProgram(program))
+	GLCall(glValidateProgram(program))
 
-	GLCall(glDeleteShader(vs));
-	GLCall(glDeleteShader(fs));
+	GLCall(glDeleteShader(vs))
+	GLCall(glDeleteShader(fs))
 
 	return program;
 }

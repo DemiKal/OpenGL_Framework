@@ -30,8 +30,9 @@ private:
 public:
 	float m_prevFrameTime{}, m_currentFrameTime{};
 	static void ShutDown();
-	 
-	static void DrawLine(const glm::mat4& model, const  Camera& cam, const glm::vec3& a, const glm::vec3& b);
+
+	static void DrawFrustum(const Camera& renderCam, Camera& debugCam, const glm::vec4& color);
+	static void DrawLine(const glm::mat4& model, const  Camera& cam, const glm::vec3& a, const glm::vec3& b, const glm::vec4& color);
 	void CreateLine();
 	Renderer();
 	bool alphaBlend{};
