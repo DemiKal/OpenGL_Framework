@@ -148,10 +148,10 @@ void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm
 
 	GLCall(glDrawElements(GL_LINES,
 		static_cast<GLsizei>(cubeIndices.size()),
-		GL_UNSIGNED_INT, nullptr));
+		GL_UNSIGNED_INT, nullptr))
 
 	GLCall(glBindVertexArray(0));
-	GLCall(glActiveTexture(GL_TEXTURE0));
+	GLCall(glActiveTexture(GL_TEXTURE0))
 }
 
 void Renderer::Enable(GLenum type)
@@ -188,7 +188,7 @@ void Renderer::SetDepthFunc(const GLenum depthFunc)
 
 
 	m_depthFunction = depthFunc;
-	GLCall(glDepthFunc(depthFunc));
+	GLCall(glDepthFunc(depthFunc))
 }
 
 void Renderer::DrawScreenQuad()
@@ -212,20 +212,20 @@ void Renderer::SetCullingMode(const GLenum cullingMode)
 
 	if (cullingMode != GL_FRONT && cullingMode != GL_BACK && cullingMode != GL_FRONT_AND_BACK)
 	{
-		const auto a = PRINTAPI(GL_FRONT);
-		const auto b = PRINTAPI(GL_BACK);
-		const auto c = PRINTAPI(GL_FRONT_AND_BACK);
+		const auto a = PRINTAPI(GL_FRONT)
+		const auto b = PRINTAPI(GL_BACK)
+		const auto c = PRINTAPI(GL_FRONT_AND_BACK)
 		fmt::print("invalid culling mode! Only {0}, {1}, {2} are valid\n", a, b, c);
 		return;
 	}
 
 	m_cullingMode = cullingMode;
-	GLCall(glCullFace(m_cullingMode));
+	GLCall(glCullFace(m_cullingMode))
 }
 
 void Renderer::DisableDepth()
 {
-	GLCall(glDisable(GL_DEPTH_TEST));
+	GLCall(glDisable(GL_DEPTH_TEST))
 }
 
 void Renderer::Init()
@@ -282,6 +282,7 @@ void Renderer::CalcFrameTime(float deltaTime)
 	m_totalTime += deltaTime;
 
 }
+
 void Renderer::UpdateUI(float deltaTime)
 {
 	SetAlphaBlending(alphaBlend);
@@ -298,7 +299,6 @@ void Renderer::UpdateUI(float deltaTime)
 
 	//ImGui::Checkbox("Alpha Blend", &alphaBlend);
 	//ImGui::Checkbox("VSync", &m_VSync);
-
 }
 
 void Renderer::Clear()
@@ -411,10 +411,11 @@ GLenum Renderer::GetCullingMode() const
 	return m_cullingMode;
 }
 
-void Renderer::ClearColor(float r, float g, float b, float a)
+void Renderer::ClearColor(const float r, const float g, const float b, const float a)
 {
 	glClearColor(r, g, b, a);
 }
+
 void Renderer::ClearColor(const glm::vec4& color)
 {
 	glClearColor(color.x, color.y, color.z, color.w);

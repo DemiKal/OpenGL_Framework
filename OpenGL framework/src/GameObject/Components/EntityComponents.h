@@ -2,6 +2,7 @@
 #include "precomp.h"
 #include "GameObject/Components/Meshmanager.h"
 #include "GameObject/Camera.h"
+#include "Rendering/ShaderManager.h"
 
 struct PositionComponent
 {
@@ -66,6 +67,7 @@ struct TagComponent
 
 };
 
+
 struct CameraComponent
 {
 	Camera camera;
@@ -102,9 +104,12 @@ struct MeshComponent
 		{
 			Initialized = true;
 			MeshIdx = ret.value();
+			ShaderIdx = ShaderManager::GetShaderIdx("basic"); //TODO: determine shader automatically
 		}
 	}
 	uint32_t MeshIdx = 0;
+	uint32_t ShaderIdx = 0;
+	
 	bool Initialized = false;
 };
 

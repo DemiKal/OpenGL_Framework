@@ -9,12 +9,18 @@ void EditorLayer::OnAttach()
 {
 	fmt::print("on attach!");
 
-	auto e = m_Registry.create();
-	m_Registry.emplace<TransformComponent>(e);
-	m_Registry.emplace<TagComponent>(e, "spyro");
+	auto cube = m_Registry.create();
+	m_Registry.emplace<TransformComponent>(cube);
+	m_Registry.emplace<TagComponent>(cube, "Cube");
 	//m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
-	m_Registry.emplace<MeshComponent>(e, MeshComponent::PrimitiveType::Cube);
+	auto& m = m_Registry.emplace<MeshComponent>(cube, MeshComponent::PrimitiveType::Cube);
+	m.ShaderIdx = ShaderManager::GetShaderIdx("singlecolor");
+	m_Registry.emplace<CameraComponent>(cube);
 
+	auto spyro = m_Registry.create();
+	m_Registry.emplace<TransformComponent>(spyro);
+	m_Registry.emplace<TagComponent>(spyro, "Spyro");
+	m_Registry.emplace<MeshComponent>(spyro, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 }
 
 
@@ -36,7 +42,7 @@ void EditorLayer::OnImGuiRender(float dt)
 
 	EnableDockSpace();
 	//DrawMenuBar();
-	DrawEntityPanel();
+	DrawHierarchyPanel();
 	DrawInspectorPanel();
 	DrawCameraInspector(dt);
 }
@@ -68,8 +74,8 @@ void EditorLayer::DrawCameraInspector(float dt)
 		DrawUIComponent(proj, "Projection Matrix");
 		ImGui::TreePop();
 	}
-	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 
+	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 	if (ImGui::TreeNode("Render statistics"))
 	{
 		ImGui::Text("ms per frame: %.3f", dt * 1000.0f);
@@ -89,8 +95,8 @@ void EditorLayer::OnInput(const float dt)
 
 
 	const float camSpeed = 25.0f; ;
-	const glm::vec3 fw = camSpeed * glm::vec3{ 0,0,-1 };
-	const glm::vec3 up = camSpeed * glm::vec3{ 0,1 , 0 };
+	const glm::vec3 fw = camSpeed * glm::vec3{ 0, 0, -1 };
+	const glm::vec3 up = camSpeed * glm::vec3{ 0, 1 , 0 };
 	const glm::vec3 left = camSpeed * glm::vec3{ -1 , 0 , 0 };
 
 	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
@@ -198,7 +204,7 @@ void EditorLayer::EnableDockSpace()
 	ImGui::End();
 }
 
-void EditorLayer::DrawEntityPanel()
+void EditorLayer::DrawHierarchyPanel()
 {
 	const auto flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
 	ImGui::Begin("Entities", NULL, flags);
@@ -208,10 +214,12 @@ void EditorLayer::DrawEntityPanel()
 		auto name = m_Registry.get<TagComponent>(entity);
 		const auto nodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		if (ImGui::TreeNodeEx(name.Name, nodeFlags))
+		//if (ImGui::TreeNodeEx(name.Name, nodeFlags))
+
+		if (ImGui::Selectable(name.Name, m_Selected == entity))
 		{
-			ImGui::Text("Child entity");
-			ImGui::TreePop();
+			m_Selected = entity;
+			//ImGui::TreePop();
 		}
 	}
 
@@ -225,12 +233,20 @@ void EditorLayer::DrawInspectorPanel()
 	auto view = m_Registry.view<TransformComponent>();
 
 	ImGui::Begin("Inspector");
-	for (auto entity : view)
+	//for (auto entity : view)
+	if (m_Selected != entt::null)
 	{
-		auto& tfc = m_Registry.get<TransformComponent>(entity);
+		auto& tfc = m_Registry.get<TransformComponent>(m_Selected);
 		DrawUIComponent(tfc, "Transform Component");
-		auto& mc = m_Registry.get<MeshComponent>(entity);
+		auto& mc = m_Registry.get<MeshComponent>(m_Selected);
 		DrawUIComponent(mc, "Mesh Component");
+
+		if (m_Registry.has<CameraComponent>(m_Selected))
+		{
+			auto& cc = m_Registry.get<CameraComponent>(m_Selected);
+			DrawUIComponent(cc, "Camera Component", m_Selected);
+
+		}
 	}
 	ImGui::End();
 }

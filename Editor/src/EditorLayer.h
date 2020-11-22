@@ -14,6 +14,7 @@ class EditorLayer : public Layer
 public:
 
 	entt::registry m_Registry;
+	entt::entity m_Selected{ entt::null };
 	meme::Editor* m_Editor;
 	Camera m_EditorCamera;
 
@@ -25,15 +26,15 @@ public:
 
 	}
 
-	virtual void OnAttach() override;
-	virtual void OnDetach() override;
-	virtual void OnUpdate(float dt) override;
+	void OnAttach() override;
+	void OnDetach() override;
+	void OnUpdate(float dt) override;
 	void OnImGuiRender(float dt) override;
 	void DrawCameraInspector(float dt);
 	void OnInput(const float dt);
 	void EnableDockSpace();
 	//void DrawMenuBar();
-	void DrawEntityPanel();
+	void DrawHierarchyPanel();
 	void DrawInspectorPanel();
 	Camera& GetEditorCamera();
 
@@ -116,7 +117,38 @@ public:
 			ImGui::TreePop();
 		}
 	}
+	void DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity)
+	{
+		auto& pos = m_Registry.get<TransformComponent>(entity).Position;
+		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
+		if (ImGui::TreeNode(label.c_str()))
+		{
 
+			//TODO FIX THIS!
+			auto& camPos = cc.camera.GetPosition();
+			camPos = pos;
+
+			const ImVec2 buttonSize = { 20,20 };
+			ImGui::Button("X", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.x);
+			ImGui::SameLine(); ImGui::Button("Y", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.y);
+			ImGui::SameLine(); ImGui::Button("Z", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.z);
+			//ImGui::SameLine();
+			float& fov = cc.camera. GetFieldOfView();
+			ImGui::SliderFloat("FOV", &fov, 1, 179, "%.2f");
+			ImGui::SliderFloat("Near", &cc.camera .GetNearPlaneDist(), 0.01f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+			ImGui::SliderFloat("Far", &cc.camera.GetFarPlaneDist(), 0.1f, 2000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+			ImGui::Text("Aspect: %.3f", cc.camera.GetAspectRatio());
+
+			const auto viewMat = cc.camera.GetViewMatrix();
+			const auto proj = cc.camera.GetProjectionMatrix();
+
+			DrawUIComponent(viewMat, "View Matrix");
+			DrawUIComponent(proj, "Projection Matrix");
+			ImGui::TreePop();
+		}
+		cc.camera.RecalcProjection();
+	}
+	
 	void DrawUIComponent(MeshComponent& mc, const std::string& label)
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);

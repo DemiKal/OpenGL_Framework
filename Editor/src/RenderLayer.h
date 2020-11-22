@@ -7,7 +7,8 @@ class RenderLayer : public Layer
 {
 public:
 	EditorLayer* m_EditorLayer;
-	FrameBuffer* fb;
+	std::vector<FrameBuffer> m_FrameBuffers;
+	FrameBuffer fbcam;
 
 	RenderLayer(std::shared_ptr<EditorLayer> edl);
 	virtual void OnAttach() override;
