@@ -434,7 +434,7 @@
 
 //extern meme::Application* app = meme::CreateApplication();
 
-int main(int argc, char** argv)
+auto main(int argc, char** argv) -> int
 {
 	std::cout << "lol\n";
 

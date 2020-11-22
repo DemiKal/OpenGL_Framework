@@ -44,12 +44,8 @@ std::optional<uint32_t> MeshManager::LoadFromFile(const std::string& path, const
 
 MeshManager::MeshManager()
 {
-	//Mesh  cube = Mesh::CreateCube();
-	//m_Meshes.emplace_back(cube);
-	//CreateLinePrimitive();
-	//CreateTrianglePrimitive();
-	//CreatePlanePrimitive();
 	CreateCubePrimitive();
+	CreateCubeWireframePrimitive();
 }
 
 MeshManager& MeshManager::GetInstance()
@@ -146,7 +142,7 @@ void MeshManager::CreateCubePrimitive()
 	vbl.Push<float>(3, VertexType::POSITION);
 	vbl.Push<float>(2, VertexType::TEXCOORD);
 	
-	m_Meshes.emplace_back(cubeVertices, vbl);	
+	m_Meshes.emplace_back(cubeVertices, vbl);
 }
 
 void MeshManager::CreateTrianglePrimitive()

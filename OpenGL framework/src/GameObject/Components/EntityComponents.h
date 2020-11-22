@@ -83,16 +83,18 @@ struct MeshComponent
 {
 	enum class PrimitiveType
 	{
-		Cube, Plane, Triangle
+		Cube, CubeWireframe, Plane, Triangle
 	};
 	MeshComponent() = delete;
-	MeshComponent(PrimitiveType primitiveType)
+
+	explicit MeshComponent(const PrimitiveType primitiveType)
 	{
 		switch (primitiveType)
 		{
-		case PrimitiveType::Cube:  MeshIdx = 0; break;
-		case PrimitiveType::Plane:  MeshIdx = 1; break;
-		case PrimitiveType::Triangle:  MeshIdx = 2; break;
+		case PrimitiveType::Cube:			MeshIdx = 0; break;
+		case PrimitiveType::CubeWireframe:  MeshIdx = 1; break;
+		case PrimitiveType::Plane:			MeshIdx = 2; break;
+		case PrimitiveType::Triangle:		MeshIdx = 3; break;
 		}
 		Initialized = true;
 	}
@@ -109,7 +111,7 @@ struct MeshComponent
 	}
 	uint32_t MeshIdx = 0;
 	uint32_t ShaderIdx = 0;
-	
+
 	bool Initialized = false;
 };
 

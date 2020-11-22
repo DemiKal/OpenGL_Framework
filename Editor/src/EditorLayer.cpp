@@ -13,7 +13,7 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<TransformComponent>(cube);
 	m_Registry.emplace<TagComponent>(cube, "Cube");
 	//m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
-	auto& m = m_Registry.emplace<MeshComponent>(cube, MeshComponent::PrimitiveType::Cube);
+	auto& m = m_Registry.emplace<MeshComponent>(cube, MeshComponent::PrimitiveType::CubeWireframe);
 	m.ShaderIdx = ShaderManager::GetShaderIdx("AABB_single");
 	m_Registry.emplace<CameraComponent>(cube);
 
