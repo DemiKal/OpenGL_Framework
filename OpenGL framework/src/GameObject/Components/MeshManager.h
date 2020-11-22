@@ -13,12 +13,12 @@ class MeshManager
 	void CreateTrianglePrimitive();
 	void CreatePlanePrimitive();
 	void CreateCubePrimitive();
+	void CreateCubeWireframePrimitive();
 public:
 	static std::vector<Mesh>& GetMeshes();
 	static Mesh& GetMesh(int i);
 	static std::optional<uint32_t> LoadFromFile(const std::string& path, aiPostProcessSteps loadFlags);
 
 	static void Init();
-	void CreateCubeWireframePrimitive();
 };
 

@@ -49,7 +49,6 @@ public:
 		fmt::print("deconstructed!");
 	}
 
-
 	//Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const VertexBufferLayout& vbl);
 	Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const VertexBufferLayout& vbl);
 
