@@ -27,8 +27,8 @@ void RenderLayer::OnUpdate(float dt)
 	Camera& camera = m_EditorLayer->GetEditorCamera();
 	m_FrameBuffers[0].Bind();
 
-	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Renderer::ClearColor(1.0F, 1.0f, 1.0f, 1.0f);
+	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Renderer::EnableDepth();
 
 	auto view = m_EditorLayer->m_Registry.view<MeshComponent, TransformComponent>();
@@ -42,14 +42,17 @@ void RenderLayer::OnUpdate(float dt)
 		mesh.Draw(camera, mat, shader);
 	}
 
+	Renderer::DrawLine(glm::mat4(1.0f), camera, { -0.5f,-0.5f, 0 }, { 0.5f,-0.5f, 0 });
+
+
 	m_FrameBuffers[0].Unbind();
 
 	auto view2 = m_EditorLayer->m_Registry.view<CameraComponent>();
 	for (auto entity : view2)
 	{
 		fbcam.Bind();
-		Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer::ClearColor(0.0F, 0.0f, 1.0f, 1.0f);
+		Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer::EnableDepth();
 
 		const auto& cc = m_EditorLayer->m_Registry.get<CameraComponent>(entity);

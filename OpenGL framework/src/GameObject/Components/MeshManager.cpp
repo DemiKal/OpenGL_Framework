@@ -42,10 +42,17 @@ std::optional<uint32_t> MeshManager::LoadFromFile(const std::string& path, const
 	return idx; //TODO: use std optional?
 }
 
+std::tuple<uint32_t, uint32_t> MeshManager::GetLineBuffer()
+{
+	auto& i = GetInstance();
+	return {i.m_LineVAO, i.m_LineVBO};
+}
+
 MeshManager::MeshManager()
 {
 	CreateCubePrimitive();
 	CreateCubeWireframePrimitive();
+	CreateLinePrimitive();
 }
 
 MeshManager& MeshManager::GetInstance()
@@ -55,12 +62,32 @@ MeshManager& MeshManager::GetInstance()
 	return instance;
 }
 
+uint32_t MeshManager::GetLineVAO()
+{
+	return m_LineVAO;
+}
 void MeshManager::CreateLinePrimitive()
 {
+	glGenVertexArrays(1, &m_LineVAO);
+	glGenBuffers(1, &m_LineVBO);
+	glBindVertexArray(m_LineVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_LineVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 2, nullptr, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(nullptr));
+	glVertexAttribDivisor(1, 1);
+	//GLCall(glGenBuffers(1, &cubeEBO));
+	//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
+	//GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int), &cubeIndices[0], GL_STATIC_DRAW));
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void MeshManager::Init()
 {
+	//TODO: fix for release mode?
 	MeshManager& instance = GetInstance();
 	fmt::print("Mesh manager Instance initialized!");
 }
@@ -101,35 +128,35 @@ void MeshManager::CreateCubePrimitive()
 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	
+
 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
 		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
 		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
 		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	
+
 		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	
+
 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
 		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	
+
 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	
+
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
@@ -137,11 +164,11 @@ void MeshManager::CreateCubePrimitive()
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-	
+
 	VertexBufferLayout vbl;
 	vbl.Push<float>(3, VertexType::POSITION);
 	vbl.Push<float>(2, VertexType::TEXCOORD);
-	
+
 	m_Meshes.emplace_back(cubeVertices, vbl);
 }
 

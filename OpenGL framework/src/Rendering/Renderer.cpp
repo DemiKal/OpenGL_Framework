@@ -11,6 +11,7 @@
 #include "Rendering/ShaderManager.h"
 #include "Rendering/Buffer/FrameBuffer.h"
 #include "GameObject/Camera.h"
+#include "GameObject/Components/MeshManager.h"
 #include "GameObject/Components/Model.h"
 
 ScreenQuad Renderer::screenQuad;
@@ -25,59 +26,54 @@ void Renderer::ShutDown()
 
 void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b)
 {
-	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));
+	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_LineVBO));
 	std::vector<glm::vec3> data = { a, b };
-	Shader& shader = ShaderManager::GetShader("single_line");
-	shader.Bind();
-	shader.SetUniformMat4f("u_projection", cam.GetProjectionMatrix());
-	shader.SetUniformMat4f("u_view", cam.GetViewMatrix());
+	Shader& shader = ShaderManager::GetShader("lineshader");
 
-	static float rot = 0;
-	//rot += 0.01f;
-	//mat4 rotMat = rotate(mat4(1.0f), rot, { 0,1,0 });
-	//const mat4& mat = model.GetModelMatrix();
-	shader.SetUniformMat4f("u_model", model);
+	shader.Bind();
+	shader.SetUniformMat4f("u_Model", model);
+	shader.SetUniformMat4f("u_Projection", cam.GetProjectionMatrix());
+	shader.SetUniformMat4f("u_View", cam.GetViewMatrix());
+	shader.SetVec4f("u_Color", { 0.0f, 1.0f, 0.0f, 1.0f });
 
 	//GLfloat lineWidthRange[2] = { 0.0f, 0.0f };
 	//glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
+	auto [lineVAO, lineVBO] = MeshManager::GetLineBuffer();
 	GLCall(glLineWidth(5.0f))
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO))
-	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * 2, &data[0]))
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO))
+		GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * 2, &data[0]))
 
-	GLCall(glBindVertexArray(lineVAO))
-	GLCall(glDrawArrays(GL_LINES, 0, 2))
-	GLCall(glBindVertexArray(0))
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
-	GLCall(glActiveTexture(GL_TEXTURE0))
-	
-	GLCall(glLineWidth(1.0f));
-	Shader::Unbind();
+		GLCall(glBindVertexArray(lineVAO))
+		GLCall(glDrawArrays(GL_LINES, 0, 2))
+		GLCall(glBindVertexArray(0))
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
+		GLCall(glActiveTexture(GL_TEXTURE0))
+
+		GLCall(glLineWidth(1.0f))
+		Shader::Unbind();
 }
 
 void Renderer::CreateLine()
 {
-	//auto lineVerts = { glm::vec3(0,0,0), glm::vec3(1,0,0) };
-	//cubeIndices = { 0,1 };
-
-	GLCall(glGenVertexArrays(1, &lineVAO));
-	GLCall(glGenBuffers(1, &lineVBO));
-
-	GLCall(glBindVertexArray(lineVAO));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 2, nullptr, GL_DYNAMIC_DRAW));
-
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr));
-	GLCall(glVertexAttribDivisor(1, 1));
-	//GLCall(glGenBuffers(1, &cubeEBO));
-	//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
-	//GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int), &cubeIndices[0], GL_STATIC_DRAW));
-
-
-	GLCall(glBindVertexArray(0));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	//GLCall(glGenVertexArrays(1, &lineVAO))
+	//GLCall(glGenBuffers(1, &lineVBO))
+	//
+	//GLCall(glBindVertexArray(lineVAO))
+	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO))
+	//GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 2, nullptr, GL_DYNAMIC_DRAW));
+	//
+	//GLCall(glEnableVertexAttribArray(0))
+	//GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr));
+	//GLCall(glVertexAttribDivisor(1, 1))
+	////GLCall(glGenBuffers(1, &cubeEBO));
+	////GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
+	////GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int), &cubeIndices[0], GL_STATIC_DRAW));
+	//
+	//GLCall(glBindVertexArray(0));
+	//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0))
+	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
 }
+
 void Renderer::CreateCubeMesh()
 {
 	cubeVertices = {
@@ -93,24 +89,24 @@ void Renderer::CreateCubeMesh()
 	};
 
 	GLCall(glGenVertexArrays(1, &cubeVAO))
-	GLCall(glGenBuffers(1, &cubeVBO))
+		GLCall(glGenBuffers(1, &cubeVBO))
 
-	GLCall(glBindVertexArray(cubeVAO));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, cubeVBO));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cubeVertices.size(), &cubeVertices[0], GL_STATIC_DRAW));
+		GLCall(glBindVertexArray(cubeVAO))
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, cubeVBO))
+		GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cubeVertices.size(), &cubeVertices[0], GL_STATIC_DRAW));
 
 	GLCall(glEnableVertexAttribArray(0))
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr));
-	GLCall(glVertexAttribDivisor(1, 1))
-	GLCall(glGenBuffers(1, &cubeEBO))
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
+		GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr))
+		GLCall(glVertexAttribDivisor(1, 1))
+		GLCall(glGenBuffers(1, &cubeEBO))
+		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int),
 		&cubeIndices[0], GL_STATIC_DRAW))
 
 
-	GLCall(glBindVertexArray(0))
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0))
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
+		GLCall(glBindVertexArray(0))
+		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0))
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
 }
 
 void Renderer::CreateTriangle()
@@ -125,11 +121,11 @@ void Renderer::CreatePlane()
 
 void Renderer::DrawInstancedCubes(const GLsizei instanceCount) const
 {
-	GLCall(glBindVertexArray(cubeVAO));
-	const GLsizei indxSize = static_cast<GLsizei>(cubeIndices.size());
-	GLCall(glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount));
-	GLCall(glBindVertexArray(0));
-	GLCall(glActiveTexture(GL_TEXTURE0));
+	GLCall(glBindVertexArray(cubeVAO))
+		const GLsizei indxSize = static_cast<GLsizei>(cubeIndices.size());
+	GLCall(glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount))
+		GLCall(glBindVertexArray(0))
+		GLCall(glActiveTexture(GL_TEXTURE0))
 }
 
 
@@ -139,10 +135,10 @@ void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm
 	shader.Bind();
 
 	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
-	shader.SetUniformMat4f("model", transform);
-	shader.SetUniformMat4f("view", cam.GetViewMatrix());
-	shader.SetUniformMat4f("projection", cam.GetProjectionMatrix());
-	shader.SetVec4f("u_color", color.x, color.y, color.z, color.w);
+	shader.SetUniformMat4f("u_Model", transform);
+	shader.SetUniformMat4f("u_View", cam.GetViewMatrix());
+	shader.SetUniformMat4f("u_Projection", cam.GetProjectionMatrix());
+	shader.SetVec4f("u_Color", color.x, color.y, color.z, color.w);
 
 	glBindVertexArray(cubeVAO);
 
@@ -150,13 +146,13 @@ void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm
 		static_cast<GLsizei>(cubeIndices.size()),
 		GL_UNSIGNED_INT, nullptr))
 
-	GLCall(glBindVertexArray(0));
+		GLCall(glBindVertexArray(0));
 	GLCall(glActiveTexture(GL_TEXTURE0))
 }
 
 void Renderer::Enable(GLenum type)
 {
-	GLCall(glEnable(type));
+	GLCall(glEnable(type))
 }
 
 void Renderer::EnableDepth()//TODO: add some cached binding stuff
@@ -213,9 +209,9 @@ void Renderer::SetCullingMode(const GLenum cullingMode)
 	if (cullingMode != GL_FRONT && cullingMode != GL_BACK && cullingMode != GL_FRONT_AND_BACK)
 	{
 		const auto a = PRINTAPI(GL_FRONT)
-		const auto b = PRINTAPI(GL_BACK)
-		const auto c = PRINTAPI(GL_FRONT_AND_BACK)
-		fmt::print("invalid culling mode! Only {0}, {1}, {2} are valid\n", a, b, c);
+			const auto b = PRINTAPI(GL_BACK)
+			const auto c = PRINTAPI(GL_FRONT_AND_BACK)
+			fmt::print("invalid culling mode! Only {0}, {1}, {2} are valid\n", a, b, c);
 		return;
 	}
 
@@ -226,6 +222,11 @@ void Renderer::SetCullingMode(const GLenum cullingMode)
 void Renderer::DisableDepth()
 {
 	GLCall(glDisable(GL_DEPTH_TEST))
+}
+
+void Renderer::_Init()
+{
+
 }
 
 void Renderer::Init()
@@ -241,11 +242,11 @@ void Renderer::Init()
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	 
+
 	//glfwGetPrimaryMonitor()
 	/* Create a windowed mode window and its OpenGL context */
 	//auto xx = glfwGetPrimaryMonitor();
-	m_Window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, nullptr) ;
+	m_Window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, nullptr);
 
 	if (!m_Window)
 	{
@@ -255,7 +256,7 @@ void Renderer::Init()
 	}
 
 	//InputManager::SetWindow(m_Window);
-	glfwMakeContextCurrent( m_Window );
+	glfwMakeContextCurrent(m_Window);
 
 	if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
 

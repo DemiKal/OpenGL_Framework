@@ -87,8 +87,8 @@ void Shader::Unbind()
 	GLCall(glUseProgram(0));
 }
 
- 
-void Shader::SetInt(const std::string& name, const int value) 
+
+void Shader::SetInt(const std::string& name, const int value)
 {
 	GLCall(const int loc = GetUniformLocation(name));
 	GLCall(glUniform1i(loc, value));
@@ -166,7 +166,7 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 void Shader::SetUniformMat4f(const char* name, const glm::mat4& mat)
 {
 	const int location = GetUniformLocation(name);
-	GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]));
+	GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat)))
 }
 
 void Shader::SetVec4f(const std::string& name, const float v0, const float v1, const float v2, const float v3)
@@ -178,7 +178,7 @@ void Shader::SetVec4f(const std::string& name, const float v0, const float v1, c
 void Shader::SetVec4f(const std::string& name, const glm::vec4& value)
 {
 	const int location = GetUniformLocation(name);
-	GLCall(glUniform4fv(location, 1, &value[0]));
+	GLCall(glUniform4fv(location, 1, glm::value_ptr(value )) )
 }
 
 

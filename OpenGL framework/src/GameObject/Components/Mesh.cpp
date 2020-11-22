@@ -339,10 +339,10 @@ void Mesh::Draw(const Camera& camera, const glm::mat4& transform, Shader& shader
 {
 	shader.Bind();
 	//shader.SetInt("texture_diffuse1", 0);
-	shader.SetUniformMat4f("u_model", transform);
-	shader.SetUniformMat4f("u_view", camera.GetViewMatrix());
-	shader.SetUniformMat4f("u_projection", camera.GetProjectionMatrix());
-	shader.SetVec4f("u_color", 1, 0, 0, 1);
+	shader.SetUniformMat4f("u_Model", transform);
+	shader.SetUniformMat4f("u_View", camera.GetViewMatrix());
+	shader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
+	shader.SetVec4f("u_Color", 1, 0, 0, 1);
 
 	Draw(shader);
 }

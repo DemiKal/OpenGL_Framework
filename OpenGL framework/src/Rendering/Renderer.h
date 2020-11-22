@@ -17,23 +17,24 @@ private:
 	std::vector<glm::vec3> cubeVertices;
 	std::vector<unsigned int> cubeIndices;
 	unsigned int cubeVAO = 0, cubeVBO = 0, cubeEBO = 0;
-	GLuint lineVAO = 0;
-	GLuint lineVBO = 0;
+	//GLuint lineVAO = 0;
+	//GLuint lineVBO = 0;
 	GLenum m_depthFunction = GL_LEQUAL;
 	GLenum m_cullingMode = GL_BACK;
 	bool m_VSync = true;
 	static ScreenQuad screenQuad;
 	std::vector<float> m_frameTimes;
-	double m_totalTime;
+	double m_totalTime{};
 	//std::vector<Gbuffer> m_gBuffers;
 	static GLFWwindow* m_Window;
 public:
-	float m_prevFrameTime, m_currentFrameTime;
+	float m_prevFrameTime{}, m_currentFrameTime{};
 	static void ShutDown();
-	void DrawLine(const glm::mat4& model, const  Camera& cam, const glm::vec3& a, const glm::vec3& b);
+	 
+	static void DrawLine(const glm::mat4& model, const  Camera& cam, const glm::vec3& a, const glm::vec3& b);
 	void CreateLine();
 	Renderer();
-	bool alphaBlend;
+	bool alphaBlend{};
 	void CalcFrameTime(float deltaTime);
 	void UpdateUI(float deltaTime);
 	static void Clear();
@@ -63,6 +64,7 @@ public:
 	static void DrawScreenQuad();
 	static void EnableDepth();
 	static void DisableDepth();
+	void _Init();
 	static void Init();
 	static void SwapBuffers();
 	static GLFWwindow* GetWindow();
