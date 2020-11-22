@@ -92,21 +92,21 @@ Mesh::Mesh(
 	//finally create vertex buffer
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		vertices.push_back(mesh->mVertices[i].x);
-		vertices.push_back(mesh->mVertices[i].y);
-		vertices.push_back(mesh->mVertices[i].z);
+		m_Vertices.push_back(mesh->mVertices[i].x);
+		m_Vertices.push_back(mesh->mVertices[i].y);
+		m_Vertices.push_back(mesh->mVertices[i].z);
 
 		if (hasNormals)
 		{
-			vertices.push_back(mesh->mNormals[i].x);
-			vertices.push_back(mesh->mNormals[i].y);
-			vertices.push_back(mesh->mNormals[i].z);
+			m_Vertices.push_back(mesh->mNormals[i].x);
+			m_Vertices.push_back(mesh->mNormals[i].y);
+			m_Vertices.push_back(mesh->mNormals[i].z);
 		}
 
 		if (hasTexCoords)
 		{
-			vertices.push_back(mesh->mTextureCoords[0][i].x);
-			vertices.push_back(mesh->mTextureCoords[0][i].y);
+			m_Vertices.push_back(mesh->mTextureCoords[0][i].x);
+			m_Vertices.push_back(mesh->mTextureCoords[0][i].y);
 		}
 		//manage morph animation by interleaving
 		for (unsigned int j = 0; j < morphTargetCount; j++)
@@ -114,29 +114,29 @@ Mesh::Mesh(
 			aiAnimMesh* morph = mesh->mAnimMeshes[j];
 			//TODO: check for each vertex element to see if they are in animation
 			if (morph->HasPositions())
-				vertices.push_back(morph->mVertices[i].x);
-			vertices.push_back(morph->mVertices[i].y);
-			vertices.push_back(morph->mVertices[i].z);
+				m_Vertices.push_back(morph->mVertices[i].x);
+			m_Vertices.push_back(morph->mVertices[i].y);
+			m_Vertices.push_back(morph->mVertices[i].z);
 		}
 
 		if (hasTangents)
 		{
-			vertices.push_back(mesh->mTangents[i].x);
-			vertices.push_back(mesh->mTangents[i].y);
-			vertices.push_back(mesh->mTangents[i].z);
+			m_Vertices.push_back(mesh->mTangents[i].x);
+			m_Vertices.push_back(mesh->mTangents[i].y);
+			m_Vertices.push_back(mesh->mTangents[i].z);
 			// bitangemplace_back( 
-			vertices.push_back(mesh->mBitangents[i].x);
-			vertices.push_back(mesh->mBitangents[i].y);
-			vertices.push_back(mesh->mBitangents[i].z);
+			m_Vertices.push_back(mesh->mBitangents[i].x);
+			m_Vertices.push_back(mesh->mBitangents[i].y);
+			m_Vertices.push_back(mesh->mBitangents[i].z);
 		}
 		if (hasBones)
 		{
-			vertices.push_back(0);
-			vertices.push_back(0);
-			vertices.push_back(0);
-			vertices.push_back(0);
-			vertices.push_back(0);
-			vertices.push_back(0);
+			m_Vertices.push_back(0);
+			m_Vertices.push_back(0);
+			m_Vertices.push_back(0);
+			m_Vertices.push_back(0);
+			m_Vertices.push_back(0);
+			m_Vertices.push_back(0);
 		}
 
 	}
@@ -238,8 +238,8 @@ Mesh::Mesh(
 			{
 				const unsigned int elementIdxV1 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
 				const unsigned int elementIdxV2 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
-				vertices[elementIdxV1] = bm.first;
-				vertices[elementIdxV2] = bm.second;
+				m_Vertices[elementIdxV1] = bm.first;
+				m_Vertices[elementIdxV2] = bm.second;
 				j++;
 				if (j >= BONESPERVERTEX) break;
 			}
@@ -323,13 +323,13 @@ Mesh::Mesh(
 	m_aabb_OG = m_aabb;
 
 	//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-	//	meshnew.positionVertices.emplace_back(
+	//	meshnew.m_PositionVertices.emplace_back(
 	//		glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
 	for (const int v_idx : m_Indices)
 	{
 		auto& ai_v = mesh->mVertices[v_idx];
 		glm::vec3   v = { ai_v.x, ai_v.y, ai_v.z };
-		positionVertices.emplace_back(v);
+		m_PositionVertices.emplace_back(v);
 	}
 
 	CreateBuffers();
@@ -376,19 +376,20 @@ void Mesh::Draw(Shader& shader)
 		GLCall(glBindTexture(GL_TEXTURE_2D, tex.GetID()));
 	}
 
-	if (!m_animator.m_bones.empty()) {
+	if (!m_animator.m_bones.empty())
+	{
 		std::vector<glm::mat4> boneMatrices;
 		for (auto& m : m_animator.m_bones)
 			boneMatrices.emplace_back(m.m_pose_transform);
 
 		const auto idx = shader.GetUniformLocation("mBones[0]");
-		GLCall(glUniformMatrix4fv((GLint)idx, (GLsizei)20, GL_FALSE, (const GLfloat*)&boneMatrices[0])); // Passing 20 matrices
+		GLCall(glUniformMatrix4fv(static_cast<GLint>(idx), static_cast<GLsizei>(20), GL_FALSE, reinterpret_cast<const GLfloat*>(&boneMatrices[0]))); // Passing 20 matrices
 	}
 
 	// draw mesh
 	glBindVertexArray(m_VAO);
 	if (!m_Indices.empty())
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GetElemDrawType(), static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
 	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetVertexCount())); //plane!
 
 	glBindVertexArray(0);
@@ -422,18 +423,18 @@ Mesh::Mesh(
 	const Animator& animator,
 	const VertexBufferLayout& vbl)
 {
-	this->vertices = vertices;
+	this->m_Vertices = vertices;
 	this->m_Indices = indices;
 	this->m_Textures = textures;
 	this->m_animator = animator;
 	this->m_VertexBufferLayout = vbl;
 
 	//get aabb
-	//if (!positionVertices.empty())
-	//	for (int i = 0; i < vertices.size(); i += vbl.GetStride())
+	//if (!m_PositionVertices.empty())
+	//	for (int i = 0; i < m_Vertices.size(); i += vbl.GetStride())
 	//	{
-	//		positionVertices.emplace_back(glm::vec3{ vertices[i], vertices[i + 1], vertices[i + 2] });
-	//		//m_aabb.CalcBounds(positionVertices);
+	//		m_PositionVertices.emplace_back(glm::vec3{ m_Vertices[i], m_Vertices[i + 1], m_Vertices[i + 2] });
+	//		//m_aabb.CalcBounds(m_PositionVertices);
 	//	}
 
 	CreateBuffers();
@@ -441,9 +442,16 @@ Mesh::Mesh(
 
 Mesh::Mesh(const std::vector<float>& p_vertices, const VertexBufferLayout& vbl)
 {
-	vertices = p_vertices;
+	m_Vertices = p_vertices;
 	m_VertexBufferLayout = vbl;
+	CreateBuffers();
+}
 
+Mesh::Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const VertexBufferLayout& vbl)
+{
+	m_Vertices = vertices;
+	m_Indices = indices;
+	m_VertexBufferLayout = vbl;
 	CreateBuffers();
 }
 
@@ -455,15 +463,15 @@ void Mesh::CreateBuffers()
 
 	glBindVertexArray(m_VAO);
 
-	const GLsizeiptr bufferSize = sizeof(vertices[0]) * vertices.size();
+	const GLsizeiptr bufferSize = sizeof(m_Vertices[0]) * m_Vertices.size();
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &vertices[0], GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &m_Vertices[0], GL_STATIC_DRAW));
 
-	if (!m_Indices.empty()) 
+	if (!m_Indices.empty())
 	{
 		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO));
 		GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int),
-			&m_Indices[0], GL_STATIC_DRAW)) 
+			&m_Indices[0], GL_STATIC_DRAW))
 	}
 
 	unsigned int i = 0;
@@ -517,19 +525,19 @@ Mesh Mesh::CreateCubeWireframe()
 	}; //8*3*3
 
 	const int size = sizeof(cubeVertices) / sizeof(float);
-	std::copy(cubeVertices, cubeVertices + size, std::back_inserter(mesh.vertices));
+	std::copy(cubeVertices, cubeVertices + size, std::back_inserter(mesh.m_Vertices));
 
 	VertexBufferLayout vbl;
 	vbl.Push<float>(3, VertexType::POSITION);
 
 	for (int i = 0; i < size; i += 3)
 	{
-		mesh.positionVertices.emplace_back(
+		mesh.m_PositionVertices.emplace_back(
 			glm::vec3(cubeVertices[i], cubeVertices[i + 1], cubeVertices[i + 2]));
 	}
 
 	//AABB aabb;
-	mesh.m_aabb.CalcBounds(mesh.positionVertices);
+	mesh.m_aabb.CalcBounds(mesh.m_PositionVertices);
 	mesh.m_aabb_OG = mesh.m_aabb;
 
 	mesh.m_VertexBufferLayout = vbl;
@@ -540,7 +548,7 @@ Mesh Mesh::CreateCubeWireframe()
 	glGenBuffers(1, &cubeVBO);
 	glBindVertexArray(cubeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.vertices.size(), &mesh.vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.m_Vertices.size(), &mesh.m_Vertices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr);
 
@@ -609,13 +617,13 @@ Mesh Mesh::CreateCube()
 	};
 
 	const unsigned int size = sizeof(cubeVertices) / sizeof(float);
-	std::copy(cubeVertices, cubeVertices + 6 * 5 * 6, std::back_inserter(mesh.vertices));
+	std::copy(cubeVertices, cubeVertices + 6 * 5 * 6, std::back_inserter(mesh.m_Vertices));
 
-	for (int i = 0; i < mesh.vertices.size(); i += 5)
-		mesh.positionVertices.emplace_back(glm::vec3(
-			mesh.vertices[i], mesh.vertices[i + 1], mesh.vertices[i + 2]));
+	for (int i = 0; i < mesh.m_Vertices.size(); i += 5)
+		mesh.m_PositionVertices.emplace_back(glm::vec3(
+			mesh.m_Vertices[i], mesh.m_Vertices[i + 1], mesh.m_Vertices[i + 2]));
 
-	mesh.m_aabb.CalcBounds(mesh.positionVertices);
+	mesh.m_aabb.CalcBounds(mesh.m_PositionVertices);
 	mesh.m_aabb_OG = mesh.m_aabb;
 
 	VertexBufferLayout vbl;
@@ -629,7 +637,7 @@ Mesh Mesh::CreateCube()
 	glGenBuffers(1, &cubeVBO);
 	glBindVertexArray(cubeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.vertices.size(), &mesh.vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.m_Vertices.size(), &mesh.m_Vertices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
@@ -648,7 +656,7 @@ bool Mesh::HasFaceIndices() const
 
 unsigned Mesh::GetVertexCount() const
 {
-	return static_cast<unsigned int>(vertices.size());
+	return static_cast<unsigned int>(m_Vertices.size());
 }
 
 void Mesh::AddTexture(const Texture2D& tex)
@@ -658,7 +666,7 @@ void Mesh::AddTexture(const Texture2D& tex)
 
 void Mesh::MakeWireFrame()
 {
-	if (positionVertices.empty()) { std::cout << "no position vertices!" << std::endl; return; }
+	if (m_PositionVertices.empty()) { std::cout << "no position m_Vertices!" << std::endl; return; }
 
 	glm::vec3 A(1, 0, 0);
 	glm::vec3 B(0, 1, 0);
@@ -666,7 +674,7 @@ void Mesh::MakeWireFrame()
 	glm::vec3 bary[] = { A, B, C };
 	std::vector<glm::vec3> newBuffer;
 	int barycentricIdx = 0;
-	for (auto& v : positionVertices)
+	for (auto& v : m_PositionVertices)
 	{
 		//this->m_Indices
 		newBuffer.emplace_back(v);
@@ -705,8 +713,10 @@ void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) co
 
 	glBindVertexArray(m_WireVAO);
 
-	GLCall(glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(positionVertices.size())));
+	GLCall(glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_PositionVertices.size())));
 }
+
+
 
 Mesh Mesh::CreatePlane() {
 	Mesh mesh;
@@ -721,15 +731,15 @@ Mesh Mesh::CreatePlane() {
 		 5.0f, -0.5f, -5.0f,  1.0f, 1.0f
 	};
 
-	std::copy(planeVertices, planeVertices + 30, std::back_inserter(mesh.vertices));
+	std::copy(planeVertices, planeVertices + 30, std::back_inserter(mesh.m_Vertices));
 
-	for (int i = 0; i < mesh.vertices.size(); i += 5)
+	for (int i = 0; i < mesh.m_Vertices.size(); i += 5)
 	{
-		const glm::vec3 v(mesh.vertices[i], mesh.vertices[i + 1], mesh.vertices[i + 2]);
-		mesh.positionVertices.emplace_back(v);
+		const glm::vec3 v(mesh.m_Vertices[i], mesh.m_Vertices[i + 1], mesh.m_Vertices[i + 2]);
+		mesh.m_PositionVertices.emplace_back(v);
 	}
 
-	mesh.m_aabb.CalcBounds(mesh.positionVertices);
+	mesh.m_aabb.CalcBounds(mesh.m_PositionVertices);
 	mesh.m_aabb_OG = mesh.m_aabb;
 
 	VertexBufferLayout vbl;
@@ -742,7 +752,7 @@ Mesh Mesh::CreatePlane() {
 	glGenBuffers(1, &planeVBO);
 	glBindVertexArray(planeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.vertices.size(), &mesh.vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.m_Vertices.size(), &mesh.m_Vertices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), static_cast<void*>(nullptr));
 	glEnableVertexAttribArray(1);

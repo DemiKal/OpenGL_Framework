@@ -23,7 +23,7 @@ inline TriangleBuffer& TriangleBuffer::GetInstance()
 
 void TriangleBuffer::AddTriangles_I(Model& model)
 {
-	std::vector<glm::vec3>& posVerts = model.GetMesh(0).positionVertices;
+	std::vector<glm::vec3>& posVerts = model.GetMesh(0).m_PositionVertices;
 	const size_t currentIdx = m_TriangleBuffer.size();			//global StartIdx
 	const size_t endIdx = currentIdx + posVerts.size() / 3;	//global EndIdx
 	m_TriangleBuffer.reserve(currentIdx + posVerts.size());

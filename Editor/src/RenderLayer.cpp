@@ -62,7 +62,6 @@ void RenderLayer::OnUpdate(float dt)
 		Renderer::ClearColor(0.0F, 0.0f, 1.0f, 1.0f);
 		Renderer::EnableDepth();
 
-
 		const auto& cc = m_EditorLayer->m_Registry.get<CameraComponent>(entity);
 
 		for (auto otherEntity : view)

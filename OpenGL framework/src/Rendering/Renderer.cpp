@@ -40,15 +40,15 @@ void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::ve
 
 	//GLfloat lineWidthRange[2] = { 0.0f, 0.0f };
 	//glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
-	GLCall(glLineWidth(5.0f));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO));
-	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * 2, &data[0]));
+	GLCall(glLineWidth(5.0f))
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO))
+	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * 2, &data[0]))
 
-	GLCall(glBindVertexArray(lineVAO));
-	GLCall(glDrawArrays(GL_LINES, 0, 2));  
-	GLCall(glBindVertexArray(0));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GLCall(glActiveTexture(GL_TEXTURE0));
+	GLCall(glBindVertexArray(lineVAO))
+	GLCall(glDrawArrays(GL_LINES, 0, 2))
+	GLCall(glBindVertexArray(0))
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
+	GLCall(glActiveTexture(GL_TEXTURE0))
 	
 	GLCall(glLineWidth(1.0f));
 	Shader::Unbind();
@@ -92,25 +92,25 @@ void Renderer::CreateCubeMesh()
 	   4,7, 0,4, 3,7
 	};
 
-	GLCall(glGenVertexArrays(1, &cubeVAO));
-	GLCall(glGenBuffers(1, &cubeVBO));
+	GLCall(glGenVertexArrays(1, &cubeVAO))
+	GLCall(glGenBuffers(1, &cubeVBO))
 
 	GLCall(glBindVertexArray(cubeVAO));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, cubeVBO));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cubeVertices.size(), &cubeVertices[0], GL_STATIC_DRAW));
 
-	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glEnableVertexAttribArray(0))
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr));
-	GLCall(glVertexAttribDivisor(1, 1));
-	GLCall(glGenBuffers(1, &cubeEBO));
+	GLCall(glVertexAttribDivisor(1, 1))
+	GLCall(glGenBuffers(1, &cubeEBO))
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int),
-		&cubeIndices[0], GL_STATIC_DRAW));
+		&cubeIndices[0], GL_STATIC_DRAW))
 
 
-	GLCall(glBindVertexArray(0));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCall(glBindVertexArray(0))
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0))
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
 }
 
 void Renderer::CreateTriangle()
@@ -384,7 +384,6 @@ void Renderer::BlitFrameBuffer(const unsigned int from,
 	glm::ivec2 destEnd,
 	const GLenum filterMethod)
 {
-
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, from);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, to);
 	glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT,

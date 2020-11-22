@@ -9,15 +9,15 @@ void EditorLayer::OnAttach()
 {
 	fmt::print("on attach!");
 
-	auto cube = m_Registry.create();
+	const auto cube = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(cube);
 	m_Registry.emplace<TagComponent>(cube, "Cube");
 	//m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 	auto& m = m_Registry.emplace<MeshComponent>(cube, MeshComponent::PrimitiveType::Cube);
-	m.ShaderIdx = ShaderManager::GetShaderIdx("singlecolor");
+	m.ShaderIdx = ShaderManager::GetShaderIdx("AABB_single");
 	m_Registry.emplace<CameraComponent>(cube);
 
-	auto spyro = m_Registry.create();
+	const auto spyro = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(spyro);
 	m_Registry.emplace<TagComponent>(spyro, "Spyro");
 	m_Registry.emplace<MeshComponent>(spyro, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
@@ -56,7 +56,7 @@ void EditorLayer::DrawCameraInspector(float dt)
 	if (ImGui::TreeNode("Editor Camera debug"))
 	{
 		const auto camPos = m_EditorCamera.GetPosition();
-		const ImVec2 buttonSize = { 20,20 };
+		const ImVec2 buttonSize = { 25,25 };
 		ImGui::Button("X", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.x);
 		ImGui::SameLine(); ImGui::Button("Y", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.y);
 		ImGui::SameLine(); ImGui::Button("Z", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.z);

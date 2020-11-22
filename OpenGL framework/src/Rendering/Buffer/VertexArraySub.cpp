@@ -14,7 +14,7 @@ void  VertexArraySub::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout
 	Bind();
 	vb.Bind();
 
-	//glEnableVertexAttribArray(0);    // We like submitting vertices on stream 0 for no spe
+	//glEnableVertexAttribArray(0);    // We like submitting m_Vertices on stream 0 for no spe
 	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)0);
 	//glEnableVertexAttribArray(1);    // We like submitting normals on stream 1 for no spec
 	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)12);

@@ -87,7 +87,7 @@ void UserInterface::EntityBrowser() const
 	//	if (ImGui::BeginMenu(ent->name.c_str()))
 	//	{
 	//		for (Mesh& mesh : ent->meshes) {
-	//			if (ImGui::MenuItem("Vertex count:", std::to_string(mesh.vertices.size()).c_str())) {}
+	//			if (ImGui::MenuItem("Vertex count:", std::to_string(mesh.m_Vertices.size()).c_str())) {}
 	//			if (ImGui::MenuItem("Has animation: ", mesh.HasAnimation() ? "yes" : "no")) {}
 	//
 	//

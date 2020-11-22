@@ -1,7 +1,6 @@
 #pragma once
 #include "GameObject/Components/Mesh.h"
 
-
 class MeshManager
 {
 	std::vector<Mesh> m_Meshes;
@@ -15,11 +14,11 @@ class MeshManager
 	void CreatePlanePrimitive();
 	void CreateCubePrimitive();
 public:
-	static std::vector<Mesh> GetMeshes();
+	static std::vector<Mesh>& GetMeshes();
 	static Mesh& GetMesh(int i);
 	static std::optional<uint32_t> LoadFromFile(const std::string& path, aiPostProcessSteps loadFlags);
 
 	static void Init();
-
+	void CreateCubeWireframePrimitive();
 };
 

@@ -55,6 +55,7 @@ MeshManager::MeshManager()
 MeshManager& MeshManager::GetInstance()
 {
 	static MeshManager instance;
+
 	return instance;
 }
 
@@ -68,62 +69,92 @@ void MeshManager::Init()
 	fmt::print("Mesh manager Instance initialized!");
 }
 
+void MeshManager::CreateCubeWireframePrimitive()
+{
+	
+}
 void MeshManager::CreateCubePrimitive()
 {
-		const std::vector<float> cubeVertices = {
-			// positions          // texture Coords
-			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-			 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	//const std::vector<float> cubeVertices = {
+	//	// positions          // texture Coords
+	//	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	//	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	//	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	//
+	//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	//	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	//	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	//	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	//
+	//	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	//	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	//	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	//
+	//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	//	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	//	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	//	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	//
+	//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	//	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	//
+	//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	//	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	//};
+	//
+	//VertexBufferLayout vbl;
+	//vbl.Push<float>(3, VertexType::POSITION);
+	//vbl.Push<float>(2, VertexType::TEXCOORD);
+	//
+	//m_Meshes.emplace_back(cubeVertices, vbl);
+	//m_Meshes.back().SetElemDrawType(GL_LINES);
 
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-			-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	std::vector<float> cubeVertices = {
+	 -0.5f, -0.5f, 0.5f,
+	 0.5f, -0.5f, 0.5f,
+	 0.5f, 0.5f, 0.5f,
+	 -0.5f,0.5f, 0.5f,
+	 -0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f, 0.5f, -0.5f,
+	 -0.5f,0.5f, -0.5f,
+	};
 
-			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-			-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	std::vector<unsigned int> cubeIndices = {
+	   0,1, 1,2, 2,3, 3,0,
+	   1,5, 5,6, 6,2,
+	   5,4, 6,7,
+	   4,7, 0,4, 3,7
+	};
 
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	VertexBufferLayout vbl;
+	vbl.Push<float>(3, VertexType::POSITION);
 
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-		};
-
-		VertexBufferLayout vbl;
-		vbl.Push<float>(3, VertexType::POSITION);
-		vbl.Push<float>(2, VertexType::TEXCOORD);
-
-		m_Meshes.emplace_back(cubeVertices, vbl);
+	m_Meshes.emplace_back(cubeVertices, cubeIndices, vbl);
+	m_Meshes.back().SetElemDrawType(GL_LINES);
 }
 
 void MeshManager::CreateTrianglePrimitive()
 {
+
 }
 
 Mesh& MeshManager::GetMesh(const int i)
@@ -135,7 +166,7 @@ void MeshManager::CreatePlanePrimitive()
 {
 }
 
-std::vector<Mesh> MeshManager::GetMeshes()
+std::vector<Mesh>& MeshManager::GetMeshes()
 {
 	return GetInstance().m_Meshes;
 }

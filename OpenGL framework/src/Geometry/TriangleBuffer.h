@@ -23,7 +23,7 @@ struct IndexPair
 
 class TriangleBuffer
 {
-	//buffer of sequential vertices, every three verts = 1 Triangle
+	//buffer of sequential m_Vertices, every three verts = 1 Triangle
 	std::vector<Triangle> m_TriangleBuffer;
 	//every mesh has a start and end idx.
 	std::vector<IndexPair> m_IndexRangeBuffer;
