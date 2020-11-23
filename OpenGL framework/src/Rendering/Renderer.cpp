@@ -1,10 +1,5 @@
 #include "precomp.h"
 #include "Renderer.h"
-
-#include <glm/common.hpp>
-#include <glm/gtx/compatibility.hpp>
-#include <glm/gtx/compatibility.hpp>
-
 #include "Buffer/IndexBuffer.h"
 #include "Buffer/VertexArray.h"
 #include "Shader.h"
@@ -15,7 +10,6 @@
 #include "GameObject/Components/Model.h"
 
 ScreenQuad Renderer::screenQuad;
-//GLFWwindow* Renderer::m_Window;
 
 void Renderer::ShutDown()
 {
@@ -103,30 +97,9 @@ void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::ve
 		Shader::Unbind();
 }
 
-void Renderer::CreateLine()
-{
-	//GLCall(glGenVertexArrays(1, &lineVAO))
-	//GLCall(glGenBuffers(1, &lineVBO))
-	//
-	//GLCall(glBindVertexArray(lineVAO))
-	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO))
-	//GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 2, nullptr, GL_DYNAMIC_DRAW));
-	//
-	//GLCall(glEnableVertexAttribArray(0))
-	//GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr));
-	//GLCall(glVertexAttribDivisor(1, 1))
-	////GLCall(glGenBuffers(1, &cubeEBO));
-	////GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO));
-	////GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int), &cubeIndices[0], GL_STATIC_DRAW));
-	//
-	//GLCall(glBindVertexArray(0));
-	//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0))
-	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
-}
-
 void Renderer::CreateCubeMesh()
 {
-	cubeVertices = {
+	/*cubeVertices = {
 		{-0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, {-0.5f,0.5f, 0.5f},
 		{-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f,0.5f, -0.5f},
 	};
@@ -156,7 +129,7 @@ void Renderer::CreateCubeMesh()
 
 		GLCall(glBindVertexArray(0))
 		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0))
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))*/
 }
 
 void Renderer::CreateTriangle()
@@ -171,33 +144,34 @@ void Renderer::CreatePlane()
 
 void Renderer::DrawInstancedCubes(const GLsizei instanceCount) const
 {
-	GLCall(glBindVertexArray(cubeVAO))
-		const GLsizei indxSize = static_cast<GLsizei>(cubeIndices.size());
-	GLCall(glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount))
-		GLCall(glBindVertexArray(0))
-		GLCall(glActiveTexture(GL_TEXTURE0))
+	//	GLCall(glBindVertexArray(cubeVAO))
+	//		const GLsizei indxSize = static_cast<GLsizei>(cubeIndices.size());
+	//	GLCall(glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount))
+	//		GLCall(glBindVertexArray(0))
+	//		GLCall(glActiveTexture(GL_TEXTURE0))
 }
 
 
 void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm::vec4 color) const
 {
-	auto& shader = ShaderManager::GetShader("AABB_single");
-	shader.Bind();
-
-	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
-	shader.SetUniformMat4f("u_Model", transform);
-	shader.SetUniformMat4f("u_View", cam.GetViewMatrix());
-	shader.SetUniformMat4f("u_Projection", cam.GetProjectionMatrix());
-	shader.SetVec4f("u_Color", color.x, color.y, color.z, color.w);
-
-	glBindVertexArray(cubeVAO);
-
-	GLCall(glDrawElements(GL_LINES,
-		static_cast<GLsizei>(cubeIndices.size()),
-		GL_UNSIGNED_INT, nullptr))
-
-		GLCall(glBindVertexArray(0));
-	GLCall(glActiveTexture(GL_TEXTURE0))
+	//TODO: use meshmanager?
+	//auto& shader = ShaderManager::GetShader("AABB_single");
+	//shader.Bind();
+	//
+	////shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
+	//shader.SetUniformMat4f("u_Model", transform);
+	//shader.SetUniformMat4f("u_View", cam.GetViewMatrix());
+	//shader.SetUniformMat4f("u_Projection", cam.GetProjectionMatrix());
+	//shader.SetVec4f("u_Color", color.x, color.y, color.z, color.w);
+	//
+	//glBindVertexArray(cubeVAO);
+	//
+	//GLCall(glDrawElements(GL_LINES,
+	//	static_cast<GLsizei>(cubeIndices.size()),
+	//	GL_UNSIGNED_INT, nullptr))
+	//
+	//	GLCall(glBindVertexArray(0));
+	//GLCall(glActiveTexture(GL_TEXTURE0))
 }
 
 void Renderer::Enable(GLenum type)
@@ -205,15 +179,15 @@ void Renderer::Enable(GLenum type)
 	GLCall(glEnable(type))
 }
 
-void Renderer::EnableDepth()//TODO: add some cached binding stuff
-{
-	Enable(GL_DEPTH_TEST);
-}
+//void Renderer::EnableDepth()//TODO: add some cached binding stuff
+//{
+//	Enable(GL_DEPTH_TEST);
+//}
 
 void Renderer::SetDepthFunc(const GLenum depthFunc)
 {
 
-	if (depthFunc == m_depthFunction)
+	if (depthFunc == m_DepthFunction)
 	{
 		//std::cout << "same func!\n";
 		return;
@@ -232,8 +206,7 @@ void Renderer::SetDepthFunc(const GLenum depthFunc)
 	default: std::cout << "not a viable depth func enum! \n"; return;;
 	}
 
-
-	m_depthFunction = depthFunc;
+	m_DepthFunction = depthFunc;
 	GLCall(glDepthFunc(depthFunc))
 }
 
@@ -250,7 +223,7 @@ void Renderer::DrawScreenQuad()
  */
 void Renderer::SetCullingMode(const GLenum cullingMode)
 {
-	if (m_cullingMode == cullingMode)
+	if (m_CullingMode == cullingMode)
 	{
 		//fmt::print("Same culling mode is already set\n");
 		return;
@@ -265,16 +238,33 @@ void Renderer::SetCullingMode(const GLenum cullingMode)
 		return;
 	}
 
-	m_cullingMode = cullingMode;
-	GLCall(glCullFace(m_cullingMode))
+	m_CullingMode = cullingMode;
+	GLCall(glCullFace(m_CullingMode))
 }
 
-void Renderer::DisableDepth()
+void Renderer::_DisableDepth()
 {
+	if (!m_DepthTest) return;
+	m_DepthTest = false;
 	GLCall(glDisable(GL_DEPTH_TEST))
 }
 
- 
+void Renderer::_EnableDepth()
+{
+	if (m_DepthTest) return;
+	m_DepthTest = true;
+	GLCall(glEnable(GL_DEPTH_TEST))
+}
+void Renderer::DisableDepth()
+{
+	GetInstance()._DisableDepth();
+}
+
+void Renderer::EnableDepth()
+{
+	GetInstance()._EnableDepth();
+}
+
 
 void Renderer::_Init()
 {
@@ -308,11 +298,23 @@ void Renderer::_Init()
 	if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
 
 	HardwareQuery::Query();
+	//m_DepthTest = false;
+	//SetAlphaBlending(m_AlphaBlending);
+	GLboolean v;
+	glGetBooleanv(GL_BLEND, &v);
+	m_AlphaBlending = v;
 
-	SetAlphaBlending(m_alphaBlending);
+	glGetBooleanv(GL_DEPTH_TEST, &v);
+	m_DepthTest = v;
+
+	glGetBooleanv(GL_CULL_FACE, &v);
+	m_Cull = v;
+	
+	GLint i;
+	glGetIntegerv(GL_CULL_FACE_MODE, &i);
+	m_CullingMode = i;
+
 }
-
-
 
 Renderer::Renderer()
 {
@@ -323,32 +325,22 @@ Renderer::Renderer()
 	//screenQuad.Init();
 }
 
-void Renderer::CalcFrameTime(float deltaTime)
-{
-	m_prevFrameTime = m_currentFrameTime;
-	const double endtime = glfwGetTime();
-	const double diffms = 1000 * (endtime - m_currentFrameTime);
-	m_frameTimes.push_back(static_cast<float>(diffms));
-	m_totalTime += deltaTime;
-
-}
-
 void Renderer::UpdateUI(float deltaTime)
 {
-	SetAlphaBlending(alphaBlend);
-	SetVSync(m_VSync);
-
-	const float average = (float)std::accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.0) / m_frameTimes.size();
-	const float avgFPS = 1000.0f * static_cast<float>(1.0f / average);
-
-	//ImGui::Text("FPS: %f, %f ms", avgFPS, average);
-
-
-	if (m_frameTimes.size() >= 100) m_frameTimes.clear();
-
-
-	//ImGui::Checkbox("Alpha Blend", &alphaBlend);
-	//ImGui::Checkbox("VSync", &m_VSync);
+	//SetAlphaBlending(alphaBlend);
+	//SetVSync(m_VSync);
+	//
+	//const float average = (float)std::accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.0) / m_frameTimes.size();
+	//const float avgFPS = 1000.0f * static_cast<float>(1.0f / average);
+	//
+	////ImGui::Text("FPS: %f, %f ms", avgFPS, average);
+	//
+	//
+	//if (m_frameTimes.size() >= 100) m_frameTimes.clear();
+	//
+	//
+	////ImGui::Checkbox("Alpha Blend", &alphaBlend);
+	////ImGui::Checkbox("VSync", &m_VSync);
 }
 
 void Renderer::Clear()
@@ -364,26 +356,40 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
 	ib.Bind();
 	GLCall(glDrawElements(GL_POINTS, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
 }
-
 void Renderer::SetAlphaBlending(const bool alphaValue)
 {
-	m_alphaBlending = alphaValue;
+	GetInstance()._SetAlphaBlending(alphaValue);
+}
+
+void Renderer::_SetAlphaBlending(const bool alphaValue)
+{
+	if (alphaValue == m_AlphaBlending) return;
+	//m_AlphaBlending = alphaValue;
 
 	if (alphaValue)
 	{
+		m_AlphaBlending = true;
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	}
-	else { GLCall(glDisable(GL_BLEND)); }
+	else
+	{
+		GLCall(glDisable(GL_BLEND))
+			m_AlphaBlending = false;
+	}
 
+}
+void Renderer::_SetVSync(const bool cond)
+{
+	if (cond != m_VSync) m_VSync = cond;
 
+	GLCall(glfwSwapInterval(m_VSync))
 }
 
 void Renderer::SetVSync(const bool cond)
 {
-	if (cond != m_VSync) m_VSync = cond;
+	GetInstance()._SetVSync(cond);
 
-	GLCall(glfwSwapInterval(m_VSync));
 }
 
 void Renderer::BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> target)
@@ -398,13 +404,14 @@ void Renderer::BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> 
 
 void Renderer::SwapBuffers()
 {
-	GLCall(glfwPollEvents());
-	GLCall(glfwSwapBuffers(GetWindow()));
+	GLCall(glfwPollEvents())
+		GLCall(glfwSwapBuffers(GetWindow()))
 }
+
 void Renderer::SwapBuffers(GLFWwindow* window)
 {
-	GLCall(glfwPollEvents());
-	GLCall(glfwSwapBuffers(window));
+	GLCall(glfwPollEvents())
+		GLCall(glfwSwapBuffers(window))
 }
 
 void GLClearError()
@@ -442,22 +449,17 @@ void Renderer::BlitFrameBuffer(const unsigned int from,
 
 bool Renderer::GetAlphaBlending()
 {
-	return GetInstance().m_alphaBlending;
-}
-
-uint32_t Renderer::GetCubeVAO() const //del
-{
-	return cubeVAO;
+	return GetInstance().m_AlphaBlending;
 }
 
 GLenum Renderer::GetDepthFunc()
 {
-	return GetInstance().m_depthFunction;
+	return GetInstance().m_DepthFunction;
 }
 
 GLenum Renderer::GetCullingMode()
 {
-	return GetInstance().m_cullingMode;
+	return GetInstance().m_CullingMode;
 }
 
 void Renderer::ClearColor(const float r, const float g, const float b, const float a)
@@ -480,7 +482,7 @@ void Renderer::Clear(GLenum type)
 	glClear(type);
 }
 
-GLFWwindow * Renderer::GetWindow()
+GLFWwindow* Renderer::GetWindow()
 {
 	return GetInstance().m_Window;
 }

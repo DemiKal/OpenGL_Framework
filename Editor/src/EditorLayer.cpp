@@ -93,7 +93,6 @@ void EditorLayer::OnInput(const float dt)
 	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		m_Editor->StopRunning();
 
-
 	const float camSpeed = 25.0f; ;
 	const glm::vec3 fw = camSpeed * m_EditorCamera.GetForwardVector();
 	const glm::vec3 up = camSpeed * m_EditorCamera.GetUpVector();

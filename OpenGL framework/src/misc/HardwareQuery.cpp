@@ -9,7 +9,7 @@ void HardwareQuery::Query()
 	GLint max_tex_size = 0;
 	GLint max_uniform_locations = 0;
 	GLint maxInvoc = 0;
-
+	
 	GLCall(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size));
 	GLCall(glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &max_uniform_locations));
 	GLCall(glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxInvoc));
