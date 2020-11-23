@@ -1058,7 +1058,7 @@ static void ShowDemoWindowWidgets()
         ImGui::Combo("combo 2 (one-liner)", &item_current_2, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
 
         // Simplified one-liner Combo() using an array of const char*
-        static int item_current_3 = -1; // If the selection isn't within 0..count, Combo won't display a preview
+        static int item_current_3 = -1; // If the selection isn't within 0..m_Count, Combo won't display a preview
         ImGui::Combo("combo 3 (array)", &item_current_3, items, IM_ARRAYSIZE(items));
 
         // Simplified one-liner Combo() using an accessor function
@@ -1309,7 +1309,7 @@ static void ShowDemoWindowWidgets()
             static char buf3[64];
             static int edit_count = 0;
             ImGui::InputText("Edit", buf3, 64, ImGuiInputTextFlags_CallbackEdit, Funcs::MyCallback, (void*)&edit_count);
-            ImGui::SameLine(); HelpMarker("Here we toggle the casing of the first character on every edits + count edits.");
+            ImGui::SameLine(); HelpMarker("Here we toggle the casing of the first character on every edits + m_Count edits.");
             ImGui::SameLine(); ImGui::Text("(%d)", edit_count);
 
             ImGui::TreePop();
@@ -1403,7 +1403,7 @@ static void ShowDemoWindowWidgets()
 
         // Use functions to generate output
         // FIXME: This is rather awkward because current plot API only pass in indices.
-        // We probably want an API passing floats and user provide sample rate/count.
+        // We probably want an API passing floats and user provide sample rate/m_Count.
         struct Funcs
         {
             static float Sin(void*, int i) { return sinf(i * 0.1f); }
@@ -1414,7 +1414,7 @@ static void ShowDemoWindowWidgets()
         ImGui::SetNextItemWidth(100);
         ImGui::Combo("func", &func_type, "Sin\0Saw\0");
         ImGui::SameLine();
-        ImGui::SliderInt("Sample count", &display_count, 1, 400);
+        ImGui::SliderInt("Sample m_Count", &display_count, 1, 400);
         float (*func)(void*, int) = (func_type == 0) ? Funcs::Sin : Funcs::Saw;
         ImGui::PlotLines("Lines", func, NULL, display_count, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80));
         ImGui::PlotHistogram("Histogram", func, NULL, display_count, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80));

@@ -136,7 +136,7 @@ void UserInterface::EntityInspector()
 	if (selection != nullptr)
 	{
 		//ImGui::ColorEdit4("clear color", static_cast<float*>(&override_color[0]));
-	//	ImGui::Text("Currently selected: ", selection->m_name.c_str());
+	//	ImGui::Text("Currently selected: ", selection->m_Name.c_str());
 	//	ImGui::SliderFloat3("Position", &selection->m_position[0], -100.0f, 100.0f);
 	//	ImGui::SliderFloat3("Rotation", &selection->m_rotation[0], 0, 360);
 	//	ImGui::SliderFloat3("Scale", &selection->m_scale[0], 0, 10);

@@ -78,26 +78,26 @@
 //		Shader& agnosticShader = ShaderManager::GetShader("Gbuffer_basic_vertex");
 //		Model spyro("res/meshes/Spyro/Spyro.obj", aiProcess_Triangulate);
 //		spyro.SetShader("Gbuffer_basic");
-//		spyro.m_name = "Spyro";
+//		spyro.m_Name = "Spyro";
 //		EntityManager::AddEntity(spyro);
 //
 //		EntityManager::Init();
 //
 //		Model artisans("res/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
 //		artisans.SetShader("Gbuffer_basic");
-//		artisans.m_name = "artisans";
+//		artisans.m_Name = "artisans";
 //		EntityManager::AddEntity(artisans);
 //
 //#ifdef BUNNY
 //		Model bunny("res/meshes/erato/erato.obj", aiProcess_Triangulate);
 //		bunny.SetShader("Gbuffer_basic");
-//		bunny.m_name = "Erato";
+//		bunny.m_Name = "Erato";
 //		EntityManager::AddEntity(bunny);
 //#endif
 //#ifdef DRAGON
 //		Model dragon("res/meshes/black dragon/blackdragon.obj", aiProcess_Triangulate);
 //		dragon.SetShader("Gbuffer_basic");
-//		dragon.m_name = "Dragon";
+//		dragon.m_Name = "Dragon";
 //		EntityManager::AddEntity(dragon);
 //#endif
 //
@@ -189,16 +189,16 @@
 //		{
 //			glm::vec3 dir;
 //		};
-//		const int count = 3;
+//		const int m_Count = 3;
 //		std::array<glm::vec3, 3> arr{
 //			glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{ 0,1,0 }, glm::vec3{ 0,0,1 } };
 //
-//		for (int i = 0; i < count; i++) 
+//		for (int i = 0; i < m_Count; i++) 
 //		{
 //			auto entity = registry.create();
 //			auto trans = glm::translate(glm::mat4(1.0f), glm::vec3(i * 1, 0, 0));
 //			registry.emplace<TransformComponent>(entity, trans);
-//			entt::hashed_string nm{ "particle " + count };
+//			entt::hashed_string nm{ "particle " + m_Count };
 //			registry.emplace<NameComponent>(entity, nm);
 //			registry.emplace<DirComponent>(entity, arr[i]);
 //

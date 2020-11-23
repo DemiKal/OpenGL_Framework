@@ -2236,7 +2236,7 @@ static int stbtt__run_charstring(const stbtt_fontinfo *info, int glyph_index, st
 
 static int stbtt__GetGlyphShapeT2(const stbtt_fontinfo *info, int glyph_index, stbtt_vertex **pvertices)
 {
-   // runs the charstring twice, once to count and once to output (to avoid realloc)
+   // runs the charstring twice, once to m_Count and once to output (to avoid realloc)
    stbtt__csctx count_ctx = STBTT__CSCTX_INIT(1);
    stbtt__csctx output_ctx = STBTT__CSCTX_INIT(0);
    if (stbtt__run_charstring(info, glyph_index, &count_ctx)) {
@@ -3463,7 +3463,7 @@ static stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts, 
    float objspace_flatness_squared = objspace_flatness * objspace_flatness;
    int i,n=0,start=0, pass;
 
-   // count how many "moves" there are to get the contour count
+   // m_Count how many "moves" there are to get the contour m_Count
    for (i=0; i < num_verts; ++i)
       if (vertices[i].type == STBTT_vmove)
          ++n;

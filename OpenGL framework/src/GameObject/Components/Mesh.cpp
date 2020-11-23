@@ -85,7 +85,7 @@ Mesh::Mesh(
 				m_VertexBufferLayout.Push<float>(3, VertexType::POSITION);
 
 			if (morph->mNumVertices != mesh->mNumVertices)
-				std::cout << " morph target vertex count != original vertex count!";
+				std::cout << " morph target vertex m_Count != original vertex m_Count!";
 		}
 	}
 
@@ -380,7 +380,7 @@ void Mesh::Draw(Shader& shader)
 	{
 		std::vector<glm::mat4> boneMatrices;
 		for (auto& m : m_animator.m_bones)
-			boneMatrices.emplace_back(m.m_pose_transform);
+			boneMatrices.emplace_back(m.m_PoseTransform);
 
 		const auto idx = shader.GetUniformLocation("mBones[0]");
 		GLCall(glUniformMatrix4fv(static_cast<GLint>(idx), static_cast<GLsizei>(20), GL_FALSE, reinterpret_cast<const GLfloat*>(&boneMatrices[0]))); // Passing 20 matrices

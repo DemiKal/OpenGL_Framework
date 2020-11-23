@@ -3878,7 +3878,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 
         // Start edition
         const char* buf_end = NULL;
-        state->TextW.resize(buf_size + 1);          // wchar count <= UTF-8 count. we use +1 to make sure that .Data is always pointing to at least an empty string.
+        state->TextW.resize(buf_size + 1);          // wchar m_Count <= UTF-8 m_Count. we use +1 to make sure that .Data is always pointing to at least an empty string.
         state->TextA.resize(0);
         state->TextAIsValid = false;                // TextA is not valid yet (we will display buf until then)
         state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, buf_size, buf, NULL, &buf_end);
@@ -8250,7 +8250,7 @@ void ImGui::BeginColumns(const char* str_id, int columns_count, ImGuiColumnsFlag
     columns->OffMaxX = ImMax(ImMin(max_1, max_2) - window->Pos.x, columns->OffMinX + 1.0f);
     columns->LineMinY = columns->LineMaxY = window->DC.CursorPos.y;
 
-    // Clear data if columns count changed
+    // Clear data if columns m_Count changed
     if (columns->Columns.Size != 0 && columns->Columns.Size != columns_count + 1)
         columns->Columns.resize(0);
 

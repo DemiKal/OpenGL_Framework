@@ -4,7 +4,6 @@
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/Renderer.h"
 
-
 void EditorLayer::OnAttach()
 {
 	fmt::print("on attach!");
@@ -26,7 +25,7 @@ void EditorLayer::OnAttach()
 
 void EditorLayer::OnDetach()
 {
-
+	m_Registry.clear<>();
 }
 
 void EditorLayer::OnUpdate(const float dt)
@@ -247,7 +246,6 @@ void EditorLayer::DrawInspectorPanel()
 		{
 			auto& cc = m_Registry.get<CameraComponent>(m_Selected);
 			DrawUIComponent(cc, "Camera Component", m_Selected);
-
 		}
 	}
 	ImGui::End();

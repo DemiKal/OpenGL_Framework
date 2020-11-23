@@ -48,20 +48,12 @@ private:
 #endif
 
 public:
-	AABB() : m_leftFirst(0), m_count(0), min(), max()
-	{
-	}
+	AABB();
 
-	AABB(const glm::vec3& _min, const glm::vec3& _max) : min(_min), max(_max)
-	{
-	}
+	AABB(const glm::vec3& _min, const glm::vec3& _max);
 
 	AABB(const float minX, const float minY, const float minZ,
-		const float maxX, const float maxY, const float maxZ)
-		:
-		min(minX, minY, minZ), max(maxX, maxY, maxZ)
-	{
-	};
+	     const float maxX, const float maxY, const float maxZ);
 
 
 	void RecalcBounds(const glm::mat4& transform, const AABB& original);

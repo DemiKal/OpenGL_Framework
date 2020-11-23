@@ -156,7 +156,7 @@ void FindChildren(
 	{
 		for (int i = 0; i < arma->children.size(); i++)
 		{
-			joint.m_childrenPair.emplace_back(
+			joint.m_ChildrenPair.emplace_back(
 				std::make_pair(arma->children[i]->name, bonesDict[arma->children[i]->name]));
 		}
 		return;
@@ -166,9 +166,9 @@ void FindChildren(
 
 void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 {
-	if (armature->name == joint.m_name)
+	if (armature->name == joint.m_Name)
 	{
-		joint.m_nodeTransform = armature->mat;
+		joint.m_NodeTransform = armature->mat;
 		return;
 	}
 	else for (auto& children : armature->children)	AssignMatrices(children, joint);
@@ -544,6 +544,11 @@ void Model::Draw(const Camera& cam, Shader& shader)
 		mesh.Draw(shader);
 
 	shader.Unbind();
+}
+
+Texture2D& Model::GetTexture(int i)
+{
+	return m_textures_loaded[i];
 }
 
 void Model::Draw(const Camera& cam)

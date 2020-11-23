@@ -1,6 +1,5 @@
 #pragma once
 #include "EditorLayer.h"
-#include "Core/Layer.h"
 #include "Rendering/Buffer/FrameBuffer.h"
 
 class RenderLayer : public Layer

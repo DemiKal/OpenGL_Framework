@@ -141,6 +141,19 @@ glm::vec3 AABB::GetMax() const
 	return max;
 }
 
+AABB::AABB(): min(), m_leftFirst(0), max(), m_count(0)
+{
+}
+
+AABB::AABB(const glm::vec3& _min, const glm::vec3& _max): min(_min), max(_max)
+{
+}
+
+AABB::AABB(const float minX, const float minY, const float minZ, const float maxX, const float maxY, const float maxZ):
+	min(minX, minY, minZ), max(maxX, maxY, maxZ)
+{
+}
+
 void AABB::RecalcBounds(const glm::mat4& transform, const AABB& original)
 {
 	const std::vector<glm::vec4> verts_local = original.GetVerticesLocal();

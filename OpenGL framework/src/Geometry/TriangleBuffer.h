@@ -33,7 +33,7 @@ class TriangleBuffer
 
 	static TriangleBuffer& GetInstance();
 
-	void AddTriangles_I(Model& model);;
+	void AddTriangles_I(Model& model);
 
 public:
 	TriangleBuffer operator=(TriangleBuffer& other) = delete;

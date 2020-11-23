@@ -21,7 +21,7 @@ void  VertexArraySub::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout
 	//GLCall(glEnableVertexAttribArray(0));
 	//auto elems = layout.GetElements();
 	//const auto first = elems[0];
-	//const int startingPosUV = first.count * VertexBufferElement::GetSizeOfType(first.type);
+	//const int startingPosUV = first.m_Count * VertexBufferElement::GetSizeOfType(first.type);
 	//
 	////0 = vertex pos
 	//GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (const GLvoid*)(0)));

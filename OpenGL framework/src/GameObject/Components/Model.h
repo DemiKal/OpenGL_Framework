@@ -63,8 +63,7 @@ public:
 	void Draw(const glm::mat4& projection, Shader& shader);
 	void Draw(const Camera& cam, Shader& shader);
 	void AddWeight(std::vector<float>& vertices, unsigned int vertexIndex, unsigned int boneIndex, GLuint boneId, GLfloat weight);
-	Texture2D& GetTexture(int i) { return m_textures_loaded[i]; }
-
+	Texture2D& GetTexture(int i);
 };
 
 

@@ -1,4 +1,7 @@
 #pragma once
+#include <utility>
+
+
 #include "precomp.h"
 #include "Core/Layer.h"
 #include "GameObject/EntityManager.h"
@@ -15,7 +18,7 @@ namespace meme
 	public:
 		virtual ~Application() = default;
 
-		Application(const std::string& name) : m_Name(name)
+		explicit Application(std::string name) : m_Name(std::move(name))
 		{
 			EntityManager::Init();
 			Renderer::Init();

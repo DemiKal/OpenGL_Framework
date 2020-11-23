@@ -1,14 +1,13 @@
 #pragma once
 #include <string.h>
+
+#include <utility>
 #include "precomp.h"
 
 class Layer
 {
 public:
-	Layer(const std::string& name) : m_Name(name)
-	{
-
-	}
+	Layer(std::string name);
 	virtual ~Layer() = default;
 
 	virtual void OnAttach() {}
@@ -18,7 +17,16 @@ public:
 	virtual void OnImGuiRender(float dt) {}
 	//virtual void OnEvent(Event& event) {}
 
-	const std::string& GetName() const { return m_Name; }
+	[[nodiscard]] const std::string& GetName() const;
 protected:
 	std::string m_Name;
 };
+
+inline Layer::Layer(std::string name): m_Name(std::move(name))
+{
+}
+
+inline const std::string& Layer::GetName() const
+{
+	return m_Name;
+}

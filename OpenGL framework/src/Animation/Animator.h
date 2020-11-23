@@ -26,8 +26,8 @@ public:
 	//TODO: improve
 	void UpdateAnimTime() {
 		float AnimationTime = animTime + 1.0f / 60.0f; //TODO: fixed at 60fps! 
-		if (AnimationTime > current.m_length)
-			AnimationTime = fmod(AnimationTime, current.m_length);
+		if (AnimationTime > current.m_Length)
+			AnimationTime = fmod(AnimationTime, current.m_Length);
 
 		animTime = AnimationTime;
 	}

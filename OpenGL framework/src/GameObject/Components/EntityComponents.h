@@ -143,5 +143,5 @@ struct AABBComponent
 //glm::vec3 m_position = { 0, 0, 0 };
 //glm::vec3 m_rotation = { 0, 0, 0 };
 //glm::vec3 m_scale = { 1,1,1 };
-//std::string m_name;
+//std::string m_Name;
 //unsigned int m_shaderIdx; //TODO check with reference inside entt

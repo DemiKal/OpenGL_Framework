@@ -10,11 +10,11 @@
 #include "Geometry/Ray.h"
 
 BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
-	m_bvh_ssbo(0),
-	m_root(root),
-	m_poolPtr(poolPtr),
-	m_indices(std::move(indices)),
-	m_pool(std::move(pool))
+	m_BVH_SSBO(0),
+	m_Root(root),
+	m_PoolPtr(poolPtr),
+	m_Indices(std::move(indices)),
+	m_Pool(std::move(pool))
 {
 }
 
@@ -44,37 +44,37 @@ void BVH::BuildBVH(const Renderer& renderer)
 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
 		);
 
-	m_triangleCenters.reserve(N);
+	m_TriangleCenters.reserve(N);
 	for (AABB& aabb : triAABBs)
-		m_triangleCenters.push_back(aabb.GetCenter());
+		m_TriangleCenters.push_back(aabb.GetCenter());
 
 
-	m_indices.resize(N);
-	std::iota(m_indices.begin(), m_indices.end(), 0);
+	m_Indices.resize(N);
+	std::iota(m_Indices.begin(), m_Indices.end(), 0);
 
-	m_pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
-	m_poolPtr = 1;
-	m_root = &m_pool[0];
+	m_Pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
+	m_PoolPtr = 1;
+	m_Root = &m_Pool[0];
 
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
-	m_root->Subdivide(*this, triAABBs, triangles, 0, N);
+	m_Root->Subdivide(*this, triAABBs, triangles, 0, N);
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;
-	m_pool.resize(m_poolPtr);
+	m_Pool.resize(m_PoolPtr);
 
 
 	const double endTime = glfwGetTime();
 	double time = endTime - startTime;
-	auto sizeInKB = sizeof(m_pool[0]) * m_poolPtr / 1024;
-	fmt::print("{0} triangles needed {1} recursions\n", N, count);
+	auto sizeInKB = sizeof(m_Pool[0]) * m_PoolPtr / 1024;
+	fmt::print("{0} triangles needed {1} recursions\n", N, m_Count);
 	fmt::print("Bvh size: {0} kb\n", sizeInKB);
 	fmt::print("Time: {0} ms\n", build_ms.count());
 	fmt::print("triangles per second: {0}\n", N / (build_ms.count() * 1000.0f));
 	fmt::print("triangles per ms: {0}\n", (N / build_ms.count()));
 
 	CreateBuffers();
-	m_isBuilt = true;
+	m_IsBuilt = true;
 }
 
 //void BVH::InitBVHRendererOld()
@@ -147,10 +147,10 @@ void BVH::CastRay(const Ray& ray)
 {
 	if (!InputManager::m_isClicked) return;
 	//if (ImGui::IsWindowHovered()) return;
-	if (!m_isBuilt) return;
+	if (!m_IsBuilt) return;
 
 	std::vector<HitData> hitData;
-	m_root->Traverse(*this, ray, hitData, 0);
+	m_Root->Traverse(*this, ray, hitData, 0);
 	//const glm::vec3 norm = glm::normalize(ray.Direction());
 
 	float minDistance = std::numeric_limits<float>::infinity();
@@ -162,14 +162,14 @@ void BVH::CastRay(const Ray& ray)
 		auto& triangles = TriangleBuffer::GetTriangleBuffer();
 		for (HitData& hd : hitData)
 		{
-			BVHNode& node = m_pool[hd.nodeIdx];
+			BVHNode& node = m_Pool[hd.nodeIdx];
 			const int nrTris = node.m_bounds.GetCount();
 			//node.m_bounds.Draw(*Camera::GetMain(), { 1.0f, 1.0f, 1.0f, 1.0f });
 
 			for (int i = 0; i < nrTris; i++)
 			{
 				const int j = node.m_bounds.GetLeftFirst() + i;
-				const int triIdx = m_indices[j];
+				const int triIdx = m_Indices[j];
 				const Triangle& triangle = triangles[triIdx];
 				glm::vec2 baryCentric;
 				float distance;;
@@ -192,13 +192,13 @@ void BVH::CastRay(const Ray& ray)
 		{
 			Triangle& tri = triangles[nearestTriIdx];
 			DrawTriangle(tri.A, tri.B, tri.C);
-			m_pool[triangleAABBidx].m_bounds.Draw(*Camera::GetMain(), { 1.0f,0.2f,0.8f, 1.0f });
+			m_Pool[triangleAABBidx].m_bounds.Draw(*Camera::GetMain(), { 1.0f,0.2f,0.8f, 1.0f });
 			auto& triangleMap = TriangleBuffer::GetIndexRangeBuffer();
 			for (auto& rangeIdx : triangleMap)
 			{
 				if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx < rangeIdx.endIdx)
 				{
-					//ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->m_name.c_str());
+					//ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->m_Name.c_str());
 					//ImGui::LabelText("Tri Idx: ", std::to_string(nearestTriIdx).c_str());
 				}
 			}
@@ -227,9 +227,9 @@ void BVH::DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& 
 	shader.SetUniformMat4f("view", cam->GetViewMatrix());
 	shader.SetUniformMat4f("projection", cam->GetProjectionMatrix());
 	shader.SetVec4f("u_color", 1, 1, 0.0f, 1.0f);
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_TriangleVBO));
 
-	GLCall(glBindVertexArray(m_triangleVAO));
+	GLCall(glBindVertexArray(m_TriangleVAO));
 	std::vector<glm::vec3 > newBuffer = { A + normal, B + normal,C + normal };
 	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(glm::vec3), &newBuffer[0]));
 	GLCall(glDrawArrays(GL_TRIANGLES, 0, 3)); //plane!
@@ -253,8 +253,8 @@ void BVH::InitTriangleRenderer()
 	GLCall(glEnableVertexAttribArray(0));
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
 
-	m_triangleVAO = triangleVAO;
-	m_triangleVBO = triangleVBO;
+	m_TriangleVAO = triangleVAO;
+	m_TriangleVBO = triangleVBO;
 
 	//glEnableVertexAttribArray(1);
 	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
@@ -265,24 +265,24 @@ void BVH::CreateBVHTextures()
 	////tex 1: m_Indices:  4 ints
 	////tex  2: min vecs: 3 floats
 	////tex 3: max vecs : 3 floats
-	//const unsigned int aabbCount = m_poolPtr;
+	//const unsigned int aabbCount = m_PoolPtr;
 	//unsigned int intTexture;
 	////std::vector<glm::ivec4> indicesPart;
-	////std::copy( m_pool ,std::)
-	//for (uint32_t i = 0; i < m_poolPtr; i++)
+	////std::copy( m_Pool ,std::)
+	//for (uint32_t i = 0; i < m_PoolPtr; i++)
 	//{
-	//	//const int start = m_pool[i].m_bounds.m_start;
-	//	//const int end = m_pool[i].m_end;
-	//	//const int leftFirst = m_pool[i].m_leftFirst;
-	//	//const int count = m_pool[i].m_count;
+	//	//const int start = m_Pool[i].m_bounds.m_start;
+	//	//const int end = m_Pool[i].m_end;
+	//	//const int leftFirst = m_Pool[i].m_leftFirst;
+	//	//const int m_Count = m_Pool[i].m_count;
 
-	//	//indicesPart.emplace_back(glm::ivec4(start, end, leftFirst, count));
+	//	//indicesPart.emplace_back(glm::ivec4(start, end, leftFirst, m_Count));
 	//}
 
 	////std::cout << "nodes tex size: " << indicesPart.size() * sizeof(indicesPart[0]) / 1024 << "kb" << "\n";
 
 	////aabb nodes
-	//m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &m_indices[0], false);
+	//m_aabbNodesTexture = Texture1D(aabbCount, 4, dataType::INT32, &m_Indices[0], false);
 	//intTexture = m_aabbNodesTexture.GetID();
 
 	//std::vector<glm::vec3> minvec;
@@ -317,26 +317,26 @@ void BVH::CreateBVHTextures()
 	//}
 	//const uint32_t triBuffSize = static_cast<uint32_t>(triBuffer.size());
 	//m_triangleTexture = Texture1D(triBuffSize, 3, dataType::FLOAT32, &triBuffer[0], false);
-	//m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_indices[0], false);
+	//m_triangleIdxTexture = Texture1D(triangleCount, 1, dataType::UINT32, &m_Indices[0], false);
 }
 void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 {
-	if (index < 0 || index >= m_poolPtr)
+	if (index < 0 || index >= m_PoolPtr)
 	{
 		std::cout << "Bvh draw index out of range!\n";
 		return;
 	}
 
-	AABB& mat = m_pool[index].m_bounds; //m_aabbMatrices???
+	AABB& mat = m_Pool[index].m_bounds; //m_aabbMatrices???
 	mat.Draw(cam, { 1.0f, 0.2f,0.3f,1.0f });
 }
 void BVH::CreateBuffers()
 {
 	GLuint m_bvh_ssbo = 0;
-	const unsigned int poolSize = sizeof(BVHNode) * m_poolPtr;
+	const unsigned int poolSize = sizeof(BVHNode) * m_PoolPtr;
 	glGenBuffers(1, &m_bvh_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_bvh_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, &m_pool[0], GL_STATIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, &m_Pool[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -351,17 +351,17 @@ void BVH::CreateBuffers()
 	GLuint m_tri_index_ssbo = 0;
 	glGenBuffers(1, &m_tri_index_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tri_index_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_COPY);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_tri_index_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 bool BVH::IsBuilt() const
 {
-	return m_isBuilt;
+	return m_IsBuilt;
 }
 
 uint32_t BVH::GetBVHSize() const
 {
-	return m_poolPtr;
+	return m_PoolPtr;
 }

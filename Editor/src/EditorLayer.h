@@ -13,9 +13,9 @@ class EditorLayer : public Layer
 {
 public:
 
+	meme::Editor* m_Editor;
 	entt::registry m_Registry;
 	entt::entity m_Selected{ entt::null };
-	meme::Editor* m_Editor;
 	Camera m_EditorCamera;
 
 	EditorLayer(meme::Editor* editor) :

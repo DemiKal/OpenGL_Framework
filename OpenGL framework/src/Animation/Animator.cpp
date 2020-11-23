@@ -7,10 +7,10 @@
 
 void UpdateHierarchy(Joint& current, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverse_root)
 {
-	glm::mat4 currentMat = parentMat * current.m_pose_transform;
-	current.m_pose_transform = inverse_root * currentMat * current.m_offset;
+	glm::mat4 currentMat = parentMat * current.m_PoseTransform;
+	current.m_PoseTransform = inverse_root * currentMat * current.m_Offset;
 
-	for (auto& cp : current.m_childrenPair)
+	for (auto& cp : current.m_ChildrenPair)
 		UpdateHierarchy(bones[cp.second], bones, currentMat, inverse_root);
 }
 
@@ -20,7 +20,7 @@ void Animator::UpdateAnimation(float deltaTime)
 
 	for (Joint& joint : m_bones)
 	{
-		AnimationChannel& channel = current.m_animationChannels[joint.m_index];
+		AnimationChannel& channel = current.m_AnimationChannels[joint.m_Index];
 		float tick = animTime * m_ticks;
 
 		unsigned int prev_indexPos = channel.FindPositionIndex(animTime);
@@ -45,7 +45,7 @@ void Animator::UpdateAnimation(float deltaTime)
 		interpolantRot = glm::clamp(interpolantRot, 0.0f, 1.0f);
 		glm::quat interpolatedRot = glm::mix(prevRot.rotation, nextRot.rotation, interpolantRot);
 		glm::mat4 rotMat = glm::mat4_cast(interpolatedRot);
-		joint.m_pose_transform = posMat * rotMat;
+		joint.m_PoseTransform = posMat * rotMat;
 	}
 
 	UpdateHierarchy(m_bones[0], m_bones, glm::mat4(1.0f), m_inverse_root);

@@ -11,27 +11,27 @@ struct _CompareKeys
 	//{
 	//	return left.first < right.first;
 	//}
-	bool operator() (const PositionKey& left, const PositionKey& right)
+	bool operator() (const PositionKey& left, const PositionKey& right) const
 	{
 		return left.time < right.time;
 	}
-	bool operator() (const PositionKey& left, float right)
+	bool operator() (const PositionKey& left, float right) const
 	{
 		return left.time < right;
 	}
-	bool operator() (float left, PositionKey& right)
+	bool operator() (float left, PositionKey& right) const
 	{
 		return left < right.time;
 	}
-	bool operator() (const RotationKey& left, const RotationKey& right)
+	bool operator() (const RotationKey& left, const RotationKey& right) const
 	{
 		return left.time < right.time;
 	}
-	bool operator() (const RotationKey& left, float right)
+	bool operator() (const RotationKey& left, float right) const
 	{
 		return left.time < right;
 	}
-	bool operator() (float left, const RotationKey& right)
+	bool operator() (float left, const RotationKey& right) const
 	{
 		return left < right.time;
 	}
@@ -42,16 +42,16 @@ struct _CompareKeys
 
 unsigned int AnimationChannel::FindPositionIndex(const float timer)
 {
-	const auto it = std::upper_bound(m_positionKeys.begin(), m_positionKeys.end(), timer, CompareKeys);
-	return static_cast<unsigned int>(it - m_positionKeys.begin() - 1);
+	const auto it = std::upper_bound(m_PositionKeys.begin(), m_PositionKeys.end(), timer, CompareKeys);
+	return static_cast<unsigned int>(it - m_PositionKeys.begin() - 1);
 
 	assert(false);//shouldn't happen
 }
 
 unsigned int AnimationChannel::FindRotationIndex(const float timer)
 {
-	auto it = std::upper_bound(m_rotationKeys.begin(), m_rotationKeys.end(), timer, CompareKeys);
-	return static_cast<unsigned int>(it - m_rotationKeys.begin() - 1);
+	auto it = std::upper_bound(m_RotationKeys.begin(), m_RotationKeys.end(), timer, CompareKeys);
+	return static_cast<unsigned int>(it - m_RotationKeys.begin() - 1);
 
 	assert(false); //should not happen
 }

@@ -26,7 +26,7 @@ struct ScaleKey {
 class AnimationChannel
 {
 public:
-	AnimationChannel() : m_name(""), m_positionKeys(), m_rotationKeys(), m_scaleKeys() {};
+	AnimationChannel() : m_name(""), m_PositionKeys(), m_RotationKeys(), m_scaleKeys() {};
 	AnimationChannel(
 		const std::string& name,
 		std::vector<PositionKey>& positions,
@@ -34,20 +34,20 @@ public:
 		std::vector<ScaleKey>& scalings)
 		:
 		m_name(name),
-		m_positionKeys(positions),
-		m_rotationKeys(rotations),
+		m_PositionKeys(positions),
+		m_RotationKeys(rotations),
 		m_scaleKeys(m_scaleKeys) {};
 
 	//copy constructor
 	AnimationChannel(const AnimationChannel& a)
 		: m_name(a.m_name),
-		m_positionKeys(a.m_positionKeys),
-		m_rotationKeys(a.m_rotationKeys),
+		m_PositionKeys(a.m_PositionKeys),
+		m_RotationKeys(a.m_RotationKeys),
 		m_scaleKeys(a.m_scaleKeys)
 	{}
 
-	const PositionKey& GetPositionByIndex(const unsigned int idx) { return m_positionKeys[idx]; }
-	const RotationKey& GetRotationByIndex(const unsigned int idx) { return  m_rotationKeys[idx]; }
+	const PositionKey& GetPositionByIndex(const unsigned int idx) { return m_PositionKeys[idx]; }
+	const RotationKey& GetRotationByIndex(const unsigned int idx) { return  m_RotationKeys[idx]; }
 	ScaleKey GetScaleIndex(unsigned int idx) { return m_scaleKeys[idx]; }
 	std::string GetName() { return m_name; }
 	unsigned int FindPositionIndex(float timer);
@@ -55,8 +55,8 @@ public:
 
 private:
 	std::string m_name;
-	std::vector<PositionKey> m_positionKeys;
-	std::vector<RotationKey>  m_rotationKeys;
+	std::vector<PositionKey> m_PositionKeys;
+	std::vector<RotationKey>  m_RotationKeys;
 	std::vector<ScaleKey>  m_scaleKeys;
 };
 

@@ -13,18 +13,18 @@ class BVH
 {
 	friend class BVHNode;
 private:
-	bool m_isBuilt = false;
-	BVHNode* m_root = nullptr;
-	uint32_t m_bvh_ssbo = 0;
-	uint32_t m_poolPtr = 0; //points to current idx while building, becomes size pointer at end
-	unsigned int m_triangleVAO = 0;
-	unsigned int m_triangleVBO = 0;
-	std::vector<BVHNode> m_pool;
-	std::vector<AABB> m_triAABBs;
-	std::vector<uint32_t> m_indices;
-	std::vector<glm::vec3> m_triangleCenters;
+	bool m_IsBuilt = false;
+	BVHNode* m_Root = nullptr;
+	uint32_t m_BVH_SSBO = 0;
+	uint32_t m_PoolPtr = 0; //points to current idx while building, becomes size pointer at end
+	unsigned int m_TriangleVAO = 0;
+	unsigned int m_TriangleVBO = 0;
+	std::vector<BVHNode> m_Pool;
+	std::vector<AABB> m_TriAABBs;
+	std::vector<uint32_t> m_Indices;
+	std::vector<glm::vec3> m_TriangleCenters;
 public:
-	uint32_t count = 0;
+	uint32_t m_Count = 0;
 
 
 	BVH() = default;
