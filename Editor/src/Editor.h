@@ -2,12 +2,10 @@
 
 #include "Core/Application.h"
 #include "EditorLayer.h"
-#include "renderLayer.h"
-#include "ImGuiManager.h"
 
 namespace meme
 {
-	class Editor : public Application
+	class Editor final : public Application
 	{
 		bool m_IsRunning = false;
 		

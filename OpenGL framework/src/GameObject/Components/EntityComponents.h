@@ -111,6 +111,7 @@ struct MeshComponent
 	}
 	uint32_t MeshIdx = 0;
 	uint32_t ShaderIdx = 0;
+	uint32_t Layer = 0; //layer for culling (future memes)
 
 	bool Initialized = false;
 };

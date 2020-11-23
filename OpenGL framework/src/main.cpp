@@ -1,6 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "precomp.h"
-#include "Core\Application.h"
+#include "Core\Application.h" 
 //#include <src\Editor.h>
 
 //#include "Application.h"
@@ -218,7 +218,7 @@
 //			renderer.m_currentFrameTime = static_cast<float>(glfwGetTime());
 //			float deltaTime = static_cast<float>(renderer.m_currentFrameTime - renderer.m_prevFrameTime);
 //
-//			Renderer::ClearColor(1, 1, 1, 1);
+//			Renderer::SetClearColor(1, 1, 1, 1);
 //			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //
 //			Renderer::EnableDepth();
@@ -291,7 +291,7 @@
 //			renderer.EnableDepth();
 //			renderer.SetCullingMode(GL_FRONT);
 //			Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//			Renderer::ClearColor(1, 1, 1, 1);
+//			Renderer::SetClearColor(1, 1, 1, 1);
 //			artisans.Draw(shadowCam, agnosticShader);
 //			spyro.Draw(shadowCam, agnosticShader);
 //			//renderer.SetCullingMode(GL_BACK);
@@ -442,3 +442,6 @@ auto main(int argc, char** argv) -> int
 	app->Run();
 	return 0;
 }
+
+
+

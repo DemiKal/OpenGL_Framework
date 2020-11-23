@@ -64,8 +64,9 @@ public:
 	[[nodiscard]] static GLenum GetDepthFunc();
 	[[nodiscard]] static GLenum GetCullingMode();
 
-	static void ClearColor(float r, float g, float b, float a);
-	static void ClearColor(const glm::vec4& color);
+	//use this before calling Clear for a specific color
+	static void SetClearColor(float r, float g, float b, float a);
+	static void SetClearColor(const glm::vec4& color);
 	static void Clear(GLenum type);
 	static void Enable(GLenum type);
 	static void DrawScreenQuad();

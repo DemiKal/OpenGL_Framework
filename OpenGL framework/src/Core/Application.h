@@ -1,7 +1,4 @@
 #pragma once
-#include <utility>
-
-
 #include "precomp.h"
 #include "Core/Layer.h"
 #include "GameObject/EntityManager.h"

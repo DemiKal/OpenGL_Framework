@@ -1,7 +1,11 @@
 //#include <iostream>
 #include "Editor.h"
+
+#include "DebugRenderLayer.h"
 #include "ImGuiManager.h"
 #include "EditorLayer.h"
+#include "RenderLayer.h"
+#include "Rendering/Renderer.h"
 //#include "RenderLayer.h"
 
 namespace meme
@@ -28,6 +32,9 @@ namespace meme
 
 		m_Layers.emplace_back(std::make_unique<RenderLayer>(edl));
 		m_Layers.back()->OnAttach();
+
+		m_Layers.emplace_back(std::make_shared<DebugRenderLayer>(edl));
+		m_Layers.back()->OnAttach();
 	}
 
 	void Editor::Run()
@@ -38,19 +45,19 @@ namespace meme
 		GLFWwindow* window = Renderer::GetWindow();
 
 		Renderer::EnableDepth();
-		float prevFrameTime = glfwGetTime();
+		float prevFrameTime = static_cast<float>(glfwGetTime());
 		float currentFrameTime = prevFrameTime;
 
 		while (m_IsRunning && !glfwWindowShouldClose(window))
 		{
-			//Renderer::ClearColor(0, 1.0f, 0.0f, 1.0f);
+			//Renderer::SetClearColor(0, 1.0f, 0.0f, 1.0f);
 			//Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//Renderer::SetDepthFunc(GL_LEQUAL);
 			//Renderer::SetCullingMode(GL_BACK);
 			//Renderer::SetAlphaBlending(false);
 			prevFrameTime = currentFrameTime;
-			currentFrameTime = glfwGetTime();
-			float dt =  (currentFrameTime - prevFrameTime)  ;
+			currentFrameTime = static_cast<float>(glfwGetTime());
+			float dt = (currentFrameTime - prevFrameTime);
 
 			//TODO: add sceneLayer, renderingLayer, etc.
 			for (const auto& layer : m_Layers)
@@ -61,10 +68,8 @@ namespace meme
 			for (const auto& layer : m_Layers)
 				layer->OnImGuiRender(dt);
 
-			//ImGui::Text("MS: %f", dt);
-			//ImGui::Text("fps: %f", 1000.0f / dt);
-
 			ImGuiManager::End();
+
 			Renderer::SwapBuffers();
 		}
 

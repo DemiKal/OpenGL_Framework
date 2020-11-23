@@ -309,7 +309,7 @@ void Renderer::_Init()
 
 	glGetBooleanv(GL_CULL_FACE, &v);
 	m_Cull = v;
-	
+
 	GLint i;
 	glGetIntegerv(GL_CULL_FACE_MODE, &i);
 	m_CullingMode = i;
@@ -369,8 +369,8 @@ void Renderer::_SetAlphaBlending(const bool alphaValue)
 	if (alphaValue)
 	{
 		m_AlphaBlending = true;
-		GLCall(glEnable(GL_BLEND));
-		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+		GLCall(glEnable(GL_BLEND))
+			GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
 	}
 	else
 	{
@@ -462,12 +462,12 @@ GLenum Renderer::GetCullingMode()
 	return GetInstance().m_CullingMode;
 }
 
-void Renderer::ClearColor(const float r, const float g, const float b, const float a)
+void Renderer::SetClearColor(const float r, const float g, const float b, const float a)
 {
 	glClearColor(r, g, b, a);
 }
 
-void Renderer::ClearColor(const glm::vec4& color)
+void Renderer::SetClearColor(const glm::vec4& color)
 {
 	glClearColor(color.x, color.y, color.z, color.w);
 }

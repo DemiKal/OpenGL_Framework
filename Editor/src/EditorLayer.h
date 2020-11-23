@@ -11,20 +11,14 @@ namespace meme {
 
 class EditorLayer : public Layer
 {
-public:
 
+public:
 	meme::Editor* m_Editor;
 	entt::registry m_Registry;
 	entt::entity m_Selected{ entt::null };
 	Camera m_EditorCamera;
 
-	EditorLayer(meme::Editor* editor) :
-		Layer("EditorLayer"),
-		m_Editor(editor),
-		m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)
-	{
-
-	}
+	EditorLayer(meme::Editor* editor);
 
 	void OnAttach() override;
 	void OnDetach() override;
@@ -169,7 +163,7 @@ public:
 			ImGui::Text(meshStr.c_str());
 
 			Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
-			const uint32_t nrTextures = mesh.m_Textures.size();
+			const uint32_t nrTextures = static_cast<uint32_t>(mesh.m_Textures.size());
 
 			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 			if (ImGui::TreeNode("Textures"))
