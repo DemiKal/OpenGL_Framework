@@ -2,45 +2,50 @@
 #include "FrameBuffer.h"
 
 
-FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
-	:
-	m_rendererID(0),
-	m_RBO(0),
-	m_renderTarget(Texture2D(GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE)),
-	m_depthTexture(Texture2D(GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER))
+void FrameBuffer::Init(const uint32_t width, const uint32_t height)
 {
-	GLCall(glGenFramebuffers(1, &m_rendererID))
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID))
-	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_renderTarget.GetID(), 0))
+	GLCall(glGenFramebuffers(1, &m_RendererID))
+		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID))
+		GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_RenderTarget.GetID(), 0))
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-
-
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	GLCall(glGenRenderbuffers(1, &m_RBO))
-	GLCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RBO))
-	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height))
-	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RBO))
+		GLCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RBO))
+		GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height))
+		GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RBO))
 
-	//// finally check if framebuffer is complete
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Render buffer object (RBO) not complete!" << std::endl;
+		//// finally check if framebuffer is complete
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Render buffer object (RBO) not complete!" << std::endl;
 
 	////bind color and depth to framebuffer
-	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture.GetID(), 0))
+	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture.GetID(), 0))
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0))
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+	m_Width = width;
+	m_Height = height;
+}
+FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
+	:
+	m_RendererID(0),
+	m_RBO(0),
+	m_RenderTarget(Texture2D(GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE)),
+	m_DepthTexture(Texture2D(GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER))
+{
+	Init(width, height);
 
 	//unsigned int framebuffer;
 	//glGenFramebuffers(1, &framebuffer);
 	//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	//m_rendererID = framebuffer;
+	//m_RendererID = framebuffer;
 	//
 	//// create a color attachment texture
 	//unsigned int textureColorbuffer;
@@ -63,31 +68,63 @@ FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//
 	//m_RBO = rbo;
+}
 
+bool FrameBuffer::Resize(uint32_t width, uint32_t height)
+{
+	if ((width <= 0 || height <= 0) && m_RendererID) return false;
+	//if (m_RendererID)
+
+	glDeleteFramebuffers(1, &m_RendererID);
+
+	m_RenderTarget.Delete();
+	m_DepthTexture.Delete();
+
+	m_RenderTarget = Texture2D(GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE);
+	m_DepthTexture = Texture2D(GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+
+	Init(width, height);
+	return true;
 }
 
 FrameBuffer::~FrameBuffer()
 {
+
 }
 
 Texture2D& FrameBuffer::GetTexture()
 {
-	return m_renderTarget;
+	return m_RenderTarget;
 }
 
 Texture2D& FrameBuffer::GetDepthTexture()
 {
-	return m_depthTexture;
+	return m_DepthTexture;
 }
 
 unsigned FrameBuffer::GetID() const
 {
-	return m_rendererID;
+	return m_RendererID;
 }
 
 void FrameBuffer::Bind() const
 {
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID))
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID))
+}
+
+uint32_t FrameBuffer::GetWidth() const
+{
+	return m_Width;
+}
+
+uint32_t FrameBuffer::GetHeight() const
+{
+	return m_Height;
+}
+
+std::tuple<uint32_t, uint32_t>  FrameBuffer::GetSize() const
+{
+	return { m_Width, m_Height };
 }
 
 void FrameBuffer::Unbind()

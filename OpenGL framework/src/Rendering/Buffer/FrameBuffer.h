@@ -4,20 +4,27 @@
 class FrameBuffer
 {
 private:
-	unsigned int m_rendererID;
-	unsigned int m_RBO;
-	Texture2D m_renderTarget;
-	Texture2D m_depthTexture;
+	uint32_t m_RendererID;
+	uint32_t m_RBO;
+	uint32_t m_Width;
+	uint32_t m_Height;
+	Texture2D m_RenderTarget;
+	Texture2D m_DepthTexture;
 
-
-public:
+public: //TODO ADD COPY CONSTRUCTOR!
+	void Init(uint32_t width, uint32_t height);
 	FrameBuffer(unsigned int width = SCREENWIDTH, unsigned int height = SCREENHEIGHT);
+	bool Resize(uint32_t width, uint32_t height);
 	~FrameBuffer();
 	Texture2D& GetTexture();
 	Texture2D& GetDepthTexture();
 	unsigned int GetID() const;
-	void Bind() const;
 	static void Unbind();
+	void Bind() const;
+	uint32_t GetWidth() const;
+	uint32_t GetHeight() const;
+	[[nodiscard]] std::tuple<uint32_t, uint32_t> GetSize() const;
+
 };
 
 

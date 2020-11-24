@@ -36,5 +36,6 @@ public:
 	[[nodiscard]] unsigned int GetHeight() const;
 
 	void Bind(const int textureIndex = 0) const;
+	void Delete();
 };
 

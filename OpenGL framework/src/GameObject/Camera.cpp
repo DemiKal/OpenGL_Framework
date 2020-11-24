@@ -205,6 +205,12 @@ inline void Camera::RotateLocalY(const float angle)
 	m_Up = glm::vec3(glm::normalize(rotation * glm::vec4(m_Up, 0.0)));
 }
 
+void Camera::SetAspectRatio(const float aspectRatio)
+{
+	m_AspectRatio = aspectRatio;
+	RecalcProjection();
+}
+
 void Camera::SetViewVector(const glm::vec3& view)
 {
 	m_Forward = view;

@@ -120,5 +120,10 @@ void Texture2D::Bind(const int textureIndex) const
 	GLCall(glBindTexture(GL_TEXTURE_2D, m_rendererID));
 }
 
+void Texture2D::Delete()
+{
+	glDeleteTextures(1, &m_rendererID);
+}
+
 
 

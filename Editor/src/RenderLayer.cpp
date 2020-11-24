@@ -59,7 +59,18 @@ void RenderLayer::OnUpdate(float dt)
 
 	Camera& camera = m_EditorLayer->GetEditorCamera();
 	m_FrameBuffers[0].Bind();
+	auto [fbWidth, fbHeight] = m_FrameBuffers[0].GetSize();
+	if((static_cast<float>(fbWidth) != m_ImGuiRegionSize.x ||
+		static_cast<float>(fbHeight ) != m_ImGuiRegionSize.y)
+		&& m_ImGuiRegionSize.x >0 && m_ImGuiRegionSize.y > 0)
+	{
+		m_FrameBuffers[0].Resize(m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
+		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
+		camera.SetAspectRatio(aspect);
+	}
 
+	m_FrameBuffers[0].Bind();
+		//ImVec2 fbSize2 = { 0,1 };
 	Renderer::SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
 	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Renderer::EnableDepth();
@@ -88,10 +99,11 @@ void RenderLayer::OnImGuiRender(float dt)
 {
 	const auto texId = m_FrameBuffers[0].GetTexture().GetID();	//todo fix 0 indexing!
 
-	ImGui::Begin("Scene");
-	const ImVec2 avail_size = ImGui::GetContentRegionAvail();
+	ImGui::Begin("Scene",0,ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
+	m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
 	ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
-		avail_size, ImVec2(0, 1), ImVec2(1, 0));
+		m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
+
 	ImGui::End();
 }
 

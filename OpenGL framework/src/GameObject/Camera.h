@@ -24,7 +24,7 @@ public:
 	void Roll(float angle);
 	void RotateLocalX(float angle); 	//yaw 
 	void RotateLocalY(float angle);	//rotate around the y axis, its own up vector
-	void SetAspectRatio(const float asp) { m_AspectRatio = asp; } //possible extra stuff to do when setting
+	void SetAspectRatio(const float aspectRatio); //possible extra stuff to do when setting
 	void SetOrthographic(float halfWidth, float halfHeight, float near, float far);
 	void SetPerspective(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 	void SetUpVector(const glm::vec3& up);
