@@ -1,8 +1,9 @@
 #pragma once
-#include <string.h>
-
-#include <utility>
 #include "precomp.h"
+
+namespace meme {
+	class Editor;
+}
 
 class Layer
 {
@@ -20,6 +21,8 @@ public:
 	[[nodiscard]] const std::string& GetName() const;
 protected:
 	std::string m_Name;
+	meme::Editor* m_Editor = nullptr;
+	friend meme::Editor;
 };
 
 inline Layer::Layer(std::string name): m_Name(std::move(name))

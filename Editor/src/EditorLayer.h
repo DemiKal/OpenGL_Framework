@@ -78,13 +78,14 @@ public:
 	void DrawUIComponent(TransformComponent& t, const std::string& label)
 	{
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-		if (ImGui::TreeNode(label.c_str()))
+		if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 		{
 			DrawVec3Component("Translation", t.Position);
 			DrawVec3Component("Rotation", t.Rotation);
 			DrawVec3Component("Scale", t.Scale, 1.0f);
-			ImGui::TreePop();
+		//	ImGui::TreePop();
 		}
+		ImGui::Separator();
 	}
 
 	void DrawUIComponent(const glm::mat4& m, const  std::string& label)
@@ -115,9 +116,8 @@ public:
 	{
 		auto& transf = m_Registry.get<TransformComponent>(entity);
 		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
-		if (ImGui::TreeNode(label.c_str()))
+		if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 		{
-
 			//TODO FIX THIS!
 			auto& camPos = cc.camera.GetPosition();
 			//camPos = pos;
@@ -148,16 +148,20 @@ public:
 
 			DrawUIComponent(viewMat, "View Matrix");
 			DrawUIComponent(proj, "Projection Matrix");
-			ImGui::TreePop();
+		//	ImGui::TreePop();
 		}
 		cc.camera.RecalcProjection();
+		ImGui::Separator();
 	}
 
 	void DrawUIComponent(MeshComponent& mc, const std::string& label)
 	{
+		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ChildBg, { 0.4,0.3,0.4,0.8 });
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-		if (ImGui::TreeNode(label.c_str()))
+		if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 		{
+			//if (ImGui::BeginChild("Mesh", { 0,0 }, true))
+			//{
 			ImGui::RadioButton("Initialized", mc.Initialized);
 			const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
 			ImGui::Text(meshStr.c_str());
@@ -189,10 +193,16 @@ public:
 						ImGui::EndPopup();
 					}
 				}
+				//ImGui::Separator();
 				ImGui::TreePop();
 			}
 
-			ImGui::TreePop();
+			//ImGui::EndChild();
+		//	ImGui::TreePop();
+			//}
+
 		}
+		ImGui::Separator();
+		ImGui::PopStyleColor();
 	}
 };

@@ -6,9 +6,10 @@
 class DebugRenderLayer : public Layer
 {
 public:
-	DebugRenderLayer(std::shared_ptr<EditorLayer> edl);
+	DebugRenderLayer(std::shared_ptr<EditorLayer>& edl);
 	void OnAttach() override;
 	void OnDetach() override;
+	void DrawCameraFrustum();
 	void OnUpdate(float dt) override;
 	void OnImGuiRender(float dt) override;
 

@@ -27,7 +27,7 @@ void RenderLayer::RenderCamera()
 	//m_FramebufferCamera.Unbind();
 
 	auto view2 = m_EditorLayer->m_Registry.view<CameraComponent>();
-	auto meshes  = m_EditorLayer->m_Registry.view<MeshComponent, TransformComponent>();
+	auto meshes = m_EditorLayer->m_Registry.view<MeshComponent, TransformComponent>();
 
 	m_FramebufferCamera.Bind(); //TODO: each cam should have it's own framebuffer
 	for (auto entity : view2)
@@ -93,13 +93,5 @@ void RenderLayer::OnImGuiRender(float dt)
 	ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
 		avail_size, ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();
-	;
-	ImGui::Begin("framebuffer");
-	ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(m_FramebufferCamera.GetTexture().GetID())),
-		ImGui::GetContentRegionAvail(), ImVec2(0, 1), ImVec2(1, 0));
-	ImGui::End();
-
-
-
 }
 

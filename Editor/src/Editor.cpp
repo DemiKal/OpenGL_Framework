@@ -35,8 +35,14 @@ namespace meme
 
 		m_Layers.emplace_back(std::make_shared<DebugRenderLayer>(edl));
 		m_Layers.back()->OnAttach();
+
+		for (auto layer : m_Layers)
+		{
+			layer->m_Editor = this;
+		}
 	}
 
+	
 	void Editor::Run()
 	{
 		fmt::print("running application!\n");

@@ -40,7 +40,7 @@ void EditorLayer::OnUpdate(const float dt)
 {
 	OnInput(dt);
 }
-  
+
 void EditorLayer::DrawCameraInspector(float dt)
 {
 	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);

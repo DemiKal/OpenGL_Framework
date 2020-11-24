@@ -45,7 +45,7 @@ std::optional<uint32_t> MeshManager::LoadFromFile(const std::string& path, const
 std::tuple<uint32_t, uint32_t> MeshManager::GetLineBuffer()
 {
 	auto& i = GetInstance();
-	return {i.m_LineVAO, i.m_LineVBO};
+	return { i.m_LineVAO, i.m_LineVBO };
 }
 
 MeshManager::MeshManager()
@@ -118,6 +118,7 @@ void MeshManager::CreateCubeWireframePrimitive()
 	m_Meshes.emplace_back(cubeVertices, cubeIndices, vbl);
 	m_Meshes.back().SetElemDrawType(GL_LINES);
 }
+
 void MeshManager::CreateCubePrimitive()
 {
 	const std::vector<float> cubeVertices = {
