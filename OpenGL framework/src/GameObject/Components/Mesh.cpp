@@ -148,8 +148,35 @@ Mesh::Mesh(
 		aiFace face = mesh->mFaces[i];
 		// retrieve all m_Indices of the face and store them in the m_Indices vector
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
+		{
 			m_Indices.push_back(face.mIndices[j]);
+
+		}
 	}
+
+	if (hasTexCoords)
+		//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+		for (int f = 2; f < m_Indices.size(); f += 3)
+		{
+			float u1 = mesh->mTextureCoords[0][f].x;
+			float v1 = mesh->mTextureCoords[0][f].y;
+			glm::vec2 uv1(u1, v1);
+
+			float u2 = mesh->mTextureCoords[0][f - 1].x;
+			float v2 = mesh->mTextureCoords[0][f - 1].y;
+			glm::vec2 uv2(u2, v2);
+
+			float u3 = mesh->mTextureCoords[0][f - 2].x;
+			float v3 = mesh->mTextureCoords[0][f - 2].y;
+			glm::vec2 uv3(u3, v3);
+			//std::array< glm::vec2, 3>> face = {uv1, uv2, uv3};
+			std::array< glm::vec2, 3> face = { uv1,uv2,uv3 };
+			m_UVs.emplace_back(face);
+
+		}
+
+
+
 
 	//TODO: fix! animator.m_inverse_root = m_inverseRoot;
 
@@ -447,6 +474,11 @@ Mesh::Mesh(const std::vector<float>& p_vertices, const VertexBufferLayout& vbl)
 	CreateBuffers();
 }
 
+Mesh::~Mesh()
+{
+	fmt::print("Mesh {0} deconstructed!", m_Directory);
+}
+
 Mesh::Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const VertexBufferLayout& vbl)
 {
 	m_Vertices = vertices;
@@ -706,10 +738,10 @@ void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) co
 
 	auto& shader = ShaderManager::GetShader("wireframe");
 	shader.Bind();
-	shader.SetFloat("lineThickness", m_LineThickness);
-	shader.SetUniformMat4f("model", model);
-	shader.SetUniformMat4f("view", view);
-	shader.SetUniformMat4f("projection", projection);
+	shader.SetFloat("u_LineThickness", m_LineThickness);
+	shader.SetUniformMat4f("u_Model", model);
+	shader.SetUniformMat4f("u_View", view);
+	shader.SetUniformMat4f("u_Projection", projection);
 
 	glBindVertexArray(m_WireVAO);
 

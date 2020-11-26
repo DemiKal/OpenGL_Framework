@@ -83,7 +83,7 @@ public:
 			DrawVec3Component("Translation", t.Position);
 			DrawVec3Component("Rotation", t.Rotation);
 			DrawVec3Component("Scale", t.Scale, 1.0f);
-		//	ImGui::TreePop();
+			//	ImGui::TreePop();
 		}
 		ImGui::Separator();
 	}
@@ -148,7 +148,7 @@ public:
 
 			DrawUIComponent(viewMat, "View Matrix");
 			DrawUIComponent(proj, "Projection Matrix");
-		//	ImGui::TreePop();
+			//	ImGui::TreePop();
 		}
 		cc.camera.RecalcProjection();
 		ImGui::Separator();
@@ -182,26 +182,68 @@ public:
 					const ImVec2 availSize = ImGui::GetContentRegionAvail();
 					const float aspect = static_cast<float>(tex.GetHeight()) / static_cast<float>(tex.GetWidth());
 
-					ImVec2 thumbSize(availSize.x, availSize.x * aspect);
+					ImVec2 thumbSize(0.95f * availSize.x, 0.95f * availSize.x * aspect);
 
 					if (ImGui::ImageButton(reinterpret_cast<void*>(static_cast<intptr_t>(id)), thumbSize, ImVec2(0, 1), ImVec2(1, 0)))
+					{
 						ImGui::OpenPopup("texture_popup");
-
+					}
 					if (ImGui::BeginPopup("texture_popup"))
 					{
 						ImGui::Text(("File path: /" + tex.GetPath()).c_str());
 						ImGui::EndPopup();
 					}
+					const auto start = ImGui::GetCursorScreenPos();
+
+					ImDrawList* drawList = ImGui::GetWindowDrawList();
+					const ImVec2 p0 = ImGui::GetItemRectMin();
+					const ImVec2 p1 = ImGui::GetItemRectMax();
+					const glm::vec2 p0v(p0.x, p0.y);
+					const glm::vec2 p1v(p1.x, p1.y);
+
+					const glm::vec2 scale = { p1.x - p0.x, p1.y - p0.y };
+					//if (!mesh.m_Indices.empty())
+					if (!mesh.m_UVs.empty())
+						//for (size_t uvIdx = 3; uvIdx < mesh.m_UVs.size(); uvIdx += 3)
+							//for (size_t index : mesh.m_Indices)
+						for (auto& face : mesh.m_UVs)
+						{
+							auto uv1 = face[0];	 uv1.y = 1.0f - uv1.y;
+							auto uv2 = face[1];	 uv2.y = 1.0f - uv2.y;
+							auto uv3 = face[2];	 uv3.y = 1.0f - uv3.y;
+
+							auto uv1Scaled = p0v + uv1* scale;
+							auto uv2Scaled = p0v + uv2* scale;
+							auto uv3Scaled = p0v + uv3* scale;
+
+							ImVec2 v1(uv1Scaled.x, uv1Scaled.y);
+							ImVec2 v2(uv2Scaled.x, uv2Scaled.y);
+							ImVec2 v3(uv3Scaled.x, uv3Scaled.y);
+							//auto  = p0v + uv1Scaled;
+
+							drawList->AddLine(v1, v2, IM_COL32(255, 255, 255, 200), 2);
+							drawList->AddLine(v1, v3, IM_COL32(255, 255, 255, 200), 2);
+							drawList->AddLine(v2, v3, IM_COL32(255, 255, 255, 200), 2);
+
+							//const float u1Normalized = mesh.m_UVs[uvIdx - 3l];
+								//const float v1Normalized = 1.0f - mesh.m_UVs[uvIdx - 2l];
+								//const float u2Normalized = mesh.m_UVs[uvIdx - 1l];
+								//const float v2Normalized = 1.0f - mesh.m_UVs[uvIdx];
+								//
+								//const float u1 = p0.x + u1Normalized * scale.x;
+								//const float v1 = p0.y + v1Normalized * scale.y;
+								//const float u2 = p0.x + u2Normalized * scale.x;
+								//const float v2 = p0.y + v2Normalized * scale.y;
+
+							//drawList->AddLine({ u1,v1 }, { u2,v2 }, IM_COL32(255, 255, 255, 200), 2);
+							//drawList->AddLine(p0, p1, IM_COL32(255, 255, 255, 200), 2);
+						}
 				}
 				//ImGui::Separator();
 				ImGui::TreePop();
 			}
-
-			//ImGui::EndChild();
-		//	ImGui::TreePop();
-			//}
-
 		}
+
 		ImGui::Separator();
 		ImGui::PopStyleColor();
 	}

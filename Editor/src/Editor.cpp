@@ -51,6 +51,8 @@ namespace meme
 		GLFWwindow* window = Renderer::GetWindow();
 
 		Renderer::EnableDepth();
+
+		Renderer::SetVSync(false);
 		float prevFrameTime = static_cast<float>(glfwGetTime());
 		float currentFrameTime = prevFrameTime;
 

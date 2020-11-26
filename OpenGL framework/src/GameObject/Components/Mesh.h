@@ -13,13 +13,15 @@ protected:
 	//vertex bools
 	bool m_AnimationLoaded = false;
 	GLenum m_ElemDrawType = GL_TRIANGLES;
-	std::string m_Directory;
+	std::string m_Directory = "Not initialized";
 	unsigned int m_WireVAO{ 0 }, m_WireVBO{ 0 };
 	void CreateBuffers();
 public:
 	float m_LineThickness = 0.1f;
 
 	std::vector<float> m_Vertices; //TODO make it dynamic for int and others
+	std::vector<std::array< glm::vec2, 3>>  m_UVs; //TODO make it dynamic for int and others
+
 	std::vector<unsigned int> m_Indices;
 	std::vector<Texture2D> m_Textures;
 	Animator m_animator;
@@ -44,10 +46,7 @@ public:
 
 	Mesh(std::vector<float>& vertices, VertexBufferLayout vbl);
 
-	~Mesh()
-	{
-		fmt::print("deconstructed!");
-	}
+	~Mesh();
 
 	//Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const VertexBufferLayout& vbl);
 	Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const VertexBufferLayout& vbl);

@@ -4,11 +4,11 @@
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/Renderer.h"
 
-EditorLayer::EditorLayer(meme::Editor* editor):
+EditorLayer::EditorLayer(meme::Editor* editor) :
 	Layer("EditorLayer"),
 	m_Editor(editor),
 	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f,
-	               700.0f)
+		700.0f)
 {
 }
 
@@ -70,7 +70,7 @@ void EditorLayer::DrawCameraInspector(float dt)
 	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 	if (ImGui::TreeNode("Render statistics"))
 	{
-		ImGui::Text("ms per frame: %.3f", static_cast<double>(dt) * 1000.0  );
+		ImGui::Text("ms per frame: %.3f", static_cast<double>(dt) * 1000.0);
 		ImGui::Text("fps: %.3f", 1.0f / static_cast<double>(dt));
 		ImGui::TreePop();
 	}
@@ -250,7 +250,7 @@ Camera& EditorLayer::GetEditorCamera()
 	return m_EditorCamera;
 }
 
-void EditorLayer::OnImGuiRender(float dt)
+void EditorLayer::OnImGuiRender(const float dt)
 {
 	static bool yahoo = true;
 	//ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
@@ -261,4 +261,6 @@ void EditorLayer::OnImGuiRender(float dt)
 	DrawHierarchyPanel();
 	DrawInspectorPanel();
 	DrawCameraInspector(dt);
+
+	ImGui::End();
 }
