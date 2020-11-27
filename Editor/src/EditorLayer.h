@@ -188,9 +188,10 @@ public:
 						ImVec2 thumbSize(0.95f * availSize.x, 0.95f * availSize.x * aspect);
 						static bool overlayUVs = true;
 						ImGui::SameLine();
+						ImGui::Columns();
 						ImGui::Checkbox("Overlay UVs", &overlayUVs);
-
-						if (ImGui::ImageButton(reinterpret_cast<void*>(static_cast<intptr_t>(id)), thumbSize, ImVec2(0, 1), ImVec2(1, 0)))
+						auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(id));
+						if (ImGui::ImageButton(texPtr, thumbSize, ImVec2(0, 1), ImVec2(1, 0), 0))
 						{
 							ImGui::OpenPopup("texture_popup");
 						}
@@ -208,10 +209,12 @@ public:
 						const glm::vec2 p1v(p1.x, p1.y);
 						ImU32 col_a = ImGui::GetColorU32(IM_COL32(0, 0, 0, 255));
 						ImU32 col_b = ImGui::GetColorU32(IM_COL32(255, 255, 255, 255));
-						drawList->AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
+						//drawList->AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
 
 						const glm::vec2 scale = { p1.x - p0.x, p1.y - p0.y };
 						//if (!mesh.m_Indices.empty())
+						float min = 9999;
+						float max = -99999;
 						if (!mesh.m_UVs.empty() && overlayUVs)
 							//for (size_t uvIdx = 3; uvIdx < mesh.m_UVs.size(); uvIdx += 3)
 								//for (size_t index : mesh.m_Indices)
@@ -220,6 +223,9 @@ public:
 								auto uv1 = face[0];	 uv1.y = 1.0f - uv1.y;
 								auto uv2 = face[1];	 uv2.y = 1.0f - uv2.y;
 								auto uv3 = face[2];	 uv3.y = 1.0f - uv3.y;
+								min = std::min(min, std::min(uv1.x, uv1.y));
+								min = std::min(min, std::min(uv2.x, uv2.y));
+								min = std::min(min, std::min(uv3.x, uv3.y));
 
 								auto uv1Scaled = p0v + uv1 * scale;
 								auto uv2Scaled = p0v + uv2 * scale;
@@ -228,32 +234,17 @@ public:
 								ImVec2 v1(uv1Scaled.x, uv1Scaled.y);
 								ImVec2 v2(uv2Scaled.x, uv2Scaled.y);
 								ImVec2 v3(uv3Scaled.x, uv3Scaled.y);
-								//auto  = p0v + uv1Scaled;
 
-								drawList->AddLine(v1, v2, IM_COL32(255, 255, 255, 200), 2);
-								drawList->AddLine(v1, v3, IM_COL32(255, 255, 255, 200), 2);
-								drawList->AddLine(v2, v3, IM_COL32(255, 255, 255, 200), 2);
-
-								//const float u1Normalized = mesh.m_UVs[uvIdx - 3l];
-									//const float v1Normalized = 1.0f - mesh.m_UVs[uvIdx - 2l];
-									//const float u2Normalized = mesh.m_UVs[uvIdx - 1l];
-									//const float v2Normalized = 1.0f - mesh.m_UVs[uvIdx];
-									//
-									//const float u1 = p0.x + u1Normalized * scale.x;
-									//const float v1 = p0.y + v1Normalized * scale.y;
-									//const float u2 = p0.x + u2Normalized * scale.x;
-									//const float v2 = p0.y + v2Normalized * scale.y;
-
-								//drawList->AddLine({ u1,v1 }, { u2,v2 }, IM_COL32(255, 255, 255, 200), 2);
-								//drawList->AddLine(p0, p1, IM_COL32(255, 255, 255, 200), 2);
+								// draw line of triangle/face
+								drawList->AddLine(v1, v2, IM_COL32(255, 255, 255, 200), 1);
+								drawList->AddLine(v1, v3, IM_COL32(255, 255, 255, 200), 1);
+								drawList->AddLine(v2, v3, IM_COL32(255, 255, 255, 200), 1);
 							}
 
 						ImGui::TreePop();
 					}
 				}
-				//ImGui::Separator();
 				ImGui::TreePop();
-
 			}
 		}
 
