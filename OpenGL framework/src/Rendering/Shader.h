@@ -1,11 +1,8 @@
 #pragma once
 
-
-
-
-
 //TODO: set parsing/compilation state as bool or something
-class Shader {
+class Shader
+{
 
 	struct uniform_info_t
 	{
@@ -19,13 +16,13 @@ public:
 	};
 
 	
-	Shader() : m_shaderType(), m_RendererID(0){}
+	Shader() : m_RendererID(0), m_ShaderType(){}
 
 	Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
 	Shader(const std::string& filepath, const ShaderType shaderType);
 
 	std::string GetName() const;
-	unsigned int GetID() const;
+	[[nodiscard]] unsigned int GetID() const;
 	int GetUniformLocation(const std::string& name);
 
 	static unsigned int CompileShader(const unsigned int type, const std::string& source);
@@ -45,8 +42,8 @@ public:
 
 private:
 	unsigned int m_RendererID;
-	ShaderType m_shaderType;
-	std::string m_name;
+	ShaderType m_ShaderType;
+	std::string m_Name;
 	std::string m_FilePath;
 	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
 };

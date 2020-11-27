@@ -5,38 +5,35 @@
 
 Shader::Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc)
 	:
-	m_uniformsInfo(),
-	m_name(std::filesystem::path(path).stem().string()),
-	m_FilePath(path),
 	m_RendererID(0),
-	m_shaderType(ShaderType::NONE)
+	m_ShaderType(ShaderType::NONE),
+	m_Name(std::filesystem::path(path).stem().string()),
+	m_FilePath(path)
 {
 	m_RendererID = CreateShader(vertexSrc, fragSrc);	//, sps.FragmentSource);
 	SetupUniforms();
-
 }
 
 
 
 Shader::Shader(const std::string& filepath, const ShaderType shaderType)
 	:
-	m_uniformsInfo(),
-	m_FilePath(filepath),
-	m_name("not yet loaded"),
 	m_RendererID(0),
-	m_shaderType(shaderType)
+	m_ShaderType(shaderType),
+	m_Name("not yet loaded"),
+	m_FilePath(filepath)
 {
 
 	//m_RendererID = CreateShader(sourceCode, );//, sps.FragmentSource);
 	const  std::string nm = std::filesystem::path(filepath).stem().string();
-	m_name = nm;
+	m_Name = nm;
 
 	SetupUniforms();
 }
 
 std::string Shader::GetName() const
 {
-	return m_name;
+	return m_Name;
 }
 
 unsigned Shader::GetID() const

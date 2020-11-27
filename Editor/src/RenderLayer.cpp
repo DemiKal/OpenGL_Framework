@@ -1,14 +1,16 @@
 #include "RenderLayer.h"
+
+#include <utility>
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/ShaderManager.h"
 #include "ImGuiManager.h"
 #include "Rendering/Renderer.h"
 
-RenderLayer::RenderLayer(const std::shared_ptr<EditorLayer> edl)
+RenderLayer::RenderLayer(std::shared_ptr<EditorLayer> edl)
 	:
 	Layer("RenderLayer"),
-	m_EditorLayer(edl.get())
+	m_EditorLayer(std::move(edl))// /*std::make_shared<EditorLayer>(*edl ))
 {
 	m_FrameBuffers.emplace_back();
 }
@@ -24,15 +26,14 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::RenderCamera()
 {
-	//m_FramebufferCamera.Unbind();
-
 	auto view2 = m_EditorLayer->m_Registry.view<CameraComponent>();
 	auto meshes = m_EditorLayer->m_Registry.view<MeshComponent, TransformComponent>();
 
-	m_FramebufferCamera.Bind(); //TODO: each cam should have it's own framebuffer
+	m_FramebufferCamera.Bind(); //TODO: should each cam have its own framebuffer?
+
 	for (auto entity : view2)
 	{
-		Renderer::SetClearColor(0.0F, 0.0f, 1.0f, 1.0f);
+		Renderer::SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 		Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer::EnableDepth();
 
@@ -55,22 +56,26 @@ void RenderLayer::RenderCamera()
 
 void RenderLayer::OnUpdate(float dt)
 {
-	auto& reg = m_EditorLayer->m_Registry;
+	GLFWvidmode return_struct;
+	auto sas = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	//glfwGetDesktopMode(&return_struct);
+	//
+	//int height = return_struct.Height;
 
 	Camera& camera = m_EditorLayer->GetEditorCamera();
 	m_FrameBuffers[0].Bind();
 
 	auto [fbWidth, fbHeight] = m_FrameBuffers[0].GetSize();
-	if ((static_cast<float>(fbWidth) != m_ImGuiRegionSize.x ||
-		static_cast<float>(fbHeight) != m_ImGuiRegionSize.y)
+
+	if ((fbWidth != static_cast<uint32_t>(m_ImGuiRegionSize.x) ||
+		fbHeight != static_cast<uint32_t>(m_ImGuiRegionSize.y))
 		&& m_ImGuiRegionSize.x > 0 && m_ImGuiRegionSize.y > 0)
 	{
-		//m_FrameBuffers[0].Resize(m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
 		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
 		camera.SetAspectRatio(aspect);
 	}
 
-	m_FrameBuffers[0].Bind();
+	//m_FrameBuffers[0].Bind();
 	//ImVec2 fbSize2 = { 0,1 };
 	Renderer::SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
 	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

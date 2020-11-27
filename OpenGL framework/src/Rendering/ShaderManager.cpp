@@ -41,7 +41,6 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 			m_fragmentShaderSources[name] = std::tie(type, sourceCode);
 		}
 
-
 		//if (extension = "vert") type = ShaderType::VERTEX;
 		//ShaderSources.emplace_back(  );
 		//shaders.emplace_back(Shader(p, type));

@@ -28,8 +28,8 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<TransformComponent>(spyro);
 	m_Registry.emplace<TagComponent>(spyro, "Spyro");
 	m_Registry.emplace<MeshComponent>(spyro, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
+	m_Selected = spyro;
 }
-
 
 void EditorLayer::OnDetach()
 {
@@ -41,7 +41,7 @@ void EditorLayer::OnUpdate(const float dt)
 	OnInput(dt);
 }
 
-void EditorLayer::DrawCameraInspector(float dt)
+void EditorLayer::DrawCameraInspector(const float dt)
 {
 	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 	ImGui::Begin("Rendering debug");
@@ -221,11 +221,8 @@ void EditorLayer::DrawHierarchyPanel()
 	ImGui::End();
 }
 
-
 void EditorLayer::DrawInspectorPanel()
 {
-	auto view = m_Registry.view<TransformComponent>();
-
 	ImGui::Begin("Inspector");
 	//for (auto entity : view)
 	if (m_Selected != entt::null)
@@ -241,9 +238,9 @@ void EditorLayer::DrawInspectorPanel()
 			DrawUIComponent(cc, "Camera Component", m_Selected);
 		}
 	}
+
 	ImGui::End();
 }
-
 
 Camera& EditorLayer::GetEditorCamera()
 {
@@ -253,7 +250,6 @@ Camera& EditorLayer::GetEditorCamera()
 void EditorLayer::OnImGuiRender(const float dt)
 {
 	static bool yahoo = true;
-	//ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 	ImGui::ShowDemoWindow(&yahoo);
 
 	EnableDockSpace();
@@ -261,6 +257,4 @@ void EditorLayer::OnImGuiRender(const float dt)
 	DrawHierarchyPanel();
 	DrawInspectorPanel();
 	DrawCameraInspector(dt);
-
-	ImGui::End();
 }

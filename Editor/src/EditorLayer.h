@@ -112,6 +112,7 @@ public:
 			ImGui::TreePop();
 		}
 	}
+
 	void DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity)
 	{
 		auto& transf = m_Registry.get<TransformComponent>(entity);
@@ -156,12 +157,10 @@ public:
 
 	void DrawUIComponent(MeshComponent& mc, const std::string& label)
 	{
-		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ChildBg, { 0.4,0.3,0.4,0.8 });
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.4f, 0.3f, 0.4f, 0.8f });
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 		if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 		{
-			//if (ImGui::BeginChild("Mesh", { 0,0 }, true))
-			//{
 			ImGui::RadioButton("Initialized", mc.Initialized);
 			const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
 			ImGui::Text(meshStr.c_str());
@@ -170,77 +169,91 @@ public:
 			const uint32_t nrTextures = static_cast<uint32_t>(mesh.m_Textures.size());
 
 			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-			if (ImGui::TreeNode("Textures"))
+			if (ImGui::TreeNode("Textures", "Textures (%i)", nrTextures))
 			{
 				for (uint32_t i = 0; i < nrTextures; i++)
 				{
 					const Texture2D tex = mesh.m_Textures[i];
-					const uint32_t id = tex.GetID();
-
 					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-					ImGui::Text("Texture type: %s ", tex.GetType().c_str());
-					const ImVec2 availSize = ImGui::GetContentRegionAvail();
-					const float aspect = static_cast<float>(tex.GetHeight()) / static_cast<float>(tex.GetWidth());
+					//ImGui::Text("Texture type: %s ", tex.GetType().c_str());
 
-					ImVec2 thumbSize(0.95f * availSize.x, 0.95f * availSize.x * aspect);
-
-					if (ImGui::ImageButton(reinterpret_cast<void*>(static_cast<intptr_t>(id)), thumbSize, ImVec2(0, 1), ImVec2(1, 0)))
+					if (ImGui::TreeNode("Texture", "Type: %s", tex.GetType().c_str(), ImGuiTreeNodeFlags_None))
 					{
-						ImGui::OpenPopup("texture_popup");
-					}
-					if (ImGui::BeginPopup("texture_popup"))
-					{
-						ImGui::Text(("File path: /" + tex.GetPath()).c_str());
-						ImGui::EndPopup();
-					}
-					const auto start = ImGui::GetCursorScreenPos();
+						const uint32_t id = tex.GetID();
 
-					ImDrawList* drawList = ImGui::GetWindowDrawList();
-					const ImVec2 p0 = ImGui::GetItemRectMin();
-					const ImVec2 p1 = ImGui::GetItemRectMax();
-					const glm::vec2 p0v(p0.x, p0.y);
-					const glm::vec2 p1v(p1.x, p1.y);
+						ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+						const ImVec2 availSize = ImGui::GetContentRegionAvail();
+						const float aspect = static_cast<float>(tex.GetHeight()) / static_cast<float>(tex.GetWidth());
 
-					const glm::vec2 scale = { p1.x - p0.x, p1.y - p0.y };
-					//if (!mesh.m_Indices.empty())
-					if (!mesh.m_UVs.empty())
-						//for (size_t uvIdx = 3; uvIdx < mesh.m_UVs.size(); uvIdx += 3)
-							//for (size_t index : mesh.m_Indices)
-						for (auto& face : mesh.m_UVs)
+						ImVec2 thumbSize(0.95f * availSize.x, 0.95f * availSize.x * aspect);
+						static bool overlayUVs = true;
+						ImGui::SameLine();
+						ImGui::Checkbox("Overlay UVs", &overlayUVs);
+
+						if (ImGui::ImageButton(reinterpret_cast<void*>(static_cast<intptr_t>(id)), thumbSize, ImVec2(0, 1), ImVec2(1, 0)))
 						{
-							auto uv1 = face[0];	 uv1.y = 1.0f - uv1.y;
-							auto uv2 = face[1];	 uv2.y = 1.0f - uv2.y;
-							auto uv3 = face[2];	 uv3.y = 1.0f - uv3.y;
-
-							auto uv1Scaled = p0v + uv1* scale;
-							auto uv2Scaled = p0v + uv2* scale;
-							auto uv3Scaled = p0v + uv3* scale;
-
-							ImVec2 v1(uv1Scaled.x, uv1Scaled.y);
-							ImVec2 v2(uv2Scaled.x, uv2Scaled.y);
-							ImVec2 v3(uv3Scaled.x, uv3Scaled.y);
-							//auto  = p0v + uv1Scaled;
-
-							drawList->AddLine(v1, v2, IM_COL32(255, 255, 255, 200), 2);
-							drawList->AddLine(v1, v3, IM_COL32(255, 255, 255, 200), 2);
-							drawList->AddLine(v2, v3, IM_COL32(255, 255, 255, 200), 2);
-
-							//const float u1Normalized = mesh.m_UVs[uvIdx - 3l];
-								//const float v1Normalized = 1.0f - mesh.m_UVs[uvIdx - 2l];
-								//const float u2Normalized = mesh.m_UVs[uvIdx - 1l];
-								//const float v2Normalized = 1.0f - mesh.m_UVs[uvIdx];
-								//
-								//const float u1 = p0.x + u1Normalized * scale.x;
-								//const float v1 = p0.y + v1Normalized * scale.y;
-								//const float u2 = p0.x + u2Normalized * scale.x;
-								//const float v2 = p0.y + v2Normalized * scale.y;
-
-							//drawList->AddLine({ u1,v1 }, { u2,v2 }, IM_COL32(255, 255, 255, 200), 2);
-							//drawList->AddLine(p0, p1, IM_COL32(255, 255, 255, 200), 2);
+							ImGui::OpenPopup("texture_popup");
 						}
+						if (ImGui::BeginPopup("texture_popup"))
+						{
+							ImGui::Text(("File path: /" + tex.GetPath()).c_str());
+							ImGui::EndPopup();
+						}
+						const auto start = ImGui::GetCursorScreenPos();
+						auto sp = ImGui::GetCursorStartPos();
+						ImDrawList* drawList = ImGui::GetWindowDrawList();
+						const ImVec2 p0 = ImGui::GetItemRectMin();
+						const ImVec2 p1 = ImGui::GetItemRectMax();
+						const glm::vec2 p0v(p0.x, p0.y);
+						const glm::vec2 p1v(p1.x, p1.y);
+						ImU32 col_a = ImGui::GetColorU32(IM_COL32(0, 0, 0, 255));
+						ImU32 col_b = ImGui::GetColorU32(IM_COL32(255, 255, 255, 255));
+						drawList->AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
+
+						const glm::vec2 scale = { p1.x - p0.x, p1.y - p0.y };
+						//if (!mesh.m_Indices.empty())
+						if (!mesh.m_UVs.empty() && overlayUVs)
+							//for (size_t uvIdx = 3; uvIdx < mesh.m_UVs.size(); uvIdx += 3)
+								//for (size_t index : mesh.m_Indices)
+							for (auto& face : mesh.m_UVs)
+							{
+								auto uv1 = face[0];	 uv1.y = 1.0f - uv1.y;
+								auto uv2 = face[1];	 uv2.y = 1.0f - uv2.y;
+								auto uv3 = face[2];	 uv3.y = 1.0f - uv3.y;
+
+								auto uv1Scaled = p0v + uv1 * scale;
+								auto uv2Scaled = p0v + uv2 * scale;
+								auto uv3Scaled = p0v + uv3 * scale;
+
+								ImVec2 v1(uv1Scaled.x, uv1Scaled.y);
+								ImVec2 v2(uv2Scaled.x, uv2Scaled.y);
+								ImVec2 v3(uv3Scaled.x, uv3Scaled.y);
+								//auto  = p0v + uv1Scaled;
+
+								drawList->AddLine(v1, v2, IM_COL32(255, 255, 255, 200), 2);
+								drawList->AddLine(v1, v3, IM_COL32(255, 255, 255, 200), 2);
+								drawList->AddLine(v2, v3, IM_COL32(255, 255, 255, 200), 2);
+
+								//const float u1Normalized = mesh.m_UVs[uvIdx - 3l];
+									//const float v1Normalized = 1.0f - mesh.m_UVs[uvIdx - 2l];
+									//const float u2Normalized = mesh.m_UVs[uvIdx - 1l];
+									//const float v2Normalized = 1.0f - mesh.m_UVs[uvIdx];
+									//
+									//const float u1 = p0.x + u1Normalized * scale.x;
+									//const float v1 = p0.y + v1Normalized * scale.y;
+									//const float u2 = p0.x + u2Normalized * scale.x;
+									//const float v2 = p0.y + v2Normalized * scale.y;
+
+								//drawList->AddLine({ u1,v1 }, { u2,v2 }, IM_COL32(255, 255, 255, 200), 2);
+								//drawList->AddLine(p0, p1, IM_COL32(255, 255, 255, 200), 2);
+							}
+
+						ImGui::TreePop();
+					}
 				}
 				//ImGui::Separator();
 				ImGui::TreePop();
+
 			}
 		}
 
