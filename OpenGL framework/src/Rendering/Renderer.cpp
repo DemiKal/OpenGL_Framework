@@ -386,6 +386,10 @@ void Renderer::_SetVSync(const bool cond)
 	GLCall(glfwSwapInterval(m_VSync))
 }
 
+bool Renderer::GetVsync()
+{
+	return GetInstance().m_VSync;
+}
 void Renderer::SetVSync(const bool cond)
 {
 	GetInstance()._SetVSync(cond);

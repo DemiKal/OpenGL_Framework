@@ -26,8 +26,7 @@ private:
 	bool m_AlphaBlending;
 	bool m_Cull;
 	bool m_DepthTest;
-	bool m_VSync;
-	
+
 	GLFWwindow* m_Window;
 
 	static ScreenQuad screenQuad; //TODO delete
@@ -37,6 +36,8 @@ private:
 	void _SetAlphaBlending(bool alphaValue);
 	void _SetVSync(bool cond);
 public:
+	static bool GetVsync();
+	bool m_VSync;
 	Renderer();
 	static void ShutDown();
 	static void DrawFrustum(const Camera& renderCam, Camera& debugCam, const glm::vec4& color);

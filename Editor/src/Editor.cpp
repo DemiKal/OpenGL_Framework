@@ -36,7 +36,7 @@ namespace meme
 		m_Layers.emplace_back(std::make_shared<DebugRenderLayer>(edl));
 		m_Layers.back()->OnAttach();
 
-		for (auto layer : m_Layers)
+		for (const auto layer : m_Layers)
 		{
 			layer->m_Editor = this;
 		}
@@ -52,7 +52,7 @@ namespace meme
 
 		Renderer::EnableDepth();
 
-		Renderer::SetVSync(false);
+		Renderer::SetVSync(true);
 		float prevFrameTime = static_cast<float>(glfwGetTime());
 		float currentFrameTime = prevFrameTime;
 
