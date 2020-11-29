@@ -28,8 +28,8 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<TransformComponent>(spyro);
 	m_Registry.emplace<TagComponent>(spyro, "Spyro");
 	//m_Registry.emplace<MeshComponent>(spyro, "res/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	m_Registry.emplace<MeshComponent>(spyro, "res/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	//m_Registry.emplace<MeshComponent>(spyro, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
+	//m_Registry.emplace<MeshComponent>(spyro, "res/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
+	m_Registry.emplace<MeshComponent>(spyro, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 	m_Selected = spyro;
 }
 

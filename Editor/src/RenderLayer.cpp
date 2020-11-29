@@ -94,12 +94,9 @@ void RenderLayer::OnUpdate(float dt)
 		mesh.Draw(camera, mat, shader);
 	}
 
-
-
 	m_FrameBuffers[0].Unbind();
 
 	RenderCamera();
-
 }
 
 void RenderLayer::OnImGuiRender(float dt)
