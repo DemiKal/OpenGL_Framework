@@ -23,7 +23,10 @@ __pragma(warning(disable : 26495))
 #include <map>
 //#include <tbb/tbb.h>
 #include <ctime>
-#include <GL/glew.h>
+
+//#include <gl/glew.h>
+#include <glad/glad.h>
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>

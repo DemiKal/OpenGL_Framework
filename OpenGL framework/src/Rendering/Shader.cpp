@@ -80,7 +80,6 @@ void Shader::SetupUniforms() {
 	GLint uniform_count = 0;
 	glGetProgramiv(m_RendererID, GL_ACTIVE_UNIFORMS, &uniform_count);
 
-
 	if (uniform_count != 0)
 	{
 		GLint 	max_name_len = 0;
