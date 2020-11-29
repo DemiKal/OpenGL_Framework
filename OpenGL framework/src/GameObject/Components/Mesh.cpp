@@ -9,29 +9,65 @@
 #include "GameObject/Components/AABB.h"
 
 void Mesh::LoadMaterialTextures(
-	const aiMaterial* mat,
+	const aiMaterial* material,
 	const aiTextureType type,
-	const std::string& typeName)
+	const std::string& typeName,
+	const aiScene* scene)
 {
-	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+	//aiMaterial* material = scene->mMaterials[0];
+	bool isEmbedded = false;
+	const unsigned int texCount = material->GetTextureCount(type);
+
+	for (unsigned int i = 0; i < texCount; i++)
 	{
-		aiString fileName;
-		auto r = mat->GetTexture(type, i, &fileName);
-		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-		bool skip = false;
-		for (auto& j : m_Textures)
+		aiString texture_file;
+		aiReturn ret = material->Get(AI_MATKEY_TEXTURE(type, i), texture_file);
+		if (ret != aiReturn_SUCCESS) continue;
+
+		if (const aiTexture* texture = scene->GetEmbeddedTexture(texture_file.C_Str()))
 		{
-			if (std::strcmp(j.GetPath().data(), fileName.C_Str()) == 0)
+			//returned pointer is not null, read texture from memory
+			isEmbedded = true;
+			if (texture->mHeight == 0)
 			{
-				//textures.push_back(j);
-				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-				break;
+				m_Textures.emplace_back(texture, typeName);
+			}
+			else
+			{
+				fmt::print("Texture is embedded but height is not 0!");
+				//image_data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth * texture->mHeight, &width, &height, &components_per_pixel, 0);
+				//m_Textures.emplace_back(fullpath, typeName);
 			}
 		}
-		if (!skip)
-		{   // if texture hasn't been loaded already, load it
-			const std::string fullpath = m_Directory + '/' + fileName.C_Str();
-			m_Textures.emplace_back(fullpath, typeName);
+	}
+
+
+	//regular file, check if it exists and read it
+
+	if (!isEmbedded)
+	{
+
+		for (unsigned int i = 0; i < material->GetTextureCount(type); i++)
+		{
+			aiString fileName;
+			auto r = material->GetTexture(type, i, &fileName);
+			// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+			bool skip = false;
+			for (auto& j : m_Textures)
+			{
+				if (std::strcmp(j.GetPath().data(), fileName.C_Str()) == 0)
+				{
+					//textures.push_back(j);
+					skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+					break;
+				}
+			}
+			if (!skip)
+			{   // if texture hasn't been loaded already, load it
+				const std::string fullpath = m_Directory + '/' + fileName.C_Str();
+				m_Textures.emplace_back(fullpath, typeName);
+			}
+
 		}
 	}
 }
@@ -43,6 +79,23 @@ Mesh::Mesh(
 {
 	m_Directory = directory;
 	const unsigned int BONESPERVERTEX = 3;
+
+	//if (scene->HasTextures())
+	//{
+	//	
+	//	for (int i = 0; i < scene->mNumTextures; i++)
+	//	{
+	//		scene->HasMaterials()
+	//		//scene->mMaterials[0]->GetTexture()
+	//		const aiTexture* texture = scene->GetEmbeddedTexture("*" + i);
+	//		texture->pcData;
+	//		
+	//		if (texture->mHeight == 0)
+	//		{
+	//			//auto image_data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth, &width, &height, &components_per_pixel, 0);
+	//		}
+	//	}
+	//}
 
 	//VertexBufferLayout vbLayout;
 	unsigned int stride = 0;
@@ -334,13 +387,59 @@ Mesh::Mesh(
 	// diffuse: texture_diffuseN
 	// specular: texture_specularN
 	// normal: texture_normalN
+
+	auto a = material->GetTextureCount(aiTextureType_DIFFUSE);
+	auto b = material->GetTextureCount(aiTextureType_SPECULAR);
+	auto e = material->GetTextureCount(aiTextureType_AMBIENT);
+	auto k = material->GetTextureCount(aiTextureType_EMISSIVE);
+	auto c = material->GetTextureCount(aiTextureType_HEIGHT);
+	auto i = material->GetTextureCount(aiTextureType_NORMALS);
+	auto o = material->GetTextureCount(aiTextureType_SHININESS);
+	auto p = material->GetTextureCount(aiTextureType_OPACITY);
+	auto paa = material->GetTextureCount(aiTextureType_DISPLACEMENT);
+	auto zzp = material->GetTextureCount(aiTextureType_LIGHTMAP);
+	auto f = material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION);
+	auto m = material->GetTextureCount(aiTextureType_REFLECTION);
+
+	auto rg = material->GetTextureCount(aiTextureType_BASE_COLOR);
+	auto s = material->GetTextureCount(aiTextureType_NORMAL_CAMERA);
+	auto t = material->GetTextureCount(aiTextureType_EMISSION_COLOR);
+	auto u = material->GetTextureCount(aiTextureType_METALNESS);
+	auto v = material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS);
+	//auto g = material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS);
+	//auto h = material->GetTextureCount(aiTextureType_METALNESS);
+	//auto j = material->GetTextureCount(aiTextureType_EMISSION_COLOR);
+
+	auto aal = material->GetTextureCount(aiTextureType_UNKNOWN);
+	auto pss = material->GetTextureCount(aiTextureType_NONE);
+
+
+
+
+
+
 	std::vector<Texture2D> textures;
 	//auto& shader = GetShader();
 	// 1. diffuse maps
-	LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-	LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-	LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-	LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+	//scene->mTextures[0]->pcData;
+
+	LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
+	LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
+	LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height", scene);
+	LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ambient", scene);
+	LoadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene);
+	LoadMaterialTextures(material, aiTextureType_NORMALS, "texture_normals", scene);
+	LoadMaterialTextures(material, aiTextureType_LIGHTMAP, "texture_lightmap", scene);
+	LoadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, "texture_ambient_occlusion", scene);
+	LoadMaterialTextures(material, aiTextureType_REFLECTION, "texture_reflection", scene);
+
+	LoadMaterialTextures(material, aiTextureType_BASE_COLOR, "texture_base_color", scene);
+	LoadMaterialTextures(material, aiTextureType_NORMAL_CAMERA, "texture_normal_camera", scene);
+	LoadMaterialTextures(material, aiTextureType_EMISSION_COLOR, "texture_emission_color", scene);
+	LoadMaterialTextures(material, aiTextureType_METALNESS, "texture_metalness", scene);
+	LoadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_diffuse_roughness", scene);
+	LoadMaterialTextures(material, aiTextureType_UNKNOWN, "texture_unknown", scene);
+	LoadMaterialTextures(material, aiTextureType_NONE, "texture_none", scene);
 
 
 	aiAABB  ai_aabb = mesh->mAABB;

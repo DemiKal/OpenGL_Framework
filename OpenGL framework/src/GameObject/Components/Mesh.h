@@ -13,7 +13,8 @@ protected:
 	//vertex bools
 	bool m_AnimationLoaded = false;
 	GLenum m_ElemDrawType = GL_TRIANGLES;
-	std::string m_Directory = "Not initialized";
+	std::string m_Directory = "Directory Not initialized";
+	std::string m_Filename = "Name not initialized";
 	unsigned int m_WireVAO{ 0 }, m_WireVBO{ 0 };
 	void CreateBuffers();
 public:
@@ -73,7 +74,7 @@ public:
 	void MakeWireFrame();
 	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const;
 	void AddTexture(const Texture2D& tex);
-	void LoadMaterialTextures(const aiMaterial* mat, const aiTextureType type, const std::string& typeName);
+	void LoadMaterialTextures(const aiMaterial* material, aiTextureType type, const std::string& typeName,const aiScene* scene);
 	void Draw(const Camera& camera, const glm::mat4& transform, Shader& shader);
 	void Draw(Shader& shader);
 

@@ -2,11 +2,12 @@
 #include "Editor.h"
 
 #include "DebugRenderLayer.h"
-#include "ImGuiManager.h"
 #include "EditorLayer.h"
+#include "ImGuiManager.h"
 #include "RenderLayer.h"
 #include "Rendering/Renderer.h"
 //#include "RenderLayer.h"
+
 
 namespace meme
 {
@@ -66,16 +67,16 @@ namespace meme
 			prevFrameTime = currentFrameTime;
 			currentFrameTime = static_cast<float>(glfwGetTime());
 			float dt = (currentFrameTime - prevFrameTime);
-
+			//fmt::print("fps: {}\n", 1.0f / dt);
 			//TODO: add sceneLayer, renderingLayer, etc.
 			for (const auto& layer : m_Layers)
 				layer->OnUpdate(dt);	//todo: calc frametime
 
 			ImGuiManager::Prepare();
-
+			
 			for (const auto& layer : m_Layers)
 				layer->OnImGuiRender(dt);
-
+			
 			ImGuiManager::End();
 
 			Renderer::SwapBuffers();

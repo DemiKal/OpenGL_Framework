@@ -6,6 +6,7 @@ void MeshManager::ProcessNode(
 	const aiScene* scene,
 	const std::string& directory)
 {
+	
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];

@@ -1,6 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "precomp.h"
-#include "Core\Application.h" 
+#include "Core/Application.h"
+ 
 //#include <src\Editor.h>
 
 //#include "Application.h"

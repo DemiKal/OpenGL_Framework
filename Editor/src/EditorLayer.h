@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/layer.h"
+#include "Core/Layer.h"
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "imgui/imgui.h"
@@ -173,12 +173,14 @@ public:
 			{
 				for (uint32_t i = 0; i < nrTextures; i++)
 				{
+					ImGui::PushID(i);
 					const Texture2D tex = mesh.m_Textures[i];
 					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 					//ImGui::Text("Texture type: %s ", tex.GetType().c_str());
 
 					if (ImGui::TreeNode("Texture", "Type: %s", tex.GetType().c_str(), ImGuiTreeNodeFlags_None))
 					{
+						ImGui::Text("Width: %i. Height: %i. Render ID: %i", tex.GetWidth(), tex.GetHeight(), tex.GetID());
 						const uint32_t id = tex.GetID();
 
 						ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -186,7 +188,7 @@ public:
 						const float aspect = static_cast<float>(tex.GetHeight()) / static_cast<float>(tex.GetWidth());
 
 						ImVec2 thumbSize(0.95f * availSize.x, 0.95f * availSize.x * aspect);
-						static bool overlayUVs = true;
+						static bool overlayUVs = false;
 						ImGui::SameLine();
 						ImGui::Columns();
 						ImGui::Checkbox("Overlay UVs", &overlayUVs);
@@ -215,14 +217,14 @@ public:
 						//if (!mesh.m_Indices.empty())
 						float min = 9999;
 						float max = -99999;
-						if (!mesh.m_UVs.empty() && overlayUVs)
+						if (!mesh.m_UVs.empty() && overlayUVs && i == 0)
 							//for (size_t uvIdx = 3; uvIdx < mesh.m_UVs.size(); uvIdx += 3)
 								//for (size_t index : mesh.m_Indices)
 							for (auto& face : mesh.m_UVs)
 							{
-								auto uv1 = face[0];	 uv1.y = 1.0f - uv1.y;
-								auto uv2 = face[1];	 uv2.y = 1.0f - uv2.y;
-								auto uv3 = face[2];	 uv3.y = 1.0f - uv3.y;
+								auto uv1 = glm::mod(face[0], 1.0f);	 uv1.y = 1.0f - uv1.y;
+								auto uv2 = glm::mod(face[1], 1.0f);	 uv2.y = 1.0f - uv2.y;
+								auto uv3 = glm::mod(face[2], 1.0f);	 uv3.y = 1.0f - uv3.y;
 								min = std::min(min, std::min(uv1.x, uv1.y));
 								min = std::min(min, std::min(uv2.x, uv2.y));
 								min = std::min(min, std::min(uv3.x, uv3.y));
@@ -243,6 +245,8 @@ public:
 
 						ImGui::TreePop();
 					}
+
+					ImGui::PopID();
 				}
 				ImGui::TreePop();
 			}
