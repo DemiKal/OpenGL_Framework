@@ -209,18 +209,22 @@ Mesh::Mesh(
 
 	if (hasTexCoords)
 		//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-		for (int f = 2; f < m_Indices.size(); f += 3)
+		for (int i = 0; i < m_Indices.size() - 3; i += 3)
 		{
-			float u1 = mesh->mTextureCoords[0][f].x;
-			float v1 = mesh->mTextureCoords[0][f].y;
+			int idx1 = m_Indices[i];
+			int idx2 = m_Indices[i+1];
+			int idx3 = m_Indices[i+2];
+
+			float u1 = mesh->mTextureCoords[0][idx1].x;
+			float v1 = mesh->mTextureCoords[0][idx1].y;
 			glm::vec2 uv1(u1, v1);
 
-			float u2 = mesh->mTextureCoords[0][f - 1].x;
-			float v2 = mesh->mTextureCoords[0][f - 1].y;
+			float u2 = mesh->mTextureCoords[0][idx2  ].x;
+			float v2 = mesh->mTextureCoords[0][idx2  ].y;
 			glm::vec2 uv2(u2, v2);
 
-			float u3 = mesh->mTextureCoords[0][f - 2].x;
-			float v3 = mesh->mTextureCoords[0][f - 2].y;
+			float u3 = mesh->mTextureCoords[0][idx3  ].x;
+			float v3 = mesh->mTextureCoords[0][idx3  ].y;
 			glm::vec2 uv3(u3, v3);
 			//std::array< glm::vec2, 3>> face = {uv1, uv2, uv3};
 			std::array< glm::vec2, 3> face = { uv1,uv2,uv3 };

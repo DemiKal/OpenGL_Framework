@@ -215,39 +215,34 @@ public:
 
 						const glm::vec2 scale = { p1.x - p0.x, p1.y - p0.y };
 						//if (!mesh.m_Indices.empty())
-						float min = 9999;
-						float max = -99999;
+	
+						//draw UVs
 						if (!mesh.m_UVs.empty() && overlayUVs && i == 0)
-							//for (size_t uvIdx = 3; uvIdx < mesh.m_UVs.size(); uvIdx += 3)
-								//for (size_t index : mesh.m_Indices)
-							for (auto& face : mesh.m_UVs)
+						{
+							for (auto face : mesh.m_UVs)
 							{
 								auto uv1 = glm::mod(face[0], 1.0f);	 uv1.y = 1.0f - uv1.y;
 								auto uv2 = glm::mod(face[1], 1.0f);	 uv2.y = 1.0f - uv2.y;
 								auto uv3 = glm::mod(face[2], 1.0f);	 uv3.y = 1.0f - uv3.y;
-								min = std::min(min, std::min(uv1.x, uv1.y));
-								min = std::min(min, std::min(uv2.x, uv2.y));
-								min = std::min(min, std::min(uv3.x, uv3.y));
 
-								auto uv1Scaled = p0v + uv1 * scale;
-								auto uv2Scaled = p0v + uv2 * scale;
-								auto uv3Scaled = p0v + uv3 * scale;
+								const auto uv1Scaled = p0v + uv1 * scale;
+								const auto uv2Scaled = p0v + uv2 * scale;
+								const auto uv3Scaled = p0v + uv3 * scale;
 
-								ImVec2 v1(uv1Scaled.x, uv1Scaled.y);
-								ImVec2 v2(uv2Scaled.x, uv2Scaled.y);
-								ImVec2 v3(uv3Scaled.x, uv3Scaled.y);
+								const ImVec2 v1(uv1Scaled.x, uv1Scaled.y);
+								const ImVec2 v2(uv2Scaled.x, uv2Scaled.y);
+								const ImVec2 v3(uv3Scaled.x, uv3Scaled.y);
 
-								// draw line of triangle/face
-								drawList->AddLine(v1, v2, IM_COL32(255, 255, 255, 200), 1);
-								drawList->AddLine(v1, v3, IM_COL32(255, 255, 255, 200), 1);
-								drawList->AddLine(v2, v3, IM_COL32(255, 255, 255, 200), 1);
+								drawList->AddTriangle(v1, v2, v3, IM_COL32(255, 255, 255, 200), 1);
 							}
+						}
 
 						ImGui::TreePop();
 					}
 
 					ImGui::PopID();
 				}
+
 				ImGui::TreePop();
 			}
 		}

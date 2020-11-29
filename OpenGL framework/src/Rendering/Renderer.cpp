@@ -295,11 +295,13 @@ void Renderer::_Init()
 	//InputManager::SetWindow(m_Window);
 	glfwMakeContextCurrent(m_Window);
 
-	//if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
+#ifdef USEGLEW
+	if (glewInit() != GLEW_OK) fmt::print("ERROR!\n");
+#else
 	const int gladStatus = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	if (!gladStatus)
 		fmt::print("Glad not loaded!");
-	
+#endif	
 	HardwareQuery::Query();
 	//m_DepthTest = false;
 	//SetAlphaBlending(m_AlphaBlending);

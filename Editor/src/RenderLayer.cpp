@@ -136,7 +136,7 @@ void RenderLayer::OnImGuiRender(float dt)
 			if(selectedElems[n])
 			{
 				//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ButtonTextAlign,)
-				ImGui::SameLine(comboWidth,10);
+				ImGui::SameLine(comboWidth, 10);
 				static bool t = true;
 				ImGui::Checkbox("##truebox", &t);
 			}

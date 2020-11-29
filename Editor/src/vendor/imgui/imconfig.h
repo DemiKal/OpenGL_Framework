@@ -74,7 +74,12 @@
         ImVec4(const glm::vec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
         operator glm::vec4() const { return glm::vec4(x,y,z,w); }
 
+#ifdef USEGLEW
+#define IMGUI_IMPL_OPENGL_LOADER_GLEW
+#else
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
+#endif
+    
 //---- Use 32-bit vertex indices (default is 16-bit) is one way to allow large meshes with more than 64K vertices.
 // Your renderer backend will need to support it (most example renderer backends support both 16/32-bit indices).
 // Another way to allow large meshes while keeping 16-bit indices is to handle ImDrawCmd::VtxOffset in your renderer.

@@ -1,4 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
+#define USEGLEW
+
 #include "precomp.h"
 #include "Core/Application.h"
  
