@@ -9,6 +9,13 @@ class Shader
 		GLint location;
 		GLsizei count;
 	};
+	struct AttribInfo
+	{
+		int  location;
+		GLsizei count;
+		GLenum type;
+	};
+
 public:
 	enum class ShaderType
 	{
@@ -23,6 +30,7 @@ public:
 
 	std::string GetName() const;
 	[[nodiscard]] unsigned int GetID() const;
+	void GetAttributes();
 	int GetUniformLocation(const std::string& name);
 
 	static unsigned int CompileShader(const unsigned int type, const std::string& source);
@@ -46,5 +54,6 @@ private:
 	std::string m_Name;
 	std::string m_FilePath;
 	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
+	std::unordered_map<std::string, AttribInfo> m_AttribInfo;
 };
 

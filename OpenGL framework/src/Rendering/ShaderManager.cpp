@@ -20,7 +20,7 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 
 		//get extension
 		std::string filePath = entry.path().string();
-		size_t dot = p.find_last_of(".");
+		size_t dot = p.find_last_of('.');
 		std::string extension;
 
 		if (dot != std::string::npos)
