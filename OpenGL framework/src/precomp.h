@@ -1,6 +1,7 @@
 #pragma once
 #define GLM_ENABLE_EXPERIMENTAL 
 
+
 //#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 //#define GLM_FORCE_LEFT_HANDED
 __pragma(warning(push))	//disable warnings on external header files
@@ -39,6 +40,11 @@ __pragma(warning(disable : 26495))
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "vendor/imgui/imgui.h"
+#include "vendor/imgui/imgui_impl_glfw.h"
+#include "vendor/imgui/imgui_impl_opengl3.h" 
+#include "vendor/imgui/imgui_internal.h" 
 
 #include <magic_enum.hpp>
 #include <entt/entt.hpp>

@@ -1,6 +1,4 @@
 #include "RenderLayer.h"
-
-#include <utility>
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/ShaderManager.h"

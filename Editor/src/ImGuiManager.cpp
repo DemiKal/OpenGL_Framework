@@ -1,6 +1,6 @@
 #include "ImGuiManager.h"
 #include "Editor.h"
-#include <GLFW/glfw3.h>
+
 
 void ImGuiManager::Prepare()
 {

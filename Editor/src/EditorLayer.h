@@ -2,8 +2,7 @@
 #include "Core/Layer.h"
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
-#include "imgui/imgui.h"
-#include "imgui/imgui_internal.h"
+#include "ImGuiManager.h"
 
 namespace meme {
 	class Editor;
