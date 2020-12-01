@@ -22,6 +22,7 @@ private:
 	shaderMap m_vertexShaderSources;
 	shaderMap m_fragmentShaderSources;
 	shaderMap m_computeShaders;
+	shaderMap m_ShaderHelperFiles;
 
 	void LoadShaders(const std::string& shaderDirectory);
 
@@ -32,6 +33,8 @@ public:
 	[[nodiscard]] static unsigned int GetShaderIdx(const std::string& name);
 	[[nodiscard]] static ShaderManager& GetInstance();
 	[[nodiscard]] static Shader& GetShader(const unsigned int idx);
+	static void RemoveComments(std::string& shaderText);
+	std::string& SearchAndReplace(std::string& shaderText, const std::string& replacedWord);
 	[[nodiscard]] static std::string ParseShader(const std::string& path);
 	[[nodiscard]] static Shader& GetShader(const std::string& name);
 

@@ -165,10 +165,11 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
 		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 		auto message = (char*)alloca(length * sizeof(char));
 		glGetShaderInfoLog(id, length, &length, message);
-		std::cout << "Failed to compile shader" <<
-			(type == GL_VERTEX_SHADER ? "fragment" : "vertex") << " shader" << std::endl;
-
-		std::cout << message << std::endl;
+		//std::cout << "Failed to compile shader" <<
+		//	(type == GL_VERTEX_SHADER ? "fragment" : "vertex") << " shader" << std::endl;
+		fmt::print("Failed to compile {0} shader\n", type == GL_VERTEX_SHADER ? "fragment" : "vertex");
+		fmt::print("{}\n", message);
+		
 		glDeleteShader(id);
 		return 0;
 

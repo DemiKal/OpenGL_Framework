@@ -123,5 +123,6 @@
     <None Include="res\shaders\wireframe.frag" />
     <None Include="res\shaders\wireframe.vert" />
     <None Include="res\shaders\AABB_instanced.frag" />
+    <None Include="res\shaders\common\common.glsl" />
   </ItemGroup>
 </Project>

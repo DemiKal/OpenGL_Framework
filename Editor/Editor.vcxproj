@@ -142,6 +142,7 @@
     <None Include="res\shaders\basic.vert" />
     <None Include="res\shaders\bones.frag" />
     <None Include="res\shaders\bones.vert" />
+    <None Include="res\shaders\common\common.glsl" />
     <None Include="res\shaders\framebuffers.frag" />
     <None Include="res\shaders\framebuffers.vert" />
     <None Include="res\shaders\framebuffers_screen.frag" />

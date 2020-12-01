@@ -63,7 +63,6 @@ void Renderer::DrawFrustum(const Camera& renderCam, Camera& debugCam, const glm:
 	DrawLine(glm::mat4(1.0f), renderCam, ntr, ftr, color);
 	DrawLine(glm::mat4(1.0f), renderCam, nbl, fbl, color);
 	DrawLine(glm::mat4(1.0f), renderCam, nbr, fbr, color);
-
 }
 
 
@@ -268,13 +267,13 @@ void Renderer::EnableDepth()
 
 void Renderer::_Init()
 {
-	if (!glfwInit()) throw std::exception("Cant init glfw");
+	if (!glfwInit()) throw std::exception("Cant init glfw!");
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
@@ -314,12 +313,23 @@ void Renderer::_Init()
 
 	glGetBooleanv(GL_CULL_FACE, &v);
 	m_Cull = v;
-
+	
 	GLint i;
 	glGetIntegerv(GL_CULL_FACE_MODE, &i);
 	m_CullingMode = i;
 
+	GLint sa;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &sa);
+
+	fmt::print("OpenGL extensions loaded:\n");
+	for (GLuint i = 0; i < sa; i++)
+	{
+		const GLubyte* ext = glGetStringi(GL_EXTENSIONS, i);
+		auto asas = 1111;
+		fmt::print("{0} {1}\n", i, static_cast<const unsigned char*>(ext));
+	}
 }
+
 
 Renderer::Renderer()
 {
