@@ -21,6 +21,7 @@ void ImGuiManager::Init()
 	
 	io.FontDefault = io.Fonts->AddFontFromFileTTF("res/fonts/OpenSans/OpenSans-Regular.ttf", 18.0f);
 	io.Fonts->AddFontFromFileTTF("res/fonts/Nunito/Nunito-Regular.ttf", 18.0f);
+	io.Fonts->AddFontFromFileTTF("res/fonts/NunitoSans/NunitoSans-Regular.ttf", 18.0f);
 	io.Fonts->AddFontFromFileTTF("res/fonts/NotoSansJP/NotoSansJP-Regular.otf", 18.0f);
 	io.Fonts->AddFontFromFileTTF("res/fonts/Montserrat/Montserrat-Regular.ttf", 18.0f);
 

@@ -17,6 +17,7 @@ __pragma(warning(disable : 26495))
 #include <numeric>
 #include <exception>
 #include <algorithm>
+#include <regex>
 //datastructures
 #include <vector>
 #include <unordered_set>
@@ -28,7 +29,7 @@ __pragma(warning(disable : 26495))
 #ifdef USEGLEW
 	#include <gl/glew.h>
 #else 
-	#include <glad/glad.h>
+	#include <vendor/glad/include/glad/glad.h>
 #endif
 
 #include <GLFW/glfw3.h>

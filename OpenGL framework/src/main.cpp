@@ -19,9 +19,9 @@
 //#include "Geometry/BVH/BVH.h"
 //#include "misc/UserInterface.h"
 //#include "Rendering/PostProcessing.h"
-//#include <GameObject\Components\EntityComponents.h>
+//#include <GameObject/Components/EntityComponents.h>
 
-////#include <src\vendor\imgui\imgui.h>
+////#include <src/vendor/imgui/imgui.h>
 // 
 //// #include <src/vendor/imgui/imgui.h>
 //// #include <src/vendor/imgui/imgui_impl_glfw.h>

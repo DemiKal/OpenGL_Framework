@@ -153,9 +153,16 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
 {
 	unsigned int id = glCreateShader(type);
 	const char* src = source.c_str();
+	
+#ifdef aaaaaaaaaaaaaaaaaaaa
 	glShaderSource(id, 1, &src, nullptr);
 	glCompileShader(id);
-
+#else
+	static const char* const searchPath = "/";
+	glShaderSource(id, 1, &src, nullptr);
+	glCompileShaderIncludeARB(id, 1, &searchPath, nullptr);
+	glCompileShader(id);
+#endif
 	int result;
 	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
 
@@ -175,12 +182,15 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
 	}
 	return id;
 }
+
+
+
 unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
 {
 	const unsigned int program = glCreateProgram();
 	const unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
 	const unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
+	//glCompileShaderIncludeARB
 	GLCall(glAttachShader(program, vs))
 		GLCall(glAttachShader(program, fs))
 

@@ -56,7 +56,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);;USEGLEW;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);USEGLEW</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Editor\src;$(SolutionDir)OpenGL Framework\src;$(SolutionDir)Editor\src\vendor</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -74,7 +74,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);;USEGLEW;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Editor\src;$(SolutionDir)OpenGL Framework\src;$(SolutionDir)Editor\src\vendor</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -142,6 +142,7 @@
     <None Include="res\shaders\basic.vert" />
     <None Include="res\shaders\bones.frag" />
     <None Include="res\shaders\bones.vert" />
+    <None Include="res\shaders\common.glsl" />
     <None Include="res\shaders\framebuffers.frag" />
     <None Include="res\shaders\framebuffers.vert" />
     <None Include="res\shaders\framebuffers_screen.frag" />
