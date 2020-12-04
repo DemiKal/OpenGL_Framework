@@ -1,0 +1,3 @@
+[submodule "OpenGL framework/src/vendor/ImGuizmo"]
+	path = OpenGL framework/src/vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo
