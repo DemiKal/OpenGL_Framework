@@ -3,6 +3,8 @@
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "ImGuiManager.h"
+#include "Rendering/Renderer.h"
+#include "Rendering/Buffer/FrameBuffer.h"
 
 namespace meme {
 	class Editor;
@@ -16,6 +18,8 @@ public:
 	entt::registry m_Registry;
 	entt::entity m_Selected{ entt::null };
 	Camera m_EditorCamera;
+	FrameBuffer m_SceneFrame;
+	ImVec2 m_ImGuiRegionSize;
 
 	EditorLayer(meme::Editor* editor);
 
@@ -23,6 +27,8 @@ public:
 	void OnDetach() override;
 	void OnUpdate(float dt) override;
 	void OnImGuiRender(float dt) override;
+	void DrawScene(const float dt);
+	void DrawGizmos(const float dt);
 	void DrawCameraInspector(float dt);
 	void OnInput(const float dt);
 	void EnableDockSpace();

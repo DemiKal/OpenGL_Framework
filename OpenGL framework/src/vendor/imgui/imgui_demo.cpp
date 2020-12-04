@@ -1,4 +1,3 @@
-#include "precomp.h"
 // dear imgui, v1.80 WIP
 // (demo code)
 

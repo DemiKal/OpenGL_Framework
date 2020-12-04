@@ -1,12 +1,12 @@
 #include "ImGuiManager.h"
-#include "Editor.h"
-
+ #include "vendor/ImGuizmo/ImGuizmo.h"
 
 void ImGuiManager::Prepare()
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
 }
 
 void ImGuiManager::Init()

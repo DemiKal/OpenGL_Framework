@@ -3,6 +3,8 @@
 #include "ImGuiManager.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/Renderer.h"
+#include "RenderLayer.h"
+#include "Rendering/Renderer.h"
 
 EditorLayer::EditorLayer(meme::Editor* editor) :
 	Layer("EditorLayer"),
@@ -259,4 +261,143 @@ void EditorLayer::OnImGuiRender(const float dt)
 	DrawHierarchyPanel();
 	DrawInspectorPanel();
 	DrawCameraInspector(dt);
+	DrawScene(dt);
+}
+
+
+void EditorLayer::DrawScene(const float dt)
+{
+	//Camera& camera = m_EditorLayer->GetEditorCamera();
+	m_SceneFrame.Bind();
+
+	auto [fbWidth, fbHeight] = m_SceneFrame.GetSize();
+
+
+	if ((fbWidth != static_cast<uint32_t>(m_ImGuiRegionSize.x) ||
+		fbHeight != static_cast<uint32_t>(m_ImGuiRegionSize.y))
+		&& m_ImGuiRegionSize.x > 0 && m_ImGuiRegionSize.y > 0)
+	{
+		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
+		m_EditorCamera.SetAspectRatio(aspect);
+	}
+
+	//m_FrameBuffers[0].Bind();
+	//ImVec2 fbSize2 = { 0,1 };
+	Renderer::SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
+	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Renderer::EnableDepth();
+
+	//bool a = Renderer::GetAlphaBlending();
+
+	auto view = m_Registry.view<MeshComponent, TransformComponent>();
+	for (auto entity : view)
+	{
+		auto [meshC, transform] = m_Registry.get<MeshComponent, TransformComponent>(entity);
+		const uint32_t idx = meshC.MeshIdx;
+		Mesh& mesh = MeshManager::GetMesh(idx);
+		Shader& shader = ShaderManager::GetShader(meshC.ShaderIdx);
+		const glm::mat4 mat = transform.CalcMatrix();
+		mesh.Draw(m_EditorCamera, mat, shader);
+	}
+
+	m_SceneFrame.Unbind();
+
+	const auto texId = m_SceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
+
+	ImGui::Begin("##SceneView", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
+
+	ImGui::BeginTabBar("Scene");
+	const float windowWidth = ImGui::GetContentRegionAvailWidth();
+	const float widgetWidth = 150.0f;
+	ImGui::SameLine(windowWidth - widgetWidth * 2.0f);
+	ImGui::SetNextItemWidth(widgetWidth);
+
+	static const char* items[] = { "Frustum",	"Lights", "Wireframe", "Gizmos" };
+	static bool selectedElems[] = { false, false, false, false };
+
+	static int item_current_idx = 0;
+
+	const char* combo_label = items[item_current_idx];
+	std::string comboName = "Debug Render Options";
+	auto comboWidth = ImGui::CalcTextSize(comboName.c_str()).x;
+	ImGui::SetNextItemWidth(comboWidth + 30);
+	if (ImGui::BeginCombo("##DebugRenderOptions", comboName.c_str()))
+	{
+		for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+		{
+			const bool is_selected = (item_current_idx == n);
+			if (ImGui::Selectable(items[n], selectedElems[n], ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_SpanAllColumns))
+			{
+				selectedElems[n] = !selectedElems[n];
+			}
+
+			if (selectedElems[n])
+			{
+				//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ButtonTextAlign,)
+				ImGui::SameLine(comboWidth, 10);
+				static bool t = true;
+				ImGui::Checkbox("##truebox", &t);
+			}
+
+			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+			//if (selectedElems[n])
+			//	ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+
+	if (ImGui::BeginTabItem("View"))
+	{
+		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
+		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
+			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
+		
+		DrawGizmos(dt);
+		
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("Game"))
+	{
+		ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
+		ImGui::EndTabItem();
+	}
+
+
+
+	ImGui::EndTabBar();
+	//ImGui::EndColumns();
+
+	ImGui::End();
+
+}
+void EditorLayer::DrawGizmos(const float dt)
+{
+
+	if (m_Selected == entt::null) return;
+
+	ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+
+	ImGuizmo::SetOrthographic(false);
+	ImGuizmo::SetDrawlist();
+
+	float windowWidth = (float)ImGui::GetWindowWidth();
+	float windowHeight = (float)ImGui::GetWindowHeight();
+	ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+	auto projMat = m_EditorCamera.GetProjectionMatrix();
+	auto viewMat = m_EditorCamera.GetViewMatrix();
+
+	TransformComponent& tc = m_Registry.get<TransformComponent>(m_Selected);
+	glm::mat4 transform = tc.CalcMatrix();//tc.Position
+
+	ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
+		ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform));
+	RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();
+
+	uint64_t textureID = 0;// rl->m_FrameBuffers[0].GetTexture().GetID();
+	//ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ viewportSize.x, viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+	glm::vec4 pos = transform[3];
+	tc.Position = pos;
+
 }

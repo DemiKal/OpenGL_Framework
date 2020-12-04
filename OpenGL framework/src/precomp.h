@@ -46,6 +46,9 @@ __pragma(warning(disable : 26495))
 #include "vendor/imgui/imgui_impl_opengl3.h" 
 #include "vendor/imgui/imgui_internal.h" 
 
+#include "vendor/ImGuizmo/ImGuizmo.h" 
+
+
 #include <magic_enum.hpp>
 #include <entt/entt.hpp>
 #include <fmt/format.h>

@@ -68,7 +68,8 @@
 #include <glm/glm.hpp>
 #define IM_VEC2_CLASS_EXTRA                                                 \
         ImVec2(const glm::vec2& f) { x = f.x; y = f.y; }                       \
-        operator glm::vec2() const { return glm::vec2(x,y); }
+        operator glm::vec2() const { return glm::vec2(x,y); }                \
+        ImVec2 operator +(const ImVec2& rhs) { return  ImVec2{ x + rhs.x, y + rhs.y }; }
 
 #define IM_VEC4_CLASS_EXTRA                                                 \
         ImVec4(const glm::vec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
@@ -79,7 +80,7 @@
 #else
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #endif
-    
+
 //---- Use 32-bit vertex indices (default is 16-bit) is one way to allow large meshes with more than 64K vertices.
 // Your renderer backend will need to support it (most example renderer backends support both 16/32-bit indices).
 // Another way to allow large meshes while keeping 16-bit indices is to handle ImDrawCmd::VtxOffset in your renderer.
@@ -109,6 +110,6 @@
 /*
 namespace ImGui
 {
-    void MyFunction(const char* name, const MyMatrix44& v);
+	void MyFunction(const char* name, const MyMatrix44& v);
 }
 */

@@ -1,5 +1,5 @@
 #pragma once
-#include "precomp.h"
+//#include "precomp.h"
 #include "Core/Layer.h"
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/MeshManager.h"
