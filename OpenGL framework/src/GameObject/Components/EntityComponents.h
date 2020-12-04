@@ -51,10 +51,8 @@ struct TransformComponent
 	[[nodiscard]] glm::mat4 CalcMatrix() const
 	{
 		const glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), Scale);
-		const glm::mat4 rotationMat = glm::eulerAngleYXZ(
-			glm::radians(Rotation.y),
-			glm::radians(Rotation.x),
-			glm::radians(Rotation.z));
+		//const glm::mat4 rotationMat = glm::eulerAngleYXZ(Rotation.y, Rotation.x, Rotation.z);
+		glm::mat4 rotationMat = glm::toMat4(glm::quat(Rotation));
 		const glm::mat4 translMat = glm::translate(glm::mat4(1.0f), Position);
 		return translMat * rotationMat * scaleMat;
 	}

@@ -40,6 +40,7 @@ __pragma(warning(disable : 26495))
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/imgui_impl_glfw.h"
