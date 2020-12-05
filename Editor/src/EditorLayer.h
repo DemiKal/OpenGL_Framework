@@ -29,6 +29,7 @@ public:
 	void OnDetach() override;
 	void OnUpdate(float dt) override;
 	void OnImGuiRender(float dt) override;
+	void DrawDebugVisuals(float dt);
 	void DrawScene(const float dt);
 	void DrawGizmos(const float dt);
 	void DrawCameraInspector(float dt);

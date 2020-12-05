@@ -2,6 +2,11 @@
 #include "FrameBuffer.h"
 
 
+float FrameBuffer::GetAspect() const
+{
+	return static_cast<float>(m_Width) / static_cast<float>(m_Height);
+}
+
 void FrameBuffer::Init(const uint32_t width, const uint32_t height)
 {
 	GLCall(glGenFramebuffers(1, &m_RendererID))

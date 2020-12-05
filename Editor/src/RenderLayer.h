@@ -6,7 +6,7 @@ class RenderLayer final : public Layer
 {
 public:
 	std::shared_ptr<EditorLayer> m_EditorLayer;
-	std::vector<FrameBuffer> m_FrameBuffers;
+	//std::vector<FrameBuffer> m_FrameBuffers;
 	FrameBuffer m_FramebufferCamera;
 	ImVec2 m_ImGuiRegionSize;
 

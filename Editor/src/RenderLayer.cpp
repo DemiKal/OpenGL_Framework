@@ -10,7 +10,7 @@ RenderLayer::RenderLayer(std::shared_ptr<EditorLayer> edl)
 	Layer("RenderLayer"),
 	m_EditorLayer(std::move(edl))// /*std::make_shared<EditorLayer>(*edl ))
 {
-	m_FrameBuffers.emplace_back();
+	//m_FrameBuffers.emplace_back();
 }
 
 void RenderLayer::OnAttach()
