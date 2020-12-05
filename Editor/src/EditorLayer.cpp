@@ -413,14 +413,9 @@ void EditorLayer::DrawGizmos(const float dt)
 
 	TransformComponent& tc = m_Registry.get<TransformComponent>(m_Selected);
 	glm::mat4 transform = tc.CalcMatrix();//tc.Position
-
-	auto mode = ImGuizmo::LOCAL;
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_LEFT_SHIFT))
-		mode = ImGuizmo::WORLD;
-
-	auto opMode = ImGuizmo::OPERATION::TRANSLATE;
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_LEFT_ALT))
-		opMode = ImGuizmo::OPERATION::ROTATE;
+ 
+	if (m_TransformWidgetOperation == ImGuizmo::OPERATION::SCALE)
+		m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 
 	ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
 		m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
