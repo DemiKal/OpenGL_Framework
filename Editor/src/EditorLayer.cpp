@@ -164,7 +164,7 @@ void EditorLayer::EnableDockSpace()
 		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	}
 
-	if (ImGui::BeginMenuBar())
+	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("Options"))
 		{
@@ -185,20 +185,11 @@ void EditorLayer::EnableDockSpace()
 				p_open = false;
 			ImGui::EndMenu();
 		}
-		//HelpMarker(
-		//    "When docking is enabled, you can ALWAYS dock MOST window into another! Try it now!" "\n\n"
-		//    " > if io.ConfigDockingWithShift==false (default):" "\n"
-		//    "   drag windows from title bar to dock" "\n"
-		//    " > if io.ConfigDockingWithShift==true:" "\n"
-		//    "   drag windows from anywhere and hold Shift to dock" "\n\n"
-		//    "This demo app has nothing to do with it!" "\n\n"
-		//    "This demo app only demonstrate the use of ImGui::DockSpace() which allows you to manually create a docking node _within_ another window. This is useful so you can decorate your main application window (e.g. with a menu bar)." "\n\n"
-		//    "ImGui::DockSpace() comes with one hard constraint: it needs to be submitted _before_ any window which may be docked into it. Therefore, if you use a dock spot as the central point of your application, you'll probably want it to be part of the very first window you are submitting to imgui every frame." "\n\n"
-		//    "(NB: because of this constraint, the implicit \"Debug\" window can not be docked into an explicit DockSpace() node, because that window is submitted as part of the NewFrame() call. An easy workaround is that you can create your own implicit \"Debug##2\" window after calling DockSpace() and leave it in the window stack for anyone to use.)"
-		//);
 
-		ImGui::EndMenuBar();
+		ImGui::EndMainMenuBar();
 	}
+
+	DrawGizmoMenu();
 
 	ImGui::End();
 }
@@ -213,12 +204,9 @@ void EditorLayer::DrawHierarchyPanel()
 		auto name = m_Registry.get<TagComponent>(entity);
 		const auto nodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		//if (ImGui::TreeNodeEx(name.Name, nodeFlags))
-
 		if (ImGui::Selectable(name.Name, m_Selected == entity))
 		{
 			m_Selected = entity;
-			//ImGui::TreePop();
 		}
 	}
 
@@ -228,7 +216,6 @@ void EditorLayer::DrawHierarchyPanel()
 void EditorLayer::DrawInspectorPanel()
 {
 	ImGui::Begin("Inspector");
-	//for (auto entity : view)
 	if (m_Selected != entt::null)
 	{
 		auto& tfc = m_Registry.get<TransformComponent>(m_Selected);
@@ -251,13 +238,50 @@ Camera& EditorLayer::GetEditorCamera()
 	return m_EditorCamera;
 }
 
+void EditorLayer::DrawGizmoMenu()
+{
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("##test",false))
+		{
+			ImGui::EndMenu();
+		}
+
+		static bool what = true;
+		//ImGui::SameLine();
+		//ImGui::Checkbox("aa", &what);
+		auto& w = m_TransformWidgetOperation;
+		using o = ImGuizmo::OPERATION;
+		ImGui::SameLine(); if (ImGui::RadioButton("Translation", w == o::TRANSLATE)) w = o::TRANSLATE;
+		ImGui::SameLine(); if (ImGui::RadioButton("Rotation", w == o::ROTATE)) w = o::ROTATE;
+		ImGui::SameLine(); if (ImGui::RadioButton("Scale", w == o::SCALE)) w = o::SCALE;
+
+		auto& m = m_TransformWidgetMode;
+		using t = ImGuizmo::MODE;
+		ImGui::SameLine(); if (ImGui::RadioButton("Local", m == t::LOCAL)) m = t::LOCAL;
+		ImGui::SameLine(); if (ImGui::RadioButton("World", m == t::WORLD)) m = t::WORLD;
+
+
+		ImGui::EndMenuBar();
+	}
+
+	//ImVec2 size = ImGui::GetContentRegionAvail();
+	//
+
+
+
+
+	//ImGui::End();
+
+
+}
+
 void EditorLayer::OnImGuiRender(const float dt)
 {
 	static bool yahoo = true;
 	ImGui::ShowDemoWindow(&yahoo);
 
 	EnableDockSpace();
-	//DrawMenuBar();
 	DrawHierarchyPanel();
 	DrawInspectorPanel();
 	DrawCameraInspector(dt);
@@ -309,18 +333,18 @@ void EditorLayer::DrawScene(const float dt)
 	ImGui::BeginTabBar("Scene");
 	const float windowWidth = ImGui::GetContentRegionAvailWidth();
 	const float widgetWidth = 150.0f;
-	ImGui::SameLine(windowWidth - widgetWidth * 2.0f);
-	ImGui::SetNextItemWidth(widgetWidth);
 
 	static const char* items[] = { "Frustum",	"Lights", "Wireframe", "Gizmos" };
 	static bool selectedElems[] = { false, false, false, false };
 
 	static int item_current_idx = 0;
-
 	const char* combo_label = items[item_current_idx];
+
+
 	std::string comboName = "Debug Render Options";
-	auto comboWidth = ImGui::CalcTextSize(comboName.c_str()).x;
-	ImGui::SetNextItemWidth(comboWidth + 30);
+	auto comboWidth = 30 + ImGui::CalcTextSize(comboName.c_str()).x;
+	ImGui::SameLine(windowWidth - comboWidth);
+	ImGui::SetNextItemWidth(comboWidth);
 	if (ImGui::BeginCombo("##DebugRenderOptions", comboName.c_str()))
 	{
 		for (int n = 0; n < IM_ARRAYSIZE(items); n++)
@@ -334,7 +358,7 @@ void EditorLayer::DrawScene(const float dt)
 			if (selectedElems[n])
 			{
 				//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ButtonTextAlign,)
-				ImGui::SameLine(comboWidth, 10);
+				ImGui::SameLine(comboWidth);
 				static bool t = true;
 				ImGui::Checkbox("##truebox", &t);
 			}
@@ -362,8 +386,6 @@ void EditorLayer::DrawScene(const float dt)
 		ImGui::EndTabItem();
 	}
 
-
-
 	ImGui::EndTabBar();
 	//ImGui::EndColumns();
 
@@ -371,77 +393,6 @@ void EditorLayer::DrawScene(const float dt)
 
 }
 
-bool DecomposeTransform(const glm::mat4& transform, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale)
-{
-	// From glm::decompose in matrix_decompose.inl
-
-	using namespace glm;
-	using T = float;
-
-	mat4 LocalMatrix(transform);
-
-	// Normalize the matrix.
-	if (epsilonEqual(LocalMatrix[3][3], static_cast<float>(0), epsilon<T>()))
-		return false;
-
-	// First, isolate perspective.  This is the messiest.
-	if (
-		epsilonNotEqual(LocalMatrix[0][3], static_cast<T>(0), epsilon<T>()) ||
-		epsilonNotEqual(LocalMatrix[1][3], static_cast<T>(0), epsilon<T>()) ||
-		epsilonNotEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>()))
-	{
-		// Clear the perspective partition
-		LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<T>(0);
-		LocalMatrix[3][3] = static_cast<T>(1);
-	}
-
-	// Next take care of translation (easy).
-	translation = vec3(LocalMatrix[3]);
-	LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);
-
-	vec3 Row[3], Pdum3;
-
-	// Now get scale and shear.
-	for (length_t i = 0; i < 3; ++i)
-		for (length_t j = 0; j < 3; ++j)
-			Row[i][j] = LocalMatrix[i][j];
-
-	// Compute X scale factor and normalize first row.
-	scale.x = length(Row[0]);
-	Row[0] = detail::scale(Row[0], static_cast<T>(1));
-	scale.y = length(Row[1]);
-	Row[1] = detail::scale(Row[1], static_cast<T>(1));
-	scale.z = length(Row[2]);
-	Row[2] = detail::scale(Row[2], static_cast<T>(1));
-
-	// At this point, the matrix (in rows[]) is orthonormal.
-	// Check for a coordinate system flip.  If the determinant
-	// is -1, then negate the matrix and the scaling factors.
-#if 0
-	Pdum3 = cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
-	if (dot(Row[0], Pdum3) < 0)
-	{
-		for (length_t i = 0; i < 3; i++)
-		{
-			scale[i] *= static_cast<T>(-1);
-			Row[i] *= static_cast<T>(-1);
-		}
-	}
-#endif
-
-	rotation.y = asin(-Row[0][2]);
-	if (cos(rotation.y) != 0) {
-		rotation.x = atan2(Row[1][2], Row[2][2]);
-		rotation.z = atan2(Row[0][1], Row[0][0]);
-	}
-	else {
-		rotation.x = atan2(-Row[2][0], Row[1][1]);
-		rotation.z = 0;
-	}
-
-
-	return true;
-}
 
 void EditorLayer::DrawGizmos(const float dt)
 {
@@ -472,7 +423,7 @@ void EditorLayer::DrawGizmos(const float dt)
 		opMode = ImGuizmo::OPERATION::ROTATE;
 
 	ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
-		ImGuizmo::OPERATION::ROTATE, mode, glm::value_ptr(transform));
+		m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
 
 	if (ImGuizmo::IsUsing())
 	{

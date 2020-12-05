@@ -20,6 +20,8 @@ public:
 	Camera m_EditorCamera;
 	FrameBuffer m_SceneFrame;
 	ImVec2 m_ImGuiRegionSize;
+	ImGuizmo::OPERATION m_TransformWidgetOperation = ImGuizmo::OPERATION::TRANSLATE;
+	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 
 	EditorLayer(meme::Editor* editor);
 
@@ -36,6 +38,8 @@ public:
 	void DrawHierarchyPanel();
 	void DrawInspectorPanel();
 	Camera& GetEditorCamera();
+
+	void DrawGizmoMenu();
 
 
 	template<typename T>
@@ -86,7 +90,10 @@ public:
 		if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 		{
 			DrawVec3Component("Translation", t.Position);
-			DrawVec3Component("Rotation", t.Rotation);
+
+			auto rotInDeg = glm::degrees(t.Rotation);
+			DrawVec3Component("Rotation", rotInDeg);
+			t.Rotation = glm::radians(rotInDeg);
 			DrawVec3Component("Scale", t.Scale, 1.0f);
 			//	ImGui::TreePop();
 		}
