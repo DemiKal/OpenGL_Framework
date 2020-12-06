@@ -254,17 +254,37 @@ void EditorLayer::DrawGizmoMenu()
 		//ImGui::Checkbox("aa", &what);
 		auto& w = m_TransformWidgetOperation;
 		using o = ImGuizmo::OPERATION;
-		if (ImGui::RadioButton("Translation", w == o::TRANSLATE)) w = o::TRANSLATE;
-		if (ImGui::RadioButton("Rotation", w == o::ROTATE)) w = o::ROTATE;
-		if (ImGui::RadioButton("Scale", w == o::SCALE)) w = o::SCALE;
 
-		auto& m = m_TransformWidgetMode;
-		using t = ImGuizmo::MODE;
-		if (ImGui::RadioButton("Local", m == t::LOCAL)) m = t::LOCAL;
-		if (ImGui::RadioButton("World", m == t::WORLD)) m = t::WORLD;
+		//ImGui::setnextpos
+ 		ImGui::SameLine(ImGui::GetContentRegionAvail().x / 3);
+		static ImVec2 minGrp{0,0}; 
+		static ImVec2 maxGrp{0,0}; 
 
+		//if (ImGui::BeginChild("transform mode", ImGui::GetContentRegionAvail()  , true))
+		{
+
+			ImGui::GetWindowDrawList()->AddRectFilled(minGrp, maxGrp, IM_COL32(0, 12, 23, 255));
+
+			ImGui::BeginGroup();
+
+			if (ImGui::RadioButton("Translation", w == o::TRANSLATE)) w = o::TRANSLATE;
+			if (ImGui::RadioButton("Rotation", w == o::ROTATE)) w = o::ROTATE;
+			if (ImGui::RadioButton("Scale", w == o::SCALE)) w = o::SCALE;
+
+			auto& m = m_TransformWidgetMode;
+			using t = ImGuizmo::MODE;
+			if (ImGui::RadioButton("Local", m == t::LOCAL)) m = t::LOCAL;
+			if (ImGui::RadioButton("World", m == t::WORLD)) m = t::WORLD;
+			ImGui::EndGroup();
+
+			minGrp = ImGui::GetItemRectMin() * 0.99f;
+			maxGrp = ImGui::GetItemRectMax() * 1.01f;
+
+		}
 
 		ImGui::EndMenuBar();
+
+
 	}
 }
 
@@ -356,12 +376,24 @@ void EditorLayer::DrawScene(const float dt)
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
 		for (auto& gizmo : m_Gizmos)
-			ImGui::MenuItem(gizmo->m_Name.c_str(), "", &gizmo->m_Enabled);
+		{
+			if (&gizmo->m_Enabled)
+			{
+				if (ImGui::BeginMenu(gizmo->m_Name.c_str()))
+				{
+					ImGui::MenuItem("Enable", "", &gizmo->m_Enabled);
+					ImGui::ColorEdit4("##MyColor", &gizmo->m_Color[0], ImGuiColorEditFlags_NoInputs);
 
-		ImGui::PopItemFlag();
+					ImGui::EndMenu();
+				}
+			}
 
-		ImGui::EndPopup();
 
+			ImGui::PopItemFlag();
+			ImGui::EndPopup();
+
+
+		}
 	}
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 

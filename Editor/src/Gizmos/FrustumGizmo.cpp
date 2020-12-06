@@ -9,6 +9,7 @@
 
 void FrustumGizmo::Draw()
 {
+	Renderer::SetAlphaBlending(true);
 	for (auto entity : m_Edl->m_Registry.view<CameraComponent>())
 	{
 		auto debugCam = m_Edl->m_Registry.get<CameraComponent>(entity).camera;
