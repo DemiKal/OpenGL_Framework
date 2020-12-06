@@ -87,6 +87,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Gizmos\FrustumGizmo.h" />
+    <ClInclude Include="src\Gizmos\Gizmo.h" />
     <ClInclude Include="src\DebugRenderLayer.h" />
     <ClInclude Include="src\RenderLayer.h" />
     <ClInclude Include="src\EditorLayer.h" />
@@ -94,6 +96,7 @@
     <ClInclude Include="src\ImGuiManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Gizmos\FrustumGizmo.cpp" />
     <ClCompile Include="src\DebugRenderLayer.cpp" />
     <ClCompile Include="src\RenderLayer.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />

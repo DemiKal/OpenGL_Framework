@@ -1,16 +1,16 @@
 #include "DebugRenderLayer.h"
-
-
-
 #include "Editor.h"
 #include "RenderLayer.h"
 #include "Rendering/Renderer.h"
+
+
 
 DebugRenderLayer::DebugRenderLayer(std::shared_ptr<EditorLayer>& edl)
 	:
 	Layer("Debug Render Layer"),
 	m_EditorLayer(edl)
 {
+
 }
 
 void DebugRenderLayer::OnAttach()

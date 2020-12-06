@@ -5,10 +5,13 @@
 #include "ImGuiManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/Buffer/FrameBuffer.h"
+//#include "Gizmos/FrustumGizmo.h"
+#include "Gizmos/Gizmo.h"
 
 namespace meme {
 	class Editor;
 }
+class Gizmo;
 
 class EditorLayer : public Layer
 {
@@ -22,6 +25,8 @@ public:
 	ImVec2 m_ImGuiRegionSize;
 	ImGuizmo::OPERATION m_TransformWidgetOperation = ImGuizmo::OPERATION::TRANSLATE;
 	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
+	std::vector<Gizmo*> m_Gizmos;
+
 
 	EditorLayer(meme::Editor* editor);
 
@@ -228,7 +233,7 @@ public:
 
 						const glm::vec2 scale = { p1.x - p0.x, p1.y - p0.y };
 						//if (!mesh.m_Indices.empty())
-	
+
 						//draw UVs
 						if (!mesh.m_UVs.empty() && overlayUVs && i == 0)
 						{

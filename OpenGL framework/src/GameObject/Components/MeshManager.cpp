@@ -67,6 +67,7 @@ uint32_t MeshManager::GetLineVAO()
 {
 	return m_LineVAO;
 }
+
 void MeshManager::CreateLinePrimitive()
 {
 	glGenVertexArrays(1, &m_LineVAO);

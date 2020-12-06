@@ -5,6 +5,7 @@
 #include "Rendering/Renderer.h"
 #include "RenderLayer.h"
 #include "Rendering/Renderer.h"
+#include "Gizmos/FrustumGizmo.h"
 
 EditorLayer::EditorLayer(meme::Editor* editor) :
 	Layer("EditorLayer"),
@@ -12,6 +13,7 @@ EditorLayer::EditorLayer(meme::Editor* editor) :
 	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f,
 		700.0f)
 {
+	m_Gizmos.emplace_back(new FrustumGizmo(this));
 }
 
 void EditorLayer::OnAttach()
@@ -278,14 +280,19 @@ void EditorLayer::OnImGuiRender(const float dt)
 	DrawScene(dt);
 	DrawDebugVisuals(dt);
 }
+
 void EditorLayer::DrawDebugVisuals(float dt)
 {
 	m_SceneFrame.Bind();
-	for (auto entity : m_Registry.view<CameraComponent>())
-	{
-		auto debugCam = m_Registry.get<CameraComponent>(entity).camera;
-		Renderer::DrawFrustum(GetEditorCamera(), debugCam, { 1.0f, 0.5f, 0.3f, 0.98f });
-	}
+	//for (auto entity : m_Registry.view<CameraComponent>())
+	//{
+	//	auto debugCam = m_Registry.get<CameraComponent>(entity).camera;
+	//	Renderer::DrawFrustum(GetEditorCamera(), debugCam, { 1.0f, 0.5f, 0.3f, 0.98f });
+	//}
+
+	for (auto& gizmo : m_Gizmos)
+		if (gizmo->m_Enabled) gizmo->Draw();
+
 	m_SceneFrame.Unbind();
 }
 
@@ -327,46 +334,62 @@ void EditorLayer::DrawScene(const float dt)
 
 	ImGui::Begin("##SceneView", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
 
+
 	ImGui::BeginTabBar("Scene");
-	const float windowWidth = ImGui::GetContentRegionAvailWidth();
+	const float windowWidth = ImGui::GetContentRegionAvail().x;
 	const float widgetWidth = 150.0f;
 
-	static const char* items[] = { "Frustum",	"Lights", "Wireframe", "Gizmos" };
-	static bool selectedElems[] = { false, false, false, false };
+	//std::string comboName = "Debug Render Options";
+	const char* name = "Gizmos..";
+	const auto buttonWidth = ImGui::CalcTextSize(name).x;
+	ImGui::SameLine(windowWidth - 1.1f * buttonWidth);
 
-	static int item_current_idx = 0;
-	const char* combo_label = items[item_current_idx];
 
+	//	ImGui::PushItemWidth(-1.0f);
+	//ImGui::SetNextItemWidth( );
+	ImGui::PopStyleVar();
 
-	std::string comboName = "Debug Render Options";
-	auto comboWidth = 30 + ImGui::CalcTextSize(comboName.c_str()).x;
-	ImGui::SameLine(windowWidth - comboWidth);
-	ImGui::SetNextItemWidth(comboWidth);
-	if (ImGui::BeginCombo("##DebugRenderOptions", comboName.c_str()))
+	if (ImGui::Button(name))
+		ImGui::OpenPopup("MyGizmoPopup");
+
+	if (ImGui::BeginPopup("MyGizmoPopup"))
 	{
-		for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-		{
-			const bool is_selected = (item_current_idx == n);
-			if (ImGui::Selectable(items[n], selectedElems[n], ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_SpanAllColumns))
-			{
-				selectedElems[n] = !selectedElems[n];
-			}
+		ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+		for (auto& gizmo : m_Gizmos)
+			ImGui::MenuItem(gizmo->m_Name.c_str(), "", &gizmo->m_Enabled);
 
-			if (selectedElems[n])
-			{
-				//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ButtonTextAlign,)
-				ImGui::SameLine(comboWidth);
-				static bool t = true;
-				ImGui::Checkbox("##truebox", &t);
-			}
+		ImGui::PopItemFlag();
 
-			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-			//if (selectedElems[n])
-			//	ImGui::SetItemDefaultFocus();
-		}
-		ImGui::EndCombo();
+		ImGui::EndPopup();
+
 	}
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
+	//if (ImGui::BeginCombo("##DebugRenderOptions", comboName.c_str()))
+	//{
+	//	for (auto& [name, enabled] : m_Gizmos)
+	//	{
+	//		//const bool is_selected = (item_current_idx == n);
+	//		if (ImGui::Selectable(items[n], selectedElems[n], ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_SpanAllColumns))
+	//		{
+	//			selectedElems[n] = !selectedElems[n];
+	//		}
+	//
+	//		if (selectedElems[n])
+	//		{
+	//			//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ButtonTextAlign,)
+	//			ImGui::SameLine(comboWidth);
+	//			static bool t = true;
+	//			ImGui::Checkbox("##truebox", &t);
+	//		}
+	//
+	//		// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+	//		//if (selectedElems[n])
+	//		//	ImGui::SetItemDefaultFocus();
+	//	}
+	//	ImGui::EndCombo();
+	//}
+	//
 	if (ImGui::BeginTabItem("View"))
 	{
 		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
@@ -388,37 +411,30 @@ void EditorLayer::DrawScene(const float dt)
 
 				//ImVec2 = avail ImGui::GetContentRegionAvail();
 				auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>(fb.GetTexture().GetID()));
-				auto flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
-					ImGuiWindowFlags_::ImGuiWindowFlags_NoDocking |
-					ImGuiWindowFlags_::ImGuiWindowFlags_NoResize |
-					ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar;
+
 
 				ImVec2 wSize = ImGui::GetWindowSize();
 				ImVec2 wPos = ImGui::GetWindowPos();
 				ImVec2 anchorPos(wPos + wSize);
 
 				ImVec2 bottomRight = wPos + wSize;
-				ImGui::SetNextWindowPos(bottomRight - size - ImVec2(10, 10), ImGuiCond_::ImGuiCond_Always/*, ImVec2(0.5,0.5)*/);
 
-				fmt::print("wpos: {} {}\n", wPos.x, wPos.y);
-
-				ImGui::SetNextWindowSize(size, ImGuiCond_::ImGuiCond_Always);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+				ImGui::SetNextWindowPos(bottomRight - size - ImVec2(10, 10), ImGuiCond_::ImGuiCond_Always/*, ImVec2(0.5,0.5)*/);
+				ImGui::SetNextWindowSize(size, ImGuiCond_::ImGuiCond_Always);
 
-				//ImGui::SetWindowCollapsed(false, ImGuiCond_::ImGuiCond_Once);
-				if (ImGui::Begin("Selected camera view"), 0, flags)
+				const auto flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
+					ImGuiWindowFlags_::ImGuiWindowFlags_NoDocking |
+					ImGuiWindowFlags_::ImGuiWindowFlags_NoResize |
+					ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar;
+
+				if (ImGui::Begin("Selected camera view"), nullptr, flags)
 				{
-					//	if (ImGui::GetCurrentWindow()->Active)
-					//ImGui::GetCurrentWindow()->Collapsed
 					ImVec2 newSize = ImGui::GetContentRegionAvail();
 					ImGui::Image(texid, newSize, ImVec2(0, 1), ImVec2(1, 0));
 
-					//if (ImGui::IsWindowCollapsed())
-					{
-						ImVec2 collapsedSize = ImGui::GetWindowSize();
-						ImGui::SetWindowPos(bottomRight - collapsedSize, ImGuiCond_::ImGuiCond_Always);
-					}
-
+					//ImVec2 collapsedSize = ImGui::GetWindowSize();
+					//ImGui::SetWindowPos(bottomRight - collapsedSize, ImGuiCond_::ImGuiCond_Always);
 					ImGui::End();
 				}
 
@@ -431,7 +447,7 @@ void EditorLayer::DrawScene(const float dt)
 
 	if (ImGui::BeginTabItem("Game"))
 	{
-		RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();
+		RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();	//TODO: use a render manager to get framebuffer!
 		if (rl)
 		{
 			auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>(rl->m_FramebufferCamera.GetTexture().GetID()));
