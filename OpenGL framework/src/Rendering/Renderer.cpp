@@ -210,18 +210,24 @@ void Renderer::EnableDepth()
 	GLCall(glEnable(GL_DEPTH_TEST))
 }
 
-void Renderer::Init()
+void Renderer::Init(std::vector<std::tuple<int, int>> windowHints)
 {
 	if (m_Initialized) throw std::exception("Renderer already initialized!");
 
 	if (!glfwInit()) throw std::exception("Cant init glfw!");
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	//glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+	//glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
+
+	for (auto [key, val] : windowHints) glfwWindowHint(key, val);
+
+
+
+
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -268,6 +274,12 @@ void Renderer::Init()
 	GLint sa;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &sa);
 
+
+	GLint viewpDim[4];
+	glGetIntegerv(GL_VIEWPORT, &viewpDim[0]);
+
+	m_ViewPort = QueryGLViewPort();
+
 	fmt::print("OpenGL extensions loaded:\n");
 	for (GLuint i = 0; i < sa; i++)
 	{
@@ -278,6 +290,32 @@ void Renderer::Init()
 	m_Initialized = true;
 }
 
+glm::ivec4 Renderer::GetViewPort() const
+{
+	return m_ViewPort;
+}
+
+glm::ivec4 Renderer::QueryGLViewPort()
+{
+	glm::ivec4 viewpDim{};
+	glGetIntegerv(GL_VIEWPORT, &viewpDim[0]);
+
+	return viewpDim;
+}
+
+void Renderer::SetViewPort(const int startX, const int startY, const int width, const int height)
+{
+	SetViewPort({ startX , startY, width, height });
+}
+
+void Renderer::SetViewPort(const glm::ivec4& viewport)
+{
+	if (viewport != m_ViewPort)
+	{
+		m_ViewPort = viewport;
+		glViewport(m_ViewPort.x, m_ViewPort.y, m_ViewPort.z, m_ViewPort.w);
+	}
+}
 
 Renderer::Renderer()
 {

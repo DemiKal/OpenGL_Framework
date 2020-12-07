@@ -29,14 +29,14 @@ private:
 	GLFWwindow* m_Window;
 
 	glm::vec4 m_ClearColor;
-
+	glm::ivec4 m_ViewPort;
 	static ScreenQuad screenQuad; //TODO delete
 
 	bool m_Initialized = false;
 public:
 	Renderer();
 
-	void Init();
+	void Init(std::vector<std::tuple<int, int>> windowHints);
 	void ShutDown();
 	void DisableDepth();
 	void EnableDepth();
@@ -69,4 +69,9 @@ public:
 	[[nodiscard]] GLenum GetCullingMode() const;
 	[[nodiscard]] bool GetVSync() const;
 	[[nodiscard]] GLFWwindow* GetWindow();
+
+	glm::ivec4 GetViewPort() const;
+	glm::ivec4 QueryGLViewPort();
+	void SetViewPort(const int startX, const int startY, const int width, const int height);
+	void SetViewPort(const glm::ivec4& viewport);
 };

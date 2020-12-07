@@ -24,16 +24,22 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::RenderCamera() const
 {
+	Renderer& renderer = m_Editor->GetRenderer();
+	
 	auto view2 = m_EditorLayer->m_Registry.view<CameraComponent>();
 	auto meshes = m_EditorLayer->m_Registry.view<MeshComponent, TransformComponent>();
-
-	m_FramebufferCamera.Bind(); //TODO: should each cam have its own framebuffer?
+	
+	m_FramebufferCamera.Bind();  
+	
+	auto [fbWidth, fbHeight] = m_FramebufferCamera.GetSize();
+	auto prevViewport = renderer.GetViewPort();
+	renderer.SetViewPort(0, 0, fbWidth, fbHeight);
 
 	for (auto entity : view2)
 	{
-		m_Editor->GetRenderer().SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-		m_Editor->GetRenderer().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		m_Editor->GetRenderer().EnableDepth();
+		renderer.SetClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+		renderer .Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderer .EnableDepth();
 
 		const auto& cc = m_EditorLayer->m_Registry.get<CameraComponent>(entity);
 
@@ -48,7 +54,10 @@ void RenderLayer::RenderCamera() const
 			}
 		}
 	}
+
 	m_FramebufferCamera.Unbind();
+	renderer.SetViewPort(prevViewport);
+
 }
 
 void RenderLayer::OnUpdate(float dt)

@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 /External Libraries/assimp
 /Editor/res
+/Editor/Assets

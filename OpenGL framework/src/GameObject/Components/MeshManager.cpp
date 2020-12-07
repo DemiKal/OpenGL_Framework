@@ -39,7 +39,7 @@ std::optional<uint32_t> MeshManager::LoadFromFile(const std::string& path, const
 	uint32_t idx = instance.m_Meshes.size();
 	instance.ProcessNode(scene->mRootNode, scene, directory);
 
-	//TODO: delete scene;
+	//TODO: delete scene?;
 	return idx; //TODO: use std optional?
 }
 

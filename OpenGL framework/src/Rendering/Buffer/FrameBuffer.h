@@ -23,6 +23,8 @@ public: //TODO ADD COPY CONSTRUCTOR!
 	void Bind() const;
 	uint32_t GetWidth() const;
 	uint32_t GetHeight() const;
+	
+
 	[[nodiscard]] std::tuple<uint32_t, uint32_t> GetSize() const;
 	[[nodiscard]] float GetAspect() const;
 

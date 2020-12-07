@@ -10,8 +10,7 @@
 EditorLayer::EditorLayer(meme::Editor* editor) :
 	Layer("EditorLayer"),
 	m_Editor(editor),
-	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f,
-		700.0f)
+	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)
 {
 	m_Gizmos.emplace_back(new FrustumGizmo(this));
 }
@@ -338,10 +337,12 @@ void EditorLayer::RenderSkybox()
 
 void EditorLayer::DrawScene(const float dt)
 {
-	//Camera& camera = m_EditorLayer->GetEditorCamera();
+	Renderer& renderer = m_Editor->GetRenderer();
 	m_SceneFrame.Bind();
 
 	auto [fbWidth, fbHeight] = m_SceneFrame.GetSize();
+	auto prevViewport = renderer.GetViewPort();
+	renderer.SetViewPort(0, 0, fbWidth, fbHeight);
 
 	if ((fbWidth != static_cast<uint32_t>(m_ImGuiRegionSize.x) || fbHeight != static_cast<uint32_t>(m_ImGuiRegionSize.y))	&& m_ImGuiRegionSize.x > 0 && m_ImGuiRegionSize.y > 0)
 	{
@@ -349,11 +350,10 @@ void EditorLayer::DrawScene(const float dt)
 		m_EditorCamera.SetAspectRatio(aspect);
 	}
 
-	Renderer& renderer = m_Editor->GetRenderer();
 	renderer.SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
 	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderer.EnableDepth();
-
+	
 	auto view = m_Registry.view<MeshComponent, TransformComponent>();
 	for (auto entity : view)
 	{
@@ -368,7 +368,7 @@ void EditorLayer::DrawScene(const float dt)
 	RenderSkybox();
 	
 	m_SceneFrame.Unbind();
-
+	//renderer.SetViewPort(prevViewport);
 
 
 	//TODO move this elsewhere
@@ -421,6 +421,7 @@ void EditorLayer::DrawScene(const float dt)
 		const auto texId = m_SceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
 		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
 			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
+
 		//fmt::print("region: {} {}\n", m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
 		DrawGizmos(dt);
 
@@ -430,9 +431,9 @@ void EditorLayer::DrawScene(const float dt)
 			if (rl)
 			{
 				FrameBuffer& fb = rl->m_FramebufferCamera;
-				float aspect = fb.GetAspect();
-				ImVec2 sizeOG(250, 250);
-				ImVec2 size(sizeOG.x, sizeOG.y / aspect);
+				const float aspect = fb.GetAspect();
+				const ImVec2 sizeOG(250, 250);
+				const ImVec2 size(sizeOG.x, sizeOG.y / aspect);
 
 				//ImVec2 = avail ImGui::GetContentRegionAvail();
 				auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>(fb.GetTexture().GetID()));
@@ -472,6 +473,7 @@ void EditorLayer::DrawScene(const float dt)
 
 	if (ImGui::BeginTabItem("Game"))
 	{
+		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
 		RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();	//TODO: use a render manager to get framebuffer!
 		if (rl)
 		{
@@ -526,10 +528,7 @@ void EditorLayer::DrawGizmos(const float dt)
 
 		glm::decompose(transform, scale, orientation, transl, skew, persp);
 
-		//DecomposeTransform(transform, transl, rot, scale);
-
 		glm::vec3 fromQuat = glm::eulerAngles(orientation);
-		//glm::vec3 fromQuatDeg = glm::degrees(glm::eulerAngles(orientation));
 
 		glm::vec3 deltaRot = fromQuat - tc.Rotation;
 		tc.Position = transl;
