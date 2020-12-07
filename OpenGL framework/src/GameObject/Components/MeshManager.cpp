@@ -6,7 +6,7 @@ void MeshManager::ProcessNode(
 	const aiScene* scene,
 	const std::string& directory)
 {
-	
+
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -54,6 +54,75 @@ MeshManager::MeshManager()
 	CreateCubePrimitive();
 	CreateCubeWireframePrimitive();
 	CreateLinePrimitive();
+	CreateSkyBoxCube();
+}
+
+void MeshManager::CreateSkyBoxCube()
+{
+	const std::vector<float> skyboxVertices = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+	VertexBufferLayout vbl;
+	vbl.Push<float>(3, VertexType::POSITION);
+	Mesh mesh(skyboxVertices, vbl);
+	mesh.m_Meshtype = Meshtype::Skybox;
+
+	const std::vector<std::string> cubemapFiles
+	{
+		"Assets/textures/skyboxes/Ice/right.jpg",
+		"Assets/textures/skyboxes/Ice/left.jpg",
+		"Assets/textures/skyboxes/Ice/top.jpg",
+		"Assets/textures/skyboxes/Ice/bottom.jpg",
+		"Assets/textures/skyboxes/Ice/front.jpg",
+		"Assets/textures/skyboxes/Ice/back.jpg"
+	};
+	Texture2D skybox;
+	
+	skybox.LoadCubemap(cubemapFiles);
+	mesh.AddTexture(skybox);
+
+	m_Meshes.emplace_back(std::move(mesh));
 }
 
 MeshManager& MeshManager::GetInstance()
@@ -92,6 +161,15 @@ void MeshManager::Init()
 	//TODO: fix for release mode?
 	MeshManager& instance = GetInstance();
 	fmt::print("Mesh manager Instance initialized!");
+}
+
+Mesh* MeshManager::GetMesh(const Meshtype t)
+{
+	auto& inst = GetInstance();
+	for (auto& mesh : inst.m_Meshes)
+		if (mesh.m_Meshtype == t)
+			return &mesh;
+	return nullptr;
 }
 
 void MeshManager::CreateCubeWireframePrimitive()

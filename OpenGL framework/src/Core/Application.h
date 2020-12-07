@@ -19,7 +19,7 @@ namespace meme
 		{
 			EntityManager::Init();
 			m_Renderer.Init();
-			ShaderManager::Init();
+			ShaderManager::Init("../OpenGL Framework/shaders");
 			MeshManager::Init();
 			//ImGuiManager::Init(); to editor
 		}

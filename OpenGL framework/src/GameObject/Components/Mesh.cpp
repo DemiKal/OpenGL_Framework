@@ -212,19 +212,19 @@ Mesh::Mesh(
 		for (int i = 0; i < m_Indices.size() - 3; i += 3)
 		{
 			int idx1 = m_Indices[i];
-			int idx2 = m_Indices[i+1];
-			int idx3 = m_Indices[i+2];
+			int idx2 = m_Indices[i + 1];
+			int idx3 = m_Indices[i + 2];
 
 			float u1 = mesh->mTextureCoords[0][idx1].x;
 			float v1 = mesh->mTextureCoords[0][idx1].y;
 			glm::vec2 uv1(u1, v1);
 
-			float u2 = mesh->mTextureCoords[0][idx2  ].x;
-			float v2 = mesh->mTextureCoords[0][idx2  ].y;
+			float u2 = mesh->mTextureCoords[0][idx2].x;
+			float v2 = mesh->mTextureCoords[0][idx2].y;
 			glm::vec2 uv2(u2, v2);
 
-			float u3 = mesh->mTextureCoords[0][idx3  ].x;
-			float v3 = mesh->mTextureCoords[0][idx3  ].y;
+			float u3 = mesh->mTextureCoords[0][idx3].x;
+			float v3 = mesh->mTextureCoords[0][idx3].y;
 			glm::vec2 uv3(u3, v3);
 			//std::array< glm::vec2, 3>> face = {uv1, uv2, uv3};
 			std::array< glm::vec2, 3> face = { uv1,uv2,uv3 };
@@ -503,7 +503,8 @@ void Mesh::Draw(Shader& shader)
 		shader.SetInt(name + number, i);
 		//GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
 		// and finally bind the texture
-		GLCall(glBindTexture(GL_TEXTURE_2D, tex.GetID()));
+		GLenum type = tex.GetGLType();
+		GLCall(glBindTexture(type, tex.GetID()));
 	}
 
 	if (!m_animator.m_bones.empty())
@@ -520,7 +521,7 @@ void Mesh::Draw(Shader& shader)
 	glBindVertexArray(m_VAO);
 	if (!m_Indices.empty())
 		glDrawElements(GetElemDrawType(), static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
-	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetVertexCount())); //plane!
+	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetTriangleCount())); //plane!
 
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
@@ -794,6 +795,14 @@ unsigned Mesh::GetVertexCount() const
 	return static_cast<unsigned int>(m_Vertices.size());
 }
 
+uint32_t Mesh::GetTriangleCount()
+{
+	const auto t = GetVertexCount();
+	const auto stride = m_VertexBufferLayout.GetStride();
+	const auto strideBytes = stride / sizeof(float);
+	const auto triCount = t / strideBytes;
+	return triCount;
+}
 void Mesh::AddTexture(const Texture2D& tex)
 {
 	m_Textures.emplace_back(tex);

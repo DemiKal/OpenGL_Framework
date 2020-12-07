@@ -9,11 +9,13 @@ public:
 	//std::vector<FrameBuffer> m_FrameBuffers;
 	FrameBuffer m_FramebufferCamera;
 	ImVec2 m_ImGuiRegionSize;
-
+	//Texture2D m_Skybox;
+	
 	RenderLayer(std::shared_ptr<EditorLayer> edl);
 	void OnAttach() override;
 	void OnDetach() override;
-	void RenderCamera();
+	//void RenderSkybox();
+	void RenderCamera() const;
 	void OnUpdate(float dt) override;
 	void OnImGuiRender(float dt) override;
 };

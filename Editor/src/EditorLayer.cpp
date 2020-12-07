@@ -23,7 +23,7 @@ void EditorLayer::OnAttach()
 	const auto cube = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(cube);
 	m_Registry.emplace<TagComponent>(cube, "Cube");
-	//m_Registry.emplace<MeshComponent>(e, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
+	//m_Registry.emplace<MeshComponent>(e, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 	auto& m = m_Registry.emplace<MeshComponent>(cube, MeshComponent::PrimitiveType::CubeWireframe);
 	m.ShaderIdx = ShaderManager::GetShaderIdx("AABB_single");
 	m_Registry.emplace<CameraComponent>(cube);
@@ -31,10 +31,12 @@ void EditorLayer::OnAttach()
 	const auto spyro = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(spyro);
 	m_Registry.emplace<TagComponent>(spyro, "Spyro the Dragon");
-	//m_Registry.emplace<MeshComponent>(spyro, "res/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	//m_Registry.emplace<MeshComponent>(spyro, "res/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	m_Registry.emplace<MeshComponent>(spyro, "res/meshes/spyro/spyro.obj", aiProcess_Triangulate);
+	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
+	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
+	m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 	m_Selected = spyro;
+
+
 }
 
 void EditorLayer::OnDetach()
@@ -97,11 +99,11 @@ void EditorLayer::OnInput(const float dt)
 	const glm::vec3 up = camSpeed * m_EditorCamera.GetUpVector();
 	const glm::vec3 left = camSpeed * normalize(glm::cross(up, fw));
 
-	if (glfwGetKey(window , GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * fw;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * left;
-	if (glfwGetKey(window , GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * -left;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * -fw;
@@ -279,12 +281,9 @@ void EditorLayer::DrawGizmoMenu()
 
 			minGrp = ImGui::GetItemRectMin() * 0.99f;
 			maxGrp = ImGui::GetItemRectMax() * 1.01f;
-
 		}
 
 		ImGui::EndMenuBar();
-
-
 	}
 }
 
@@ -316,6 +315,27 @@ void EditorLayer::DrawDebugVisuals(float dt)
 	m_SceneFrame.Unbind();
 }
 
+void EditorLayer::RenderSkybox()
+{
+	m_Editor->GetRenderer().SetDepthFunc(GL_LEQUAL);
+	
+	Camera& cam = GetEditorCamera();
+	Mesh* skybox = MeshManager::GetMesh(Meshtype::Skybox);
+	Shader& shader = ShaderManager::GetShader("skybox");
+	shader.Bind();
+	auto view = cam.GetViewMatrix();
+	auto camPos = cam.GetPosition();
+	auto translMat =  (glm::translate(glm::mat4(1.0f), camPos));
+	 
+ 
+ 
+	skybox->Draw(cam, translMat, shader);
+
+	shader.Unbind();
+	m_Editor->GetRenderer().SetDepthFunc(GL_LESS);
+
+}
+
 void EditorLayer::DrawScene(const float dt)
 {
 	//Camera& camera = m_EditorLayer->GetEditorCamera();
@@ -323,16 +343,11 @@ void EditorLayer::DrawScene(const float dt)
 
 	auto [fbWidth, fbHeight] = m_SceneFrame.GetSize();
 
-	if ((fbWidth != static_cast<uint32_t>(m_ImGuiRegionSize.x) ||
-		fbHeight != static_cast<uint32_t>(m_ImGuiRegionSize.y))
-		&& m_ImGuiRegionSize.x > 0 && m_ImGuiRegionSize.y > 0)
+	if ((fbWidth != static_cast<uint32_t>(m_ImGuiRegionSize.x) || fbHeight != static_cast<uint32_t>(m_ImGuiRegionSize.y))	&& m_ImGuiRegionSize.x > 0 && m_ImGuiRegionSize.y > 0)
 	{
 		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
 		m_EditorCamera.SetAspectRatio(aspect);
 	}
-
-	//m_FrameBuffers[0].Bind();
-	//ImVec2 fbSize2 = { 0,1 };
 
 	Renderer& renderer = m_Editor->GetRenderer();
 	renderer.SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
@@ -350,12 +365,16 @@ void EditorLayer::DrawScene(const float dt)
 		mesh.Draw(m_EditorCamera, mat, shader);
 	}
 
+	RenderSkybox();
+	
 	m_SceneFrame.Unbind();
 
+
+
+	//TODO move this elsewhere
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-	ImGui::Begin("##SceneView", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
-
+	ImGui::Begin("##SceneView", nullptr, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
 
 	ImGui::BeginTabBar("Scene");
 	const float windowWidth = ImGui::GetContentRegionAvail().x;
@@ -366,9 +385,6 @@ void EditorLayer::DrawScene(const float dt)
 	const auto buttonWidth = ImGui::CalcTextSize(name).x;
 	ImGui::SameLine(windowWidth - 1.1f * buttonWidth);
 
-
-	//	ImGui::PushItemWidth(-1.0f);
-	//ImGui::SetNextItemWidth( );
 	ImGui::PopStyleVar();
 
 	if (ImGui::Button(name))
@@ -399,31 +415,6 @@ void EditorLayer::DrawScene(const float dt)
 	}
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-	//if (ImGui::BeginCombo("##DebugRenderOptions", comboName.c_str()))
-	//{
-	//	for (auto& [name, enabled] : m_Gizmos)
-	//	{
-	//		//const bool is_selected = (item_current_idx == n);
-	//		if (ImGui::Selectable(items[n], selectedElems[n], ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_SpanAllColumns))
-	//		{
-	//			selectedElems[n] = !selectedElems[n];
-	//		}
-	//
-	//		if (selectedElems[n])
-	//		{
-	//			//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ButtonTextAlign,)
-	//			ImGui::SameLine(comboWidth);
-	//			static bool t = true;
-	//			ImGui::Checkbox("##truebox", &t);
-	//		}
-	//
-	//		// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-	//		//if (selectedElems[n])
-	//		//	ImGui::SetItemDefaultFocus();
-	//	}
-	//	ImGui::EndCombo();
-	//}
-	//
 	if (ImGui::BeginTabItem("View"))
 	{
 		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();

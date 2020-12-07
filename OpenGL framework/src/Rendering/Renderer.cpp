@@ -212,6 +212,8 @@ void Renderer::EnableDepth()
 
 void Renderer::Init()
 {
+	if (m_Initialized) throw std::exception("Renderer already initialized!");
+
 	if (!glfwInit()) throw std::exception("Cant init glfw!");
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -259,9 +261,9 @@ void Renderer::Init()
 	glGetBooleanv(GL_CULL_FACE, &v);
 	m_Cull = v;
 
-	GLint i;
-	glGetIntegerv(GL_CULL_FACE_MODE, &i);
-	m_CullingMode = i;
+	GLint icc;
+	glGetIntegerv(GL_CULL_FACE_MODE, &icc);
+	m_CullingMode = icc;
 
 	GLint sa;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &sa);
@@ -270,9 +272,10 @@ void Renderer::Init()
 	for (GLuint i = 0; i < sa; i++)
 	{
 		const GLubyte* ext = glGetStringi(GL_EXTENSIONS, i);
-		auto asas = 1111;
 		fmt::print("{0} {1}\n", i, static_cast<const unsigned char*>(ext));
 	}
+
+	m_Initialized = true;
 }
 
 

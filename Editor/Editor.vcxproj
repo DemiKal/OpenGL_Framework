@@ -138,6 +138,8 @@
     <None Include="res\shaders\singledotshader.vert" />
     <None Include="res\shaders\singleTriangle.frag" />
     <None Include="res\shaders\singleTriangle.vert" />
+    <None Include="res\shaders\skybox.frag" />
+    <None Include="res\shaders\skybox.vert" />
     <None Include="res\shaders\testshader.frag" />
     <None Include="res\shaders\testshader.vert" />
     <None Include="res\shaders\wireframe.frag" />

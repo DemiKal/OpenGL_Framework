@@ -27,7 +27,7 @@ private:
 	void LoadShaders(const std::string& shaderDirectory);
 
 public:
-	static void Init(const std::string& shaderDirectory = "res/shaders");
+	static void Init(const std::string& shaderDirectory);
 	static void Destroy();
 
 	[[nodiscard]] static unsigned int GetShaderIdx(const std::string& name);

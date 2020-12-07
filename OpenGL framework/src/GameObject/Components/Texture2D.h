@@ -8,14 +8,15 @@ private:
 	std::string m_path = "";
 	unsigned int m_RendererID = 0;
 	unsigned int m_Width = 0;
-	unsigned int m_Height= 0;
-
+	unsigned int m_Height = 0;
+	GLenum m_GLType = GL_TEXTURE_2D;
 	void GetEmbeddedTexture(const aiTexture* texture);
 	void GenerateTexture(unsigned char* data, int nrComponents, int width, int height);
 
 	void TextureFromFile(const std::string& fullPath);
 
 public:
+	Texture2D() = default;
 	Texture2D(const std::string& fullPath, const std::string& typeName);
 	Texture2D(const aiTexture* aitexture, const std::string& texType);
 	Texture2D(
@@ -30,15 +31,18 @@ public:
 		const GLenum wrap_S = GL_CLAMP_TO_BORDER,
 		const GLenum wrap_T = GL_CLAMP_TO_BORDER,
 		const void* data = nullptr);
-
-	~Texture2D() = default;
+	~Texture2D()
+	{
+		fmt::print("Texture2D destructed with ID={}, path={}   \n", m_RendererID, m_path);
+ 	};
 
 	[[nodiscard]] std::string GetType() const;
 	[[nodiscard]] std::string GetPath() const;
 	[[nodiscard]] unsigned int GetID() const;
 	[[nodiscard]] unsigned int GetWidth() const;
 	[[nodiscard]] unsigned int GetHeight() const;
-
+	void LoadCubemap(std::vector<std::string> faces);
+	GLenum GetGLType() const;
 	void Bind(const int textureIndex = 0) const;
 	void Delete();
 };

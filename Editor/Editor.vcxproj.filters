@@ -91,5 +91,7 @@
     <None Include="res\shaders\wireframe.vert" />
     <None Include="res\shaders\AABB_instanced.frag" />
     <None Include="res\shaders\common\common.glsl" />
+    <None Include="res\shaders\skybox.frag" />
+    <None Include="res\shaders\skybox.vert" />
   </ItemGroup>
 </Project>

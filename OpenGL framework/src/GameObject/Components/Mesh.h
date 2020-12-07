@@ -5,21 +5,29 @@
 #include "GameObject/Components/AABB.h"
 #include "Rendering/Buffer/VertexBufferLayout.h"
 #include "Rendering/Shader.h"
-
+enum class Meshtype
+{
+	Regular, Skybox
+};
 class Mesh
 {
+	
 protected:
 	unsigned int m_VAO{ 0 }, m_VBO{ 0 }, m_EBO{ 0 };
 	//vertex bools
 	bool m_AnimationLoaded = false;
 	GLenum m_ElemDrawType = GL_TRIANGLES;
-	std::string m_Directory = "Directory Not initialized";
+	std::string m_Directory = "Not from Directory";
 	std::string m_Filename = "Name not initialized";
 	unsigned int m_WireVAO{ 0 }, m_WireVBO{ 0 };
+	entt::hashed_string m_Tag = "";
+	float m_LineThickness = 0.1f;
+	
 	void CreateBuffers();
 public:
-	float m_LineThickness = 0.1f;
+	Meshtype m_Meshtype = Meshtype::Regular;
 
+	
 	std::vector<float> m_Vertices; //TODO make it dynamic for int and others
 	std::vector<std::array< glm::vec2, 3>>  m_UVs; //TODO make it dynamic for int and others
 
@@ -45,7 +53,7 @@ public:
 		const VertexBufferLayout& vbl);
 	Mesh(const std::vector<float>& p_vertices, const VertexBufferLayout& vbl);
 
-	Mesh(std::vector<float>& vertices, VertexBufferLayout vbl);
+	//Mesh(std::vector<float>& vertices, VertexBufferLayout vbl);
 
 	~Mesh();
 
@@ -67,6 +75,7 @@ public:
 	[[nodiscard]] unsigned int GetVBO();
 	[[nodiscard]] unsigned int GetEBO();
 	[[nodiscard]] unsigned int GetVertexCount() const;
+	uint32_t GetTriangleCount();
 
 	[[nodiscard]] bool HasAnimation() const;
 	[[nodiscard]] bool HasFaceIndices() const;

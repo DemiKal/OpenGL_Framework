@@ -26,13 +26,13 @@ private:
 	bool m_Cull;
 	bool m_DepthTest;
 	bool m_VSync;
-
 	GLFWwindow* m_Window;
 
 	glm::vec4 m_ClearColor;
 
 	static ScreenQuad screenQuad; //TODO delete
 
+	bool m_Initialized = false;
 public:
 	Renderer();
 

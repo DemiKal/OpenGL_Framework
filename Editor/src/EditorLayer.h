@@ -26,7 +26,7 @@ public:
 	ImGuizmo::OPERATION m_TransformWidgetOperation = ImGuizmo::OPERATION::TRANSLATE;
 	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 	std::vector<Gizmo*> m_Gizmos;
-
+	Texture2D m_Skybox;
 
 	EditorLayer(meme::Editor* editor);
 
@@ -35,6 +35,7 @@ public:
 	void OnUpdate(float dt) override;
 	void OnImGuiRender(float dt) override;
 	void DrawDebugVisuals(float dt);
+	void RenderSkybox();
 	void DrawScene(const float dt);
 	void DrawGizmos(const float dt);
 	void DrawCameraInspector(float dt);
@@ -192,7 +193,7 @@ public:
 				for (uint32_t i = 0; i < nrTextures; i++)
 				{
 					ImGui::PushID(i);
-					const Texture2D tex = mesh.m_Textures[i];
+					const Texture2D& tex = mesh.m_Textures[i];
 					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 					//ImGui::Text("Texture type: %s ", tex.GetType().c_str());
 

@@ -1,5 +1,4 @@
 #include "RenderLayer.h"
-#include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/ShaderManager.h"
 #include "ImGuiManager.h"
@@ -10,7 +9,7 @@ RenderLayer::RenderLayer(std::shared_ptr<EditorLayer> edl)
 	Layer("RenderLayer"),
 	m_EditorLayer(std::move(edl))// /*std::make_shared<EditorLayer>(*edl ))
 {
-	//m_FrameBuffers.emplace_back();
+
 }
 
 void RenderLayer::OnAttach()
@@ -22,13 +21,14 @@ void RenderLayer::OnDetach()
 {
 }
 
-void RenderLayer::RenderCamera()
+
+void RenderLayer::RenderCamera() const
 {
 	auto view2 = m_EditorLayer->m_Registry.view<CameraComponent>();
 	auto meshes = m_EditorLayer->m_Registry.view<MeshComponent, TransformComponent>();
 
 	m_FramebufferCamera.Bind(); //TODO: should each cam have its own framebuffer?
-	
+
 	for (auto entity : view2)
 	{
 		m_Editor->GetRenderer().SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);
@@ -37,7 +37,7 @@ void RenderLayer::RenderCamera()
 
 		const auto& cc = m_EditorLayer->m_Registry.get<CameraComponent>(entity);
 
-		for (auto otherEntity : meshes)	//render entities other than itself
+		for (auto otherEntity : meshes)	 
 		{
 			if (otherEntity != entity)
 			{
@@ -48,16 +48,16 @@ void RenderLayer::RenderCamera()
 			}
 		}
 	}
-
 	m_FramebufferCamera.Unbind();
 }
 
 void RenderLayer::OnUpdate(float dt)
 {
- 	RenderCamera();
+	RenderCamera();
+	 
 }
 
 void RenderLayer::OnImGuiRender(float dt)
 {
-	
+	 
 }

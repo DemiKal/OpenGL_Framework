@@ -6,8 +6,6 @@
 #include "ImGuiManager.h"
 #include "RenderLayer.h"
 #include "Rendering/Renderer.h"
-//#include "RenderLayer.h"
-
 
 namespace meme
 {
@@ -27,7 +25,7 @@ namespace meme
 	Editor::Editor(const std::string& name) : Application(name)
 	{
 		ImGuiManager::Init(m_Renderer);
-		
+
 		auto edl = std::make_shared<EditorLayer>(this);
 		m_Layers.emplace_back(edl);
 		m_Layers.back()->OnAttach();
@@ -38,13 +36,13 @@ namespace meme
 		m_Layers.emplace_back(std::make_shared<DebugRenderLayer>(edl));
 		m_Layers.back()->OnAttach();
 
-		for (const auto & layer : m_Layers)
+		for (const auto& layer : m_Layers)
 		{
 			layer->m_Editor = this;
 		}
 	}
 
-	
+
 	void Editor::Run()
 	{
 		fmt::print("running application!\n");
@@ -57,6 +55,8 @@ namespace meme
 
 		float prevFrameTime = static_cast<float>(glfwGetTime());
 		float currentFrameTime = prevFrameTime;
+
+		
 
 		while (m_IsRunning && !glfwWindowShouldClose(window))
 		{
@@ -74,10 +74,10 @@ namespace meme
 				layer->OnUpdate(dt);	//todo: calc frametime
 
 			ImGuiManager::Prepare();
-			
+
 			for (const auto& layer : m_Layers)
 				layer->OnImGuiRender(dt);
-			
+
 			ImGuiManager::End();
 
 			m_Renderer.SwapBuffers();
