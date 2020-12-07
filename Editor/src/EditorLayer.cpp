@@ -46,6 +46,8 @@ void EditorLayer::OnDetach()
 void EditorLayer::OnUpdate(const float dt)
 {
 	OnInput(dt);
+	DrawScene(dt);
+
 }
 
 void EditorLayer::DrawCameraInspector(const float dt)
@@ -214,6 +216,46 @@ void EditorLayer::DrawHierarchyPanel()
 		}
 	}
 
+
+	auto isHovered = ImGui::IsWindowHovered();
+
+	if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && isHovered) m_Selected = entt::null;
+
+	if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && isHovered) ImGui::OpenPopup("ContextMenu");
+
+	if (ImGui::BeginPopup("ContextMenu"))
+	{
+		if (ImGui::MenuItem("Create Empty"))
+		{
+			int count = 0;
+			for (auto entity : view)
+			{
+				auto tc = m_Registry.get<TagComponent>(entity);
+				auto nm = tc.Name.data();
+				std::string snm{ nm };
+				auto find = snm.find("GameObject (");
+				if (strcmp(snm.c_str(), "GameObject") == 0) count++;
+				if (find != std::string::npos) count++;
+			}
+
+			auto newEntity = m_Registry.create();
+			m_Registry.emplace<TransformComponent>(newEntity);
+
+			std::string* newName = new std::string("GameObject" + (count > 0 ? " (" + std::to_string(count) + ")" : ""));
+			auto zzz = entt::hashed_string{ newName->c_str() };
+
+			auto tc = m_Registry.emplace<TagComponent>(newEntity, zzz);
+
+		}
+
+		ImGui::EndPopup();
+	}
+	auto view2 = m_Registry.view<TagComponent>();
+
+
+
+
+
 	ImGui::End();
 }
 
@@ -224,9 +266,11 @@ void EditorLayer::DrawInspectorPanel()
 	{
 		auto& tfc = m_Registry.get<TransformComponent>(m_Selected);
 		DrawUIComponent(tfc, "Transform Component");
-		auto& mc = m_Registry.get<MeshComponent>(m_Selected);
-		DrawUIComponent(mc, "Mesh Component");
-
+		if (m_Registry.has<MeshComponent>(m_Selected))
+		{
+			auto& mc = m_Registry.get<MeshComponent>(m_Selected);
+			DrawUIComponent(mc, "Mesh Component");
+		}
 		if (m_Registry.has<CameraComponent>(m_Selected))
 		{
 			auto& cc = m_Registry.get<CameraComponent>(m_Selected);
@@ -292,86 +336,15 @@ void EditorLayer::OnImGuiRender(const float dt)
 	ImGui::ShowDemoWindow(&yahoo);
 
 	EnableDockSpace();
+	DrawSceneViewport(dt);
 	DrawHierarchyPanel();
 	DrawInspectorPanel();
 	DrawCameraInspector(dt);
-	DrawScene(dt);
 	DrawDebugVisuals(dt);
 }
 
-void EditorLayer::DrawDebugVisuals(float dt)
+void EditorLayer::DrawSceneViewport(float dt)
 {
-	m_SceneFrame.Bind();
-	//for (auto entity : m_Registry.view<CameraComponent>())
-	//{
-	//	auto debugCam = m_Registry.get<CameraComponent>(entity).camera;
-	//	Renderer::DrawFrustum(GetEditorCamera(), debugCam, { 1.0f, 0.5f, 0.3f, 0.98f });
-	//}
-
-	for (auto& gizmo : m_Gizmos)
-		if (gizmo->m_Enabled) gizmo->Draw();
-
-	m_SceneFrame.Unbind();
-}
-
-void EditorLayer::RenderSkybox()
-{
-	m_Editor->GetRenderer().SetDepthFunc(GL_LEQUAL);
-	
-	Camera& cam = GetEditorCamera();
-	Mesh* skybox = MeshManager::GetMesh(Meshtype::Skybox);
-	Shader& shader = ShaderManager::GetShader("skybox");
-	shader.Bind();
-	auto view = cam.GetViewMatrix();
-	auto camPos = cam.GetPosition();
-	auto translMat =  (glm::translate(glm::mat4(1.0f), camPos));
-	 
- 
- 
-	skybox->Draw(cam, translMat, shader);
-
-	shader.Unbind();
-	m_Editor->GetRenderer().SetDepthFunc(GL_LESS);
-
-}
-
-void EditorLayer::DrawScene(const float dt)
-{
-	Renderer& renderer = m_Editor->GetRenderer();
-	m_SceneFrame.Bind();
-
-	auto [fbWidth, fbHeight] = m_SceneFrame.GetSize();
-	auto prevViewport = renderer.GetViewPort();
-	renderer.SetViewPort(0, 0, fbWidth, fbHeight);
-
-	if ((fbWidth != static_cast<uint32_t>(m_ImGuiRegionSize.x) || fbHeight != static_cast<uint32_t>(m_ImGuiRegionSize.y))	&& m_ImGuiRegionSize.x > 0 && m_ImGuiRegionSize.y > 0)
-	{
-		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
-		m_EditorCamera.SetAspectRatio(aspect);
-	}
-
-	renderer.SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
-	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	renderer.EnableDepth();
-	
-	auto view = m_Registry.view<MeshComponent, TransformComponent>();
-	for (auto entity : view)
-	{
-		auto [meshC, transform] = m_Registry.get<MeshComponent, TransformComponent>(entity);
-		const uint32_t idx = meshC.MeshIdx;
-		Mesh& mesh = MeshManager::GetMesh(idx);
-		Shader& shader = ShaderManager::GetShader(meshC.ShaderIdx);
-		const glm::mat4 mat = transform.CalcMatrix();
-		mesh.Draw(m_EditorCamera, mat, shader);
-	}
-
-	RenderSkybox();
-	
-	m_SceneFrame.Unbind();
-	//renderer.SetViewPort(prevViewport);
-
-
-	//TODO move this elsewhere
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
 	ImGui::Begin("##SceneView", nullptr, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
@@ -419,7 +392,7 @@ void EditorLayer::DrawScene(const float dt)
 	{
 		ImGui::BeginChild("GameChild");
 		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
-		 
+
 		const auto texId = m_SceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
 		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
 			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
@@ -440,12 +413,10 @@ void EditorLayer::DrawScene(const float dt)
 				//ImVec2 = avail ImGui::GetContentRegionAvail();
 				auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>(fb.GetTexture().GetID()));
 
-
-				ImVec2 wSize = ImGui::GetWindowSize();
-				ImVec2 wPos = ImGui::GetWindowPos();
-				ImVec2 anchorPos(wPos + wSize);
-
-				ImVec2 bottomRight = wPos + wSize;
+				const ImVec2 wSize = ImGui::GetWindowSize();
+				const ImVec2 wPos = ImGui::GetWindowPos();
+				const ImVec2 anchorPos(wPos + wSize);
+				const ImVec2 bottomRight = wPos + wSize;
 
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 				ImGui::SetNextWindowPos(bottomRight - size - ImVec2(10, 10), ImGuiCond_::ImGuiCond_Always/*, ImVec2(0.5,0.5)*/);
@@ -494,6 +465,82 @@ void EditorLayer::DrawScene(const float dt)
 	//ImGui::EndColumns();
 	ImGui::PopStyleVar();
 	ImGui::End();
+}
+
+
+void EditorLayer::DrawDebugVisuals(float dt)
+{
+	m_SceneFrame.Bind();
+	//for (auto entity : m_Registry.view<CameraComponent>())
+	//{
+	//	auto debugCam = m_Registry.get<CameraComponent>(entity).camera;
+	//	Renderer::DrawFrustum(GetEditorCamera(), debugCam, { 1.0f, 0.5f, 0.3f, 0.98f });
+	//}
+
+	for (auto& gizmo : m_Gizmos)
+		if (gizmo->m_Enabled) gizmo->Draw();
+
+	m_SceneFrame.Unbind();
+}
+
+void EditorLayer::RenderSkybox()
+{
+	m_Editor->GetRenderer().SetDepthFunc(GL_LEQUAL);
+
+	Camera& cam = GetEditorCamera();
+	Mesh* skybox = MeshManager::GetMesh(Meshtype::Skybox);
+	Shader& shader = ShaderManager::GetShader("skybox");
+	shader.Bind();
+	auto view = cam.GetViewMatrix();
+	auto camPos = cam.GetPosition();
+	auto translMat = (glm::translate(glm::mat4(1.0f), camPos));
+
+
+
+	skybox->Draw(cam, translMat, shader);
+
+	shader.Unbind();
+	m_Editor->GetRenderer().SetDepthFunc(GL_LESS);
+
+}
+
+void EditorLayer::DrawScene(const float dt)
+{
+	Renderer& renderer = m_Editor->GetRenderer();
+	m_SceneFrame.Bind();
+
+	auto [fbWidth, fbHeight] = m_SceneFrame.GetSize();
+	auto prevViewport = renderer.GetViewPort();
+	renderer.SetViewPort(0, 0, fbWidth, fbHeight);
+
+	if ((fbWidth != static_cast<uint32_t>(m_ImGuiRegionSize.x) || fbHeight != static_cast<uint32_t>(m_ImGuiRegionSize.y)) && m_ImGuiRegionSize.x > 0 && m_ImGuiRegionSize.y > 0)
+	{
+		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
+		m_EditorCamera.SetAspectRatio(aspect);
+	}
+
+	renderer.SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
+	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	renderer.EnableDepth();
+
+	auto view = m_Registry.view<MeshComponent, TransformComponent>();
+	for (auto entity : view)
+	{
+		auto [meshC, transform] = m_Registry.get<MeshComponent, TransformComponent>(entity);
+		const uint32_t idx = meshC.MeshIdx;
+		Mesh& mesh = MeshManager::GetMesh(idx);
+		Shader& shader = ShaderManager::GetShader(meshC.ShaderIdx);
+		const glm::mat4 mat = transform.CalcMatrix();
+		mesh.Draw(m_EditorCamera, mat, shader);
+	}
+
+	RenderSkybox();
+
+	m_SceneFrame.Unbind();
+	//renderer.SetViewPort(prevViewport);
+
+
+
 
 }
 
@@ -514,7 +561,7 @@ void EditorLayer::DrawGizmos(const float dt)
 	auto vporS = ImGui::GetWindowViewport()->Pos;
 	auto vporW = ImGui::GetWindowViewport()->Size;
 	//auto diff = windowHeight - m_ImGuiRegionSize.y; //TODO: check if this really fixes it!
-	ImGuizmo::SetRect(windowPos.x,  windowPos.y, m_ImGuiRegionSize.x, m_ImGuiRegionSize.y );
+	ImGuizmo::SetRect(windowPos.x, windowPos.y, m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
 
 	auto projMat = m_EditorCamera.GetProjectionMatrix();
 	auto viewMat = m_EditorCamera.GetViewMatrix();

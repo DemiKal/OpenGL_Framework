@@ -34,6 +34,7 @@ public:
 	void OnDetach() override;
 	void OnUpdate(float dt) override;
 	void OnImGuiRender(float dt) override;
+	void DrawSceneViewport(float dt);
 	void DrawDebugVisuals(float dt);
 	void RenderSkybox();
 	void DrawScene(const float dt);
