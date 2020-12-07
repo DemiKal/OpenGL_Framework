@@ -7,6 +7,10 @@
 #include "Rendering/Buffer/FrameBuffer.h"
 //#include "Gizmos/FrustumGizmo.h"
 #include "Gizmos/Gizmo.h"
+#include "UI Panels/InspectorPanel.h"
+#include "UI Panels/Panel.h"
+#include "UI Panels/SceneHierarchyPanel.h"
+#include "UI Panels/ViewportPanel.h"
 
 namespace meme {
 	class Editor;
@@ -27,6 +31,11 @@ public:
 	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 	std::vector<Gizmo*> m_Gizmos;
 	Texture2D m_Skybox;
+
+	InspectorPanel m_InspectorPanel = { this };
+	SceneHierarchyPanel m_SceneHierarchyPanel = { this }; 
+	ViewportPanel m_ViewportPanel = { this };
+	//Panel panel{ this };
 
 	EditorLayer(meme::Editor* editor);
 

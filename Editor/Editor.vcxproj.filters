@@ -36,6 +36,18 @@
     <ClInclude Include="src\Gizmos\Gizmo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\UI Panels\Panel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI Panels\SceneHierarchyPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI Panels\InspectorPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI Panels\ViewportPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Editor.cpp">
@@ -54,6 +66,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Gizmos\FrustumGizmo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI Panels\SceneHierarchyPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI Panels\InspectorPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI Panels\ViewportPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -236,8 +236,7 @@ void Renderer::Init(std::vector<std::tuple<int, int>> windowHints)
 	/* Create a windowed mode window and its OpenGL context */
 	//auto xx = glfwGetPrimaryMonitor();
 	m_Window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, nullptr);
-
-	if (!m_Window)
+ 	if (!m_Window)
 	{
 		glfwTerminate();
 		throw std::exception("ERROR: Could not create GLFW window!");

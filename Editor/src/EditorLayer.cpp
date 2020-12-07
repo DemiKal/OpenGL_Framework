@@ -10,7 +10,8 @@
 EditorLayer::EditorLayer(meme::Editor* editor) :
 	Layer("EditorLayer"),
 	m_Editor(editor),
-	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)
+	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)  
+	//, m_SceneHierarchyPanel{ this }, m_ViewportPanel{ this }
 {
 	m_Gizmos.emplace_back(new FrustumGizmo(this));
 }
@@ -200,87 +201,6 @@ void EditorLayer::EnableDockSpace()
 	ImGui::End();
 }
 
-void EditorLayer::DrawHierarchyPanel()
-{
-	const auto flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
-	ImGui::Begin("Entities", NULL, flags);
-	auto view = m_Registry.view<TagComponent>();
-	for (auto entity : view)
-	{
-		auto name = m_Registry.get<TagComponent>(entity);
-		const auto nodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
-
-		if (ImGui::Selectable(name.Name, m_Selected == entity))
-		{
-			m_Selected = entity;
-		}
-	}
-
-
-	auto isHovered = ImGui::IsWindowHovered();
-
-	if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && isHovered) m_Selected = entt::null;
-
-	if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && isHovered) ImGui::OpenPopup("ContextMenu");
-
-	if (ImGui::BeginPopup("ContextMenu"))
-	{
-		if (ImGui::MenuItem("Create Empty"))
-		{
-			int count = 0;
-			for (auto entity : view)
-			{
-				auto tc = m_Registry.get<TagComponent>(entity);
-				auto nm = tc.Name.data();
-				std::string snm{ nm };
-				auto find = snm.find("GameObject (");
-				if (strcmp(snm.c_str(), "GameObject") == 0) count++;
-				if (find != std::string::npos) count++;
-			}
-
-			auto newEntity = m_Registry.create();
-			m_Registry.emplace<TransformComponent>(newEntity);
-
-			std::string* newName = new std::string("GameObject" + (count > 0 ? " (" + std::to_string(count) + ")" : ""));
-			auto zzz = entt::hashed_string{ newName->c_str() };
-
-			auto tc = m_Registry.emplace<TagComponent>(newEntity, zzz);
-
-		}
-
-		ImGui::EndPopup();
-	}
-	auto view2 = m_Registry.view<TagComponent>();
-
-
-
-
-
-	ImGui::End();
-}
-
-void EditorLayer::DrawInspectorPanel()
-{
-	ImGui::Begin("Inspector");
-	if (m_Selected != entt::null)
-	{
-		auto& tfc = m_Registry.get<TransformComponent>(m_Selected);
-		DrawUIComponent(tfc, "Transform Component");
-		if (m_Registry.has<MeshComponent>(m_Selected))
-		{
-			auto& mc = m_Registry.get<MeshComponent>(m_Selected);
-			DrawUIComponent(mc, "Mesh Component");
-		}
-		if (m_Registry.has<CameraComponent>(m_Selected))
-		{
-			auto& cc = m_Registry.get<CameraComponent>(m_Selected);
-			DrawUIComponent(cc, "Camera Component", m_Selected);
-		}
-	}
-
-	ImGui::End();
-}
-
 Camera& EditorLayer::GetEditorCamera()
 {
 	return m_EditorCamera;
@@ -335,136 +255,18 @@ void EditorLayer::OnImGuiRender(const float dt)
 	static bool yahoo = true;
 	ImGui::ShowDemoWindow(&yahoo);
 
-	EnableDockSpace();
-	DrawSceneViewport(dt);
-	DrawHierarchyPanel();
-	DrawInspectorPanel();
+	EnableDockSpace();	
+	m_ViewportPanel.OnImGuiRender(dt);
+	m_SceneHierarchyPanel.OnImGuiRender(dt);
+	m_InspectorPanel.OnImGuiRender(dt);
+
 	DrawCameraInspector(dt);
 	DrawDebugVisuals(dt);
 }
 
 void EditorLayer::DrawSceneViewport(float dt)
 {
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-	ImGui::Begin("##SceneView", nullptr, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
-
-	ImGui::BeginTabBar("Scene");
-	const float windowWidth = ImGui::GetContentRegionAvail().x;
-	const float widgetWidth = 150.0f;
-
-	//std::string comboName = "Debug Render Options";
-	const char* name = "Gizmos..";
-	const auto buttonWidth = ImGui::CalcTextSize(name).x;
-	ImGui::SameLine(windowWidth - 1.1f * buttonWidth);
-
-	ImGui::PopStyleVar();
-
-	if (ImGui::Button(name))
-		ImGui::OpenPopup("MyGizmoPopup");
-
-	if (ImGui::BeginPopup("MyGizmoPopup"))
-	{
-		ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
-		for (auto& gizmo : m_Gizmos)
-		{
-			if (&gizmo->m_Enabled)
-			{
-				if (ImGui::BeginMenu(gizmo->m_Name.c_str()))
-				{
-					ImGui::MenuItem("Enable", "", &gizmo->m_Enabled);
-					ImGui::ColorEdit4("##MyColor", &gizmo->m_Color[0], ImGuiColorEditFlags_NoInputs);
-
-					ImGui::EndMenu();
-				}
-			}
-
-
-			ImGui::PopItemFlag();
-			ImGui::EndPopup();
-
-
-		}
-	}
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
-	if (ImGui::BeginTabItem("View"))
-	{
-		ImGui::BeginChild("GameChild");
-		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
-
-		const auto texId = m_SceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
-		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
-			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
-		auto xy = ImGui::GetItemRectSize();
-		//fmt::print("region: {} {}\n", m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
-		DrawGizmos(dt);
-
-		if (m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
-		{
-			RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();
-			if (rl)
-			{
-				FrameBuffer& fb = rl->m_FramebufferCamera;
-				const float aspect = fb.GetAspect();
-				const ImVec2 sizeOG(250, 250);
-				const ImVec2 size(sizeOG.x, sizeOG.y / aspect);
-
-				//ImVec2 = avail ImGui::GetContentRegionAvail();
-				auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>(fb.GetTexture().GetID()));
-
-				const ImVec2 wSize = ImGui::GetWindowSize();
-				const ImVec2 wPos = ImGui::GetWindowPos();
-				const ImVec2 anchorPos(wPos + wSize);
-				const ImVec2 bottomRight = wPos + wSize;
-
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-				ImGui::SetNextWindowPos(bottomRight - size - ImVec2(10, 10), ImGuiCond_::ImGuiCond_Always/*, ImVec2(0.5,0.5)*/);
-				ImGui::SetNextWindowSize(size, ImGuiCond_::ImGuiCond_Always);
-
-				const auto flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
-					ImGuiWindowFlags_::ImGuiWindowFlags_NoDocking |
-					ImGuiWindowFlags_::ImGuiWindowFlags_NoResize |
-					ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar;
-
-				if (ImGui::Begin("Selected camera view"), nullptr, flags)
-				{
-					ImVec2 newSize = ImGui::GetContentRegionAvail();
-					ImGui::Image(texid, newSize, ImVec2(0, 1), ImVec2(1, 0));
-
-					//ImVec2 collapsedSize = ImGui::GetWindowSize();
-					//ImGui::SetWindowPos(bottomRight - collapsedSize, ImGuiCond_::ImGuiCond_Always);
-					ImGui::End();
-				}
-
-				ImGui::PopStyleVar();
-			}
-		}
-		ImGui::EndChild();
-
-		ImGui::EndTabItem();
-	}
-
-	if (ImGui::BeginTabItem("Game"))
-	{
-		ImGui::BeginChild("GameSubWindow");
-		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
-		RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();	//TODO: use a render manager to get framebuffer!
-		if (rl)
-		{
-			auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>(rl->m_FramebufferCamera.GetTexture().GetID()));
-			ImGui::Image(texid, m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
-
-		}
-		//ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
-		ImGui::EndChild();
-		ImGui::EndTabItem();
-	}
-
-	ImGui::EndTabBar();
-	//ImGui::EndColumns();
-	ImGui::PopStyleVar();
-	ImGui::End();
 }
 
 
@@ -538,7 +340,6 @@ void EditorLayer::DrawScene(const float dt)
 
 	m_SceneFrame.Unbind();
 	//renderer.SetViewPort(prevViewport);
-
 
 
 
