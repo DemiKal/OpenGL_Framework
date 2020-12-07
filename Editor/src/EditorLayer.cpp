@@ -417,11 +417,13 @@ void EditorLayer::DrawScene(const float dt)
 
 	if (ImGui::BeginTabItem("View"))
 	{
+		ImGui::BeginChild("GameChild");
 		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
+		 
 		const auto texId = m_SceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
 		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
 			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
-
+		auto xy = ImGui::GetItemRectSize();
 		//fmt::print("region: {} {}\n", m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
 		DrawGizmos(dt);
 
@@ -467,12 +469,14 @@ void EditorLayer::DrawScene(const float dt)
 				ImGui::PopStyleVar();
 			}
 		}
+		ImGui::EndChild();
 
 		ImGui::EndTabItem();
 	}
 
 	if (ImGui::BeginTabItem("Game"))
 	{
+		ImGui::BeginChild("GameSubWindow");
 		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
 		RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();	//TODO: use a render manager to get framebuffer!
 		if (rl)
@@ -481,8 +485,8 @@ void EditorLayer::DrawScene(const float dt)
 			ImGui::Image(texid, m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
 
 		}
-
 		//ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
+		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
 
@@ -506,11 +510,15 @@ void EditorLayer::DrawGizmos(const float dt)
 
 	float windowWidth = (float)ImGui::GetWindowWidth();
 	float windowHeight = (float)ImGui::GetWindowHeight();
-	ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+	auto windowPos = ImGui::GetWindowPos();
+	auto vporS = ImGui::GetWindowViewport()->Pos;
+	auto vporW = ImGui::GetWindowViewport()->Size;
+	//auto diff = windowHeight - m_ImGuiRegionSize.y; //TODO: check if this really fixes it!
+	ImGuizmo::SetRect(windowPos.x,  windowPos.y, m_ImGuiRegionSize.x, m_ImGuiRegionSize.y );
 
 	auto projMat = m_EditorCamera.GetProjectionMatrix();
 	auto viewMat = m_EditorCamera.GetViewMatrix();
-
+	auto avail = ImGui::GetContentRegionAvail();
 	TransformComponent& tc = m_Registry.get<TransformComponent>(m_Selected);
 	glm::mat4 transform = tc.CalcMatrix();//tc.Position
 
