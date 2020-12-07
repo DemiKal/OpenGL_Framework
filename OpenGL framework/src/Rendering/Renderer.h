@@ -19,71 +19,54 @@ class Camera;
 class Renderer
 {
 private:
-
 	GLenum m_CullingMode;
 	GLenum m_DepthFunction;
 
 	bool m_AlphaBlending;
 	bool m_Cull;
 	bool m_DepthTest;
+	bool m_VSync;
 
 	GLFWwindow* m_Window;
 
+	glm::vec4 m_ClearColor;
+
 	static ScreenQuad screenQuad; //TODO delete
 
-	void _DisableDepth();
-	void _EnableDepth();
-	void _SetAlphaBlending(bool alphaValue);
-	void _SetVSync(bool cond);
 public:
-	static bool GetVsync();
-	bool m_VSync;
 	Renderer();
-	static void ShutDown();
-	static void DrawFrustum(const Camera& renderCam, Camera& debugCam, const glm::vec4& color);
-	static void DrawLine(const glm::mat4& model, const  Camera& cam, const glm::vec3& a, const glm::vec3& b, const glm::vec4& color);
-	void CreateLine();
-	void CalcFrameTime(float deltaTime);
-	void UpdateUI(float deltaTime);
-	static void Clear();
-	static void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
-	static void SetAlphaBlending(bool alphaValue);
-	static void SetVSync(bool cond);
-	static void BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> target);
-	static void SwapBuffers(GLFWwindow* window);
-	static void BlitFrameBuffer(unsigned int from,
-		unsigned int to,
-		GLenum type,
-		glm::ivec2 srcStart = { 0,0 },
-		glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT },
-		glm::ivec2 destStart = { 0,0 },
-		glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT },
-		GLenum filterMethod = GL_NEAREST);
 
-	[[nodiscard]] static bool GetAlphaBlending();
-	[[nodiscard]] uint32_t GetCubeVAO() const;
-	[[nodiscard]] static GLenum GetDepthFunc();
-	[[nodiscard]] static GLenum GetCullingMode();
+	void Init();
+	void ShutDown();
+	void DisableDepth();
+	void EnableDepth();
 
-	//use this before calling Clear for a specific color
-	static void SetClearColor(float r, float g, float b, float a);
-	static void SetClearColor(const glm::vec4& color);
-	static void Clear(GLenum type);
-	static void Enable(GLenum type);
-	static void DrawScreenQuad();
-	static void EnableDepth();
-	static void DisableDepth();
-	void _Init();
-	static void Init();
-	static void SwapBuffers();
-	static GLFWwindow* GetWindow();
-	static Renderer& GetInstance();
-	void CreateCubeMesh();
-	void CreateTriangle();
-	void CreatePlane();
-	void DrawInstancedCubes(GLsizei instanceCount) const;
-	void DrawCube(const Camera& cam, const glm::mat4& transform, glm::vec4 color) const;
-	void SetDepthFunc(GLenum depthFunc);
+	void SetAlphaBlending(bool alphaValue);
 	void SetCullingMode(GLenum cullingMode);
+	void SetDepthFunc(GLenum depthFunc);
+	void SetVSync(bool cond);
 
+	void Clear(); //TODO: check color clear! 
+	void Clear(GLenum type);	//use this before calling Clear for a specific color
+	void DrawCube(const Camera& cam, const glm::mat4& transform, glm::vec4 color) const;
+	void DrawFrustum(const Camera& renderCam, Camera& debugCam, const glm::vec4& color);
+	void DrawInstancedCubes(GLsizei instanceCount) const;
+	void DrawLine(const glm::mat4& model, const  Camera& cam, const glm::vec3& a, const glm::vec3& b, const glm::vec4& color);
+	void Enable(GLenum type);
+	void Draw(const VertexArray& va, const IndexBuffer& ib, const  Shader& shader);
+	void SetClearColor(float r, float g, float b, float a);
+	void SetClearColor(const glm::vec4& color);
+	void SwapBuffers() const;
+
+	static void DrawScreenQuad();
+	static void BlitTexture(FrameBuffer& frameBuffer, std::optional<FrameBuffer> target); //TODO just use nullptr check
+	static void SwapBuffers(GLFWwindow* window);
+	//TODO: use some specification struct for blitting!
+	static void BlitFrameBuffer(unsigned int from, unsigned int to, GLenum type, glm::ivec2 srcStart = { 0,0 }, glm::ivec2 srcEnd = { SCREENWIDTH, SCREENHEIGHT }, glm::ivec2 destStart = { 0,0 }, glm::ivec2 destEnd = { SCREENWIDTH, SCREENHEIGHT }, GLenum filterMethod = GL_NEAREST);
+
+	[[nodiscard]] bool GetAlphaBlending() const;
+	[[nodiscard]] GLenum GetDepthFunc() const;
+	[[nodiscard]] GLenum GetCullingMode() const;
+	[[nodiscard]] bool GetVSync() const;
+	[[nodiscard]] GLFWwindow* GetWindow();
 };

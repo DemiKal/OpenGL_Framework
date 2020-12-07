@@ -28,12 +28,12 @@ void RenderLayer::RenderCamera()
 	auto meshes = m_EditorLayer->m_Registry.view<MeshComponent, TransformComponent>();
 
 	m_FramebufferCamera.Bind(); //TODO: should each cam have its own framebuffer?
-
+	
 	for (auto entity : view2)
 	{
-		Renderer::SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-		Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Renderer::EnableDepth();
+		m_Editor->GetRenderer().SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+		m_Editor->GetRenderer().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		m_Editor->GetRenderer().EnableDepth();
 
 		const auto& cc = m_EditorLayer->m_Registry.get<CameraComponent>(entity);
 

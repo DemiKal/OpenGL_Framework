@@ -88,7 +88,8 @@ void EditorLayer::DrawCameraInspector(const float dt)
 
 void EditorLayer::OnInput(const float dt)
 {
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	auto* window = m_Editor->GetRenderer().GetWindow();
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		m_Editor->StopRunning();
 
 	const float camSpeed = 25.0f; ;
@@ -96,21 +97,21 @@ void EditorLayer::OnInput(const float dt)
 	const glm::vec3 up = camSpeed * m_EditorCamera.GetUpVector();
 	const glm::vec3 left = camSpeed * normalize(glm::cross(up, fw));
 
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window , GLFW_KEY_W) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * fw;
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * left;
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(window , GLFW_KEY_D) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * -left;
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * -fw;
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * up;
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_C) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
 		m_EditorCamera.GetPosition() += dt * -up;
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_E) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		m_EditorCamera.RotateLocalY(-1.0f * dt);
-	if (glfwGetKey(Renderer::GetWindow(), GLFW_KEY_Q) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		m_EditorCamera.RotateLocalY(1.0f * dt);
 }
 
@@ -256,14 +257,13 @@ void EditorLayer::DrawGizmoMenu()
 		using o = ImGuizmo::OPERATION;
 
 		//ImGui::setnextpos
- 		ImGui::SameLine(ImGui::GetContentRegionAvail().x / 3);
-		static ImVec2 minGrp{0,0}; 
-		static ImVec2 maxGrp{0,0}; 
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x / 3);
+		static ImVec2 minGrp{ 0, 0 };
+		static ImVec2 maxGrp{ 0, 0 };
 
-		//if (ImGui::BeginChild("transform mode", ImGui::GetContentRegionAvail()  , true))
 		{
 
-			ImGui::GetWindowDrawList()->AddRectFilled(minGrp, maxGrp, IM_COL32(0, 12, 23, 255));
+			ImGui::GetWindowDrawList()->AddRectFilled(minGrp, maxGrp, IM_COL32(0, 12, 23, 190));
 
 			ImGui::BeginGroup();
 
@@ -333,9 +333,11 @@ void EditorLayer::DrawScene(const float dt)
 
 	//m_FrameBuffers[0].Bind();
 	//ImVec2 fbSize2 = { 0,1 };
-	Renderer::SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
-	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	Renderer::EnableDepth();
+
+	Renderer& renderer = m_Editor->GetRenderer();
+	renderer.SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
+	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	renderer.EnableDepth();
 
 	auto view = m_Registry.view<MeshComponent, TransformComponent>();
 	for (auto entity : view)

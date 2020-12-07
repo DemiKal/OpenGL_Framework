@@ -26,7 +26,8 @@ namespace meme
 
 	Editor::Editor(const std::string& name) : Application(name)
 	{
-		ImGuiManager::Init();
+		ImGuiManager::Init(m_Renderer);
+		
 		auto edl = std::make_shared<EditorLayer>(this);
 		m_Layers.emplace_back(edl);
 		m_Layers.back()->OnAttach();
@@ -37,7 +38,7 @@ namespace meme
 		m_Layers.emplace_back(std::make_shared<DebugRenderLayer>(edl));
 		m_Layers.back()->OnAttach();
 
-		for (const auto layer : m_Layers)
+		for (const auto & layer : m_Layers)
 		{
 			layer->m_Editor = this;
 		}
@@ -49,11 +50,11 @@ namespace meme
 		fmt::print("running application!\n");
 
 		m_IsRunning = true;
-		GLFWwindow* window = Renderer::GetWindow();
+		GLFWwindow* window = m_Renderer.GetWindow();
 
-		Renderer::EnableDepth();
+		m_Renderer.EnableDepth();
+		m_Renderer.SetVSync(true);
 
-		Renderer::SetVSync(true);
 		float prevFrameTime = static_cast<float>(glfwGetTime());
 		float currentFrameTime = prevFrameTime;
 
@@ -79,12 +80,12 @@ namespace meme
 			
 			ImGuiManager::End();
 
-			Renderer::SwapBuffers();
+			m_Renderer.SwapBuffers();
 		}
 
-		fmt::print("Stopping Application!");
+		fmt::print("Stopping Application!\n");
 		ImGuiManager::ShutDown();
-		Renderer::ShutDown();
+		m_Renderer.ShutDown();
 	}
 
 	void Editor::StopRunning()

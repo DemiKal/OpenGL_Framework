@@ -9,7 +9,7 @@ void ImGuiManager::Prepare()
 	ImGuizmo::BeginFrame();
 }
 
-void ImGuiManager::Init()
+void ImGuiManager::Init(  Renderer& renderer)
 {
 	//glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
 	IMGUI_CHECKVERSION();
@@ -48,8 +48,8 @@ void ImGuiManager::Init()
 	colors[ImGuiCol_TabActive] = ImVec4(0.40f, 0.47f, 0.55f, 0.95f);
 	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.24f, 0.13f, 0.13f, 0.74f);
 	colors[ImGuiCol_DockingPreview] = ImVec4(0.57f, 0.67f, 0.80f, 0.70f);
-
-	ImGui_ImplGlfw_InitForOpenGL(Renderer::GetWindow(), true);
+	
+	ImGui_ImplGlfw_InitForOpenGL(renderer.GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 410");
 
 

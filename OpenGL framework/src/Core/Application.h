@@ -18,14 +18,14 @@ namespace meme
 		explicit Application(std::string name) : m_Name(std::move(name))
 		{
 			EntityManager::Init();
-			Renderer::Init();
+			m_Renderer.Init();
 			ShaderManager::Init();
 			MeshManager::Init();
 			//ImGuiManager::Init(); to editor
 		}
 
-		virtual void Run() {};
-		 
+		virtual void Run() {}
+		Renderer& GetRenderer() { return m_Renderer; }
 
 	private:
 		friend int ::main(int argc, char** argv);
@@ -33,6 +33,7 @@ namespace meme
 	protected:
 		std::vector<std::shared_ptr<Layer>> m_Layers;
 		std::string m_Name;
+		Renderer m_Renderer;
 	};
 
 	Application* CreateApplication();

@@ -108,7 +108,7 @@ void Gbuffer::LightingPass(const FrameBuffer& frameBuffer, Camera& lightCam, con
 {
 
 	frameBuffer.Bind();
-	Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//Renderer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //TODO: REMOVE RENDERER SINGLETON!
 
 	Shader& shader = ShaderManager::GetShader(m_lightingShader);
 	shader.Bind();

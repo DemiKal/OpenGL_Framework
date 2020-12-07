@@ -15,7 +15,8 @@ class ImGuiManager //possibly convert to layer if needed?
 public:
 	static void Prepare();
 	static void End();
-	static void Init();
+	static void Init(Renderer& renderer);
 	static void ShutDown();
+	
 };
 

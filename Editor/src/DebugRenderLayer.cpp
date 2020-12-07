@@ -46,9 +46,10 @@ void DebugRenderLayer::OnUpdate(float dt)
 void DebugRenderLayer::OnImGuiRender(float dt)
 {
 	ImGui::Begin("Debug Render Layer");
-	bool vsync = Renderer::GetVsync();
+	Renderer& renderer = m_Editor->GetRenderer();
+	  bool vsync = renderer.GetVSync();
 	ImGui::Checkbox("Vsync", &vsync);
-	Renderer::SetVSync(vsync);
+	renderer.SetVSync(vsync);
 	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 	if (ImGui::TreeNode("Camera frustum debug"))
 	{
@@ -62,5 +63,5 @@ void DebugRenderLayer::OnImGuiRender(float dt)
 	//ImGui::Begin("Scene", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
 
 	//ImGui::End();
-	 
+
 }

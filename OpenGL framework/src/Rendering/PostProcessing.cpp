@@ -8,7 +8,8 @@
 
 void PostProcessing::ShadowCastGLSL(Camera& camera, Gbuffer& gBuffer)
 {
-	Renderer::DisableDepth();
+	
+	//Renderer::DisableDepth(); //TODO: REMOVE RENDERER SINGLETON!
 	Shader& shader = ShaderManager::GetShader("shadow_cast");
 
 	static bool castShadows = false;
