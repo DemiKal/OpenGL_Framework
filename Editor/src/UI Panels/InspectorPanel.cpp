@@ -1,29 +1,25 @@
-#include "InspectorPanel.h"
-//#include //"
-#include "ImGuiManager.h"
-#include "GameObject/Components/EntityComponents.h"
+//#include "InspectorPanel.h"
+////#include //"
+//#include "ImGuiManager.h"
+//#include "GameObject/Components/EntityComponents.h"
+#include "EditorLayer.h"
 
-InspectorPanel::InspectorPanel(EditorLayer* edl) : Panel(edl)
-{
-
-};
-
-void  InspectorPanel::OnImGuiRender(float dt)
+void  EditorLayer::RenderInspectorPanel(float dt)
 {
 	ImGui::Begin("Inspector");
-	if (m_Edl->m_Selected != entt::null)
+	if (m_Selected != entt::null)
 	{
-		auto& tfc = m_Edl->m_Registry.get<TransformComponent>(m_Edl->m_Selected);
-		m_Edl->DrawUIComponent(tfc, "Transform Component");
-		if (m_Edl->m_Registry.has<MeshComponent>(m_Edl->m_Selected))
+		auto& tfc = m_Registry.get<TransformComponent>(m_Selected);
+		DrawUIComponent(tfc, "Transform Component");
+		if (m_Registry.has<MeshComponent>(m_Selected))
 		{
-			auto& mc = m_Edl->m_Registry.get<MeshComponent>(m_Edl->m_Selected);
-			m_Edl->DrawUIComponent(mc, "Mesh Component");
+			auto& mc = m_Registry.get<MeshComponent>(m_Selected);
+			DrawUIComponent(mc, "Mesh Component");
 		}
-		if (m_Edl->m_Registry.has<CameraComponent>(m_Edl->m_Selected))
+		if (m_Registry.has<CameraComponent>(m_Selected))
 		{
-			auto& cc = m_Edl->m_Registry.get<CameraComponent>(m_Edl->m_Selected);
-			m_Edl->DrawUIComponent(cc, "Camera Component", m_Edl->m_Selected);
+			auto& cc = m_Registry.get<CameraComponent>(m_Selected);
+			DrawUIComponent(cc, "Camera Component", m_Selected);
 		}
 	}
 

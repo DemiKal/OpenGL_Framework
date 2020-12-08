@@ -5,12 +5,7 @@
 #include "ImGuiManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/Buffer/FrameBuffer.h"
-//#include "Gizmos/FrustumGizmo.h"
 #include "Gizmos/Gizmo.h"
-#include "UI Panels/InspectorPanel.h"
-#include "UI Panels/Panel.h"
-#include "UI Panels/SceneHierarchyPanel.h"
-#include "UI Panels/ViewportPanel.h"
 
 namespace meme {
 	class Editor;
@@ -32,18 +27,12 @@ public:
 	std::vector<Gizmo*> m_Gizmos;
 	Texture2D m_Skybox;
 
-	InspectorPanel m_InspectorPanel = { this };
-	SceneHierarchyPanel m_SceneHierarchyPanel = { this }; 
-	ViewportPanel m_ViewportPanel = { this };
-	//Panel panel{ this };
-
 	EditorLayer(meme::Editor* editor);
 
 	void OnAttach() override;
 	void OnDetach() override;
 	void OnUpdate(float dt) override;
 	void OnImGuiRender(float dt) override;
-	void DrawSceneViewport(float dt);
 	void DrawDebugVisuals(float dt);
 	void RenderSkybox();
 	void DrawScene(const float dt);
@@ -52,8 +41,6 @@ public:
 	void OnInput(const float dt);
 	void EnableDockSpace();
 	//void DrawMenuBar();
-	void DrawHierarchyPanel();
-	void DrawInspectorPanel();
 	Camera& GetEditorCamera();
 
 	void DrawGizmoMenu();
@@ -248,7 +235,7 @@ public:
 						//draw UVs
 						if (!mesh.m_UVs.empty() && overlayUVs && i == 0)
 						{
-							for (auto face : mesh.m_UVs)
+							for (auto &face : mesh.m_UVs)
 							{
 								auto uv1 = glm::mod(face[0], 1.0f);	 uv1.y = 1.0f - uv1.y;
 								auto uv2 = glm::mod(face[1], 1.0f);	 uv2.y = 1.0f - uv2.y;
@@ -279,4 +266,8 @@ public:
 		ImGui::Separator();
 		ImGui::PopStyleColor();
 	}
+
+	void RenderViewportPanel(float dt);
+	void RenderInspectorPanel(float dt);
+	void RenderSceneHierarchyPanel(float dt);
 };

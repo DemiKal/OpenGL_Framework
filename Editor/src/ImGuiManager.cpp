@@ -1,5 +1,5 @@
 #include "ImGuiManager.h"
- #include "vendor/ImGuizmo/ImGuizmo.h"
+#include "vendor/ImGuizmo/ImGuizmo.h"
 
 void ImGuiManager::Prepare()
 {
@@ -9,7 +9,7 @@ void ImGuiManager::Prepare()
 	ImGuizmo::BeginFrame();
 }
 
-void ImGuiManager::Init(  Renderer& renderer)
+void ImGuiManager::Init(Renderer& renderer)
 {
 	//glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
 	IMGUI_CHECKVERSION();
@@ -18,7 +18,7 @@ void ImGuiManager::Init(  Renderer& renderer)
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-	
+
 	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/fonts/OpenSans/OpenSans-Regular.ttf", 18.0f);
 	io.Fonts->AddFontFromFileTTF("Assets/fonts/Nunito/Nunito-Regular.ttf", 18.0f);
 	io.Fonts->AddFontFromFileTTF("Assets/fonts/NotoSansJP/NotoSansJP-Regular.otf", 18.0f);
@@ -27,7 +27,7 @@ void ImGuiManager::Init(  Renderer& renderer)
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
-	
+
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_FrameBg] = ImVec4(0.22f, 0.22f, 0.22f, 0.54f);
 	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.33f, 0.40f, 0.48f, 0.40f);
@@ -48,7 +48,7 @@ void ImGuiManager::Init(  Renderer& renderer)
 	colors[ImGuiCol_TabActive] = ImVec4(0.40f, 0.47f, 0.55f, 0.95f);
 	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.24f, 0.13f, 0.13f, 0.74f);
 	colors[ImGuiCol_DockingPreview] = ImVec4(0.57f, 0.67f, 0.80f, 0.70f);
-	
+
 	ImGui_ImplGlfw_InitForOpenGL(renderer.GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 410");
 

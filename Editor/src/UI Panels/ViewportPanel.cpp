@@ -1,11 +1,10 @@
-#include "ViewportPanel.h"
-#include "RenderLayer.h"
+//#include "ViewportPanel.h"
+//#include "RenderLayer.h"
+#include "EditorLayer.h"
+#include <RenderLayer.h>
 
-ViewportPanel::ViewportPanel(EditorLayer* edl) : Panel(edl)
-{
 
-}
-void ViewportPanel::OnImGuiRender(float dt)
+void EditorLayer::RenderViewportPanel(float dt)
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
@@ -28,7 +27,7 @@ void ViewportPanel::OnImGuiRender(float dt)
 	if (ImGui::BeginPopup("MyGizmoPopup"))
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
-		for (auto& gizmo : m_Edl->m_Gizmos)
+		for (auto& gizmo : m_Gizmos)
 		{
 			if (&gizmo->m_Enabled)
 			{
@@ -53,18 +52,18 @@ void ViewportPanel::OnImGuiRender(float dt)
 	if (ImGui::BeginTabItem("View"))
 	{
 		ImGui::BeginChild("GameChild");
-		m_Edl->m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
+		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
 
-		const auto texId = m_Edl->m_SceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
+		const auto texId = m_SceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
 		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
-			m_Edl->m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
+			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
 		auto xy = ImGui::GetItemRectSize();
 		//fmt::print("region: {} {}\n", m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
-		m_Edl->DrawGizmos(dt);
+		DrawGizmos(dt);
 
-		if (m_Edl->m_Selected != entt::null && m_Edl->m_Registry.has<CameraComponent>(m_Edl->m_Selected))
+		if (m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
 		{
-			RenderLayer* rl = m_Edl->m_Editor->GetLayer<RenderLayer>();
+			RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();
 			if (rl)
 			{
 				FrameBuffer& fb = rl->m_FramebufferCamera;
@@ -110,12 +109,12 @@ void ViewportPanel::OnImGuiRender(float dt)
 	if (ImGui::BeginTabItem("Game"))
 	{
 		ImGui::BeginChild("GameSubWindow");
-		m_Edl->m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
-		RenderLayer* rl = m_Edl->m_Editor->GetLayer<RenderLayer>();	//TODO: use a render manager to get framebuffer!
+		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
+		RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();	//TODO: use a render manager to get framebuffer!
 		if (rl)
 		{
 			auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>(rl->m_FramebufferCamera.GetTexture().GetID()));
-			ImGui::Image(texid, m_Edl->m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image(texid, m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
 
 		}
 		//ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");

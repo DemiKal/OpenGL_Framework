@@ -87,10 +87,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\UI Panels\InspectorPanel.h" />
-    <ClInclude Include="src\UI Panels\SceneHierarchyPanel.h" />
-    <ClInclude Include="src\UI Panels\ViewportPanel.h" />
-    <ClInclude Include="src\UI Panels\Panel.h" />
     <ClInclude Include="src\Gizmos\FrustumGizmo.h" />
     <ClInclude Include="src\Gizmos\Gizmo.h" />
     <ClInclude Include="src\DebugRenderLayer.h" />

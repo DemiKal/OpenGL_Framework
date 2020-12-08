@@ -36,18 +36,6 @@
     <ClInclude Include="src\Gizmos\Gizmo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\UI Panels\Panel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI Panels\SceneHierarchyPanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI Panels\InspectorPanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI Panels\ViewportPanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Editor.cpp">

@@ -2,9 +2,15 @@
 
 #include "Texture2D.h"
 #include "Animation/Animator.h"
-#include "GameObject/Components/AABB.h"
+//#include "GameObject/Components/AABB.h"
 #include "Rendering/Buffer/VertexBufferLayout.h"
-#include "Rendering/Shader.h"
+//#include "Rendering/Shader.h"
+#include "GameObject/Components/AABB.h"
+
+class AABB;
+class Shader;
+//class VertexBufferLayout;
+
 enum class Meshtype
 {
 	Regular, Skybox

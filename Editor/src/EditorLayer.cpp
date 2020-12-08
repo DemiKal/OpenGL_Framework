@@ -10,10 +10,10 @@
 EditorLayer::EditorLayer(meme::Editor* editor) :
 	Layer("EditorLayer"),
 	m_Editor(editor),
-	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)  
-	//, m_SceneHierarchyPanel{ this }, m_ViewportPanel{ this }
+	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)
 {
 	m_Gizmos.emplace_back(new FrustumGizmo(this));
+	
 }
 
 void EditorLayer::OnAttach()
@@ -255,29 +255,18 @@ void EditorLayer::OnImGuiRender(const float dt)
 	static bool yahoo = true;
 	ImGui::ShowDemoWindow(&yahoo);
 
-	EnableDockSpace();	
-	m_ViewportPanel.OnImGuiRender(dt);
-	m_SceneHierarchyPanel.OnImGuiRender(dt);
-	m_InspectorPanel.OnImGuiRender(dt);
+	EnableDockSpace();
+	RenderViewportPanel(dt);
+	RenderInspectorPanel(dt);
+	RenderSceneHierarchyPanel(dt);
 
 	DrawCameraInspector(dt);
 	DrawDebugVisuals(dt);
 }
 
-void EditorLayer::DrawSceneViewport(float dt)
-{
-
-}
-
-
 void EditorLayer::DrawDebugVisuals(float dt)
 {
 	m_SceneFrame.Bind();
-	//for (auto entity : m_Registry.view<CameraComponent>())
-	//{
-	//	auto debugCam = m_Registry.get<CameraComponent>(entity).camera;
-	//	Renderer::DrawFrustum(GetEditorCamera(), debugCam, { 1.0f, 0.5f, 0.3f, 0.98f });
-	//}
 
 	for (auto& gizmo : m_Gizmos)
 		if (gizmo->m_Enabled) gizmo->Draw();
@@ -296,6 +285,8 @@ void EditorLayer::RenderSkybox()
 	auto view = cam.GetViewMatrix();
 	auto camPos = cam.GetPosition();
 	auto translMat = (glm::translate(glm::mat4(1.0f), camPos));
+
+
 
 
 

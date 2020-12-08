@@ -1,7 +1,6 @@
 #pragma once
 #include "Shader.h"
 
-
 class ShaderManager
 {
 	enum shaderTypeFlags
@@ -15,9 +14,6 @@ class ShaderManager
 	
 	using shaderMap = std::unordered_map<std::string, std::tuple<Shader::ShaderType, std::string>>;
 	
-	
-
-
 private:
 	shaderMap m_vertexShaderSources;
 	shaderMap m_fragmentShaderSources;
@@ -29,12 +25,12 @@ private:
 public:
 	static void Init(const std::string& shaderDirectory);
 	static void Destroy();
+	static void RemoveComments(std::string& shaderText);
 
+	[[nodiscard]] std::string& SearchAndReplace(std::string& shaderText, const std::string& replacedWord);
 	[[nodiscard]] static unsigned int GetShaderIdx(const std::string& name);
 	[[nodiscard]] static ShaderManager& GetInstance();
 	[[nodiscard]] static Shader& GetShader(const unsigned int idx);
-	static void RemoveComments(std::string& shaderText);
-	std::string& SearchAndReplace(std::string& shaderText, const std::string& replacedWord);
 	[[nodiscard]] static std::string ParseShader(const std::string& path);
 	[[nodiscard]] static Shader& GetShader(const std::string& name);
 

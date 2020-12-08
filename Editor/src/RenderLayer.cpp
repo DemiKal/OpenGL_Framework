@@ -63,7 +63,6 @@ void RenderLayer::RenderCamera() const
 void RenderLayer::OnUpdate(float dt)
 {
 	RenderCamera();
-	 
 }
 
 void RenderLayer::OnImGuiRender(float dt)

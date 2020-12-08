@@ -6,7 +6,8 @@
 #include "GameObject/Camera.h"
 #include "Animation/Joint.h"
 #include "Animation/Animator.h"
-#include "GameObject/Components/AABB.h"
+//#include "GameObject/Components/AABB.h"
+//#include "GameObject/Components/AABB.h"
 
 void Mesh::LoadMaterialTextures(
 	const aiMaterial* material,
