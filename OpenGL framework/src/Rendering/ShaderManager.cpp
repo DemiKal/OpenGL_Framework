@@ -58,31 +58,42 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 		if (extension == "vert")
 		{
 			type = Shader::ShaderType::VERTEX;
-			m_vertexShaderSources[name] = std::tie(type, sourceCode);
+			m_VertexShaderSources[name] = std::tie(type, sourceCode);
 		}
 
 		if (extension == "frag")
 		{
 			type = Shader::ShaderType::FRAGMENT;
-			m_fragmentShaderSources[name] = std::tie(type, sourceCode);
+			m_FragmentShaderSources[name] = std::tie(type, sourceCode);
 		}
 
+		if (extension == "geom")
+		{
+			type = Shader::ShaderType::GEOMETRY;
+			m_GeometryShaderSources[name] = std::tie(type, sourceCode);
+		}
 		//if (extension = "vert") type = ShaderType::VERTEX;
 		//ShaderSources.emplace_back(  );
 		//shaders.emplace_back(Shader(p, type));
 	}
 
-	for (auto& [vertKey, vertVal] : m_vertexShaderSources)
+	for (auto& [vertKey, vertVal] : m_VertexShaderSources)
 	{
 		auto& [type, vertSrc] = vertVal;
 
-		if (m_fragmentShaderSources.find(vertKey) != m_fragmentShaderSources.end())
+		//find fragment shader
+		if (m_FragmentShaderSources.find(vertKey) != m_FragmentShaderSources.end())
 		{
-			auto& [name2, fragSrc] = m_fragmentShaderSources[vertKey];
+			auto& [fragType, fragSrc] = m_FragmentShaderSources[vertKey];
 
+			//find geometry shader
+			if (m_GeometryShaderSources.find(vertKey) != m_GeometryShaderSources.end())
+			{
+				auto& [geomType, geomSrc] = m_FragmentShaderSources[vertKey];
+				shaders.emplace_back(Shader(vertKey, vertSrc, fragSrc, geomSrc));
 
-
-			shaders.emplace_back(Shader(vertKey, vertSrc, fragSrc));
+			}
+			else shaders.emplace_back(Shader(vertKey, vertSrc, fragSrc));
 		}
 		else continue;
 	}
@@ -128,10 +139,7 @@ Shader& ShaderManager::GetShader(const unsigned idx)
 	auto& inst = GetInstance();
 	return inst.shaders[idx];
 }
-//static inline std::string& ltrim(std::string& s) {
-//		s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int c) {return !std::isspace(c); }));
-//		return s;
-//}
+
 
 static inline void ltrim(std::string& s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
@@ -159,6 +167,7 @@ void ShaderManager::RemoveComments(std::string& shaderText)
 
 }
 
+//replace code in shader like #include like a preprocessor
 std::string& ShaderManager::SearchAndReplace(std::string& shaderText, const std::string& replacedWord)
 {
 	auto& inst = ShaderManager::GetInstance();
@@ -211,19 +220,6 @@ std::string ShaderManager::ParseShader(const std::string& path)
 
 	inst.RemoveComments(shaderString);
 	inst.SearchAndReplace(shaderString, "#include");
-	//std::string split = shaderString.substr(0, shaderString.find("#include"));
-	//shaderString.replace()
-	//if (split.empty()) break;
-	//
-	//std::string filename = std::filesystem::path(split).stem().string();
-	//
-	//if (inst.m_ShaderHelperFiles.find(filename) == inst.m_ShaderHelperFiles.end()) continue;
-	//
-	//auto& [name2, otherSrc] = inst.m_ShaderHelperFiles[filename]
-
-
-
-
 
 	return shaderString;
 }

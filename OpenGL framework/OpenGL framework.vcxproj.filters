@@ -227,6 +227,9 @@
     <None Include="shaders\testshader.vert" />
     <None Include="shaders\wireframe.frag" />
     <None Include="shaders\wireframe.vert" />
+    <None Include="shaders\wireframeGS.frag" />
+    <None Include="shaders\wireframeGS.geom" />
+    <None Include="shaders\wireframeGS.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\glm\detail\type_gentype.hpp">

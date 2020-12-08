@@ -1,9 +1,6 @@
-//#include <iostream>
 #include "Editor.h"
-
 #include "DebugRenderLayer.h"
 #include "EditorLayer.h"
-#include "Rendering/ImGuiManager.h"
 #include "RenderLayer.h"
 #include "Rendering/Renderer.h"
 
@@ -24,8 +21,6 @@ namespace meme
 
 	Editor::Editor(const std::string& name) : Application(name)
 	{
-		ImGuiManager::Init(m_Renderer);
-
 		auto edl = std::make_shared<EditorLayer>(this);
 		m_Layers.emplace_back(edl);
 		m_Layers.back()->OnAttach();

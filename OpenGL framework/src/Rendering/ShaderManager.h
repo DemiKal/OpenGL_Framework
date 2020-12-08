@@ -11,14 +11,15 @@ class ShaderManager
 		BASIC,
 		ERRORSHADER,
 	};
-	
+
 	using shaderMap = std::unordered_map<std::string, std::tuple<Shader::ShaderType, std::string>>;
-	
+
 private:
-	shaderMap m_vertexShaderSources;
-	shaderMap m_fragmentShaderSources;
-	shaderMap m_computeShaders;
-	shaderMap m_ShaderHelperFiles;
+	shaderMap m_VertexShaderSources;	//.vert
+	shaderMap m_FragmentShaderSources;	//.frag
+	shaderMap m_GeometryShaderSources;	//.geom
+	shaderMap m_ComputeShaders;			//.cs
+	shaderMap m_ShaderHelperFiles;		//.glsl
 
 	void LoadShaders(const std::string& shaderDirectory);
 
@@ -35,8 +36,8 @@ public:
 	[[nodiscard]] static Shader& GetShader(const std::string& name);
 
 	std::string directory;
-	bool initialized = false;
 	std::vector<Shader> shaders;
+	bool initialized = false;
 
 	ShaderManager() = default;
 

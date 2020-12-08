@@ -95,6 +95,7 @@
     <ClInclude Include="src\Editor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\UI Panels\DrawComponents.cpp" />
     <ClCompile Include="src\UI Panels\InspectorPanel.cpp" />
     <ClCompile Include="src\UI Panels\SceneHierarchyPanel.cpp" />
     <ClCompile Include="src\UI Panels\ViewportPanel.cpp" />

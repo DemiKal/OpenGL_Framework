@@ -22,20 +22,23 @@ public:
 		NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2, TESSELATION = 3, UTIL = 4
 	};
 
-	
-	Shader() : m_RendererID(0), m_ShaderType(){}
 
-	Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
+	Shader() : m_RendererID(0), m_ShaderType() {}
+
+	//Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
+
+	//Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
+	Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc, const std::string& geomSrc = std::string());
+
 	Shader(const std::string& filepath, const ShaderType shaderType);
-
 	std::string GetName() const;
 	[[nodiscard]] unsigned int GetID() const;
 	void GetAttributes();
 	int GetUniformLocation(const std::string& name);
 
 	static unsigned int CompileShader(const unsigned int type, const std::string& source);
-	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
-
+	//unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
+	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader, const std::string& geometryShader = std::string());
 	void SetInt(const std::string& name, int value);
 	void SetupUniforms();
 	void SetVec4f(const std::string& name, float v0, float v1, float v2, float v3);
@@ -49,8 +52,9 @@ public:
 	static void Unbind();
 
 private:
-	unsigned int m_RendererID;
-	ShaderType m_ShaderType;
+
+	unsigned int m_RendererID{ 0 };
+	ShaderType m_ShaderType{ ShaderType::NONE };
 	std::string m_Name;
 	std::string m_FilePath;
 	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;

@@ -620,7 +620,7 @@ void Mesh::CreateBuffers()
 			reinterpret_cast<const void*>(vbe.vertexIndex));
 		i++;
 	}
-
+	//glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
 }
 

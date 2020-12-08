@@ -2,15 +2,22 @@
 #include "Shader.h"
 
 //TODO: extra shader type for manually constructed shader
+//Shader::Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc)
+//	:
+//	m_Name(std::filesystem::path(path).stem().string()),
+//	m_FilePath(path)
+//{
+//	m_RendererID = CreateShader(vertexSrc, fragSrc, std::string());	//, sps.FragmentSource);
+//	SetupUniforms();
+//	GetAttributes();
+//}
 
-Shader::Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc)
+Shader::Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc, const std::string& geomSrc)
 	:
-	m_RendererID(0),
-	m_ShaderType(ShaderType::NONE),
 	m_Name(std::filesystem::path(path).stem().string()),
 	m_FilePath(path)
 {
-	m_RendererID = CreateShader(vertexSrc, fragSrc);	//, sps.FragmentSource);
+	m_RendererID = CreateShader(vertexSrc, fragSrc, geomSrc);	//, sps.FragmentSource);
 	SetupUniforms();
 	GetAttributes();
 }
@@ -33,7 +40,7 @@ Shader::Shader(const std::string& filepath, const ShaderType shaderType)
 	GetAttributes();
 }
 
-std::string Shader::GetName() const
+std::string Shader::GetName() const	//TODO: use string view?
 {
 	return m_Name;
 }
@@ -104,8 +111,7 @@ void Shader::SetupUniforms() {
 
 		}
 	}
-}
-
+}	//todo: call it get or set?
 
 void Shader::Bind() const
 {
@@ -169,26 +175,36 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
 		//	(type == GL_VERTEX_SHADER ? "fragment" : "vertex") << " shader" << std::endl;
 		fmt::print("Failed to compile {0} shader\n", type == GL_VERTEX_SHADER ? "fragment" : "vertex");
 		fmt::print("{}\n", message);
-		
+
 		glDeleteShader(id);
 		return 0;
 
 	}
 	return id;
 }
-unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
+unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader, const std::string& geometryShader)
 {
 	const unsigned int program = glCreateProgram();
 	const unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
 	const unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+	unsigned int gs = 0;
 
-	GLCall(glAttachShader(program, vs))
-		GLCall(glAttachShader(program, fs))
+	if (!geometryShader.empty())
+		gs = CompileShader(GL_GEOMETRY_SHADER, geometryShader);
 
-		GLCall(glLinkProgram(program))
-		GLCall(glValidateProgram(program))
+	GLCall(glAttachShader(program, vs));
+	GLCall(glAttachShader(program, fs));
 
-		GLCall(glDeleteShader(vs))
+	if (!geometryShader.empty())
+		glAttachShader(program, gs);
+
+	GLCall(glLinkProgram(program));
+	GLCall(glValidateProgram(program));
+
+	GLCall(glDeleteShader(vs));
+	GLCall(glDeleteShader(fs));
+
+	if (!geometryShader.empty())
 		GLCall(glDeleteShader(fs))
 
 		return program;

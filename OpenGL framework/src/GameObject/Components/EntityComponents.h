@@ -118,11 +118,6 @@ struct Texture2DComponent
 {
 	uint32_t texId = 0; //GLid for tex 
 	bool loaded = false;
-	//struct Texture2DComponent(const std::string& path)
-	//{
-	//		
-	//}
-
 };
 
 

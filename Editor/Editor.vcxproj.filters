@@ -59,6 +59,9 @@
     <ClCompile Include="src\UI Panels\ViewportPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\UI Panels\DrawComponents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\AABB_instanced.vert" />

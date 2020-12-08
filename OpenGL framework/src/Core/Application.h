@@ -5,6 +5,7 @@
 #include "GameObject/Components/MeshManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h"
+#include "Rendering/ImGuiManager.h"
 
 int main(int argc, char** argv);
 //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -38,7 +39,7 @@ namespace meme
 			m_Renderer.Init(windowHints);
 			ShaderManager::Init("../OpenGL Framework/shaders");
 			MeshManager::Init();
-			//ImGuiManager::Init(); to editor
+			ImGuiManager::Init(m_Renderer);
 		}
 
 		virtual void Run() {}
