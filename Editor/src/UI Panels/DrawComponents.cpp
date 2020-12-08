@@ -137,6 +137,17 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label)
 		const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
 		ImGui::Text(meshStr.c_str());
 
+		ImGui::Checkbox("Render", &mc.Enabled);
+
+		ImGui::Checkbox("Wireframe", &mc.DrawWireFrame);
+
+		if (mc.DrawWireFrame)
+		{
+			ImGui::SameLine();
+			ImGui::ColorEdit4("##MyColor",  glm::value_ptr(mc.WireFrameColor ) , ImGuiColorEditFlags_NoInputs);
+			//ImGui::ColorButton("Color", mc.WireFrameColor);
+		}
+
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		const uint32_t nrTextures = static_cast<uint32_t>(mesh.m_Textures.size());
 

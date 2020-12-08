@@ -81,13 +81,13 @@ public:
 	[[nodiscard]] unsigned int GetVBO();
 	[[nodiscard]] unsigned int GetEBO();
 	[[nodiscard]] unsigned int GetVertexCount() const;
-	uint32_t GetTriangleCount();
+	[[nodiscard]] uint32_t GetTriangleCount() const;
 
 	[[nodiscard]] bool HasAnimation() const;
 	[[nodiscard]] bool HasFaceIndices() const;
 
 	void MakeWireFrame();
-	void DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const;
+	void DrawWireFrame(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color) const;
 	void AddTexture(const Texture2D& tex);
 	void LoadMaterialTextures(const aiMaterial* material, aiTextureType type, const std::string& typeName,const aiScene* scene);
 	void Draw(const Camera& camera, const glm::mat4& transform, Shader& shader);

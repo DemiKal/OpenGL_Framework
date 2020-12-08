@@ -1,30 +1,18 @@
-
-
 #version 330 core
-///#########################\\\
-///							\\\
-///		VERTEX SHADER		\\\
-///							\\\
-///#########################\\\
+layout (location = 0) in vec3 a_Pos;
+//layout (location = 1) in vec3 aNormal;
 
+out VS_OUT {
+    vec3 normal;
+} vs_out;
 
-layout(location = 0) in vec3 v_Pos;
-layout(location = 1) in vec3 v_Bcoords;
- 
-out vec3  v_barycentric;
-out float  f_thickness;
-
-uniform float lineThickness;
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 u_View;
+uniform mat4 u_Model;
 
 void main()
 {
-	//out_BaryCoords = v_BaryCoords;
-	//gl_Position = vec4(v_Pos, 0.0f, 1.0f);
-	gl_Position = projection * view * model * vec4(v_Pos, 1.0f);
 
-	v_barycentric = v_Bcoords;
-	f_thickness = lineThickness;
+    mat3 normalMatrix = mat3(transpose(inverse(u_View * u_Model)));
+    vs_out.normal = vec3(vec4( 1, 0, 0, 0.0));
+    gl_Position = u_View * u_Model * vec4(a_Pos * vec3(1.01, 1.01, 1.01), 1.0); 
 }

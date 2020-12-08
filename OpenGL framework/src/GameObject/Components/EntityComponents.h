@@ -112,6 +112,9 @@ struct MeshComponent
 	uint32_t Layer = 0; //layer for culling (future memes)
 
 	bool Initialized = false;
+	bool DrawWireFrame = false;
+	bool Enabled = true;
+	glm::vec4 WireFrameColor{ 1,1,1,1 };
 };
 
 struct Texture2DComponent

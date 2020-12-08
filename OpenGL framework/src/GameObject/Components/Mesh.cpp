@@ -478,6 +478,8 @@ void Mesh::Draw(const Camera& camera, const glm::mat4& transform, Shader& shader
 	Draw(shader);
 }
 
+
+
 void Mesh::Draw(Shader& shader)
 {
 	unsigned int diffuseNr = 1;
@@ -581,7 +583,7 @@ Mesh::Mesh(const std::vector<float>& p_vertices, const VertexBufferLayout& vbl)
 
 Mesh::~Mesh()
 {
-	fmt::print("Mesh {0} deconstructed!", m_Directory);
+	fmt::print("Mesh {0} deconstructed!\n", m_Directory);
 }
 
 Mesh::Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const VertexBufferLayout& vbl)
@@ -796,7 +798,7 @@ unsigned Mesh::GetVertexCount() const
 	return static_cast<unsigned int>(m_Vertices.size());
 }
 
-uint32_t Mesh::GetTriangleCount()
+uint32_t Mesh::GetTriangleCount() const
 {
 	const auto t = GetVertexCount();
 	const auto stride = m_VertexBufferLayout.GetStride();
@@ -843,22 +845,49 @@ void Mesh::MakeWireFrame()
 
 }
 
-void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& model_matrix) const
-{
-	glm::mat4 model = model_matrix;
-	glm::mat4 view = camera.GetViewMatrix();
-	glm::mat4 projection = camera.GetProjectionMatrix();
-
-	auto& shader = ShaderManager::GetShader("wireframe");
+void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color) const
+{ 
+	Shader& shader = ShaderManager::GetShader("wireframeGS");
 	shader.Bind();
-	shader.SetFloat("u_LineThickness", m_LineThickness);
-	shader.SetUniformMat4f("u_Model", model);
-	shader.SetUniformMat4f("u_View", view);
-	shader.SetUniformMat4f("u_Projection", projection);
+	const uint32_t tris = GetTriangleCount();
 
-	glBindVertexArray(m_WireVAO);
+	shader.SetUniformMat4f("u_Model", modelMatrix);
+	shader.SetUniformMat4f("u_View", camera.GetViewMatrix());
+	shader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
+	shader.SetVec4f("u_Color", color);
 
-	GLCall(glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_PositionVertices.size())));
+
+	glBindVertexArray(m_VAO);
+	int i = 0;
+	auto stride = m_VertexBufferLayout.GetStride();
+
+	std::vector<uint32_t> toDisable;
+
+	for (auto& vblElem : m_VertexBufferLayout.GetElements())
+	{
+		if (vblElem.vertexType != VertexType::POSITION)
+		{
+			auto strideIndex = vblElem.vertexIndex;
+			auto idx = strideIndex / stride;
+			toDisable.push_back(i);
+		}
+
+		i++;
+	}
+
+	for (uint32_t id : toDisable)
+		glDisableVertexAttribArray(id);
+
+	if (!m_Indices.empty()) glDrawElements(GetElemDrawType(), static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
+	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetTriangleCount())); //plane!
+
+	for (uint32_t id : toDisable)
+		glEnableVertexAttribArray(id);
+
+	glBindVertexArray(0);
+
+
+	shader.Unbind();
 }
 
 

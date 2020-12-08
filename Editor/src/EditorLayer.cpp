@@ -13,7 +13,7 @@ EditorLayer::EditorLayer(meme::Editor* editor) :
 	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)
 {
 	m_Gizmos.emplace_back(new FrustumGizmo(this));
-	
+
 }
 
 void EditorLayer::OnAttach()
@@ -32,9 +32,15 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<TransformComponent>(spyro);
 	m_Registry.emplace<TagComponent>(spyro, "Spyro the Dragon");
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);
+	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
+	m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 	m_Selected = spyro;
+
+	const auto helm = m_Registry.create();
+	m_Registry.emplace<TransformComponent>(helm);
+	m_Registry.emplace<TagComponent>(helm, "helm");
+	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
+	m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
 
 
 }
@@ -319,12 +325,26 @@ void EditorLayer::DrawScene(const float dt)
 	auto view = m_Registry.view<MeshComponent, TransformComponent>();
 	for (auto entity : view)
 	{
-		auto [meshC, transform] = m_Registry.get<MeshComponent, TransformComponent>(entity);
-		const uint32_t idx = meshC.MeshIdx;
+		auto [mc, transform] = m_Registry.get<MeshComponent, TransformComponent>(entity);
+		const uint32_t idx = mc.MeshIdx;
 		Mesh& mesh = MeshManager::GetMesh(idx);
-		Shader& shader = ShaderManager::GetShader(meshC.ShaderIdx);
+		Shader& shader = ShaderManager::GetShader(mc.ShaderIdx);
 		const glm::mat4 mat = transform.CalcMatrix();
-		mesh.Draw(m_EditorCamera, mat, shader);
+		
+		
+		if(mc.Enabled)	mesh.Draw(m_EditorCamera, mat, shader);
+
+	
+		
+		
+		if (mc.DrawWireFrame) 
+		{
+			bool a = renderer.GetAlphaBlending();
+			renderer.SetAlphaBlending(true);
+			mesh.DrawWireFrame(m_EditorCamera, mat, mc.WireFrameColor);
+			renderer.SetAlphaBlending(a);
+
+		}
 	}
 
 	RenderSkybox();

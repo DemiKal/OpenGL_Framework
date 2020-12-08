@@ -1,67 +1,27 @@
 #version 330 core
-uniform mat4 projection;
-uniform mat4 model;
-uniform mat4 iModelViewNormal;
+uniform mat4 u_Projection; 
 
 layout (triangles) in;
-layout (line_strip, max_vertices = 4) out;
-
-in VS_OUT {
-    vec3 normal;
-} gs_in[];
-
-const float MAGNITUDE = 0.2;
-
-out vec3 vertexNormal;
-
-void doEmitVertex(vec3 p, vec3 n) {
-	vertexNormal = (iModelViewNormal * vec4(n, 0)).xyz;;
-	gl_Position = projection * model * vec4(p, 1);
-	EmitVertex();
-}
+layout (line_strip, max_vertices = 6) out;
  
-
-//void GenerateLine(int index)
-//{
-//    gl_Position = projection * gl_in[index].gl_Position;
-//    EmitVertex();
-//    gl_Position = projection * (gl_in[index].gl_Position + vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
-//    EmitVertex();
-//    EndPrimitive();
-//}
-
-//void main()
-//{
-//    GenerateLine(0); // first vertex normal
-//    GenerateLine(1); // second vertex normal
-//    GenerateLine(2); // third vertex normal
-//}
-void Edge(int a , int b)
-{
-	gl_Position = projection *  vec4(gl_in[a].gl_Position.xyz, 0);
-	EmitVertex();
-	gl_Position = projection *  vec4(gl_in[b].gl_Position.xyz , 0);
-	EmitVertex();
-	EndPrimitive();
-
-}
+void emitLine(vec4 a, vec4 b)
+ {
+      gl_Position = a;
+      EmitVertex();
+      gl_Position = b;
+      EmitVertex();
+      EndPrimitive(); 
+ }
 
 void main()
-{
-	//for(int i = 0; i < gl_in.length(); i++) 
-	//{
-	//	doEmitVertex( gl_in[i].gl_Position.xyz, gs_in[i].normal);
-	//}
-	//EndPrimitive();
-
-	for(int i = 0; i < gl_in.length(); i++)
-    {
-      gl_Position = projection * gl_in[i].gl_Position ;
-      EmitVertex();
-    }
-
-    EndPrimitive(); 
-
- 
-  
+{  
+    vec4 u = u_Projection * gl_in[0].gl_Position;
+    vec4 v = u_Projection * gl_in[1].gl_Position;
+    vec4 w = u_Projection * gl_in[2].gl_Position;
+    
+    emitLine(u,v);
+    emitLine(u,w);
+    emitLine(v,w);
+   
+     
 }

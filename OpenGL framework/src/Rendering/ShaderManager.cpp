@@ -89,7 +89,7 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 			//find geometry shader
 			if (m_GeometryShaderSources.find(vertKey) != m_GeometryShaderSources.end())
 			{
-				auto& [geomType, geomSrc] = m_FragmentShaderSources[vertKey];
+				auto& [geomType, geomSrc] = m_GeometryShaderSources[vertKey];
 				shaders.emplace_back(Shader(vertKey, vertSrc, fragSrc, geomSrc));
 
 			}
