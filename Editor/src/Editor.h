@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Application.h"
-#include "EditorLayer.h"
+#include "EditorLayer.h"	//TODO remove
 
 namespace meme
 {

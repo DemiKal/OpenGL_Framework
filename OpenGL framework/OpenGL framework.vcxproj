@@ -98,6 +98,7 @@
     <ClCompile Include="src\precomp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Rendering\ImGuiManager.cpp" />
     <ClCompile Include="src\Rendering\PostProcessing.cpp" />
     <ClCompile Include="src\misc\HardwareQuery.cpp" />
     <ClCompile Include="src\Rendering\Buffer\Gbuffer.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="src\misc\MeshLoader.h" />
     <ClInclude Include="src\GameObject\Components\EntityComponents.h" />
     <ClInclude Include="src\Rendering\ComputeShader.h" />
+    <ClInclude Include="src\Rendering\ImGuiManager.h" />
     <ClInclude Include="src\Rendering\PostProcessing.h" />
     <ClInclude Include="src\misc\HardwareQuery.h" />
     <ClInclude Include="src\Rendering\Buffer\Gbuffer.h" />

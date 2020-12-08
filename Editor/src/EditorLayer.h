@@ -2,7 +2,7 @@
 #include "Core/Layer.h"
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
-#include "ImGuiManager.h"
+#include "Rendering/ImGuiManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/Buffer/FrameBuffer.h"
 #include "Gizmos/Gizmo.h"
@@ -46,6 +46,7 @@ public:
 	void DrawGizmoMenu();
 
 
+	//TODO move elsewhere
 	template<typename T>
 	void DrawUIComponent(T t)
 	{

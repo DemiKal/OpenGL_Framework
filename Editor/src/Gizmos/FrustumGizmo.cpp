@@ -1,4 +1,5 @@
 #include "FrustumGizmo.h"
+#include "Editor.h"
 
 //class Camera ;
 

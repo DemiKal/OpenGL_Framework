@@ -1,6 +1,6 @@
 #include "EditorLayer.h"
 #include "Editor.h"
-#include "ImGuiManager.h"
+#include "Rendering/ImGuiManager.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/Renderer.h"
 #include "RenderLayer.h"

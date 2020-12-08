@@ -1,5 +1,5 @@
 #pragma once
-#include "Editor.h"
+//#include "Editor.h"
 
 
 //#include "vendor/imgui/imgui.h"
@@ -9,6 +9,7 @@
 
 //#include "vendor/imgui/imgui_impl_glfw" 
 
+class Renderer;
 
 class ImGuiManager //possibly convert to layer if needed?
 {

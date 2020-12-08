@@ -1,5 +1,4 @@
-#include "SceneHierarchyPanel.h"
-#include "ImGuiManager.h"
+#include "Rendering/ImGuiManager.h"
 //#include "GameObject/Components/EntityComponents.h"
 #include "EditorLayer.h"
 

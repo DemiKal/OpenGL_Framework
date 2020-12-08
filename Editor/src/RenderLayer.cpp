@@ -1,8 +1,9 @@
 #include "RenderLayer.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/ShaderManager.h"
-#include "ImGuiManager.h"
 #include "Rendering/Renderer.h"
+#include "Rendering/ImGuiManager.h"
+#include "Editor.h"
 
 RenderLayer::RenderLayer(std::shared_ptr<EditorLayer> edl)
 	:

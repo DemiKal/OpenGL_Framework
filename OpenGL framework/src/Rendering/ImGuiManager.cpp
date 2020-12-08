@@ -1,5 +1,7 @@
+#include "precomp.h"
 #include "ImGuiManager.h"
 #include "vendor/ImGuizmo/ImGuizmo.h"
+#include "Renderer.h"
 
 void ImGuiManager::Prepare()
 {

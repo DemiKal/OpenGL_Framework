@@ -93,7 +93,6 @@
     <ClInclude Include="src\RenderLayer.h" />
     <ClInclude Include="src\EditorLayer.h" />
     <ClInclude Include="src\Editor.h" />
-    <ClInclude Include="src\ImGuiManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI Panels\InspectorPanel.cpp" />
@@ -104,7 +103,6 @@
     <ClCompile Include="src\RenderLayer.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\Editor.cpp" />
-    <ClCompile Include="src\ImGuiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenGL framework\OpenGL framework.vcxproj">

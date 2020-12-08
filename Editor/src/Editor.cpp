@@ -3,7 +3,7 @@
 
 #include "DebugRenderLayer.h"
 #include "EditorLayer.h"
-#include "ImGuiManager.h"
+#include "Rendering/ImGuiManager.h"
 #include "RenderLayer.h"
 #include "Rendering/Renderer.h"
 

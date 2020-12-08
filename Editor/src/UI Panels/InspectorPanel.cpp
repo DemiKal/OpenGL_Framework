@@ -3,6 +3,7 @@
 //#include "ImGuiManager.h"
 //#include "GameObject/Components/EntityComponents.h"
 #include "EditorLayer.h"
+#include "Rendering/ImGuiManager.h"
 
 void  EditorLayer::RenderInspectorPanel(float dt)
 {
