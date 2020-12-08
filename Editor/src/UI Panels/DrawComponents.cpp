@@ -133,18 +133,39 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label)
 	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 	if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 	{
+		ImGui::SameLine(30.0f);
+		
+		ImGui::Checkbox("Render", &mc.Enabled);
+		
+		if (ImGui::IsItemHovered())
+			mc.Enabled = !mc.Enabled;
+
 		ImGui::RadioButton("Initialized", mc.Initialized);
 		const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
 		ImGui::Text(meshStr.c_str());
 
-		ImGui::Checkbox("Render", &mc.Enabled);
-
-		ImGui::Checkbox("Wireframe", &mc.DrawWireFrame);
+		ImGui::Checkbox("Visualize wireframe", &mc.DrawWireFrame);
 
 		if (mc.DrawWireFrame)
 		{
 			ImGui::SameLine();
-			ImGui::ColorEdit4("##MyColor",  glm::value_ptr(mc.WireFrameColor ) , ImGuiColorEditFlags_NoInputs);
+			ImGui::ColorEdit4("##wireFrameCol",  glm::value_ptr(mc.WireFrameColor ) , ImGuiColorEditFlags_NoInputs);
+			//ImGui::ColorButton("Color", mc.WireFrameColor);
+		}
+
+		ImGui::Checkbox("Visualize normals", &mc.DrawNormals);
+		if (mc.DrawNormals)
+		{
+			ImGui::SameLine();
+			ImGui::ColorEdit4("##normalsCol", glm::value_ptr(mc.NormalsColor), ImGuiColorEditFlags_NoInputs);
+			ImGui::SameLine();
+
+			ImVec2 avail = ImGui::GetContentRegionAvail();
+			ImGui::PushItemWidth(avail.x/3.0f);
+			//ImGui::DragFloat("Magnitude normals", &mc.NormalsMagnitude,0.05, 5, "%.3f");
+			const ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_NoRoundToFormat;
+			ImGui::DragFloat("Magnitude", &mc.NormalsMagnitude, 0.01f, -1,5, "%.3f", sliderFlags);
+			//ImGui::DragInt("Offset X", &offset_x, 1.0f, -1000, 1000);
 			//ImGui::ColorButton("Color", mc.WireFrameColor);
 		}
 

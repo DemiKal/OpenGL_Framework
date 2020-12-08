@@ -205,6 +205,9 @@
     <None Include="shaders\lineshader.vert" />
     <None Include="shaders\normalmapshader.frag" />
     <None Include="shaders\normalmapshader.vert" />
+    <None Include="shaders\normalsGS.frag" />
+    <None Include="shaders\normalsGS.geom" />
+    <None Include="shaders\normalsGS.vert" />
     <None Include="shaders\plane.frag" />
     <None Include="shaders\plane.glsl" />
     <None Include="shaders\singlecolor.frag" />

@@ -113,8 +113,11 @@ struct MeshComponent
 
 	bool Initialized = false;
 	bool DrawWireFrame = false;
+	bool DrawNormals = false;
 	bool Enabled = true;
 	glm::vec4 WireFrameColor{ 1,1,1,1 };
+	glm::vec4 NormalsColor{ 0,1,1,1 };
+	float NormalsMagnitude{0.2f};
 };
 
 struct Texture2DComponent

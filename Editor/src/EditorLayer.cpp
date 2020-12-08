@@ -321,7 +321,7 @@ void EditorLayer::DrawScene(const float dt)
 	renderer.SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
 	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderer.EnableDepth();
-
+	renderer.SetAlphaBlending(true);
 	auto view = m_Registry.view<MeshComponent, TransformComponent>();
 	for (auto entity : view)
 	{

@@ -42,7 +42,7 @@ FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
 	:
 	m_RendererID(0),
 	m_RBO(0),
-	m_RenderTarget(Texture2D(GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE)),
+	m_RenderTarget(Texture2D(GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE)),
 	m_DepthTexture(Texture2D(GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER))
 {
 	Init(width, height);

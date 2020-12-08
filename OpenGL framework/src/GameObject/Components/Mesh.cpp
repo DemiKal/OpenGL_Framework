@@ -239,11 +239,12 @@ Mesh::Mesh(
 	//TODO: fix! animator.m_inverse_root = m_inverseRoot;
 
 #pragma region bones
-	Animator  animator;
+
 	std::unordered_map<std::string, unsigned int> bonesMapping;
+		std::vector<Joint> bones;
+
 	if (mesh->HasBones())
 	{
-		std::vector<Joint> bones;
 		std::vector< std::unordered_map<unsigned int, float>> bonemapping;
 		bonemapping.resize(mesh->mNumVertices);
 
@@ -289,8 +290,6 @@ Mesh::Mesh(
 		}
 
 		//copy bones
-		animator.m_bones.resize(bones.size());
-		std::copy(bones.begin(), bones.end(), animator.m_bones.begin());
 
 		const unsigned int bmapSize = static_cast<unsigned int>(bonemapping.size());
 		for (unsigned int i = 0; i < bmapSize; i++) {
@@ -330,11 +329,19 @@ Mesh::Mesh(
 			}
 		}
 	}
+
 #pragma endregion memelord 
 
 #pragma region anim
-	if (scene->HasAnimations()) {
-		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+	if (scene->HasAnimations())
+	{
+		Animator animator;
+		animator.m_bones.resize(bones.size());
+		std::copy(bones.begin(), bones.end(), animator.m_bones.begin());
+
+		for (unsigned int i = 0; i < scene->mNumAnimations; i++)
+		{
+
 			aiAnimation* anim = scene->mAnimations[i];
 			const std::string anim_name = anim->mName.C_Str();
 			float ticks = 1;	//anim->mTicksPerSecond;
@@ -417,16 +424,6 @@ Mesh::Mesh(
 
 	auto aal = material->GetTextureCount(aiTextureType_UNKNOWN);
 	auto pss = material->GetTextureCount(aiTextureType_NONE);
-
-
-
-
-
-
-	std::vector<Texture2D> textures;
-	//auto& shader = GetShader();
-	// 1. diffuse maps
-	//scene->mTextures[0]->pcData;
 
 	LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
 	LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
@@ -846,7 +843,7 @@ void Mesh::MakeWireFrame()
 }
 
 void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color) const
-{ 
+{
 	Shader& shader = ShaderManager::GetShader("wireframeGS");
 	shader.Bind();
 	const uint32_t tris = GetTriangleCount();
@@ -886,10 +883,54 @@ void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& modelMatrix, con
 
 	glBindVertexArray(0);
 
-
 	shader.Unbind();
 }
 
+void Mesh::DrawNormals(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color, float magnitude)
+{
+	Shader& shader = ShaderManager::GetShader("normalsGS");
+	shader.Bind();
+	const uint32_t tris = GetTriangleCount();
+
+	shader.SetUniformMat4f("u_Model", modelMatrix);
+	shader.SetUniformMat4f("u_View", camera.GetViewMatrix());
+	shader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
+	shader.SetVec4f("u_Color", color);
+	shader.SetFloat("u_Magnitude", magnitude);
+
+
+	glBindVertexArray(m_VAO);
+	int i = 0;
+	auto stride = m_VertexBufferLayout.GetStride();
+
+	std::vector<uint32_t> toDisable;
+
+	for (auto& vblElem : m_VertexBufferLayout.GetElements())
+	{
+		if (vblElem.vertexType != VertexType::POSITION &&
+			vblElem.vertexType != VertexType::NORMAL)
+		{
+			auto strideIndex = vblElem.vertexIndex;
+			auto idx = strideIndex / stride;
+			toDisable.push_back(i);
+		}
+
+		i++;
+	}
+
+	for (uint32_t id : toDisable)
+		glDisableVertexAttribArray(id);
+
+	if (!m_Indices.empty()) glDrawElements(GetElemDrawType(), static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
+	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetTriangleCount())); //plane!
+
+	for (uint32_t id : toDisable)
+		glEnableVertexAttribArray(id);
+
+	glBindVertexArray(0);
+
+	shader.Unbind();
+}
 
 
 Mesh Mesh::CreatePlane() {

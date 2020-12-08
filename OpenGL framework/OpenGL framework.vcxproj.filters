@@ -230,6 +230,9 @@
     <None Include="shaders\wireframeGS.frag" />
     <None Include="shaders\wireframeGS.geom" />
     <None Include="shaders\wireframeGS.vert" />
+    <None Include="shaders\normalsGS.vert" />
+    <None Include="shaders\normalsGS.frag" />
+    <None Include="shaders\normalsGS.geom" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\glm\detail\type_gentype.hpp">
