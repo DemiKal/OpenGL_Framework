@@ -79,7 +79,7 @@ Mesh::Mesh(
 	const std::string& directory)
 {
 	m_Directory = directory;
-	const unsigned int BONESPERVERTEX = 3;
+	constexpr unsigned int BONESPERVERTEX = 4;
 
 	//if (scene->HasTextures())
 	//{
@@ -185,12 +185,14 @@ Mesh::Mesh(
 		}
 		if (hasBones)
 		{
-			m_Vertices.push_back(0);
-			m_Vertices.push_back(0);
-			m_Vertices.push_back(0);
-			m_Vertices.push_back(0);
-			m_Vertices.push_back(0);
-			m_Vertices.push_back(0);
+			for (int b = 0; b < BONESPERVERTEX; b++)
+			{
+				m_Vertices.push_back(0);
+				m_Vertices.push_back(0);
+			}//m_Vertices.push_back(0);
+			//m_Vertices.push_back(0);
+			//m_Vertices.push_back(0);
+			//m_Vertices.push_back(0);
 		}
 
 	}
@@ -240,22 +242,25 @@ Mesh::Mesh(
 
 #pragma region bones
 
-	std::unordered_map<std::string, unsigned int> bonesMapping;
-		std::vector<Joint> bones;
+	std::unordered_map<std::string, unsigned int> boneNames;
+	std::vector<Joint> bones;
 
-	if (mesh->HasBones())
+	if (hasBones)
 	{
-		std::vector< std::unordered_map<unsigned int, float>> bonemapping;
-		bonemapping.resize(mesh->mNumVertices);
+		//std::map<unsigned int, std::tuple<float, float>> bonemapping;
+		//bonemapping.resize(mesh->mNumVertices);
+		std::vector<std::vector<std::tuple<float, float>>> bonemapping(mesh->mNumVertices);
 
 		std::unordered_map<std::string, unsigned int> bonesDict;
-		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++) {
+		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++)
+		{
 			aiBone* ai_bone = mesh->mBones[boneIdx];
 			std::string boneName = ai_bone->mName.C_Str();
 			bonesDict[boneName] = boneIdx;
 		}
 
-		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++) {
+		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++)
+		{
 			aiBone* ai_bone = mesh->mBones[boneIdx];
 			std::string boneName = ai_bone->mName.C_Str();
 
@@ -263,7 +268,7 @@ Mesh::Mesh(
 			//glm::mat4 a2 = AI2GLMMAT(ai_bone->mOffsetMatrix);
 
 			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
-			bonesMapping[boneName] = boneIdx;
+			boneNames[boneName] = boneIdx;
 
 			//TODO FIX:
 			//FindChildren(armature, joint, bonesDict);
@@ -273,59 +278,82 @@ Mesh::Mesh(
 
 			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
 
-			for (unsigned int j = 0; j < numWeights; j++) {
+			for (unsigned int j = 0; j < numWeights; j++)
+			{
 				aiVertexWeight vw = ai_bone->mWeights[j];
 				const unsigned int v_idx = vw.mVertexId;
 				const float v_w = vw.mWeight;
 
-				if (bonemapping[v_idx].find(boneIdx) == bonemapping[v_idx].end())
+				//if (bonemapping.find(v_idx) == bonemapping[v_idx].end())
 				{
-					bonemapping[v_idx][boneIdx] = v_w;
+					bonemapping[v_idx].push_back({ boneIdx, v_w });
 				}
-				else
-				{
-					ASSERT(false);
-				}
+				//else
+				//{
+				//	ASSERT(false);
+				//}
+
+				//put boneidx in vertex id?
 			}
 		}
 
 		//copy bones
 
 		const unsigned int bmapSize = static_cast<unsigned int>(bonemapping.size());
-		for (unsigned int i = 0; i < bmapSize; i++) {
-
-			float sum = 0;
-			for (auto& bm : bonemapping[i]) sum += bm.second;
-
-			if (fabs(sum - 1) > 0.01) //renormalize values! shouldn't happen with assimp postprocessing
-			{
-				std::vector<std::pair<unsigned int, float>> vec;
-				std::for_each(bonemapping[i].begin(), bonemapping[i].end(),
-					[&](const std::pair<unsigned int, float>& element) {
-						vec.push_back(element);
-					});
-
-				std::sort(vec.begin(), vec.end(),
-					[](const std::pair<unsigned int, float>& L,
-						const std::pair<unsigned int, float>& R) {
-							return L.second < R.second;
-					});
-
-				for (auto& bm : bonemapping[i]) {
-					bm.second = bm.second / sum;
-				}
-
-			}
-
+		for (unsigned int i = 0; i < bmapSize; i++)
+		{
 			unsigned int j = 0;
 			for (auto& bm : bonemapping[i])
 			{
-				const unsigned int elementIdxV1 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
-				const unsigned int elementIdxV2 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
-				m_Vertices[elementIdxV1] = bm.first;
-				m_Vertices[elementIdxV2] = bm.second;
-				j++;
-				if (j >= BONESPERVERTEX) break;
+				//const unsigned int elementIdxV1 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
+				//const unsigned int elementIdxV2 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
+				//m_Vertices[elementIdxV1] = bm.first;
+				//m_Vertices[elementIdxV2] = bm.second;
+				//j++;
+				//if (j >= BONESPERVERTEX) break;
+			}
+
+			//float sum = 0;
+			//for (auto& bm : bonemapping[i]) sum += bm.second;
+			//	if (fabs(sum - 1) > 0.01) //renormalize values! shouldn't happen with assimp postprocessing
+			//	{
+			//		std::vector<std::pair<unsigned int, float>> vec;
+			//		std::for_each(bonemapping[i].begin(), bonemapping[i].end(),
+			//			[&](const std::pair<unsigned int, float>& element) {
+			//				vec.push_back(element);
+			//			});
+			//
+			//		std::sort(vec.begin(), vec.end(),
+			//			[](const std::pair<unsigned int, float>& L,
+			//				const std::pair<unsigned int, float>& R) {
+			//					return L.second < R.second;
+			//			});
+			//
+			//		for (auto& bm : bonemapping[i]) {
+			//			bm.second = bm.second / sum;
+			//	}	}
+
+
+
+
+		}
+
+		auto stride = m_VertexBufferLayout.GetStride() / 4;
+		auto boneIndexElem = m_VertexBufferLayout.GetElement(VertexType::BONE_INDEX);
+		auto subStride = boneIndexElem.vertexIndex / 4;
+
+		for (uint32_t i = 0; i < mesh->mNumVertices; i++)
+		{
+			auto& as = bonemapping[i];
+			for (uint32_t j = 0; j < as.size(); j++)
+			{
+				auto& [boneIdx, weight] = as[j];
+				uint32_t idxB = stride * i + subStride + j; //m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
+				uint32_t idxW = idxB + boneIndexElem.count;
+
+				m_Vertices[idxB] = boneIdx;
+				m_Vertices[idxW] = weight;
+
 			}
 		}
 	}
@@ -381,7 +409,7 @@ Mesh::Mesh(
 				}
 
 				//AnimationChannels.emplace_back(AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys));
-				unsigned int channel_idx = bonesMapping[channelName];
+				unsigned int channel_idx = boneNames[channelName];
 				AnimationChannels[channel_idx] = AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys);
 
 			}
@@ -389,6 +417,8 @@ Mesh::Mesh(
 			Animation animation(duration, AnimationChannels);
 			animator.current = animation;
 		}
+		m_animator = animator;
+		m_animator.m_inverse_root = glm::mat4(1.0f);
 	}
 
 	// process materials
@@ -514,22 +544,30 @@ void Mesh::Draw(Shader& shader)
 		GLenum type = tex.GetGLType();
 		GLCall(glBindTexture(type, tex.GetID()));
 	}
+	GLCall(glBindVertexArray(m_VAO));
 
 	if (!m_animator.m_bones.empty())
 	{
 		std::vector<glm::mat4> boneMatrices;
 		for (auto& m : m_animator.m_bones)
-			boneMatrices.emplace_back(m.m_PoseTransform);
+			//boneMatrices.emplace_back(m.m_PoseTransform);
+			boneMatrices.emplace_back(glm::mat4(1.0f));
 
 		const auto idx = shader.GetUniformLocation("mBones[0]");
 		GLCall(glUniformMatrix4fv(static_cast<GLint>(idx), static_cast<GLsizei>(20), GL_FALSE, reinterpret_cast<const GLfloat*>(&boneMatrices[0]))); // Passing 20 matrices
 	}
+	auto elemtype = GetElemDrawType();
 
 	// draw mesh
-	glBindVertexArray(m_VAO);
 	if (!m_Indices.empty())
-		glDrawElements(GetElemDrawType(), static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
-	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetTriangleCount())); //plane!
+	{
+		GLCall(glDrawElements(elemtype, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr))
+	}
+	else
+	{
+		auto tricount = static_cast<GLsizei>(GetTriangleCount());
+		GLCall(glDrawArrays(elemtype, 0, tricount));  //plane!
+	}
 
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
@@ -861,36 +899,64 @@ void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& modelMatrix, con
 	shader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
 	shader.SetVec4f("u_Color", color);
 
-
 	glBindVertexArray(m_VAO);
-	int i = 0;
-	auto stride = m_VertexBufferLayout.GetStride();
+	//for (auto& vblElem : m_VertexBufferLayout.GetElements())
+	//{
+	//	if (vblElem.vertexType != VertexType::POSITION)
+	//	{
+	//		auto strideIndex = vblElem.vertexIndex;
+	//		auto idx = strideIndex / stride;
+	//		toDisable.push_back(i);
+	//	}
+	//
+	//	i++;
+	//}
 
-	std::vector<uint32_t> toDisable;
-
-	for (auto& vblElem : m_VertexBufferLayout.GetElements())
+	//for (uint32_t id : toDisable)
+	//	glDisableVertexArrayAttrib(0,id);
+	//glDisablevertexAttrib
+	const unsigned int stride = m_VertexBufferLayout.GetStride();
+	auto  elements = m_VertexBufferLayout.GetElements();
+	auto count = elements.size();
+	int newStride = 3 * 4;
+	for (int i = 1; i < count; ++i)
 	{
-		if (vblElem.vertexType != VertexType::POSITION)
-		{
-			auto strideIndex = vblElem.vertexIndex;
-			auto idx = strideIndex / stride;
-			toDisable.push_back(i);
-		}
-
-		i++;
+		//auto& vbe = elements[i];
+		//if (vbe.vertexType == VertexType::POSITION)
+		glDisableVertexAttribArray(i);
+		//else glDisableVertexAttribArray(i);
+		//
+		//glVertexAttribPointer(i, vbe.count, vbe.type, vbe.normalized, newStride,
+		//	reinterpret_cast<const void*>(vbe.vertexIndex));
+		//i++;
 	}
 
-	for (uint32_t id : toDisable)
-		glDisableVertexAttribArray(id);
+	//glBindVertexArray(0);
+
+   //glBindVertexArray(m_VAO);
 
 	if (!m_Indices.empty()) glDrawElements(GetElemDrawType(), static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
 	else glDrawArrays(GetElemDrawType(), 0, static_cast<GLsizei>(GetTriangleCount())); //plane!
 
-	for (uint32_t id : toDisable)
-		glEnableVertexAttribArray(id);
-
+	 //for (int i = 0; i < count; ++i)
+	 //{
+	 //	auto& vbe = elements[i];
+	 //	if (vbe.vertexType == VertexType::POSITION);
+	 //	glEnableVertexAttribArray(i);
+	 //	glVertexAttribPointer(i, vbe.count, vbe.type, vbe.normalized, stride,
+	 //		reinterpret_cast<const void*>(vbe.vertexIndex));
+	 //	i++;
+	 //}
+	//  for (uint32_t id : toDisable)
+		//glEnableVertexAttribArray(id);
+	//	glEnableVertexArrayAttrib(0,id);
+	for (int i = 0; i < count; ++i)
+	{
+		//auto& vbe = elements[i];
+		//if (vbe.vertexType == VertexType::POSITION)
+		glEnableVertexAttribArray(i);
+	}
 	glBindVertexArray(0);
-
 	shader.Unbind();
 }
 

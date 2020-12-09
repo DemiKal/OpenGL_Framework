@@ -87,13 +87,33 @@ public:
 		m_Stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE);
 	}
 
-	unsigned int GetElementIndex(const unsigned int vertexIndex, const unsigned int subIdx, VertexType vt) {
-		for (const auto& vbe : GetElements()) {
+	VertexBufferElement GetElement(const VertexType type)
+	{
+		for (const auto& vbe : GetElements())
+		{
+			if (vbe.vertexType == type)
+				return vbe;
+		}
+		
+		
+	}
+
+	unsigned int GetElementIndex(const unsigned int vertexIndex, const unsigned int subIdx, VertexType vt) 
+	{
+		auto stride = GetStride();
+		auto strideInBytes = stride / 4;	//idx 8 -> vertex 8 * vOffset;  
+		auto vOffset = vertexIndex * strideInBytes;
+		
+		for (const auto& vbe : GetElements()) 
+		{
 			if (vbe.vertexType == vt)
 			{
 				const unsigned int elementIdx = vbe.vertexIndex;
-				const unsigned int strideNoByte = vbe.vertexIndex / vbe.GetSizeOfType(vbe.type);
-				return strideNoByte* vertexIndex + elementIdx + subIdx; 
+				const unsigned int subStrideByte = vbe.vertexIndex / vbe.GetSizeOfType(vbe.type);
+				
+				
+				return vOffset + subStrideByte + subIdx;
+				//return subStrideByte * vertexIndex + subIdx;
 			}
 		}
 		ASSERT(false);

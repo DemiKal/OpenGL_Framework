@@ -36,11 +36,13 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 	m_Selected = spyro;
 
-	const auto helm = m_Registry.create();
-	m_Registry.emplace<TransformComponent>(helm);
-	m_Registry.emplace<TagComponent>(helm, "helm");
+	const auto anim = m_Registry.create();
+	m_Registry.emplace<TransformComponent>(anim);
+	m_Registry.emplace<TagComponent>(anim, "anim");
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);
+	auto& mc2 = m_Registry.emplace<MeshComponent>(anim, "Assets/meshes/Animation test/run.glb", aiProcess_Triangulate);
+
+	 mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
 
 
 }
@@ -289,7 +291,7 @@ void EditorLayer::RenderSkybox()
 	Shader& shader = ShaderManager::GetShader("skybox");
 	shader.Bind();
 	auto view = glm::mat4(glm::mat3(cam.GetViewMatrix()));
-	auto proj =  cam.GetProjectionMatrix();
+	auto proj = cam.GetProjectionMatrix();
 	auto camPos = cam.GetPosition();
 	auto translMat = (glm::translate(glm::mat4(1.0f), camPos));
 
@@ -316,8 +318,8 @@ void EditorLayer::DrawScene(const float dt)
 	}
 	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-	 renderer.SetClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-	 renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	renderer.SetClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderer.EnableDepth();
 	renderer.SetAlphaBlending(true);
 
@@ -326,7 +328,7 @@ void EditorLayer::DrawScene(const float dt)
 	//glBlendEquation(GL_FUNC_ADD); //allows us to set this operationand has 5 possible options :
 
 	auto view = m_Registry.view<MeshComponent, TransformComponent>();
-	
+
 	for (auto entity : view)
 	{
 		auto [mc, transform] = m_Registry.get<MeshComponent, TransformComponent>(entity);
@@ -334,10 +336,10 @@ void EditorLayer::DrawScene(const float dt)
 		Mesh& mesh = MeshManager::GetMesh(idx);
 		Shader& shader = ShaderManager::GetShader(mc.ShaderIdx);
 		const glm::mat4 mat = transform.CalcMatrix();
-				
-		if(mc.Enabled)	mesh.Draw(m_EditorCamera, mat, shader);
-				
-		if (mc.DrawWireFrame) 
+
+		if (mc.Enabled)	mesh.Draw(m_EditorCamera, mat, shader);
+
+		if (mc.DrawWireFrame)
 		{
 			bool a = renderer.GetAlphaBlending();
 			renderer.SetAlphaBlending(true);
@@ -350,7 +352,7 @@ void EditorLayer::DrawScene(const float dt)
 		{
 			bool a = renderer.GetAlphaBlending();
 			renderer.SetAlphaBlending(true);
-			mesh.DrawNormals(m_EditorCamera, mat, mc.NormalsColor,mc.NormalsMagnitude);
+			mesh.DrawNormals(m_EditorCamera, mat, mc.NormalsColor, mc.NormalsMagnitude);
 			renderer.SetAlphaBlending(a);
 
 		}
@@ -359,9 +361,9 @@ void EditorLayer::DrawScene(const float dt)
 
 	m_SceneFrame.Unbind();
 	//renderer.SetViewPort(prevViewport);
-	
 
-	
+
+
 
 
 }

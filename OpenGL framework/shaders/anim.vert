@@ -25,13 +25,13 @@ vec3 colors[16] = vec3[](
 
 
 const int MAXBONES = 20;
-layout(location = 0) in vec3 position;		//0 - 3
-layout(location = 1) in vec3 normal;		//3 - 6
-layout(location = 2) in vec2 texCoord;		//6 - 8
-layout(location = 3) in vec3 aTangent;		//8 - 11
-layout(location = 4) in vec3 aBitangent;	//11 - 14
-layout(location = 5) in vec3 boneIDs;		//14 - 17			//TODO: convert to ivec3!
-layout(location = 6) in vec3 weights;		//17 - 20
+layout(location = 0) in vec3 a_Position;		//0 - 3
+layout(location = 1) in vec3 a_Normal;		//3 - 6
+layout(location = 2) in vec2 a_TexCoord;		//6 - 8
+//layout(location = 3) in vec3 aTangent;		//8 - 11
+//layout(location = 4) in vec3 aBitangent;	//11 - 14
+layout(location = 3) in vec4 a_BoneIDs;		//14 - 17			//TODO: convert to ivec3!
+layout(location = 4) in vec4 a_Weights;		//17 - 20
 
 uniform mat4 mBones[MAXBONES];
 
@@ -41,9 +41,9 @@ uniform mat4 mBones[MAXBONES];
 //out vec3 v_aTangent;
 //out vec3 v_aBitangent;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 u_Model;
+uniform mat4 u_View;
+uniform mat4 u_Projection;
 
 out vec3 idxColor;
 
@@ -54,19 +54,21 @@ void main() {
 	//int idx = int(boneIDs.x);
 
 	//mat4 BoneTransforml = mBones[0];
-	mat4 BoneTransform = mBones[int(boneIDs[0])] * weights[0];
-	BoneTransform += mBones[int(boneIDs[1])] * weights[1];
-	BoneTransform += mBones[int(boneIDs[2])] * weights[2];
+	mat4 BoneTransform = mBones[int(a_BoneIDs[0])] * a_Weights[0];
+	BoneTransform += mBones[int(a_BoneIDs[1])] * a_Weights[1];
+	BoneTransform += mBones[int(a_BoneIDs[2])] * a_Weights[2];
+	BoneTransform += mBones[int(a_BoneIDs[3])] * a_Weights[3];
 
 
 	//vec4 pos = 
 
 	vec3 col = vec3(0, 0, 0);
-	col += colors[int(boneIDs[0])] * weights[0];
-	col += colors[int(boneIDs[1])] * weights[1];
-	col += colors[int(boneIDs[2])] * weights[2];
+	col += colors[int(a_BoneIDs[0])] * a_Weights[0];
+	col += colors[int(a_BoneIDs[1])] * a_Weights[1];
+	col += colors[int(a_BoneIDs[2])] * a_Weights[2];
+	col += colors[int(a_BoneIDs[3])] * a_Weights[3];
 
-	gl_Position = projection * view * model * BoneTransform * vec4(position, 1.0f);
+	gl_Position = u_Projection * u_View * u_Model * BoneTransform * vec4(a_Position, 1.0f);
 
 	idxColor = col;//boneIDs.y / 16.0f, boneIDs.z / 16.0f);
 	//id2 = idx;
@@ -75,5 +77,3 @@ void main() {
 	//else if (idx < 0)	idxColor = vec3(0.0f, 0.0f, 1.0f);
 	//else			  	idxColor = vec3(1.0f, 1.0f, 1.0f);
 };
-
-
