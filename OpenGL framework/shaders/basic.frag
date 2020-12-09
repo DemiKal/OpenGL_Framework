@@ -23,8 +23,10 @@ void main()
 	float diffuse = max( dot(norm, dirL), 0);
 	//diffuse = clamp(ambient + diffuse, 0, 1);
 	//vec4 color = vec4(NdotL * diffuse, 1.0f);
- 
-	FragColor = vec4((diffuse + ambientLight) * albedo, alpha);
+	//if(alpha <= 0.0)    
+	//	discard;
+	if(alpha < 0.2f) discard;
+	FragColor = vec4((diffuse + ambientLight) * albedo , 1  );
   
 	//FragColor = ReturnRed();
  

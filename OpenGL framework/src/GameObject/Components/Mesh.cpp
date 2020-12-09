@@ -475,7 +475,15 @@ void Mesh::Draw(const Camera& camera, const glm::mat4& transform, Shader& shader
 	Draw(shader);
 }
 
+//for skybox
+void Mesh::Draw(const glm::mat4& proj, const glm::mat4& view, Shader& shader)
+{
+	shader.Bind();
+	shader.SetUniformMat4f("u_View", view);
+	shader.SetUniformMat4f("u_Projection", proj);
 
+	Draw(shader);
+}
 
 void Mesh::Draw(Shader& shader)
 {

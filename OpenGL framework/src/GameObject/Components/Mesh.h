@@ -92,6 +92,7 @@ public:
 	void AddTexture(const Texture2D& tex);
 	void LoadMaterialTextures(const aiMaterial* material, aiTextureType type, const std::string& typeName,const aiScene* scene);
 	void Draw(const Camera& camera, const glm::mat4& transform, Shader& shader);
+	void Draw(const glm::mat4& proj, const glm::mat4& view, Shader& shader);
 	void Draw(Shader& shader);
 
 };

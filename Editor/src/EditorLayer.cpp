@@ -40,7 +40,7 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<TransformComponent>(helm);
 	m_Registry.emplace<TagComponent>(helm, "helm");
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
+	m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);
 
 
 }
@@ -288,15 +288,12 @@ void EditorLayer::RenderSkybox()
 	Mesh* skybox = MeshManager::GetMesh(Meshtype::Skybox);
 	Shader& shader = ShaderManager::GetShader("skybox");
 	shader.Bind();
-	auto view = cam.GetViewMatrix();
+	auto view = glm::mat4(glm::mat3(cam.GetViewMatrix()));
+	auto proj =  cam.GetProjectionMatrix();
 	auto camPos = cam.GetPosition();
 	auto translMat = (glm::translate(glm::mat4(1.0f), camPos));
 
-
-
-
-
-	skybox->Draw(cam, translMat, shader);
+	skybox->Draw(proj, view, shader);
 
 	shader.Unbind();
 	m_Editor->GetRenderer().SetDepthFunc(GL_LESS);
@@ -317,12 +314,19 @@ void EditorLayer::DrawScene(const float dt)
 		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
 		m_EditorCamera.SetAspectRatio(aspect);
 	}
+	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-	renderer.SetClearColor(0.5f, 0.4f, 0.4f, 1.0f);
-	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	 renderer.SetClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+	 renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderer.EnableDepth();
 	renderer.SetAlphaBlending(true);
+
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendEquation(GL_FUNC_ADD); //allows us to set this operationand has 5 possible options :
+
 	auto view = m_Registry.view<MeshComponent, TransformComponent>();
+	
 	for (auto entity : view)
 	{
 		auto [mc, transform] = m_Registry.get<MeshComponent, TransformComponent>(entity);
@@ -330,13 +334,9 @@ void EditorLayer::DrawScene(const float dt)
 		Mesh& mesh = MeshManager::GetMesh(idx);
 		Shader& shader = ShaderManager::GetShader(mc.ShaderIdx);
 		const glm::mat4 mat = transform.CalcMatrix();
-		
-		
+				
 		if(mc.Enabled)	mesh.Draw(m_EditorCamera, mat, shader);
-
-	
-		
-		
+				
 		if (mc.DrawWireFrame) 
 		{
 			bool a = renderer.GetAlphaBlending();
@@ -345,13 +345,23 @@ void EditorLayer::DrawScene(const float dt)
 			renderer.SetAlphaBlending(a);
 
 		}
-	}
 
+		if (mc.DrawNormals)
+		{
+			bool a = renderer.GetAlphaBlending();
+			renderer.SetAlphaBlending(true);
+			mesh.DrawNormals(m_EditorCamera, mat, mc.NormalsColor,mc.NormalsMagnitude);
+			renderer.SetAlphaBlending(a);
+
+		}
+	}
 	RenderSkybox();
 
 	m_SceneFrame.Unbind();
 	//renderer.SetViewPort(prevViewport);
+	
 
+	
 
 
 }

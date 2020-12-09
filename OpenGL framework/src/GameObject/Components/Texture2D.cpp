@@ -51,7 +51,7 @@ void Texture2D::LoadCubemap(std::vector<std::string> faces)
 	m_RendererID = textureID;
 	m_type = "texture_diffuse";
 	m_GLType = GL_TEXTURE_CUBE_MAP;
-	//return textureID;
+ 
 }
 
 GLenum Texture2D::GetGLType() const
@@ -77,7 +77,6 @@ void Texture2D::GenerateTexture(unsigned char* data, int nrComponents, int width
 	GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D));
-
 	m_Width = width;
 	m_Height = height;
 	m_RendererID = textureID;	//TODO: careful this wont work when calling this func with Cubemap. Refactor?
@@ -86,10 +85,11 @@ void Texture2D::GenerateTexture(unsigned char* data, int nrComponents, int width
 	//Due to interpolation it takes texels from next repeat 
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	
 }
 
 void Texture2D::TextureFromFile(const std::string& fullPath/*, Texture& texture*/)
@@ -101,6 +101,7 @@ void Texture2D::TextureFromFile(const std::string& fullPath/*, Texture& texture*
 	if (data)
 	{
 		GenerateTexture(data, nrComponents, width, height);
+		stbi_image_free(data);
 	}
 	else
 	{
