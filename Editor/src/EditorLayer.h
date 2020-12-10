@@ -49,11 +49,12 @@ public:
 	void RenderViewportPanel(float dt);
 	void RenderInspectorPanel(float dt);
 	void RenderSceneHierarchyPanel(float dt);
+	
 	template<typename T>
 	void DrawUIComponent(T t);
 	void DrawVec3Component(const std::string& label, glm::vec3& vec, float resetVal);
-	void DrawUIComponent(TransformComponent& t, const std::string& label);
-	void DrawUIComponent(const glm::mat4& m, const std::string& label);
-	void DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity);
-	void DrawUIComponent(MeshComponent& mc, const std::string& label);
+	void DrawUIComponent(TransformComponent& t, const std::string& label, const float dt);
+	void DrawUIComponent(const glm::mat4& m, const std::string& label, const float dt);
+	void DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity, const float dt);
+	void DrawUIComponent(MeshComponent& mc, const std::string& label, const float dt);
 };

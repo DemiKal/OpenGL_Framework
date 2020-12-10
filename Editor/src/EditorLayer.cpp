@@ -42,7 +42,7 @@ void EditorLayer::OnAttach()
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
 	auto& mc2 = m_Registry.emplace<MeshComponent>(anim, "Assets/meshes/Animation test/run.glb", aiProcess_Triangulate);
 
-	 mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
+	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
 
 
 }
@@ -80,8 +80,8 @@ void EditorLayer::DrawCameraInspector(const float dt)
 		const auto viewMat = m_EditorCamera.GetViewMatrix();
 		const auto proj = m_EditorCamera.GetProjectionMatrix();
 
-		DrawUIComponent(viewMat, "View Matrix");
-		DrawUIComponent(proj, "Projection Matrix");
+		DrawUIComponent(viewMat, "View Matrix", dt);
+		DrawUIComponent(proj, "Projection Matrix", dt);
 		ImGui::TreePop();
 	}
 

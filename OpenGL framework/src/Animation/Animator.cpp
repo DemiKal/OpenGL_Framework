@@ -5,19 +5,48 @@
 #include "Animation/Animation.h"
 #include "Animation/Animator.h"
 
-void UpdateHierarchy(Joint& current, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverse_root)
+void Animator::UpdateHierarchy(Joint& current, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverse_root)
 {
 	glm::mat4 currentMat = parentMat * current.m_PoseTransform;
 	current.m_PoseTransform = inverse_root * currentMat * current.m_Offset;
 
-	for (auto& cp : current.m_ChildrenPair)
-		UpdateHierarchy(bones[cp.second], bones, currentMat, inverse_root);
+	// for (auto& cp : current.m_ChildrenPair)
+	for (auto& ci : current.m_ChildrenIndices)
+		UpdateHierarchy(bones[ci], bones, currentMat, inverse_root);
 }
 
-void Animator::UpdateAnimation(float deltaTime)
+void Animator::UpdateHierarchy(glm::mat4& inverse_root)
 {
-	animTime = fmod(animTime + 1000 * deltaTime, m_duration);
+	const glm::mat4 parentMat = inverse_root;
 
+	std::vector<int> stack = { 0 }; //idx 0 = start
+	while (!stack.empty())
+	{
+		int idx = stack.back();
+		stack.pop_back();
+		Joint& current = m_bones[idx];
+		fmt::print("Name {}, idx {}\n", current.m_Name, idx);
+		current.m_PoseTransform = inverse_root * current.m_PoseTransform;
+		glm::mat4 parentMat = current.m_PoseTransform;
+
+		for (auto& c : current.m_ChildrenIndices)
+			stack.emplace_back(c);
+
+
+	}
+
+	//glm::mat4 currentMat = parentMat * current.m_PoseTransform;
+	//current.m_PoseTransform = inverse_root * currentMat * current.m_Offset;
+	//
+	////for (auto& cp : current.m_ChildrenPair)
+	//for (auto& ci : current.m_ChildrenIndices)
+	//	UpdateHierarchy(bones[ci], bones, currentMat, inverse_root);
+}
+
+void Animator::UpdateAnimation(const float dt, const float speedControl )
+{
+	animTime = fmod(animTime + 1000 * dt * speedControl, m_duration);
+	///animTime = 0;
 	for (Joint& joint : m_bones)
 	{
 		AnimationChannel& channel = current.m_AnimationChannels[joint.m_Index];
@@ -49,6 +78,7 @@ void Animator::UpdateAnimation(float deltaTime)
 	}
 
 	UpdateHierarchy(m_bones[0], m_bones, glm::mat4(1.0f), m_inverse_root);
+	//UpdateHierarchy(m_inverse_root);
 }
 
 std::unordered_map<std::string, glm::mat4> Animator::CalcPose()

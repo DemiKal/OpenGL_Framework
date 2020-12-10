@@ -11,16 +11,16 @@ void  EditorLayer::RenderInspectorPanel(float dt)
 	if (m_Selected != entt::null)
 	{
 		auto& tfc = m_Registry.get<TransformComponent>(m_Selected);
-		DrawUIComponent(tfc, "Transform Component");
+		DrawUIComponent(tfc, "Transform Component", dt);
 		if (m_Registry.has<MeshComponent>(m_Selected))
 		{
 			auto& mc = m_Registry.get<MeshComponent>(m_Selected);
-			DrawUIComponent(mc, "Mesh Component");
+			DrawUIComponent(mc, "Mesh Component", dt);
 		}
 		if (m_Registry.has<CameraComponent>(m_Selected))
 		{
 			auto& cc = m_Registry.get<CameraComponent>(m_Selected);
-			DrawUIComponent(cc, "Camera Component", m_Selected);
+			DrawUIComponent(cc, "Camera Component", m_Selected, dt);
 		}
 	}
 

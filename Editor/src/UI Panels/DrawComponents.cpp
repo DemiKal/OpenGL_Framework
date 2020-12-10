@@ -44,7 +44,7 @@ void EditorLayer::DrawVec3Component(const std::string& label, glm::vec3& vec, fl
 	ImGui::PopID();
 }
 
-void EditorLayer::DrawUIComponent(TransformComponent& t, const std::string& label)
+void EditorLayer::DrawUIComponent(TransformComponent& t, const std::string& label, const float dt)
 {
 	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 	if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
@@ -60,7 +60,7 @@ void EditorLayer::DrawUIComponent(TransformComponent& t, const std::string& labe
 	ImGui::Separator();
 }
 
-void EditorLayer::DrawUIComponent(const glm::mat4& m, const  std::string& label)
+void EditorLayer::DrawUIComponent(const glm::mat4& m, const  std::string& label, const float dt)
 {
 	// ImGui::TreeNodeEx("matrix",ImGuiTreeNodeFlags_::)
 	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -85,7 +85,7 @@ void EditorLayer::DrawUIComponent(const glm::mat4& m, const  std::string& label)
 	}
 }
 
-void EditorLayer::DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity)
+void EditorLayer::DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity, const float dt)
 {
 	auto& transf = m_Registry.get<TransformComponent>(entity);
 	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
@@ -119,24 +119,24 @@ void EditorLayer::DrawUIComponent(CameraComponent& cc, const std::string& label,
 		const auto viewMat = cc.camera.GetViewMatrix();
 		const auto proj = cc.camera.GetProjectionMatrix();
 
-		DrawUIComponent(viewMat, "View Matrix");
-		DrawUIComponent(proj, "Projection Matrix");
+		DrawUIComponent(viewMat, "View Matrix", dt);
+		DrawUIComponent(proj, "Projection Matrix", dt);
 		//	ImGui::TreePop();
 	}
 	cc.camera.RecalcProjection();
 	ImGui::Separator();
 }
 
-void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label)
+void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, const float dt)
 {
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.4f, 0.3f, 0.4f, 0.8f });
 	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 	if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 	{
 		ImGui::SameLine(30.0f);
-		
+
 		ImGui::Checkbox("Render", &mc.Enabled);
-		
+
 		if (ImGui::IsItemHovered())
 			mc.Enabled = !mc.Enabled;
 
@@ -149,7 +149,7 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label)
 		if (mc.DrawWireFrame)
 		{
 			ImGui::SameLine();
-			ImGui::ColorEdit4("##wireFrameCol",  glm::value_ptr(mc.WireFrameColor ) , ImGuiColorEditFlags_NoInputs);
+			ImGui::ColorEdit4("##wireFrameCol", glm::value_ptr(mc.WireFrameColor), ImGuiColorEditFlags_NoInputs);
 			//ImGui::ColorButton("Color", mc.WireFrameColor);
 		}
 
@@ -161,10 +161,10 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label)
 			ImGui::SameLine();
 
 			ImVec2 avail = ImGui::GetContentRegionAvail();
-			ImGui::PushItemWidth(avail.x/3.0f);
+			ImGui::PushItemWidth(avail.x / 3.0f);
 			//ImGui::DragFloat("Magnitude normals", &mc.NormalsMagnitude,0.05, 5, "%.3f");
 			const ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_NoRoundToFormat;
-			ImGui::DragFloat("Magnitude", &mc.NormalsMagnitude, 0.01f, -1,5, "%.3f", sliderFlags);
+			ImGui::DragFloat("Magnitude", &mc.NormalsMagnitude, 0.01f, -1, 5, "%.3f", sliderFlags);
 			//ImGui::DragInt("Offset X", &offset_x, 1.0f, -1000, 1000);
 			//ImGui::ColorButton("Color", mc.WireFrameColor);
 		}
@@ -241,13 +241,28 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label)
 						}
 					}
 
+
+
 					ImGui::TreePop();
 				}
+
 
 				ImGui::PopID();
 			}
 
 			ImGui::TreePop();
+		}
+
+		if (mesh.HasAnimation())
+		{
+			static bool playAnimation;
+			ImGui::Checkbox("Play animation", &playAnimation);
+			static float animSpeed = 1.0f;
+			ImGui::DragFloat("Animation speed", &animSpeed,0.005f,0,5,"%.3f");
+			if (playAnimation)
+			{
+				mesh.m_animator.UpdateAnimation(dt, animSpeed);
+			}
 		}
 	}
 

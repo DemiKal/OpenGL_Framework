@@ -8,6 +8,78 @@
 #include "Animation/Animator.h"
 //#include "GameObject/Components/AABB.h"
 //#include "GameObject/Components/AABB.h"
+struct  Armature2
+{
+	std::string name;
+	int id;
+	std::vector< Armature2*> children;
+	Armature2* parent;
+	glm::mat4 mat;
+	std::vector<uint32_t> indices;
+	~Armature2()
+	{
+		std::cout << "lmao cyaa\n";
+		for (auto* child : children)
+			delete child;
+	}
+};
+
+Armature2* FindBone(Armature2* curr, const std::string& name)
+{
+	//if (parentArmature->name.compare(name))
+	//{
+		//	return parentArmature;
+	//}
+
+	for (auto* child : curr->children)
+		FindBone(child, name);
+
+	if (std::strcmp(curr->name.c_str(), name.c_str()) == 0)
+	{
+		return curr;
+	}
+}
+
+void CreateArmature(Armature2* parentArmature, aiNode* node, uint32_t  iter)
+{
+	Armature2* me = new Armature2;
+	me->name = node->mName.C_Str();
+	me->mat = AI2GLMMAT(node->mTransformation);
+
+	if (iter > 0) me->parent = parentArmature;
+
+	parentArmature->children.push_back(me);
+
+	// then do the same for each of its children
+	for (unsigned int i = 0; i < node->mNumChildren; i++)
+	{
+		CreateArmature(me, node->mChildren[i], ++iter);
+	}
+}
+
+void CreateHierarchy(Armature2* parent, uint32_t& idx)
+{
+	parent->id = idx;
+
+	for (Armature2* child : parent->children)
+		CreateHierarchy(child, ++idx);
+
+	for (Armature2* child : parent->children)
+		parent->indices.emplace_back(child->id);
+
+}
+
+void CreateList(Armature2* parent, std::unordered_map< std::string, std::vector  < std::tuple < std::string, uint32_t>>>& dict)
+{	
+	for (Armature2* child : parent->children)
+		CreateList(child, dict);
+	for (Armature2* child : parent->children)
+		dict[parent->name].push_back({ child->name,child->id });
+
+
+
+}
+//void GetChildIndices(Armature2* parent, const std::unordered_map<std::string)
 
 void Mesh::LoadMaterialTextures(
 	const aiMaterial* material,
@@ -247,8 +319,84 @@ Mesh::Mesh(
 
 	if (hasBones)
 	{
-		//std::map<unsigned int, std::tuple<float, float>> bonemapping;
-		//bonemapping.resize(mesh->mNumVertices);
+		Armature2* first = new Armature2;
+		CreateArmature(first, scene->mRootNode,0);
+		std::vector<Armature2*> armatureVec;
+		std::vector<Armature2*> kids;
+		
+		armatureVec.push_back(first);
+
+		while (!armatureVec.empty())
+		{
+			Armature2* current = armatureVec.back();
+			armatureVec.pop_back();
+			for (Armature2* child : current->children)
+			{
+				kids.emplace_back(child);
+				armatureVec.push_back(child);
+			}
+
+			
+		}
+
+		Armature2 * torso = nullptr;
+		for(Armature2 * a : kids) 
+			if(std::strcmp(a->name.c_str(), "Torso")==0) 
+				torso = a;
+
+
+		//Armature2* torso = FindBone(first, "Torso");
+		std::unordered_map< std::string, std::vector  < std::tuple < std::string, uint32_t>>>  boneMapping2;
+		uint32_t idxCounter = 0;
+		CreateHierarchy(torso, idxCounter);
+		CreateList(torso, boneMapping2);
+
+		//std::shared_ptr<Armature2>  root = FindBone(first, "Torso");
+		//std::vector<Armature2*> myStack = { first };
+
+		//DFS
+	//while (!myStack.empty())
+	//{
+	//	auto& poppd = myStack.back();
+	//	if (std::strcmp(poppd->name.c_str(), "Torso") == 0)
+	//		break;
+	//
+	//	myStack.pop_back();
+	//
+	//	for (auto& child : poppd->children)
+	//		myStack.emplace_back(child);
+	//
+	//}
+	//auto& torso = myStack.back();
+	//myStack.clear();
+	//myStack.push_back(torso);
+
+
+
+
+
+
+	//int counter = 0;
+	//std::unordered_map<std::string, std::vector<std::pair<std::string, uint32_t>>> childBoneRefs;
+
+	//while (!myStack.empty())
+	//{
+	//	auto& poppd = myStack.back();
+	//	//poppd->id = counter++;
+	//	myStack.pop_back();
+	//
+	//	for (auto& child : poppd->children)
+	//	{
+	//		childBoneRefs[poppd->name].push_back({ child->name, ++counter });// { child->name, push_back(, counter++ });
+	//		//childBoneRefs[poppd->name].second.push_back(counter++);// { child->name, push_back(, counter++ });
+	//
+	//		myStack.push_back(child);
+	//	}
+	//}
+
+
+	//std::map<unsigned int, std::tuple<float, float>> bonemapping;
+	//bonemapping.resize(mesh->mNumVertices);
 		std::vector<std::vector<std::tuple<float, float>>> bonemapping(mesh->mNumVertices);
 
 		std::unordered_map<std::string, unsigned int> bonesDict;
@@ -270,12 +418,21 @@ Mesh::Mesh(
 			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
 			boneNames[boneName] = boneIdx;
 
+			//for (Joint& joint : bones)
+			//	for (auto& children :    )
+			//	{
+			//		//joint.m_ChildrenIndices.emplace_back(children.second);
+			//		boneNames
+			//	}
+
+
+
 			//TODO FIX:
 			//FindChildren(armature, joint, bonesDict);
 			//AssignMatrices(armature, joint);
 
-			bones.emplace_back(joint);
 
+			bones.emplace_back(joint);
 			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
 
 			for (unsigned int j = 0; j < numWeights; j++)
@@ -297,8 +454,20 @@ Mesh::Mesh(
 			}
 		}
 
+		for (Joint& joint : bones)
+		{
+			auto& children = boneMapping2[joint.m_Name];
+			for (auto&[nm, it]   : children)
+			{
+				joint.m_ChildrenIndices.push_back(it);
+			}
+		}
 		//copy bones
 
+		
+
+		for (Joint& joint : bones)
+			fmt::print("joint name: {} | {}\n", joint.m_Name, joint.m_Index);
 		const unsigned int bmapSize = static_cast<unsigned int>(bonemapping.size());
 		for (unsigned int i = 0; i < bmapSize; i++)
 		{
@@ -363,6 +532,8 @@ Mesh::Mesh(
 #pragma region anim
 	if (scene->HasAnimations())
 	{
+
+
 		Animator animator;
 		animator.m_bones.resize(bones.size());
 		std::copy(bones.begin(), bones.end(), animator.m_bones.begin());
@@ -417,8 +588,10 @@ Mesh::Mesh(
 			Animation animation(duration, AnimationChannels);
 			animator.current = animation;
 		}
+
 		m_animator = animator;
 		m_animator.m_inverse_root = glm::mat4(1.0f);
+		m_AnimationLoaded = true;
 	}
 
 	// process materials
@@ -549,9 +722,9 @@ void Mesh::Draw(Shader& shader)
 	if (!m_animator.m_bones.empty())
 	{
 		std::vector<glm::mat4> boneMatrices;
-		for (auto& m : m_animator.m_bones)
-			//boneMatrices.emplace_back(m.m_PoseTransform);
-			boneMatrices.emplace_back(glm::mat4(1.0f));
+		for (auto& m : m_animator.m_bones)	//TODO: cache this at an animator or somsething
+			boneMatrices.emplace_back(m.m_PoseTransform);
+		//boneMatrices.emplace_back(glm::mat4(1.0f));
 
 		const auto idx = shader.GetUniformLocation("mBones[0]");
 		GLCall(glUniformMatrix4fv(static_cast<GLint>(idx), static_cast<GLsizei>(20), GL_FALSE, reinterpret_cast<const GLfloat*>(&boneMatrices[0]))); // Passing 20 matrices
