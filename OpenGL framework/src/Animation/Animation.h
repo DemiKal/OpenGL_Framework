@@ -7,7 +7,7 @@ class Animation
 public:
 	float m_Length;
 	std::vector<Keyframe> m_Keyframes;
-	std::vector<AnimationChannel>  m_AnimationChannels;
+	std::vector<AnimationChannel> m_AnimationChannels;
 
 	Animation();
 	Animation(const Animation& a);

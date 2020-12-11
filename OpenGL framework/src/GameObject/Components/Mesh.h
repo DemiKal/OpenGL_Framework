@@ -46,6 +46,7 @@ public:
 	AABB m_aabb_OG;
 
 	Mesh() {}
+	void LoadAnimations(const aiScene* scene, const aiMesh* mesh, const std::unordered_map<std::string, unsigned>& pairs, const std::vector<Joint>& bones);
 	Mesh(
 		const aiMesh* mesh,
 		const aiScene* scene,
@@ -90,6 +91,7 @@ public:
 	void DrawWireFrame(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color) const;
 	void DrawNormals(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color, float magnitude); //TODO:: just pass mesh component?
 	void AddTexture(const Texture2D& tex);
+	void LoadBoneData(const aiScene* scene, const aiMesh* mesh, std::unordered_map<std::string, unsigned>& boneNames, std::vector<Joint>& bones);
 	void LoadMaterialTextures(const aiMaterial* material, aiTextureType type, const std::string& typeName,const aiScene* scene);
 	void Draw(const Camera& camera, const glm::mat4& transform, Shader& shader);
 	void Draw(const glm::mat4& proj, const glm::mat4& view, Shader& shader);

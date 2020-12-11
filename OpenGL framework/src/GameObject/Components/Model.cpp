@@ -147,6 +147,7 @@ void Model::Update(float deltaTime)
 		mesh.m_aabb.UpdateArvo(m_modelMatrix, mesh.m_aabb_OG);
 }
 
+//OLD CODE
 void FindChildren(
 	std::shared_ptr<Model::Armature> arma,
 	Joint& joint,
@@ -156,19 +157,20 @@ void FindChildren(
 	{
 		for (int i = 0; i < arma->children.size(); i++)
 		{
-			joint.m_ChildrenPair.emplace_back(
-				std::make_pair(arma->children[i]->name, bonesDict[arma->children[i]->name]));
+	//		joint.m_ChildrenPair.emplace_back(
+			//	std::make_pair(arma->children[i]->name, bonesDict[arma->children[i]->name]));
 		}
 		return;
 	}
 	for (auto& i : arma->children) FindChildren(i, joint, bonesDict);
 }
 
+//OLD CODE
 void AssignMatrices(std::shared_ptr<Model::Armature> armature, Joint& joint)
 {
 	if (armature->name == joint.m_Name)
 	{
-		joint.m_NodeTransform = armature->mat;
+		//joint.m_NodeTransform = armature->mat;
 		return;
 	}
 	else for (auto& children : armature->children)	AssignMatrices(children, joint);
@@ -335,8 +337,8 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 		}
 
 		//copy bones
-		animator.m_bones.resize(bones.size());
-		std::copy(bones.begin(), bones.end(), animator.m_bones.begin());
+		animator.m_Bones.resize(bones.size());
+		std::copy(bones.begin(), bones.end(), animator.m_Bones.begin());
 
 		const unsigned int bmapSize = static_cast<unsigned int>(bonemapping.size());
 		for (unsigned int i = 0; i < bmapSize; i++) {

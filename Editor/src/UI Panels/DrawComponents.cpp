@@ -171,6 +171,22 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		const uint32_t nrTextures = static_cast<uint32_t>(mesh.m_Textures.size());
+		if (mesh.HasAnimation())
+		{
+			static bool playAnimation = false;
+			if (ImGui::ArrowButton("##PlayAnimation", ImGuiDir_Right))
+			{
+				playAnimation = !playAnimation;
+			}
+			const std::string txt = playAnimation ? "Stop animation" : "Play animation";
+			ImGui::SameLine(); ImGui::Text(txt.c_str());
+			static float animSpeed = 1.0f;
+			ImGui::DragFloat("Animation speed", &animSpeed, 0.0001f, 0, 5, "%.3f");
+			if (playAnimation)
+			{
+				mesh.m_animator.UpdateAnimation(dt, animSpeed);
+			}
+		}
 
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 		if (ImGui::TreeNode("Textures", "Textures (%i)", nrTextures))
@@ -253,17 +269,7 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 			ImGui::TreePop();
 		}
 
-		if (mesh.HasAnimation())
-		{
-			static bool playAnimation;
-			ImGui::Checkbox("Play animation", &playAnimation);
-			static float animSpeed = 1.0f;
-			ImGui::DragFloat("Animation speed", &animSpeed,0.005f,0,5,"%.3f");
-			if (playAnimation)
-			{
-				mesh.m_animator.UpdateAnimation(dt, animSpeed);
-			}
-		}
+	
 	}
 
 	ImGui::Separator();

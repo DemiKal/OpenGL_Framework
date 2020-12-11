@@ -45,35 +45,25 @@ uniform mat4 u_Model;
 uniform mat4 u_View;
 uniform mat4 u_Projection;
 
-out vec3 idxColor;
+out vec2 v_TexCoord;
 
-uniform sampler2D vertexTex;
+uniform sampler2D texture_diffuse1;
 
-void main() {
-	//mat4 BoneTransform = mat4(1.0f) * mBones[];
-	//int idx = int(boneIDs.x);
+void main() 
+{
 
-	//mat4 BoneTransforml = mBones[0];
+	v_TexCoord = a_TexCoord;
+
 	mat4 BoneTransform = mBones[int(a_BoneIDs[0])] * a_Weights[0];
 	BoneTransform += mBones[int(a_BoneIDs[1])] * a_Weights[1];
 	BoneTransform += mBones[int(a_BoneIDs[2])] * a_Weights[2];
 	BoneTransform += mBones[int(a_BoneIDs[3])] * a_Weights[3];
 
-
-	//vec4 pos = 
-
-	vec3 col = vec3(0, 0, 0);
-	col += colors[int(a_BoneIDs[0])] * a_Weights[0];
-	col += colors[int(a_BoneIDs[1])] * a_Weights[1];
-	col += colors[int(a_BoneIDs[2])] * a_Weights[2];
-	col += colors[int(a_BoneIDs[3])] * a_Weights[3];
+	//vec3 col = vec3(0, 0, 0);
+	//col += colors[int(a_BoneIDs[0])] * a_Weights[0];
+	//col += colors[int(a_BoneIDs[1])] * a_Weights[1];
+	//col += colors[int(a_BoneIDs[2])] * a_Weights[2];
+	//col += colors[int(a_BoneIDs[3])] * a_Weights[3];
 
 	gl_Position = u_Projection * u_View * u_Model * BoneTransform * vec4(a_Position, 1.0f);
-
-	idxColor = col;//boneIDs.y / 16.0f, boneIDs.z / 16.0f);
-	//id2 = idx;
-	//float idx = weights.x;
-	//if (idx > 15)		idxColor = vec3(1.0f, 0.0f, 0.0f);
-	//else if (idx < 0)	idxColor = vec3(0.0f, 0.0f, 1.0f);
-	//else			  	idxColor = vec3(1.0f, 1.0f, 1.0f);
 };

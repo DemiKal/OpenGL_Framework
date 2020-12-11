@@ -70,7 +70,7 @@ void CreateHierarchy(Armature2* parent, uint32_t& idx)
 }
 
 void CreateList(Armature2* parent, std::unordered_map< std::string, std::vector  < std::tuple < std::string, uint32_t>>>& dict)
-{	
+{
 	for (Armature2* child : parent->children)
 		CreateList(child, dict);
 	for (Armature2* child : parent->children)
@@ -81,6 +81,97 @@ void CreateList(Armature2* parent, std::unordered_map< std::string, std::vector 
 }
 //void GetChildIndices(Armature2* parent, const std::unordered_map<std::string)
 
+void Mesh::LoadBoneData(
+	const aiScene* scene,
+	const aiMesh* mesh,
+	std::unordered_map<std::string, unsigned int>& boneNames,
+	std::vector<Joint>& bones)
+{
+	Armature2* first = new Armature2;
+	CreateArmature(first, scene->mRootNode, 0);
+	std::vector<Armature2*> armatureVec;
+	std::vector<Armature2*> kids;
+
+	armatureVec.push_back(first);
+
+	while (!armatureVec.empty())
+	{
+		Armature2* current = armatureVec.back();
+		armatureVec.pop_back();
+		for (Armature2* child : current->children)
+		{
+			kids.emplace_back(child);
+			armatureVec.push_back(child);
+		}
+
+
+	}
+
+	Armature2* torso = nullptr;
+	for (Armature2* a : kids)
+		if (std::strcmp(a->name.c_str(), "Torso") == 0)
+			torso = a;
+
+	std::unordered_map< std::string, std::vector  < std::tuple < std::string, uint32_t>>>  boneMapping2;
+	uint32_t idxCounter = 0;
+	CreateHierarchy(torso, idxCounter);
+	CreateList(torso, boneMapping2);
+
+
+	//make lookup table for bone names
+	for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++)
+	{
+		aiBone* ai_bone = mesh->mBones[boneIdx];
+		std::string boneName = ai_bone->mName.C_Str();
+		Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
+		boneNames[boneName] = boneIdx;
+
+		bones.emplace_back(joint);
+	}
+
+	//map vertex weights to bones
+	std::vector<std::vector<std::tuple<float, float>>> bonemapping(mesh->mNumVertices);
+	for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++)
+	{
+		aiBone* ai_bone = mesh->mBones[boneIdx];
+		const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
+		for (unsigned int j = 0; j < numWeights; j++)
+		{
+			aiVertexWeight vw = ai_bone->mWeights[j];
+			const unsigned int v_idx = vw.mVertexId;
+			const float v_w = vw.mWeight;
+			bonemapping[v_idx].emplace_back(std::make_tuple(boneIdx, v_w));
+		}
+	}
+
+
+	for (Joint& joint : bones)
+	{
+		auto& children = boneMapping2[joint.m_Name];
+		for (auto& [nm, it] : children)
+			joint.m_ChildrenIndices.push_back(it);
+	}
+
+	auto stride1 = m_VertexBufferLayout.GetStride() / 4;
+	auto boneIndexElem = m_VertexBufferLayout.GetElement(VertexType::BONE_INDEX);
+	auto subStride = boneIndexElem.vertexIndex / 4;
+
+	for (uint32_t i = 0; i < mesh->mNumVertices; i++)
+	{
+		auto& as = bonemapping[i];
+		for (uint32_t j = 0; j < as.size(); j++)
+		{
+			auto& [boneIdx, weight] = as[j];
+			uint32_t idxB = stride1 * i + subStride + j; //m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
+			uint32_t idxW = idxB + boneIndexElem.count;
+
+			m_Vertices[idxB] = boneIdx;
+			m_Vertices[idxW] = weight;
+
+		}
+	}
+
+}
 void Mesh::LoadMaterialTextures(
 	const aiMaterial* material,
 	const aiTextureType type,
@@ -144,6 +235,78 @@ void Mesh::LoadMaterialTextures(
 		}
 	}
 }
+
+void Mesh::LoadAnimations(const aiScene* scene, const aiMesh* mesh, const std::unordered_map<std::string, unsigned>& pairs, const std::vector<Joint>& bones)
+{
+	if (scene->HasAnimations())
+	{
+		Animator animator;
+		animator.m_Bones.resize(bones.size());
+		std::copy(bones.begin(), bones.end(), animator.m_Bones.begin());
+		std::unordered_map<std::string, uint32_t> boneNames;	//todo: this has already been done b4 but whatever
+		for (Joint& j : animator.m_Bones)
+		{
+			j.m_PoseTransform = glm::mat4(1.0f);
+			boneNames[j.m_Name] = j.m_Index;
+		}
+		for (unsigned int i = 0; i < scene->mNumAnimations; i++)
+		{
+			aiAnimation* anim = scene->mAnimations[i];
+			const std::string anim_name = anim->mName.C_Str();
+			float ticks = 1;	//;
+			float duration = static_cast<float>(anim->mDuration);
+			animator.m_duration = duration;
+			animator.m_ticks = ticks;
+			double test = static_cast<double>(animator.m_ticks) / 1000.0;
+			double test2 = anim->mTicksPerSecond;
+
+
+			std::vector<AnimationChannel> AnimationChannels;
+			AnimationChannels.resize(anim->mNumChannels); //resize to sync with bones
+
+			for (uint32_t j = 0; j < anim->mNumChannels; j++)
+			{
+				const aiNodeAnim* ai_channel = anim->mChannels[j];
+				const std::string channelName = ai_channel->mNodeName.C_Str();
+
+				std::vector<PositionKey> positionkeys;
+				std::vector<RotationKey> rotationKeys;
+				std::vector<ScaleKey> scalingKeys;
+
+				for (uint32_t k = 0; k < ai_channel->mNumPositionKeys; k++)
+				{
+					aiVectorKey ai_key = ai_channel->mPositionKeys[k];
+					positionkeys.emplace_back(ai_key.mTime, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
+				}
+
+				for (uint32_t k = 0; k < ai_channel->mNumRotationKeys; k++)
+				{
+					aiQuatKey ai_key = ai_channel->mRotationKeys[k];
+					rotationKeys.emplace_back(ai_key.mTime, ai_key.mValue.w, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
+				}
+
+				for (uint32_t k = 0; k < ai_channel->mNumScalingKeys; k++)
+				{
+					aiVectorKey ai_key = ai_channel->mScalingKeys[k];
+					scalingKeys.emplace_back(ai_key.mTime, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
+				}
+
+				//AnimationChannels.emplace_back(AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys));
+				unsigned int channel_idx = boneNames[channelName];
+				AnimationChannels[channel_idx] = AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys);
+
+			}
+
+			Animation animation(duration, AnimationChannels);
+			animator.current = animation; //TODO add multiple animations!
+		}
+
+		m_animator = animator;
+		m_animator.m_inverse_root = glm::mat4(1.0f);
+		m_AnimationLoaded = true;
+	}
+}
+
 
 Mesh::Mesh(
 	const aiMesh* mesh,
@@ -257,38 +420,33 @@ Mesh::Mesh(
 		}
 		if (hasBones)
 		{
-			for (int b = 0; b < BONESPERVERTEX; b++)
+			for (uint32_t b = 0; b < BONESPERVERTEX; b++)
 			{
 				m_Vertices.push_back(0);
 				m_Vertices.push_back(0);
-			}//m_Vertices.push_back(0);
-			//m_Vertices.push_back(0);
-			//m_Vertices.push_back(0);
-			//m_Vertices.push_back(0);
+			}
 		}
 
 	}
 
-
 	// now walk through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex m_Indices.
-	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+	for (uint32_t i = 0; i < mesh->mNumFaces; i++)
 	{
 		aiFace face = mesh->mFaces[i];
 		// retrieve all m_Indices of the face and store them in the m_Indices vector
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 		{
 			m_Indices.push_back(face.mIndices[j]);
-
 		}
 	}
 
 	if (hasTexCoords)
 		//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-		for (int i = 0; i < m_Indices.size() - 3; i += 3)
+		for (uint32_t i = 0; i < m_Indices.size() - 3; i += 3)
 		{
-			int idx1 = m_Indices[i];
-			int idx2 = m_Indices[i + 1];
-			int idx3 = m_Indices[i + 2];
+			uint32_t idx1 = m_Indices[i];
+			uint32_t idx2 = m_Indices[i + 1];
+			uint32_t idx3 = m_Indices[i + 2];
 
 			float u1 = mesh->mTextureCoords[0][idx1].x;
 			float v1 = mesh->mTextureCoords[0][idx1].y;
@@ -307,291 +465,14 @@ Mesh::Mesh(
 
 		}
 
-
-
-
 	//TODO: fix! animator.m_inverse_root = m_inverseRoot;
-
-#pragma region bones
-
-	std::unordered_map<std::string, unsigned int> boneNames;
-	std::vector<Joint> bones;
-
 	if (hasBones)
 	{
-		Armature2* first = new Armature2;
-		CreateArmature(first, scene->mRootNode,0);
-		std::vector<Armature2*> armatureVec;
-		std::vector<Armature2*> kids;
-		
-		armatureVec.push_back(first);
+		std::unordered_map<std::string, unsigned int> boneNames;
+		std::vector<Joint> bones;
 
-		while (!armatureVec.empty())
-		{
-			Armature2* current = armatureVec.back();
-			armatureVec.pop_back();
-			for (Armature2* child : current->children)
-			{
-				kids.emplace_back(child);
-				armatureVec.push_back(child);
-			}
-
-			
-		}
-
-		Armature2 * torso = nullptr;
-		for(Armature2 * a : kids) 
-			if(std::strcmp(a->name.c_str(), "Torso")==0) 
-				torso = a;
-
-
-		//Armature2* torso = FindBone(first, "Torso");
-		std::unordered_map< std::string, std::vector  < std::tuple < std::string, uint32_t>>>  boneMapping2;
-		uint32_t idxCounter = 0;
-		CreateHierarchy(torso, idxCounter);
-		CreateList(torso, boneMapping2);
-
-		//std::shared_ptr<Armature2>  root = FindBone(first, "Torso");
-		//std::vector<Armature2*> myStack = { first };
-
-		//DFS
-	//while (!myStack.empty())
-	//{
-	//	auto& poppd = myStack.back();
-	//	if (std::strcmp(poppd->name.c_str(), "Torso") == 0)
-	//		break;
-	//
-	//	myStack.pop_back();
-	//
-	//	for (auto& child : poppd->children)
-	//		myStack.emplace_back(child);
-	//
-	//}
-	//auto& torso = myStack.back();
-	//myStack.clear();
-	//myStack.push_back(torso);
-
-
-
-
-
-
-	//int counter = 0;
-	//std::unordered_map<std::string, std::vector<std::pair<std::string, uint32_t>>> childBoneRefs;
-
-	//while (!myStack.empty())
-	//{
-	//	auto& poppd = myStack.back();
-	//	//poppd->id = counter++;
-	//	myStack.pop_back();
-	//
-	//	for (auto& child : poppd->children)
-	//	{
-	//		childBoneRefs[poppd->name].push_back({ child->name, ++counter });// { child->name, push_back(, counter++ });
-	//		//childBoneRefs[poppd->name].second.push_back(counter++);// { child->name, push_back(, counter++ });
-	//
-	//		myStack.push_back(child);
-	//	}
-	//}
-
-
-	//std::map<unsigned int, std::tuple<float, float>> bonemapping;
-	//bonemapping.resize(mesh->mNumVertices);
-		std::vector<std::vector<std::tuple<float, float>>> bonemapping(mesh->mNumVertices);
-
-		std::unordered_map<std::string, unsigned int> bonesDict;
-		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++)
-		{
-			aiBone* ai_bone = mesh->mBones[boneIdx];
-			std::string boneName = ai_bone->mName.C_Str();
-			bonesDict[boneName] = boneIdx;
-		}
-
-		for (unsigned int boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++)
-		{
-			aiBone* ai_bone = mesh->mBones[boneIdx];
-			std::string boneName = ai_bone->mName.C_Str();
-
-			//glm::mat4 a1 = glm::make_mat4(ai_bone->mOffsetMatrix[0]);
-			//glm::mat4 a2 = AI2GLMMAT(ai_bone->mOffsetMatrix);
-
-			Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
-			boneNames[boneName] = boneIdx;
-
-			//for (Joint& joint : bones)
-			//	for (auto& children :    )
-			//	{
-			//		//joint.m_ChildrenIndices.emplace_back(children.second);
-			//		boneNames
-			//	}
-
-
-
-			//TODO FIX:
-			//FindChildren(armature, joint, bonesDict);
-			//AssignMatrices(armature, joint);
-
-
-			bones.emplace_back(joint);
-			const unsigned int numWeights = mesh->mBones[boneIdx]->mNumWeights;
-
-			for (unsigned int j = 0; j < numWeights; j++)
-			{
-				aiVertexWeight vw = ai_bone->mWeights[j];
-				const unsigned int v_idx = vw.mVertexId;
-				const float v_w = vw.mWeight;
-
-				//if (bonemapping.find(v_idx) == bonemapping[v_idx].end())
-				{
-					bonemapping[v_idx].push_back({ boneIdx, v_w });
-				}
-				//else
-				//{
-				//	ASSERT(false);
-				//}
-
-				//put boneidx in vertex id?
-			}
-		}
-
-		for (Joint& joint : bones)
-		{
-			auto& children = boneMapping2[joint.m_Name];
-			for (auto&[nm, it]   : children)
-			{
-				joint.m_ChildrenIndices.push_back(it);
-			}
-		}
-		//copy bones
-
-		
-
-		for (Joint& joint : bones)
-			fmt::print("joint name: {} | {}\n", joint.m_Name, joint.m_Index);
-		const unsigned int bmapSize = static_cast<unsigned int>(bonemapping.size());
-		for (unsigned int i = 0; i < bmapSize; i++)
-		{
-			unsigned int j = 0;
-			for (auto& bm : bonemapping[i])
-			{
-				//const unsigned int elementIdxV1 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
-				//const unsigned int elementIdxV2 = m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_WEIGHT);
-				//m_Vertices[elementIdxV1] = bm.first;
-				//m_Vertices[elementIdxV2] = bm.second;
-				//j++;
-				//if (j >= BONESPERVERTEX) break;
-			}
-
-			//float sum = 0;
-			//for (auto& bm : bonemapping[i]) sum += bm.second;
-			//	if (fabs(sum - 1) > 0.01) //renormalize values! shouldn't happen with assimp postprocessing
-			//	{
-			//		std::vector<std::pair<unsigned int, float>> vec;
-			//		std::for_each(bonemapping[i].begin(), bonemapping[i].end(),
-			//			[&](const std::pair<unsigned int, float>& element) {
-			//				vec.push_back(element);
-			//			});
-			//
-			//		std::sort(vec.begin(), vec.end(),
-			//			[](const std::pair<unsigned int, float>& L,
-			//				const std::pair<unsigned int, float>& R) {
-			//					return L.second < R.second;
-			//			});
-			//
-			//		for (auto& bm : bonemapping[i]) {
-			//			bm.second = bm.second / sum;
-			//	}	}
-
-
-
-
-		}
-
-		auto stride = m_VertexBufferLayout.GetStride() / 4;
-		auto boneIndexElem = m_VertexBufferLayout.GetElement(VertexType::BONE_INDEX);
-		auto subStride = boneIndexElem.vertexIndex / 4;
-
-		for (uint32_t i = 0; i < mesh->mNumVertices; i++)
-		{
-			auto& as = bonemapping[i];
-			for (uint32_t j = 0; j < as.size(); j++)
-			{
-				auto& [boneIdx, weight] = as[j];
-				uint32_t idxB = stride * i + subStride + j; //m_VertexBufferLayout.GetElementIndex(i, j, VertexType::BONE_INDEX);
-				uint32_t idxW = idxB + boneIndexElem.count;
-
-				m_Vertices[idxB] = boneIdx;
-				m_Vertices[idxW] = weight;
-
-			}
-		}
-	}
-
-#pragma endregion memelord 
-
-#pragma region anim
-	if (scene->HasAnimations())
-	{
-
-
-		Animator animator;
-		animator.m_bones.resize(bones.size());
-		std::copy(bones.begin(), bones.end(), animator.m_bones.begin());
-
-		for (unsigned int i = 0; i < scene->mNumAnimations; i++)
-		{
-
-			aiAnimation* anim = scene->mAnimations[i];
-			const std::string anim_name = anim->mName.C_Str();
-			float ticks = 1;	//anim->mTicksPerSecond;
-			float duration = static_cast<float>(anim->mDuration);
-			animator.m_duration = duration;
-			animator.m_ticks = ticks;
-
-
-			std::vector<AnimationChannel> AnimationChannels;
-			AnimationChannels.resize(anim->mNumChannels); //resize to sync with bones
-
-			for (size_t j = 0; j < anim->mNumChannels; j++)
-			{
-				const aiNodeAnim* ai_channel = anim->mChannels[j];
-				const std::string channelName = ai_channel->mNodeName.C_Str();
-
-				std::vector< PositionKey> positionkeys;
-				std::vector< RotationKey > rotationKeys;
-				std::vector< ScaleKey> scalingKeys;
-
-				for (size_t k = 0; k < ai_channel->mNumPositionKeys; k++)
-				{
-					aiVectorKey ai_key = ai_channel->mPositionKeys[k];
-					positionkeys.emplace_back(ai_key.mTime, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
-				}
-
-				for (size_t k = 0; k < ai_channel->mNumRotationKeys; k++)
-				{
-					aiQuatKey ai_key = ai_channel->mRotationKeys[k];
-					rotationKeys.emplace_back(ai_key.mTime, ai_key.mValue.w, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
-				}
-
-				for (size_t k = 0; k < ai_channel->mNumScalingKeys; k++)
-				{
-					aiVectorKey ai_key = ai_channel->mScalingKeys[k];
-					scalingKeys.emplace_back(ai_key.mTime, ai_key.mValue.x, ai_key.mValue.y, ai_key.mValue.z);
-				}
-
-				//AnimationChannels.emplace_back(AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys));
-				unsigned int channel_idx = boneNames[channelName];
-				AnimationChannels[channel_idx] = AnimationChannel(channelName, positionkeys, rotationKeys, scalingKeys);
-
-			}
-
-			Animation animation(duration, AnimationChannels);
-			animator.current = animation;
-		}
-
-		m_animator = animator;
-		m_animator.m_inverse_root = glm::mat4(1.0f);
-		m_AnimationLoaded = true;
+		LoadBoneData(scene, mesh, boneNames, bones);
+		LoadAnimations(scene, mesh, boneNames, bones);
 	}
 
 	// process materials
@@ -719,10 +600,10 @@ void Mesh::Draw(Shader& shader)
 	}
 	GLCall(glBindVertexArray(m_VAO));
 
-	if (!m_animator.m_bones.empty())
+	if (!m_animator.m_Bones.empty())
 	{
 		std::vector<glm::mat4> boneMatrices;
-		for (auto& m : m_animator.m_bones)	//TODO: cache this at an animator or somsething
+		for (auto& m : m_animator.m_Bones)	//TODO: cache this at an animator or somsething
 			boneMatrices.emplace_back(m.m_PoseTransform);
 		//boneMatrices.emplace_back(glm::mat4(1.0f));
 

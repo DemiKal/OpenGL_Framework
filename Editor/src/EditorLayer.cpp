@@ -40,7 +40,7 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<TransformComponent>(anim);
 	m_Registry.emplace<TagComponent>(anim, "anim");
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	auto& mc2 = m_Registry.emplace<MeshComponent>(anim, "Assets/meshes/Animation test/run.glb", aiProcess_Triangulate);
+	auto& mc2 = m_Registry.emplace<MeshComponent>(anim, "Assets/meshes/Animation test/run embedded.gltf", aiProcess_Triangulate);
 
 	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
 
@@ -396,8 +396,62 @@ void EditorLayer::DrawGizmos(const float dt)
 	if (m_TransformWidgetOperation == ImGuizmo::OPERATION::SCALE)
 		m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 
-	ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
-		m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
+	//ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
+	//	m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
+
+	if (m_Registry.has<MeshComponent>(m_Selected))
+	{
+		MeshComponent& mc = m_Registry.get<MeshComponent>(m_Selected);
+		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
+		if (mesh.HasAnimation())
+		{
+			Camera& cam = GetEditorCamera();
+			const glm::mat4 vp = cam.GetViewProjectionMatrix();
+
+			glm::vec4 screenpos = vp * glm::vec4(tc.Position, 1.0f);
+			glm::vec4 scrpw = screenpos / screenpos.w;
+
+			//auto tl = windowPos;
+			//glm::vec4 
+			//Getwindowmin
+
+			//ImGui::begin
+			//ImGui::Text();
+
+			//glm::vec2 size = windowPos.x -  m_ImGuiRegionSize.x, windowPos - m_ImGuiRegionSize.y);
+			//auto size = windowPos - m_ImGuiRegionSize;
+			for (Joint& joint : mesh.m_animator.m_Bones)
+			{
+				//glm::mat4 transf = glm::translate(glm::mat4(1.0f), glm::vec3(joint.m_PoseTransform ));
+				glm::mat4 tp = glm::mat4(1.0f);
+				glm::vec3 jt = {};
+				glm::vec3 jr = {};
+				glm::vec3 js = {};
+
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(joint.m_PoseTransform), &jt[0], &jr[0], &js[0]);
+				//glm::mat4 transf =  glm::inverse(joint.m_Offset) * glm::inverse(joint.m_PoseTransform);
+				glm::mat4 transf =   glm::inverse(joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
+
+				ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
+					m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transf));
+			}
+
+
+			auto drawlist = ImGui::GetForegroundDrawList();
+
+			auto avai0 = ImGui::GetContentRegionAvail();
+			auto avail2 = ImGui::GetWindowSize();
+			auto avail3 = ImGui::GetWindowViewport();
+
+			drawlist->AddRectFilled({ 50,50 }, { 100, 100 }, IM_COL32_WHITE);
+
+		}
+	}
+
+
+
+
+
 
 	if (ImGuizmo::IsUsing())
 	{

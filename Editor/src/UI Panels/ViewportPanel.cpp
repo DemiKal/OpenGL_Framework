@@ -59,7 +59,7 @@ void EditorLayer::RenderViewportPanel(float dt)
 		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
 			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
 		auto xy = ImGui::GetItemRectSize();
-		//fmt::print("region: {} {}\n", m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
+		
 		DrawGizmos(dt);
 
 		if (m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
