@@ -1,10 +1,8 @@
 #include "EditorLayer.h"
 #include "Editor.h"
-#include "Rendering/ImGuiManager.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/Renderer.h"
 #include "RenderLayer.h"
-#include "Rendering/Renderer.h"
 #include "Gizmos/FrustumGizmo.h"
 
 EditorLayer::EditorLayer(meme::Editor* editor) :
@@ -396,8 +394,8 @@ void EditorLayer::DrawGizmos(const float dt)
 	if (m_TransformWidgetOperation == ImGuizmo::OPERATION::SCALE)
 		m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 
-	//ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
-	//	m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
+	 ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
+	 	m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
 
 	if (m_Registry.has<MeshComponent>(m_Selected))
 	{
@@ -411,30 +409,22 @@ void EditorLayer::DrawGizmos(const float dt)
 			glm::vec4 screenpos = vp * glm::vec4(tc.Position, 1.0f);
 			glm::vec4 scrpw = screenpos / screenpos.w;
 
-			//auto tl = windowPos;
-			//glm::vec4 
-			//Getwindowmin
-
-			//ImGui::begin
-			//ImGui::Text();
-
-			//glm::vec2 size = windowPos.x -  m_ImGuiRegionSize.x, windowPos - m_ImGuiRegionSize.y);
-			//auto size = windowPos - m_ImGuiRegionSize;
-			for (Joint& joint : mesh.m_animator.m_Bones)
-			{
-				//glm::mat4 transf = glm::translate(glm::mat4(1.0f), glm::vec3(joint.m_PoseTransform ));
-				glm::mat4 tp = glm::mat4(1.0f);
-				glm::vec3 jt = {};
-				glm::vec3 jr = {};
-				glm::vec3 js = {};
-
-				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(joint.m_PoseTransform), &jt[0], &jr[0], &js[0]);
-				//glm::mat4 transf =  glm::inverse(joint.m_Offset) * glm::inverse(joint.m_PoseTransform);
-				glm::mat4 transf =   glm::inverse(joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
-
-				ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
-					m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transf));
-			}
+ 
+			//for (Joint& joint : mesh.m_animator.m_Bones)
+			//{
+			//	//glm::mat4 transf = glm::translate(glm::mat4(1.0f), glm::vec3(joint.m_PoseTransform ));
+			//	glm::mat4 tp = glm::mat4(1.0f);
+			//	glm::vec3 jt = {};
+			//	glm::vec3 jr = {};
+			//	glm::vec3 js = {};
+			//
+			//	ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(joint.m_PoseTransform), &jt[0], &jr[0], &js[0]);
+			//	//glm::mat4 transf =  glm::inverse(joint.m_Offset) * glm::inverse(joint.m_PoseTransform);
+			//	glm::mat4 transf =   glm::inverse(joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
+			//
+			//	ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
+			//		m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transf));
+			//}
 
 
 			auto drawlist = ImGui::GetForegroundDrawList();
@@ -443,7 +433,7 @@ void EditorLayer::DrawGizmos(const float dt)
 			auto avail2 = ImGui::GetWindowSize();
 			auto avail3 = ImGui::GetWindowViewport();
 
-			drawlist->AddRectFilled({ 50,50 }, { 100, 100 }, IM_COL32_WHITE);
+			//drawlist->AddRectFilled({ 50,50 }, { 100, 100 }, IM_COL32_WHITE);
 
 		}
 	}

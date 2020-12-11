@@ -25,18 +25,19 @@ std::optional<uint32_t> MeshManager::LoadFromFile(const std::string& path, const
 	Assimp::Importer import;
 	const auto standardFlags = aiProcess_GenSmoothNormals | aiProcess_GenBoundingBoxes;
 	const auto flagsComposed = standardFlags | loadFlags;
+
 	const aiScene* scene = import.ReadFile(path, flagsComposed);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+		fmt::print("ERROR::ASSIMP\n", import.GetErrorString());
 		return std::nullopt;
 	}
 
 	const std::string directory = path.substr(0, path.find_last_of('/'));
 
 	MeshManager& instance = GetInstance();
-	uint32_t idx = instance.m_Meshes.size();
+	const uint32_t idx = instance.m_Meshes.size();	//TODO: make indexing work with multiple meshes loaded
 	instance.ProcessNode(scene->mRootNode, scene, directory);
 
 	//TODO: delete scene?;
@@ -118,7 +119,7 @@ void MeshManager::CreateSkyBoxCube()
 		"Assets/textures/skyboxes/Ice/back.jpg"
 	};
 	Texture2D skybox;
-	
+
 	skybox.LoadCubemap(cubemapFiles);
 	mesh.AddTexture(skybox);
 

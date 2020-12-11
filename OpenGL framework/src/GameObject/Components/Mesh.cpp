@@ -74,10 +74,7 @@ void CreateList(Armature2* parent, std::unordered_map< std::string, std::vector 
 	for (Armature2* child : parent->children)
 		CreateList(child, dict);
 	for (Armature2* child : parent->children)
-		dict[parent->name].push_back({ child->name,child->id });
-
-
-
+		dict[parent->name].push_back({ child->name, child->id });
 }
 //void GetChildIndices(Armature2* parent, const std::unordered_map<std::string)
 
@@ -255,9 +252,9 @@ void Mesh::LoadAnimations(const aiScene* scene, const aiMesh* mesh, const std::u
 			const std::string anim_name = anim->mName.C_Str();
 			float ticks = 1;	//;
 			float duration = static_cast<float>(anim->mDuration);
-			animator.m_duration = duration;
-			animator.m_ticks = ticks;
-			double test = static_cast<double>(animator.m_ticks) / 1000.0;
+			animator.m_Duration = duration;
+			animator.m_Ticks = ticks;
+			double test = static_cast<double>(animator.m_Ticks) / 1000.0;
 			double test2 = anim->mTicksPerSecond;
 
 
@@ -442,11 +439,11 @@ Mesh::Mesh(
 
 	if (hasTexCoords)
 		//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-		for (uint32_t i = 0; i < m_Indices.size() - 3; i += 3)
+		for (uint32_t i = 0; i < m_Indices.size() - 3u; i += 3u)
 		{
 			uint32_t idx1 = m_Indices[i];
-			uint32_t idx2 = m_Indices[i + 1];
-			uint32_t idx3 = m_Indices[i + 2];
+			uint32_t idx2 = m_Indices[i + 1u];
+			uint32_t idx3 = m_Indices[i + 2u];
 
 			float u1 = mesh->mTextureCoords[0][idx1].x;
 			float v1 = mesh->mTextureCoords[0][idx1].y;

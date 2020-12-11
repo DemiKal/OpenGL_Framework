@@ -133,9 +133,7 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 	if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 	{
-		ImGui::SameLine(30.0f);
-
-		ImGui::Checkbox("Render", &mc.Enabled);
+		
 
 		if (ImGui::IsItemHovered())
 			mc.Enabled = !mc.Enabled;
@@ -143,6 +141,8 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 		ImGui::RadioButton("Initialized", mc.Initialized);
 		const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
 		ImGui::Text(meshStr.c_str());
+		//ImGui::SameLine();
+		ImGui::Checkbox("Render", &mc.Enabled);
 
 		ImGui::Checkbox("Visualize wireframe", &mc.DrawWireFrame);
 
@@ -171,6 +171,7 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		const uint32_t nrTextures = static_cast<uint32_t>(mesh.m_Textures.size());
+
 		if (mesh.HasAnimation())
 		{
 			static bool playAnimation = false;
@@ -181,10 +182,28 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 			const std::string txt = playAnimation ? "Stop animation" : "Play animation";
 			ImGui::SameLine(); ImGui::Text(txt.c_str());
 			static float animSpeed = 1.0f;
-			ImGui::DragFloat("Animation speed", &animSpeed, 0.0001f, 0, 5, "%.3f");
+			ImGui::DragFloat("Animation speed", &animSpeed, 0.001f, 0, 5, "%.3f");
+
+			static int currentPose = 0;
+			const int channelSize = mesh.m_animator.current.m_AnimationChannels[0].GetLength()-1;
 			if (playAnimation)
 			{
 				mesh.m_animator.UpdateAnimation(dt, animSpeed);
+				float perc = mesh.m_animator.animTime / mesh.m_animator.m_Duration;
+				currentPose = perc * channelSize;
+			}
+
+			if(ImGui::SliderInt("Pose", &currentPose, 0, channelSize))
+			{
+				playAnimation = false;
+				mesh.m_animator.SetPose(currentPose);
+			}
+
+			if(ImGui::Button("Set T-Pose"))
+			{
+				playAnimation = false;
+				currentPose = 0;
+				mesh.m_animator.SetTPose();
 			}
 		}
 

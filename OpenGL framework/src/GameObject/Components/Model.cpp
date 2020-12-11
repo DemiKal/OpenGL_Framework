@@ -386,8 +386,8 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 			const std::string anim_name = anim->mName.C_Str();
 			float ticks = 1;	//anim->mTicksPerSecond;
 			float duration = static_cast<float>(anim->mDuration);
-			animator.m_duration = duration;
-			animator.m_ticks = ticks;
+			animator.m_Duration = duration;
+			animator.m_Ticks = ticks;
 
 
 			std::vector<AnimationChannel> AnimationChannels;

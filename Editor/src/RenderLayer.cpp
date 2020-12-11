@@ -33,7 +33,7 @@ void RenderLayer::RenderCamera() const
 	m_FramebufferCamera.Bind();  
 	
 	auto [fbWidth, fbHeight] = m_FramebufferCamera.GetSize();
-	auto prevViewport = renderer.GetViewPort();
+	const auto prevViewport = renderer.GetViewPort();
 	renderer.SetViewPort(0, 0, fbWidth, fbHeight);
 
 	for (auto entity : view2)

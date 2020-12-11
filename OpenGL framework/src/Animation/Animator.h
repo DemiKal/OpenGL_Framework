@@ -8,8 +8,8 @@ public:
 	float animTime;
 	Animation current;
 	std::vector<Joint> m_Bones;
-	float m_duration;
-	float m_ticks;		//ticks per second
+	float m_Duration;
+	float m_Ticks;		//ticks per second
 	glm::mat4 m_inverse_root;
 	std::vector<uint32_t> m_ChildCount;
 	std::vector<uint32_t> m_ChildIndex;
@@ -35,5 +35,7 @@ public:
 	void CalcPose(float timeStamp);
 
 	void SetAnimation(Animation& animation);
+	void CalcPose(int poseIdx);
+	void SetTPose();
 };
 
