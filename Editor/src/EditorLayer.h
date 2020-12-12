@@ -33,10 +33,10 @@ public:
 	void OnImGuiRender(float dt) override;
 	void DrawDebugVisuals(float dt);
 	void RenderSkybox();
-	void RenderScene(const float dt);
-	void DrawGizmos(const float dt);
+	void RenderScene(float dt);
+	void DrawGizmos(float dt);
 	void DrawCameraInspector(float dt);
-	void OnInput(const float dt);
+	void OnInput(float dt);
 	void EnableDockSpace();
 	//void DrawMenuBar();
 	Camera& GetEditorCamera();
@@ -67,13 +67,50 @@ public:
 
 		if (registry.has<T>(entity))
 		{
+			//ImGui::PushID(label.c_str());
+
 			T& component = registry.get<T>(entity);//reinterpret_cast<void*>(typeid(T).hash_code())
-			const bool open = ImGui::CollapsingHeader(label.c_str(), treeNodeFlags);
-			
+			//const bool open = ImGui::CollapsingHeader(label.c_str(), treeNodeFlags);
+			const ImVec2 avail = ImGui::GetContentRegionAvail();
+			const bool open = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(T).hash_code()), treeNodeFlags, label.c_str());
+			//ImGui::GetCurrentContext()
+			const float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+
+			ImGui::SameLine(avail.x - lineHeight * 0.5f);
+			if (ImGui::Button(" ... ", ImVec2{ lineHeight, lineHeight }))
+			{
+				ImGui::OpenPopup("ComponentSettings");
+			}
+
+			bool removeComponent = false;
+
+			if (ImGui::BeginPopup("ComponentSettings"))
+			{
+				auto isTransf = std::is_same<T, TransformComponent>::value;
+
+				//ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_TextDisabled)
+
+				if (isTransf) ImGui::TextDisabled("Remove component");
+				else if (ImGui::MenuItem("Remove component"))
+				{
+					removeComponent = true;
+				}
+
+				ImGui::MenuItem("Reset component");	//TODO: add these extras
+				ImGui::MenuItem("Copy component");	//TODO: add these extras
+
+				ImGui::EndPopup();
+			}
+
 			if (open)
 			{
 				func(component);
-			//	ImGui::TreePop();
+				ImGui::TreePop();
+			}
+
+			if (removeComponent)
+			{
+				registry.remove<T>(entity);
 			}
 		}
 	}
