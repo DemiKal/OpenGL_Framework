@@ -33,7 +33,7 @@ public:
 	void OnImGuiRender(float dt) override;
 	void DrawDebugVisuals(float dt);
 	void RenderSkybox();
-	void DrawScene(const float dt);
+	void RenderScene(const float dt);
 	void DrawGizmos(const float dt);
 	void DrawCameraInspector(float dt);
 	void OnInput(const float dt);
@@ -49,12 +49,33 @@ public:
 	void RenderViewportPanel(float dt);
 	void RenderInspectorPanel(float dt);
 	void RenderSceneHierarchyPanel(float dt);
-	
-	//template<typename T>
-	//void DrawUIComponent(T t);
+
+
+	void DrawUIComponent(TransformComponent& t);
+	void DrawUIComponent(MeshComponent& mc, float dt);
+	void DrawUIComponent(CameraComponent& cc, entt::entity entity, float dt);
+	void DrawUIComponent(const glm::mat4& m, const std::string& label, float dt);
+
+
 	void DrawVec3Component(const std::string& label, glm::vec3& vec, float resetVal);
-	void DrawUIComponent(TransformComponent& t, const std::string& label, const float dt);
-	void DrawUIComponent(const glm::mat4& m, const std::string& label, const float dt);
-	void DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity, const float dt);
-	void DrawUIComponent(MeshComponent& mc, const std::string& label, const float dt);
+
+	template <typename T, typename uiFunc>
+	void DrawUIComponent(const std::string& label, entt::registry& registry, entt::entity entity, uiFunc func)
+	{
+		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
+			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
+
+		if (registry.has<T>(entity))
+		{
+			T& component = registry.get<T>(entity);//reinterpret_cast<void*>(typeid(T).hash_code())
+			const bool open = ImGui::CollapsingHeader(label.c_str(), treeNodeFlags);
+			
+			if (open)
+			{
+				func(component);
+			//	ImGui::TreePop();
+			}
+		}
+	}
 };
+

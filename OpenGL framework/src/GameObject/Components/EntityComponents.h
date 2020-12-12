@@ -44,9 +44,9 @@ struct TransformComponent
 	//TransformComponent() : Transform(glm::mat4(1.0f)) {};
 	TransformComponent() = default;
 
-	glm::vec3 Position{ 0,0,0 };
-	glm::vec3 Rotation{ 0,0,0 }; //TODO ADD QUAT
-	glm::vec3 Scale{ 1,1,1 };
+	glm::vec3 Position{ 0, 0, 0 };
+	glm::vec3 Rotation{ 0, 0, 0 }; //TODO ADD QUAT
+	glm::vec3 Scale{ 1, 1, 1 };
 
 	[[nodiscard]] glm::mat4 CalcMatrix() const
 	{

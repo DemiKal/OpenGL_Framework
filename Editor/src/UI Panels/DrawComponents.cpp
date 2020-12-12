@@ -1,23 +1,4 @@
 #include "EditorLayer.h"
-#include "Rendering/ImGuiManager.h"
-
-//TODO move elsewhere
-template<typename T, typename func>
-void DrawUIComponent(const std::string& label, entt::registry& registry, entt::entity entity, func)
-{
-	const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
-	if (registry.has<T>(entity))
-	{
-		auto& component = registry.get<T>(entity);
-		bool open = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(T).hash_code()), treeNodeFlags, label.c_str());
-		if (open)
-		{
-			uiFunction(component);
-			ImGui::TreePop();
-		}
-	}
-	
-}
 
 
 
@@ -58,19 +39,15 @@ void EditorLayer::DrawVec3Component(const std::string& label, glm::vec3& vec, fl
 	ImGui::PopID();
 }
 
-void EditorLayer::DrawUIComponent(TransformComponent& t, const std::string& label, const float dt)
+void EditorLayer::DrawUIComponent(TransformComponent& t)
 {
-	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-	if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
-	{
-		DrawVec3Component("Translation", t.Position);
+	DrawVec3Component("Translation", t.Position);
 
-		auto rotInDeg = glm::degrees(t.Rotation);
-		DrawVec3Component("Rotation", rotInDeg);
-		t.Rotation = glm::radians(rotInDeg);
-		DrawVec3Component("Scale", t.Scale, 1.0f);
-		//	ImGui::TreePop();
-	}
+	auto rotInDeg = glm::degrees(t.Rotation);
+	DrawVec3Component("Rotation", rotInDeg);
+	t.Rotation = glm::radians(rotInDeg);
+	DrawVec3Component("Scale", t.Scale, 1.0f);
+
 	ImGui::Separator();
 }
 
@@ -82,116 +59,106 @@ void EditorLayer::DrawUIComponent(const glm::mat4& m, const  std::string& label,
 	{
 		ImGui::Text("%.2f", m[0].x); ImGui::SameLine();
 		ImGui::Text("%.2f", m[0].y); ImGui::SameLine();
-		ImGui::Text("%.2f", m[0].z);
+		ImGui::Text("%.2f", m[0].z); ImGui::SameLine();
+		ImGui::Text("%.2f", m[0].w);
 
 		ImGui::Text("%.2f", m[1].x); ImGui::SameLine();
 		ImGui::Text("%.2f", m[1].y); ImGui::SameLine();
-		ImGui::Text("%.2f", m[1].z);
+		ImGui::Text("%.2f", m[1].z); ImGui::SameLine();
+		ImGui::Text("%.2f", m[1].w);
 
 		ImGui::Text("%.2f", m[2].x); ImGui::SameLine();
 		ImGui::Text("%.2f", m[2].y); ImGui::SameLine();
-		ImGui::Text("%.2f", m[2].z);
+		ImGui::Text("%.2f", m[2].z); ImGui::SameLine();
+		ImGui::Text("%.2f", m[2].w);
 
 		ImGui::Text("%.2f", m[3].x); ImGui::SameLine();
 		ImGui::Text("%.2f", m[3].y); ImGui::SameLine();
-		ImGui::Text("%.2f", m[3].z);
+		ImGui::Text("%.2f", m[3].z); ImGui::SameLine();
+		ImGui::Text("%.2f", m[3].w);
 		ImGui::TreePop();
 	}
 }
 
-void EditorLayer::DrawUIComponent(CameraComponent& cc, const std::string& label, entt::entity entity, const float dt)
+void EditorLayer::DrawUIComponent(CameraComponent& cc, entt::entity entity, const float dt)
 {
 	auto& transf = m_Registry.get<TransformComponent>(entity);
-	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
-	if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
-	{
+	//ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
+	//if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
+
 		//TODO FIX THIS!
-		auto& camPos = cc.camera.GetPosition();
-		//camPos = pos;
+	auto& camPos = cc.camera.GetPosition();
 
-		const ImVec2 buttonSize = { 20,20 };
-		//ImGui::Button("X", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.x);
-		//ImGui::SameLine(); ImGui::Button("Y", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.y);
-		//ImGui::SameLine(); ImGui::Button("Z", buttonSize); ImGui::SameLine(); ImGui::Text("%.3f", camPos.z);
+	auto tmat = transf.CalcMatrix();
+	const glm::vec3 viewVec = tmat * glm::vec4(0, 0, -1, 0);
+	const glm::vec3 upVec = tmat * glm::vec4(0, 1, 0, 0);
+	cc.camera.SetViewVector(viewVec);
+	cc.camera.SetUpVector(upVec);
+	camPos = transf.Position;
 
-		//DrawVec3Component("Translation", camPos);
+	//ImGui::SameLine();
+	float& fov = cc.camera.GetFieldOfView();
+	ImGui::SliderFloat("FOV", &fov, 1, 179, "%.2f");
+	ImGui::SliderFloat("Near", &cc.camera.GetNearPlaneDist(), 0.01f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+	ImGui::SliderFloat("Far", &cc.camera.GetFarPlaneDist(), 0.1f, 2000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+	ImGui::Text("Aspect: %.3f", cc.camera.GetAspectRatio());
 
-		auto tmat = transf.CalcMatrix();
-		const glm::vec3 viewVec = tmat * glm::vec4(0, 0, -1, 0);
-		const glm::vec3 upVec = tmat * glm::vec4(0, 1, 0, 0);
-		cc.camera.SetViewVector(viewVec);
-		cc.camera.SetUpVector(upVec);
-		camPos = transf.Position;
+	const auto viewMat = cc.camera.GetViewMatrix();
+	const auto proj = cc.camera.GetProjectionMatrix();
 
-		//ImGui::SameLine();
-		float& fov = cc.camera.GetFieldOfView();
-		ImGui::SliderFloat("FOV", &fov, 1, 179, "%.2f");
-		ImGui::SliderFloat("Near", &cc.camera.GetNearPlaneDist(), 0.01f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
-		ImGui::SliderFloat("Far", &cc.camera.GetFarPlaneDist(), 0.1f, 2000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
-		ImGui::Text("Aspect: %.3f", cc.camera.GetAspectRatio());
+	DrawUIComponent(viewMat, "View Matrix", dt);
+	DrawUIComponent(proj, "Projection Matrix", dt);
+	//	ImGui::TreePop();
 
-		const auto viewMat = cc.camera.GetViewMatrix();
-		const auto proj = cc.camera.GetProjectionMatrix();
-
-		DrawUIComponent(viewMat, "View Matrix", dt);
-		DrawUIComponent(proj, "Projection Matrix", dt);
-		//	ImGui::TreePop();
-	}
 	cc.camera.RecalcProjection();
 	ImGui::Separator();
 }
 
-void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, const float dt)
+void EditorLayer::DrawUIComponent(MeshComponent& mc, const float dt)
 {
-	ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.4f, 0.3f, 0.4f, 0.8f });
-	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-
-	const bool nodeOpen = ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
-	//ImGui::SetLastItemData()
-	
-	ImGui::SameLine(0.0f, 30);
-	//ImGui::BeginChild("##testing");
-	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+	ImGui::SameLine(0, 30);
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {-1.0f,-1.0f});
 	ImGui::Checkbox("##Enabled", &mc.Enabled);
 	ImGui::PopStyleVar();
-	//ImGui::EndChild();
-	if (nodeOpen)
+	ImGui::RadioButton("Initialized", mc.Initialized);
+	const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
+	ImGui::Text(meshStr.c_str());
+	//ImGui::SameLine();
+
+	ImGui::Checkbox("Visualize wireframe", &mc.DrawWireFrame);
+
+	if (mc.DrawWireFrame)
 	{
-		ImGui::RadioButton("Initialized", mc.Initialized);
-		const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
-		ImGui::Text(meshStr.c_str());
-		//ImGui::SameLine();
+		ImGui::SameLine();
+		ImGui::ColorEdit4("##wireFrameCol", glm::value_ptr(mc.WireFrameColor), ImGuiColorEditFlags_NoInputs);
+		//ImGui::ColorButton("Color", mc.WireFrameColor);
+	}
 
-		ImGui::Checkbox("Visualize wireframe", &mc.DrawWireFrame);
+	ImGui::Checkbox("Visualize normals", &mc.DrawNormals);
+	if (mc.DrawNormals)
+	{
+		ImGui::SameLine();
+		ImGui::ColorEdit4("##normalsCol", glm::value_ptr(mc.NormalsColor), ImGuiColorEditFlags_NoInputs);
+		ImGui::SameLine();
 
-		if (mc.DrawWireFrame)
+		ImVec2 avail = ImGui::GetContentRegionAvail();
+		ImGui::PushItemWidth(avail.x / 3.0f);
+		//ImGui::DragFloat("Magnitude normals", &mc.NormalsMagnitude,0.05, 5, "%.3f");
+		const ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_NoRoundToFormat;
+		ImGui::DragFloat("Magnitude", &mc.NormalsMagnitude, 0.01f, -1, 5, "%.3f", sliderFlags);
+		//ImGui::DragInt("Offset X", &offset_x, 1.0f, -1000, 1000);
+		//ImGui::ColorButton("Color", mc.WireFrameColor);
+	}
+
+	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
+	const uint32_t nrTextures = static_cast<uint32_t>(mesh.m_Textures.size());
+
+	if (mesh.HasAnimation())
+	{
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::TreeNode("Animation"))
 		{
-			ImGui::SameLine();
-			ImGui::ColorEdit4("##wireFrameCol", glm::value_ptr(mc.WireFrameColor), ImGuiColorEditFlags_NoInputs);
-			//ImGui::ColorButton("Color", mc.WireFrameColor);
-		}
 
-		ImGui::Checkbox("Visualize normals", &mc.DrawNormals);
-		if (mc.DrawNormals)
-		{
-			ImGui::SameLine();
-			ImGui::ColorEdit4("##normalsCol", glm::value_ptr(mc.NormalsColor), ImGuiColorEditFlags_NoInputs);
-			ImGui::SameLine();
-
-			ImVec2 avail = ImGui::GetContentRegionAvail();
-			ImGui::PushItemWidth(avail.x / 3.0f);
-			//ImGui::DragFloat("Magnitude normals", &mc.NormalsMagnitude,0.05, 5, "%.3f");
-			const ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_NoRoundToFormat;
-			ImGui::DragFloat("Magnitude", &mc.NormalsMagnitude, 0.01f, -1, 5, "%.3f", sliderFlags);
-			//ImGui::DragInt("Offset X", &offset_x, 1.0f, -1000, 1000);
-			//ImGui::ColorButton("Color", mc.WireFrameColor);
-		}
-
-		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
-		const uint32_t nrTextures = static_cast<uint32_t>(mesh.m_Textures.size());
-
-		if (mesh.HasAnimation())
-		{
 			static bool playAnimation = false;
 			if (ImGui::ArrowButton("##PlayAnimation", ImGuiDir_Right))
 			{
@@ -223,92 +190,91 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 				currentPose = 0;
 				mesh.m_animator.SetTPose();
 			}
+			ImGui::TreePop();
 		}
+	}
 
-		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-		if (ImGui::TreeNode("Textures", "Textures (%i)", nrTextures))
+	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+	if (ImGui::TreeNode("Textures", "Textures (%i)", nrTextures))
+	{
+		for (uint32_t i = 0; i < nrTextures; i++)
 		{
-			for (uint32_t i = 0; i < nrTextures; i++)
+			ImGui::PushID(i);
+			const Texture2D& tex = mesh.m_Textures[i];
+			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+			//ImGui::Text("Texture type: %s ", tex.GetType().c_str());
+
+			if (ImGui::TreeNode("Texture", "Type: %s", tex.GetType().c_str(), ImGuiTreeNodeFlags_None))
 			{
-				ImGui::PushID(i);
-				const Texture2D& tex = mesh.m_Textures[i];
+				ImGui::Text("Width: %i. Height: %i. Render ID: %i", tex.GetWidth(), tex.GetHeight(), tex.GetID());
+				const uint32_t id = tex.GetID();
+
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				//ImGui::Text("Texture type: %s ", tex.GetType().c_str());
+				const ImVec2 availSize = ImGui::GetContentRegionAvail();
+				const float aspect = static_cast<float>(tex.GetHeight()) / static_cast<float>(tex.GetWidth());
 
-				if (ImGui::TreeNode("Texture", "Type: %s", tex.GetType().c_str(), ImGuiTreeNodeFlags_None))
+				ImVec2 thumbSize(0.95f * availSize.x, 0.95f * availSize.x * aspect);
+				static bool overlayUVs = false;
+				ImGui::SameLine();
+				ImGui::Columns();
+				ImGui::Checkbox("Overlay UVs", &overlayUVs);
+				auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(id));
+				if (ImGui::ImageButton(texPtr, thumbSize, ImVec2(0, 1), ImVec2(1, 0), 0))
 				{
-					ImGui::Text("Width: %i. Height: %i. Render ID: %i", tex.GetWidth(), tex.GetHeight(), tex.GetID());
-					const uint32_t id = tex.GetID();
+					ImGui::OpenPopup("texture_popup");
+				}
+				if (ImGui::BeginPopup("texture_popup"))
+				{
+					ImGui::Text(("File path: /" + tex.GetPath()).c_str());
+					ImGui::EndPopup();
+				}
+				const auto start = ImGui::GetCursorScreenPos();
+				auto sp = ImGui::GetCursorStartPos();
+				ImDrawList* drawList = ImGui::GetWindowDrawList();
+				const ImVec2 p0 = ImGui::GetItemRectMin();
+				const ImVec2 p1 = ImGui::GetItemRectMax();
+				const glm::vec2 p0v(p0.x, p0.y);
+				const glm::vec2 p1v(p1.x, p1.y);
+				ImU32 col_a = ImGui::GetColorU32(IM_COL32(0, 0, 0, 255));
+				ImU32 col_b = ImGui::GetColorU32(IM_COL32(255, 255, 255, 255));
+				//drawList->AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
 
-					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-					const ImVec2 availSize = ImGui::GetContentRegionAvail();
-					const float aspect = static_cast<float>(tex.GetHeight()) / static_cast<float>(tex.GetWidth());
+				const glm::vec2 scale = { p1.x - p0.x, p1.y - p0.y };
+				//if (!mesh.m_Indices.empty())
 
-					ImVec2 thumbSize(0.95f * availSize.x, 0.95f * availSize.x * aspect);
-					static bool overlayUVs = false;
-					ImGui::SameLine();
-					ImGui::Columns();
-					ImGui::Checkbox("Overlay UVs", &overlayUVs);
-					auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(id));
-					if (ImGui::ImageButton(texPtr, thumbSize, ImVec2(0, 1), ImVec2(1, 0), 0))
+				//draw UVs
+				if (!mesh.m_UVs.empty() && overlayUVs && i == 0)
+				{
+					for (auto& face : mesh.m_UVs)
 					{
-						ImGui::OpenPopup("texture_popup");
+						auto uv1 = glm::mod(face[0], 1.0f);	 uv1.y = 1.0f - uv1.y;
+						auto uv2 = glm::mod(face[1], 1.0f);	 uv2.y = 1.0f - uv2.y;
+						auto uv3 = glm::mod(face[2], 1.0f);	 uv3.y = 1.0f - uv3.y;
+
+						const auto uv1Scaled = p0v + uv1 * scale;
+						const auto uv2Scaled = p0v + uv2 * scale;
+						const auto uv3Scaled = p0v + uv3 * scale;
+
+						const ImVec2 v1(uv1Scaled.x, uv1Scaled.y);
+						const ImVec2 v2(uv2Scaled.x, uv2Scaled.y);
+						const ImVec2 v3(uv3Scaled.x, uv3Scaled.y);
+
+						drawList->AddTriangle(v1, v2, v3, IM_COL32(255, 255, 255, 200), 1);
 					}
-					if (ImGui::BeginPopup("texture_popup"))
-					{
-						ImGui::Text(("File path: /" + tex.GetPath()).c_str());
-						ImGui::EndPopup();
-					}
-					const auto start = ImGui::GetCursorScreenPos();
-					auto sp = ImGui::GetCursorStartPos();
-					ImDrawList* drawList = ImGui::GetWindowDrawList();
-					const ImVec2 p0 = ImGui::GetItemRectMin();
-					const ImVec2 p1 = ImGui::GetItemRectMax();
-					const glm::vec2 p0v(p0.x, p0.y);
-					const glm::vec2 p1v(p1.x, p1.y);
-					ImU32 col_a = ImGui::GetColorU32(IM_COL32(0, 0, 0, 255));
-					ImU32 col_b = ImGui::GetColorU32(IM_COL32(255, 255, 255, 255));
-					//drawList->AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
-
-					const glm::vec2 scale = { p1.x - p0.x, p1.y - p0.y };
-					//if (!mesh.m_Indices.empty())
-
-					//draw UVs
-					if (!mesh.m_UVs.empty() && overlayUVs && i == 0)
-					{
-						for (auto& face : mesh.m_UVs)
-						{
-							auto uv1 = glm::mod(face[0], 1.0f);	 uv1.y = 1.0f - uv1.y;
-							auto uv2 = glm::mod(face[1], 1.0f);	 uv2.y = 1.0f - uv2.y;
-							auto uv3 = glm::mod(face[2], 1.0f);	 uv3.y = 1.0f - uv3.y;
-
-							const auto uv1Scaled = p0v + uv1 * scale;
-							const auto uv2Scaled = p0v + uv2 * scale;
-							const auto uv3Scaled = p0v + uv3 * scale;
-
-							const ImVec2 v1(uv1Scaled.x, uv1Scaled.y);
-							const ImVec2 v2(uv2Scaled.x, uv2Scaled.y);
-							const ImVec2 v3(uv3Scaled.x, uv3Scaled.y);
-
-							drawList->AddTriangle(v1, v2, v3, IM_COL32(255, 255, 255, 200), 1);
-						}
-					}
-
-
-
-					ImGui::TreePop();
 				}
 
 
-				ImGui::PopID();
+
+				ImGui::TreePop();
 			}
 
-			ImGui::TreePop();
+
+			ImGui::PopID();
 		}
 
-
+		ImGui::TreePop();
 	}
 
 	ImGui::Separator();
-	ImGui::PopStyleColor();
+	//ImGui::PopStyleColor();
 }

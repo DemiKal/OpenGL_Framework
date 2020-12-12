@@ -3,25 +3,23 @@
 //#include "ImGuiManager.h"
 //#include "GameObject/Components/EntityComponents.h"
 #include "EditorLayer.h"
-#include "Rendering/ImGuiManager.h"
 
+
+ 
+ 
 void  EditorLayer::RenderInspectorPanel(float dt)
 {
 	ImGui::Begin("Inspector");
 	if (m_Selected != entt::null)
 	{
-		auto& tfc = m_Registry.get<TransformComponent>(m_Selected);
-		DrawUIComponent(tfc, "Transform Component", dt);
-		if (m_Registry.has<MeshComponent>(m_Selected))
-		{
-			auto& mc = m_Registry.get<MeshComponent>(m_Selected);
-			DrawUIComponent(mc, "Mesh Component", dt);
-		}
-		if (m_Registry.has<CameraComponent>(m_Selected))
-		{
-			auto& cc = m_Registry.get<CameraComponent>(m_Selected);
-			DrawUIComponent(cc, "Camera Component", m_Selected, dt);
-		}
+		DrawUIComponent<TransformComponent>("Transform", m_Registry, m_Selected,
+			[=](auto& t) {	DrawUIComponent(t);	 });
+
+		DrawUIComponent<MeshComponent>("Mesh Component", m_Registry, m_Selected,
+			[=](auto& t) {	DrawUIComponent(t, dt);	 });
+
+		DrawUIComponent<CameraComponent>("Camera Component", m_Registry, m_Selected,
+			[=](CameraComponent& t) {	DrawUIComponent(t, m_Selected, dt );	 });
 	}
 
 	ImGui::End();

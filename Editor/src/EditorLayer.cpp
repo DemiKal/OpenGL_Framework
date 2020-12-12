@@ -53,7 +53,7 @@ void EditorLayer::OnDetach()
 void EditorLayer::OnUpdate(const float dt)
 {
 	OnInput(dt);
-	DrawScene(dt);
+	RenderScene(dt);
 
 }
 
@@ -78,8 +78,8 @@ void EditorLayer::DrawCameraInspector(const float dt)
 		const auto viewMat = m_EditorCamera.GetViewMatrix();
 		const auto proj = m_EditorCamera.GetProjectionMatrix();
 
-		DrawUIComponent(viewMat, "View Matrix", dt);
-		DrawUIComponent(proj, "Projection Matrix", dt);
+	//	DrawUIComponent(viewMat, "View Matrix", dt);
+	//	DrawUIComponent(proj, "Projection Matrix", dt);
 		ImGui::TreePop();
 	}
 
@@ -87,7 +87,7 @@ void EditorLayer::DrawCameraInspector(const float dt)
 	if (ImGui::TreeNode("Render statistics"))
 	{
 		ImGui::Text("ms per frame: %.3f", static_cast<double>(dt) * 1000.0);
-		ImGui::Text("fps: %.3f", 1.0f / static_cast<double>(dt));
+		ImGui::Text("fps: %.3f", 1.0 / static_cast<double>(dt));
 		ImGui::TreePop();
 	}
 
@@ -270,6 +270,7 @@ void EditorLayer::OnImGuiRender(const float dt)
 	DrawDebugVisuals(dt);
 }
 
+//TODO: delegate debug visuals to the components?
 void EditorLayer::DrawDebugVisuals(float dt)
 {
 	m_SceneFrame.Bind();
@@ -300,7 +301,7 @@ void EditorLayer::RenderSkybox()
 
 }
 
-void EditorLayer::DrawScene(const float dt)
+void EditorLayer::RenderScene(const float dt)
 {
 	Renderer& renderer = m_Editor->GetRenderer();
 	m_SceneFrame.Bind();
