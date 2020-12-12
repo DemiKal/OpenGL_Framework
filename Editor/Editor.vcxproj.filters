@@ -59,7 +59,13 @@
     <ClCompile Include="src\UI Panels\ViewportPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\UI Panels\DrawComponents.cpp">
+    <ClCompile Include="src\UI Panels\Components\DrawComponents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI Panels\Components\DrawMeshComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI Panels\Components\DrawCameraComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

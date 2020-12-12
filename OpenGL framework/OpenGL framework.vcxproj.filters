@@ -233,6 +233,7 @@
     <None Include="shaders\normalsGS.vert" />
     <None Include="shaders\normalsGS.frag" />
     <None Include="shaders\normalsGS.geom" />
+    <None Include="shaders\raytrace.comp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\glm\detail\type_gentype.hpp">

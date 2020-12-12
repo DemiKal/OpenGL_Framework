@@ -19,7 +19,7 @@ class Shader
 public:
 	enum class ShaderType
 	{
-		NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2, TESSELATION = 3, UTIL = 4
+		NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2, TESSELATION = 3, COMPUTE	= 4, UTIL = 5
 	};
 
 
@@ -29,6 +29,8 @@ public:
 
 	//Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc);
 	Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc, const std::string& geomSrc = std::string());
+
+	void LoadComputeShader(const std::string& filepath);
 
 	Shader(const std::string& filepath, const ShaderType shaderType);
 	std::string GetName() const;

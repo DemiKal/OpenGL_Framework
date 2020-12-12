@@ -6,9 +6,11 @@ void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selec
 {
 	auto& tag = registry.get<TagComponent>(entity).Name;
 
-	ImGuiTreeNodeFlags flags = ((selected == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-	bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag);
+	ImGuiTreeNodeFlags flags = selected == entity ? ImGuiTreeNodeFlags_Selected : 0;
+	flags |= ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow;
+
+	auto* const DiosMioLaCreatura = reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<uint32_t>(entity)));
+	const bool opened = ImGui::TreeNodeEx(DiosMioLaCreatura, flags, tag);
 	if (ImGui::IsItemClicked())
 	{
 		selected = entity;
@@ -42,14 +44,11 @@ void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selec
 
 void EditorLayer::RenderSceneHierarchyPanel(float dt)
 {
-	const auto flags = ImGuiWindowFlags_NoCollapse;
-	ImGui::Begin("Entities", nullptr, flags);
+	ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
 
 	m_Registry.each([&](auto ent)
 		{
-			//ImGui::PushID(i++);
 			DrawNode(m_Registry, ent, m_Selected);
-			//ImGui::PopID();
 		});
 
 	if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered() && !ImGui::IsItemHovered())

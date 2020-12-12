@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <EditorLayer.h>
 
- class EditorLayer;
+class EditorLayer;
 
 class Gizmo
 {

@@ -11,7 +11,7 @@ public:
 	//std::vector<FrameBuffer> m_FrameBuffers;
 	FrameBuffer m_FramebufferCamera;
 	ImVec2 m_ImGuiRegionSize;
-	
+	GLuint texID;
 	RenderLayer(std::shared_ptr<EditorLayer> edl);
 	void OnAttach() override;
 	void OnDetach() override;

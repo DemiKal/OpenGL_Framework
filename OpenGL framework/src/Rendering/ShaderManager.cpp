@@ -32,6 +32,13 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 			auto type = Shader::ShaderType::UTIL;
 			m_ShaderHelperFiles[name] = std::tie(type, sourceCode);
 		}
+
+		if(extension == "comp")
+		{
+			const std::string sourceCode = ParseShader(filePath);
+			auto type = Shader::ShaderType::COMPUTE;
+			m_ComputeShaders[name] = std::tie(type, sourceCode);
+		}
 	}
 
 	fmt::print("Parsing shaders (VERT/FRAG/TESS/GEOM)\n");
@@ -77,10 +84,21 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 		//shaders.emplace_back(Shader(p, type));
 	}
 
+	for (auto& [a, val1] : m_ComputeShaders)
+	{
+		auto& [type, val2] = val1;
+		Shader compShader ;
+		compShader.LoadComputeShader(val2);
+		shaders.emplace_back(compShader);
+
+	}
+	
 	for (auto& [vertKey, vertVal] : m_VertexShaderSources)
 	{
 		auto& [type, vertSrc] = vertVal;
 
+		
+		
 		//find fragment shader
 		if (m_FragmentShaderSources.find(vertKey) != m_FragmentShaderSources.end())
 		{

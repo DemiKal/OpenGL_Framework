@@ -22,7 +22,19 @@ Shader::Shader(const std::string& path, const std::string& vertexSrc, const std:
 	GetAttributes();
 }
 
+void Shader::LoadComputeShader(const std::string& filepath)
+{
+	m_ShaderType = ShaderType::COMPUTE;
+	const unsigned int program = glCreateProgram();
+	const unsigned int cs = CompileShader(GL_COMPUTE_SHADER, filepath);
 
+	GLCall(glAttachShader(program, cs))  
+	GLCall(glLinkProgram(program)) 
+	GLCall(glValidateProgram(program))  
+	GLCall(glDeleteShader(cs)) 
+	m_RendererID = program;
+
+}
 
 Shader::Shader(const std::string& filepath, const ShaderType shaderType)
 	:
