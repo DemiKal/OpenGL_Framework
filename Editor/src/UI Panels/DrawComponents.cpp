@@ -2,11 +2,25 @@
 #include "Rendering/ImGuiManager.h"
 
 //TODO move elsewhere
-template<typename T>
-void EditorLayer::DrawUIComponent(T t)
+template<typename T, typename func>
+void DrawUIComponent(const std::string& label, entt::registry& registry, entt::entity entity, func)
 {
-	static_assert(false);
+	const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
+	if (registry.has<T>(entity))
+	{
+		auto& component = registry.get<T>(entity);
+		bool open = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(T).hash_code()), treeNodeFlags, label.c_str());
+		if (open)
+		{
+			uiFunction(component);
+			ImGui::TreePop();
+		}
+	}
+	
 }
+
+
+
 
 void EditorLayer::DrawVec3Component(const std::string& label, glm::vec3& vec, float resetVal = 0)
 {
@@ -131,18 +145,22 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 {
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.4f, 0.3f, 0.4f, 0.8f });
 	ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-	if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
+
+	const bool nodeOpen = ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
+	//ImGui::SetLastItemData()
+	
+	ImGui::SameLine(0.0f, 30);
+	//ImGui::BeginChild("##testing");
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+	ImGui::Checkbox("##Enabled", &mc.Enabled);
+	ImGui::PopStyleVar();
+	//ImGui::EndChild();
+	if (nodeOpen)
 	{
-		
-
-		if (ImGui::IsItemHovered())
-			mc.Enabled = !mc.Enabled;
-
 		ImGui::RadioButton("Initialized", mc.Initialized);
 		const std::string  meshStr = fmt::format("Mesh index: {0}", std::to_string(mc.MeshIdx));
 		ImGui::Text(meshStr.c_str());
 		//ImGui::SameLine();
-		ImGui::Checkbox("Render", &mc.Enabled);
 
 		ImGui::Checkbox("Visualize wireframe", &mc.DrawWireFrame);
 
@@ -185,7 +203,7 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 			ImGui::DragFloat("Animation speed", &animSpeed, 0.001f, 0, 5, "%.3f");
 
 			static int currentPose = 0;
-			const int channelSize = mesh.m_animator.current.m_AnimationChannels[0].GetLength()-1;
+			const int channelSize = mesh.m_animator.current.m_AnimationChannels[0].GetLength() - 1;
 			if (playAnimation)
 			{
 				mesh.m_animator.UpdateAnimation(dt, animSpeed);
@@ -193,13 +211,13 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 				currentPose = perc * channelSize;
 			}
 
-			if(ImGui::SliderInt("Pose", &currentPose, 0, channelSize))
+			if (ImGui::SliderInt("Pose", &currentPose, 0, channelSize))
 			{
 				playAnimation = false;
 				mesh.m_animator.SetPose(currentPose);
 			}
 
-			if(ImGui::Button("Set T-Pose"))
+			if (ImGui::Button("Set T-Pose"))
 			{
 				playAnimation = false;
 				currentPose = 0;
@@ -288,7 +306,7 @@ void EditorLayer::DrawUIComponent(MeshComponent& mc, const std::string& label, c
 			ImGui::TreePop();
 		}
 
-	
+
 	}
 
 	ImGui::Separator();

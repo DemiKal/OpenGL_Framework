@@ -1,5 +1,6 @@
 #include "precomp.h"
 #include "Mesh.h"
+
 #include "Rendering/Buffer/VertexBufferLayout.h"
 #include "GameObject/Components/Texture2D.h"
 #include "Rendering/ShaderManager.h"
@@ -11,13 +12,14 @@
 struct  Armature2
 {
 	std::string name;
-	int id;
+	int id{};
 	std::vector< Armature2*> children;
-	Armature2* parent;
-	glm::mat4 mat;
+	Armature2* parent{};
+	glm::mat4 mat{};
 	std::vector<uint32_t> indices;
-	~Armature2()
+	~Armature2() noexcept
 	{
+		//delete this;
 		std::cout << "lmao cyaa\n";
 		for (auto* child : children)
 			delete child;
@@ -572,7 +574,7 @@ void Mesh::Draw(Shader& shader)
 	unsigned int specularNr = 1;
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
-
+	
 	for (size_t i = 0; i < m_Textures.size(); i++)
 	{
 		const Texture2D& tex = m_Textures[i];

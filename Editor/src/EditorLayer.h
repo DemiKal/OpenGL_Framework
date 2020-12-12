@@ -50,8 +50,8 @@ public:
 	void RenderInspectorPanel(float dt);
 	void RenderSceneHierarchyPanel(float dt);
 	
-	template<typename T>
-	void DrawUIComponent(T t);
+	//template<typename T>
+	//void DrawUIComponent(T t);
 	void DrawVec3Component(const std::string& label, glm::vec3& vec, float resetVal);
 	void DrawUIComponent(TransformComponent& t, const std::string& label, const float dt);
 	void DrawUIComponent(const glm::mat4& m, const std::string& label, const float dt);
