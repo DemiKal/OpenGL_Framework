@@ -39,15 +39,20 @@ void FrameBuffer::Init(const uint32_t width, const uint32_t height)
 	m_Height = height;
 }
 
-
-FrameBuffer::FrameBuffer(const uint32_t width, const uint32_t height)
-	:
-	m_RendererID(0),
-	m_RBO(0),
-	m_RenderTarget(Texture2D(GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE)),
-	m_DepthTexture(Texture2D(GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER))
+entt::hashed_string FrameBuffer::GetName() const
 {
-	Init(width, height);
+	return m_Name;
+}
+
+
+//FrameBuffer::FrameBuffer(const uint32_t width, const uint32_t height)
+//	:
+//	m_RendererID(0),
+//	m_RBO(0),
+//	m_RenderTarget(Texture2D(GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE)),
+//	m_DepthTexture(Texture2D(GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER))
+//{
+//	Init(width, height);
 
 	//unsigned int framebuffer;
 	//glGenFramebuffers(1, &framebuffer);
@@ -75,15 +80,15 @@ FrameBuffer::FrameBuffer(const uint32_t width, const uint32_t height)
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//
 	//m_RBO = rbo;
-}
+//}
 
 FrameBuffer::FrameBuffer(const FrameBufferSpecs& framebufferSpecs)
 	:
 	m_RendererID(0),
 	m_RBO(0),
 	m_RenderTarget(Texture2D(GL_RGBA, framebufferSpecs.Width, framebufferSpecs.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE)),
-	m_DepthTexture(Texture2D(GL_DEPTH_COMPONENT24, framebufferSpecs.Width, framebufferSpecs.Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER))
-
+	m_DepthTexture(Texture2D(GL_DEPTH_COMPONENT24, framebufferSpecs.Width, framebufferSpecs.Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)),
+	m_Name(framebufferSpecs.Name)
 {
 	Init(framebufferSpecs.Width, framebufferSpecs.Height);
 }

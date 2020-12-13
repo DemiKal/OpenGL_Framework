@@ -51,12 +51,12 @@ void DebugRenderLayer::OnImGuiRender(float dt)
 	ImGui::Checkbox("Vsync", &vsync);
 	renderer.SetVSync(vsync);
 	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
-	if (ImGui::TreeNode("Camera frustum debug"))
-	{
-		auto* const texId = reinterpret_cast<void*>(static_cast<intptr_t>(m_FrameBuffer.GetTexture().GetID()));
-		ImGui::Image(texId, ImGui::GetContentRegionAvail(), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::TreePop();
-	}
+	//if (ImGui::TreeNode("Camera frustum debug"))
+	//{
+	//	auto* const texId = reinterpret_cast<void*>(static_cast<intptr_t>(m_FrameBuffer->GetTexture().GetID()));
+	//	ImGui::Image(texId, ImGui::GetContentRegionAvail(), ImVec2(0, 1), ImVec2(1, 0));
+	//	ImGui::TreePop();
+	//}
 	ImGui::End();
 
 

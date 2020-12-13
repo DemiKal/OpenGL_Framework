@@ -18,7 +18,7 @@ public:
 	entt::registry m_Registry;
 	entt::entity m_Selected{ entt::null };
 	Camera m_EditorCamera;
-	FrameBuffer m_SceneFrame;
+	//FrameBuffer* m_SceneFrame;
 	ImVec2 m_ImGuiRegionSize;
 	ImGuizmo::OPERATION m_TransformWidgetOperation = ImGuizmo::OPERATION::TRANSLATE;
 	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;

@@ -18,6 +18,10 @@ void EditorLayer::OnAttach()
 {
 	fmt::print("{} on attach!\n", m_Name);
 
+	FrameBufferSpecs specs = {"Editor Scene Frame"};
+	m_Editor->GetCommandBuffer().GenerateFrameBuffer(specs);
+	 
+	
 	const auto cube = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(cube);
 	m_Registry.emplace<TagComponent>(cube, "Cube");
@@ -43,6 +47,7 @@ void EditorLayer::OnAttach()
 	m_Selected = anim;
 
 
+	
 }
 
 void EditorLayer::OnDetach()
@@ -273,12 +278,13 @@ void EditorLayer::OnImGuiRender(const float dt)
 //TODO: delegate debug visuals to the components?
 void EditorLayer::DrawDebugVisuals(float dt)
 {
-	m_SceneFrame.Bind();
+	FrameBuffer& sceneFrame = m_Editor->GetCommandBuffer().GetFrameBuffer("Editor Scene Frame");
+	sceneFrame.Bind();
 
 	for (auto& gizmo : m_Gizmos)
 		if (gizmo->m_Enabled) gizmo->Draw();
 
-	m_SceneFrame.Unbind();
+	sceneFrame.Unbind();
 }
 
 void EditorLayer::RenderSkybox()
@@ -304,9 +310,11 @@ void EditorLayer::RenderSkybox()
 void EditorLayer::RenderScene(const float dt)
 {
 	Renderer& renderer = m_Editor->GetRenderer();
-	m_SceneFrame.Bind();
+	FrameBuffer& sceneFrame = m_Editor->GetCommandBuffer().GetFrameBuffer("Editor Scene Frame");
+	sceneFrame.Bind();
 
-	auto [fbWidth, fbHeight] = m_SceneFrame.GetSize();
+	int i = sizeof(entt::hashed_string);
+	auto [fbWidth, fbHeight] = sceneFrame.GetSize();
 	auto prevViewport = renderer.GetViewPort();
 	renderer.SetViewPort(0, 0, fbWidth, fbHeight);
 
@@ -390,7 +398,7 @@ void EditorLayer::RenderScene(const float dt)
 
 	RenderSkybox();
 
-	m_SceneFrame.Unbind();
+	sceneFrame.Unbind();
 	//renderer.SetViewPort(prevViewport);
 
 

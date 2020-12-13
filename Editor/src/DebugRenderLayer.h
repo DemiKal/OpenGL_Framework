@@ -14,7 +14,7 @@ public:
 	void OnImGuiRender(float dt) override;
 
 private:
-	FrameBuffer m_FrameBuffer;
+	FrameBuffer* m_FrameBuffer;
 	std::shared_ptr<EditorLayer> m_EditorLayer;
 };
 

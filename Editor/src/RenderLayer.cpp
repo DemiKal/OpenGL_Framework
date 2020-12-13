@@ -4,26 +4,25 @@
 #include "Rendering/ShaderManager.h"
 #include "Editor.h"
 
-FrameBufferSpecs specs =
-{
-specs.Name = "Camera Framebuffer",
-specs.Width = 1920,
-specs.Height = 1080,
-};
+
 
 RenderLayer::RenderLayer(std::shared_ptr<EditorLayer> edl)
 	:
 	Layer("RenderLayer"),
 	m_EditorLayer(std::move(edl))
-
 {
-	//auto& cb =
 
-	
 }
 
 void RenderLayer::OnAttach()
 {
+	FrameBufferSpecs specs =
+	{
+		specs.Name = "Camera Framebuffer",
+		specs.Width = 1920,
+		specs.Height = 1080,
+	};
+
 	auto* ed = m_Editor;	//this needs to be set 
 	CommandBuffer& cb = ed->GetCommandBuffer();
 	m_FramebufferCamera = &cb.GenerateFrameBuffer(specs);

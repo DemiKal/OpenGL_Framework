@@ -55,11 +55,14 @@ void EditorLayer::RenderViewportPanel(float dt)
 		ImGui::BeginChild("GameChild");
 		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
 
-		const auto texId = m_SceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
+		FrameBuffer& sceneFrame = m_Editor->GetCommandBuffer().GetFrameBuffer("Editor Scene Frame");
+		const auto texId = sceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
+
+
 		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
 			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
 		auto xy = ImGui::GetItemRectSize();
-		
+
 		DrawGizmos(dt);
 
 		if (m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))

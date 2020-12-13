@@ -21,5 +21,6 @@ public:
 	CommandBuffer(){};
 	FrameBuffer& GenerateFrameBuffer(const FrameBufferSpecs& framebufferSpecs);
 	FrameBuffer& GetFrameBuffer(uint32_t index);
+	FrameBuffer& GetFrameBuffer(entt::hashed_string name);
 };
 
