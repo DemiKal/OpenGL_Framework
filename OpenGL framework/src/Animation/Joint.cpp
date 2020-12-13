@@ -1,11 +1,13 @@
 #include "precomp.h"
 #include "Joint.h"
 
-Joint::Joint(const uint32_t idx, const std::string& name, const glm::mat4& localMat) :
+#include <utility>
+
+Joint::Joint(const uint32_t idx, std::string name, const glm::mat4& localMat) :
 	m_Index(idx),
-	m_Name(name),
+	m_Name(std::move(name)),
 	m_Offset(localMat),
-	m_PoseTransform()
+	m_PoseTransform(), m_PurePose(), m_Reverse(m_PoseTransform)
 {
 }
 
@@ -14,7 +16,7 @@ Joint::Joint(const Joint& j) :
 	m_Name(j.m_Name),
 	m_Offset(j.m_Offset),
 	m_PoseTransform(j.m_PoseTransform),
-	m_ChildrenIndices(j.m_ChildrenIndices)
+	m_ChildrenIndices(j.m_ChildrenIndices), m_PurePose(), m_Reverse(j.m_PoseTransform)
 {
 }
 

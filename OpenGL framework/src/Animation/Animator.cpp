@@ -27,10 +27,21 @@ void Animator::UpdateAnimTime()
 }
 
 
+void Animator::UpdateReverse(Joint& currentJoint, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverseRoot)
+{
+	  glm::mat4 currentMat =    inverse(currentJoint.m_Offset);
+	currentMat *= parentMat;// (currentJoint.m_Offset);
+	currentMat *= currentJoint.m_Offset;
+	//currentJoint.m_Reverse = currentJoint.m_Reverse * inverseRoot * currentMat * currentJoint.m_Offset;
+	currentJoint.m_Reverse = currentMat;
+	for (auto& ci : currentJoint.m_ChildrenIndices)
+		UpdateReverse(bones[ci], bones, currentMat, inverseRoot);
+}
+
 void Animator::UpdateHierarchy(Joint& currentJoint, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverseRoot)
 {
 	const glm::mat4 currentMat = parentMat * currentJoint.m_PoseTransform;
-	currentJoint.m_PoseTransform = inverseRoot * currentMat * currentJoint.m_Offset;
+	currentJoint.m_PoseTransform = inverseRoot * parentMat * currentJoint.m_PoseTransform  * currentJoint.m_Offset;
 
 	for (auto& ci : currentJoint.m_ChildrenIndices)
 		UpdateHierarchy(bones[ci], bones, currentMat, inverseRoot);
@@ -49,8 +60,7 @@ void Animator::UpdateHierarchy(glm::mat4& inverse_root)
 		fmt::print("Name {}, idx {}\n", current.m_Name, idx);
 		current.m_PoseTransform = inverse_root * current.m_PoseTransform;
 		glm::mat4 parentMat = current.m_PoseTransform;
-
-		for (auto& c : current.m_ChildrenIndices)
+ 		for (auto& c : current.m_ChildrenIndices)
 			stack.emplace_back(c);
 	}
 }
@@ -77,6 +87,7 @@ void Animator::SetPose(int poseNr)
 	CalcPose(poseNr);
 
 	UpdateHierarchy(m_Bones[0], m_Bones, glm::mat4(1.0f), m_inverse_root);
+	UpdateReverse(m_Bones[0], m_Bones, glm::mat4(1.0f), m_inverse_root);
 }
 
 void Animator::UpdateAnimation(const float dt, const float speedControl)
@@ -87,6 +98,7 @@ void Animator::UpdateAnimation(const float dt, const float speedControl)
 	CalcPose(tick);
 
 	UpdateHierarchy(m_Bones[0], m_Bones, glm::mat4(1.0f), m_inverse_root);
+	UpdateReverse(m_Bones[0], m_Bones, glm::mat4(1.0f), m_inverse_root);
 }
 
 std::vector<glm::mat4> Animator::GetPose()  const
@@ -127,6 +139,8 @@ void Animator::CalcPose(const float tick)
 
 		glm::mat4 rotMat = glm::mat4_cast(interpolatedRot);
 		joint.m_PoseTransform = posMat * rotMat;
+		joint.m_PurePose = joint.m_PoseTransform;
+
 	}
 	//return std::unordered_map<std::string, glm::mat4>();
 }

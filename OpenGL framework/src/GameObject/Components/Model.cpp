@@ -17,17 +17,18 @@
 
 //from assimpviewer
 
-glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat)
+glm::mat4 AI2GLMMAT(aiMatrix4x4&  ai_mat)
 {
-	glm::mat4 result;
-	aiMatrix4x4 transposed = ai_mat.Transpose();
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++)
-		{
-			result[i][j] = transposed[i][j];
-		}
-	}
-	return result;
+	return glm::transpose(glm::make_mat4(ai_mat[0]));
+	//glm::mat4 result;
+	//aiMatrix4x4 transposed = ai_mat.Transpose();
+	//for (int i = 0; i < 4; i++) {
+	//	for (int j = 0; j < 4; j++)
+	//	{
+	//		result[i][j] = transposed[i][j];
+	//	}
+	//}
+	//return result;
 }
 
 Model::Model(const std::string& path, const aiPostProcessSteps loadFlags = aiProcess_GenBoundingBoxes)

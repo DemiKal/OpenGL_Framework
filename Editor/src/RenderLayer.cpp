@@ -68,44 +68,45 @@ void RenderLayer::OnUpdate(float dt)
 
 	Shader& compute = ShaderManager::GetShader("raytrace");
 	compute.Bind();
-	int tex_w = 512, tex_h = 512;
+	const uint32_t texW = compute.m_ComputeWidth;
+	const uint32_t texH = compute.m_ComputeHeight;
+	compute.GetComputeTexture().Bind();
 
-	static bool init = false;
-	if (!init)
-	{
- 		glGenTextures(1, &texID);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texID);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tex_w, tex_h, 0, GL_RGBA, GL_FLOAT, NULL);
-		glBindImageTexture(0, texID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-		
-		int work_grp_size[3];
+	static bool a = false;
+	static GLuint m;
+	//if(!a)
+	//{
+	//	glGenTextures(1, &m);
+	//	glActiveTexture(GL_TEXTURE0);
+	//	glBindTexture(GL_TEXTURE_2D, m);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texW, texH, 0, GL_RGBA, GL_FLOAT, nullptr);
+	//	glBindImageTexture(0, m, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	//	glBindTexture(GL_TEXTURE_2D, 0);
+	//	a = true;
+	//}
+	//
+	//
+	//glBindTexture(GL_TEXTURE_2D, m);
+	//
+	//texID = m;
 
-		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
-		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
-		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
-
-		printf("max local (in one shader) work group sizes x:%i y:%i z:%i\n",
-			work_grp_size[0], work_grp_size[1], work_grp_size[2]);
-		GLint work_grp_inv;
-		glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
-		printf("max local work group invocations %i\n", work_grp_inv);
-		init = true;
-	}
-
-	glDispatchCompute(static_cast<GLuint>(tex_w), static_cast<GLuint>(tex_h), 1);
+	glDispatchCompute(static_cast<GLuint>(texW), static_cast<GLuint>(texH), 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	compute.Unbind();
+	compute.GetComputeTexture().Unbind();
 }	
  
 void RenderLayer::OnImGuiRender(float dt)
 {
+	Shader& compute = ShaderManager::GetShader("raytrace");
+
 	ImGui::Begin("ray trace test");
-	auto size = ImGui::GetContentRegionAvail();
-	auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(texID));
+	const auto size = ImGui::GetContentRegionAvail();
+	auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(compute.GetComputeTexture().GetID()));
 	ImGui::ImageButton(texPtr, size, ImVec2(0, 1), ImVec2(1, 0), 0);
 
 	ImGui::End();

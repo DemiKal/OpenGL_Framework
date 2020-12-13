@@ -14,7 +14,6 @@ private:
 	void GenerateTexture(unsigned char* data, int nrComponents, int width, int height);
 
 	void TextureFromFile(const std::string& fullPath);
-
 public:
 	Texture2D() = default;
 	Texture2D(const std::string& fullPath, const std::string& typeName);
@@ -44,6 +43,8 @@ public:
 	void LoadCubemap(std::vector<std::string> faces);
 	GLenum GetGLType() const;
 	void Bind(const int textureIndex = 0) const;
+	void Unbind();
 	void Delete();
+	void GenImageTexture(uint32_t width, uint32_t height, void* data = nullptr);
 };
 

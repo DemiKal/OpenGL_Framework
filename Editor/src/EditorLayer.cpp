@@ -32,7 +32,6 @@ void EditorLayer::OnAttach()
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
 	m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);
-	m_Selected = spyro;
 
 	const auto anim = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(anim);
@@ -41,6 +40,7 @@ void EditorLayer::OnAttach()
 	auto& mc2 = m_Registry.emplace<MeshComponent>(anim, "Assets/meshes/Animation test/run embedded.gltf", aiProcess_Triangulate);
 
 	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
+	m_Selected = anim;
 
 
 }
@@ -78,8 +78,8 @@ void EditorLayer::DrawCameraInspector(const float dt)
 		const auto viewMat = m_EditorCamera.GetViewMatrix();
 		const auto proj = m_EditorCamera.GetProjectionMatrix();
 
-	//	DrawUIComponent(viewMat, "View Matrix", dt);
-	//	DrawUIComponent(proj, "Projection Matrix", dt);
+		//	DrawUIComponent(viewMat, "View Matrix", dt);
+		//	DrawUIComponent(proj, "Projection Matrix", dt);
 		ImGui::TreePop();
 	}
 
@@ -356,6 +356,38 @@ void EditorLayer::RenderScene(const float dt)
 
 		}
 	}
+
+	//m_SceneFrame.Bind();
+
+	auto viewAnim = m_Registry.view<MeshComponent>();
+	Mesh& cube = MeshManager::GetMesh(1);
+	Shader& shader = ShaderManager::GetShader("basic");
+
+	for (auto entity : viewAnim)
+	{
+
+		auto mc = m_Registry.get<MeshComponent>(entity);
+		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
+		if (mesh.HasAnimation())
+		{
+
+			std::vector<glm::mat4> mats;
+			glm::mat4 a(1.0f);
+			mesh.m_animator.CalcOffsetChain(mats, a);
+
+			for (Joint& joint : mesh.m_animator.m_Bones)
+			{
+				//cube.Draw(m_EditorCamera,   (mats[joint.m_Index]) * joint.m_Offset, shader);
+			//	cube.Draw(m_EditorCamera,  (joint.m_PurePose)      * inverse(joint.m_Offset)  , shader);
+				cube.Draw(m_EditorCamera, joint.m_Reverse, shader);
+			}
+		}
+
+	}
+
+
+
+
 	RenderSkybox();
 
 	m_SceneFrame.Unbind();
@@ -395,8 +427,8 @@ void EditorLayer::DrawGizmos(const float dt)
 	if (m_TransformWidgetOperation == ImGuizmo::OPERATION::SCALE)
 		m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 
-	 ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
-	 	m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
+	Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
+		m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
 
 	if (m_Registry.has<MeshComponent>(m_Selected))
 	{
@@ -410,22 +442,36 @@ void EditorLayer::DrawGizmos(const float dt)
 			glm::vec4 screenpos = vp * glm::vec4(tc.Position, 1.0f);
 			glm::vec4 scrpw = screenpos / screenpos.w;
 
- 
-			//for (Joint& joint : mesh.m_animator.m_Bones)
-			//{
-			//	//glm::mat4 transf = glm::translate(glm::mat4(1.0f), glm::vec3(joint.m_PoseTransform ));
-			//	glm::mat4 tp = glm::mat4(1.0f);
-			//	glm::vec3 jt = {};
-			//	glm::vec3 jr = {};
-			//	glm::vec3 js = {};
-			//
-			//	ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(joint.m_PoseTransform), &jt[0], &jr[0], &js[0]);
-			//	//glm::mat4 transf =  glm::inverse(joint.m_Offset) * glm::inverse(joint.m_PoseTransform);
-			//	glm::mat4 transf =   glm::inverse(joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
-			//
-			//	ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
-			//		m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transf));
-			//}
+			glm::mat4 id(1.0f);
+			std::vector<glm::mat4> offsets;
+			//mesh.m_animator.CalcOffsetChain(offsets,id);
+			int i = 0;
+			for (Joint& joint : mesh.m_animator.m_Bones)
+			{
+				//glm::mat4 transf = glm::translate(glm::mat4(1.0f), glm::vec3(joint.m_PoseTransform ));
+				glm::mat4 tp = glm::mat4(1.0f);
+				glm::vec3 jt = {};
+				glm::vec3 jr = {};
+				glm::vec3 js = {};
+
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(joint.m_PoseTransform), &jt[0], &jr[0], &js[0]);
+				//glm::mat4 transf =  glm::inverse(joint.m_Offset) * glm::inverse(joint.m_PoseTransform);
+				//glm::mat4 transf =   glm::inverse(joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
+				//glm::mat4 transf =    (joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
+				//glm::mat4 transf = glm::translate(glm::mat4(1.0f), {0,3,0}) * inverse(joint.m_Offset);// * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
+				//glm::mat4 transf = glm::mat4_cast(glm::quat(jr)) * glm::translate(glm::mat4(1.0f), jt)  ;
+//				glm::mat4 off = glm::transpose(offsets[i++]);
+				//glm::mat4 transf = (joint.m_PoseTransform)* (joint.m_PurePose) * joint.m_Offset   ;
+				//m::mat4 transf = (off)* (joint.m_Offset) * inverse(off);
+				//glm::mat4 transf = inverse(joint.m_Offset ); //only good in t-pose
+
+		//		glm::mat4 transf = (off)*joint.m_PoseTransform;
+
+
+
+				//ImGuizmo::Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
+				//	m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transf));
+			}
 
 
 			auto drawlist = ImGui::GetForegroundDrawList();

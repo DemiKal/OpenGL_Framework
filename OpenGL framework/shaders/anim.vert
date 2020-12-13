@@ -59,6 +59,7 @@ void main()
 	BoneTransform += mBones[int(a_BoneIDs[2])] * a_Weights[2];
 	BoneTransform += mBones[int(a_BoneIDs[3])] * a_Weights[3];
 
+ 
 	//vec3 col = vec3(0, 0, 0);
 	//col += colors[int(a_BoneIDs[0])] * a_Weights[0];
 	//col += colors[int(a_BoneIDs[1])] * a_Weights[1];

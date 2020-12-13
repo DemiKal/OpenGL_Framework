@@ -1,4 +1,5 @@
 #pragma once
+#include "GameObject/Components/Texture2D.h"
 
 //TODO: set parsing/compilation state as bool or something
 class Shader
@@ -52,8 +53,10 @@ public:
 	void Destroy() const;
 	void Bind() const;
 	static void Unbind();
+	Texture2D& GetComputeTexture();; //TODO delegate elseweher
+	uint32_t m_ComputeWidth, m_ComputeHeight;
 
-private:
+	private:
 
 	unsigned int m_RendererID{ 0 };
 	ShaderType m_ShaderType{ ShaderType::NONE };
@@ -61,5 +64,8 @@ private:
 	std::string m_FilePath;
 	std::unordered_map<std::string, uniform_info_t> m_uniformsInfo;
 	std::unordered_map<std::string, AttribInfo> m_AttribInfo;
+	Texture2D m_ComputeTex;
+
+	
 };
 

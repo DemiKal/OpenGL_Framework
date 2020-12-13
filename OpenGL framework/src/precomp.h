@@ -76,6 +76,6 @@ const glm::vec3 FORWARD_WORLD(0, 0, -1);
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
 
-glm::mat4 AI2GLMMAT(aiMatrix4x4  ai_mat);
+glm::mat4 AI2GLMMAT(aiMatrix4x4& ai_mat);
 
 #include "misc/HardwareQuery.h"

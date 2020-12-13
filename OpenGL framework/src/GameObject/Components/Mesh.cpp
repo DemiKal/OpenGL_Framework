@@ -46,10 +46,10 @@ void CreateArmature(Armature2* parentArmature, aiNode* node, uint32_t  iter)
 {
 	Armature2* me = new Armature2;
 	me->name = node->mName.C_Str();
-	me->mat = AI2GLMMAT(node->mTransformation);
+	me->mat = glm::make_mat4(node->mTransformation[0]);
 
 	if (iter > 0) me->parent = parentArmature;
-
+	
 	parentArmature->children.push_back(me);
 
 	// then do the same for each of its children
@@ -80,6 +80,7 @@ void CreateList(Armature2* parent, std::unordered_map< std::string, std::vector 
 }
 //void GetChildIndices(Armature2* parent, const std::unordered_map<std::string)
 
+//TODO: ADD  PARENT POINTER AND FETCH LIST OF TRANSFORMS THAT WAY
 void Mesh::LoadBoneData(
 	const aiScene* scene,
 	const aiMesh* mesh,
@@ -122,9 +123,9 @@ void Mesh::LoadBoneData(
 	{
 		aiBone* ai_bone = mesh->mBones[boneIdx];
 		std::string boneName = ai_bone->mName.C_Str();
-		Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
+		Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix ));
 		boneNames[boneName] = boneIdx;
-
+		
 		bones.emplace_back(joint);
 	}
 
@@ -619,7 +620,7 @@ void Mesh::Draw(Shader& shader)
 	else
 	{
 		auto tricount = static_cast<GLsizei>(GetTriangleCount());
-		GLCall(glDrawArrays(elemtype, 0, tricount));  //plane!
+		GLCall(glDrawArrays(elemtype, 0, tricount))   //plane!
 	}
 
 	glBindVertexArray(0);

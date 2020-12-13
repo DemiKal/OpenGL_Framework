@@ -111,6 +111,8 @@ void Texture2D::TextureFromFile(const std::string& fullPath/*, Texture& texture*
 	}
 }
 
+
+
 Texture2D::Texture2D(const std::string& fullPath, const std::string& typeName)
 {
 	TextureFromFile(fullPath);
@@ -195,10 +197,30 @@ void Texture2D::Bind(const int textureIndex) const
 	GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 }
 
+void Texture2D::Unbind()
+{
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture2D::Delete()
 {
 	glDeleteTextures(1, &m_RendererID);
 }
 
 
-
+//TODO make this more dynamic
+void Texture2D::GenImageTexture(uint32_t width, uint32_t height, void* data)
+{
+	glGenTextures(1, &m_RendererID);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_RendererID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data);
+	glBindImageTexture(0, m_RendererID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	m_Width = width;
+	m_Height = height;
+}

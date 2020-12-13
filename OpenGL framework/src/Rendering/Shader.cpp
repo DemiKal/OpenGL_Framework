@@ -1,6 +1,8 @@
 #include "precomp.h"
 #include "Shader.h"
 
+#include "GameObject/Components/Texture2D.h"
+
 //TODO: extra shader type for manually constructed shader
 //Shader::Shader(const std::string& path, const std::string& vertexSrc, const std::string& fragSrc)
 //	:
@@ -28,11 +30,32 @@ void Shader::LoadComputeShader(const std::string& filepath)
 	const unsigned int program = glCreateProgram();
 	const unsigned int cs = CompileShader(GL_COMPUTE_SHADER, filepath);
 
-	GLCall(glAttachShader(program, cs))  
-	GLCall(glLinkProgram(program)) 
-	GLCall(glValidateProgram(program))  
-	GLCall(glDeleteShader(cs)) 
-	m_RendererID = program;
+	GLCall(glAttachShader(program, cs))
+		GLCall(glLinkProgram(program))
+		GLCall(glValidateProgram(program))
+		GLCall(glDeleteShader(cs))
+		m_RendererID = program;
+
+	SetupUniforms();
+	GetAttributes();
+	const uint32_t texW = 512;
+	const uint32_t texH = 512;
+	
+	 m_ComputeTex.GenImageTexture(texW, texH);
+	 m_ComputeWidth = texW;
+	 m_ComputeHeight = texH;
+	int work_grp_size[3];
+
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
+
+	printf("max local (in one shader) work group sizes x:%i y:%i z:%i\n",
+		work_grp_size[0], work_grp_size[1], work_grp_size[2]);
+	GLint work_grp_inv;
+	glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
+	printf("max local work group invocations %i\n", work_grp_inv);
+	 
 
 }
 
@@ -133,6 +156,11 @@ void Shader::Bind() const
 void Shader::Unbind()
 {
 	GLCall(glUseProgram(0));
+}
+
+Texture2D& Shader::GetComputeTexture()
+{
+	return m_ComputeTex;
 }
 
 

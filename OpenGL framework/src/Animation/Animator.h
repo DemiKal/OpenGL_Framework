@@ -22,6 +22,8 @@ public:
 	//TODO: improve
 	void UpdateAnimTime();
 
+	void UpdateReverse(Joint& currentJoint, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverseRoot);
+
 	void UpdateHierarchy(Joint& currentJoint, std::vector<Joint>& bones, const glm::mat4& parentMat, glm::mat4& inverseRoot);
 
 	void UpdateHierarchy(glm::mat4& inverse_root);
@@ -37,5 +39,24 @@ public:
 	void SetAnimation(Animation& animation);
 	void CalcPose(int poseIdx);
 	void SetTPose();
+	void CalcOffsetChain(std::vector<glm::mat4>& mats, glm::mat4& parent, int idx = 0)
+	{
+		Joint& joint = m_Bones[idx];
+		glm::mat4 currentOffset = parent * joint.m_Offset;
+
+		mats.emplace_back(currentOffset);
+
+		for (uint32_t i : joint.m_ChildrenIndices)
+		{
+			CalcOffsetChain(mats, currentOffset, i);
+		}
+
+
+
+	}
+
+
+
+
 };
 
