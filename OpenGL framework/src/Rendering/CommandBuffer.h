@@ -4,7 +4,7 @@ struct RenderCommand
 {
 	entt::hashed_string FrameBufferIndex;
 	entt::hashed_string ShaderIndex; //or entt::string?
-	 
+
 };
 
 class CommandBuffer
@@ -17,10 +17,12 @@ class CommandBuffer
 	std::vector<RenderCommand> m_AlphaRenderCommands;
 	std::vector<RenderCommand> m_PostProcessingRenderCommands;
 	std::vector<RenderCommand> m_CustomRenderCommands; //possibly for compute shaders n stuff
+
 public:
-	CommandBuffer(){};
+	CommandBuffer();
 	FrameBuffer& GenerateFrameBuffer(const FrameBufferSpecs& framebufferSpecs);
 	FrameBuffer& GetFrameBuffer(uint32_t index);
 	FrameBuffer& GetFrameBuffer(entt::hashed_string name);
+	[[nodiscard]] const std::vector<FrameBuffer>& GetFrameBuffers() const;
 };
 

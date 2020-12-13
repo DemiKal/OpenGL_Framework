@@ -49,7 +49,7 @@ void CreateArmature(Armature2* parentArmature, aiNode* node, uint32_t  iter)
 	me->mat = glm::make_mat4(node->mTransformation[0]);
 
 	if (iter > 0) me->parent = parentArmature;
-	
+
 	parentArmature->children.push_back(me);
 
 	// then do the same for each of its children
@@ -58,7 +58,14 @@ void CreateArmature(Armature2* parentArmature, aiNode* node, uint32_t  iter)
 		CreateArmature(me, node->mChildren[i], ++iter);
 	}
 }
-
+const std::string_view Mesh::GetFilename() const
+{
+	return m_Filename;
+};
+const std::string_view Mesh::GetDirectory() const
+{
+	return m_Directory;
+};
 void CreateHierarchy(Armature2* parent, uint32_t& idx)
 {
 	parent->id = idx;
@@ -123,9 +130,9 @@ void Mesh::LoadBoneData(
 	{
 		aiBone* ai_bone = mesh->mBones[boneIdx];
 		std::string boneName = ai_bone->mName.C_Str();
-		Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix ));
+		Joint joint(boneIdx, boneName, AI2GLMMAT(ai_bone->mOffsetMatrix));
 		boneNames[boneName] = boneIdx;
-		
+
 		bones.emplace_back(joint);
 	}
 
@@ -575,7 +582,7 @@ void Mesh::Draw(Shader& shader)
 	unsigned int specularNr = 1;
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
-	
+
 	for (size_t i = 0; i < m_Textures.size(); i++)
 	{
 		const Texture2D& tex = m_Textures[i];
@@ -632,17 +639,17 @@ bool Mesh::HasAnimation() const
 	return m_AnimationLoaded;
 }
 
-unsigned Mesh::GetVAO()
+const uint32_t Mesh::GetVAO() const
 {
 	return m_VAO;
 }
 
-unsigned Mesh::GetVBO()
+const uint32_t Mesh::GetVBO() const
 {
 	return m_VBO;
 }
 
-unsigned Mesh::GetEBO()
+const uint32_t Mesh::GetEBO() const
 {
 	return m_EBO;
 }
@@ -890,12 +897,12 @@ bool Mesh::HasFaceIndices() const
 	return !m_Indices.empty();
 }
 
-unsigned Mesh::GetVertexCount() const
+const uint32_t Mesh::GetVertexCount() const
 {
 	return static_cast<unsigned int>(m_Vertices.size());
 }
 
-uint32_t Mesh::GetTriangleCount() const
+const uint32_t Mesh::GetTriangleCount() const
 {
 	const auto t = GetVertexCount();
 	const auto stride = m_VertexBufferLayout.GetStride();

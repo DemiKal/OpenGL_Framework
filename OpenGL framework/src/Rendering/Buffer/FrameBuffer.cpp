@@ -112,12 +112,12 @@ bool FrameBuffer::Resize(uint32_t width, uint32_t height)
 
 FrameBuffer::~FrameBuffer() = default;
 
-Texture2D& FrameBuffer::GetTexture()
+const  Texture2D& FrameBuffer::GetTexture() const
 {
 	return m_RenderTarget;
 }
 
-Texture2D& FrameBuffer::GetDepthTexture()
+const Texture2D& FrameBuffer::GetDepthTexture() const
 {
 	return m_DepthTexture;
 }
@@ -142,7 +142,11 @@ uint32_t FrameBuffer::GetHeight() const
 	return m_Height;
 }
 
-std::tuple<uint32_t, uint32_t>  FrameBuffer::GetSize() const
+glm::ivec2 FrameBuffer::GetSize() const
+{
+	return { m_Width, m_Height };
+}
+std::tuple<uint32_t, uint32_t>  FrameBuffer::GetSize2() const
 {
 	return { m_Width, m_Height };
 }

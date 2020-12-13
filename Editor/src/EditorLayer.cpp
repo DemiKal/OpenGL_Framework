@@ -313,8 +313,7 @@ void EditorLayer::RenderScene(const float dt)
 	FrameBuffer& sceneFrame = m_Editor->GetCommandBuffer().GetFrameBuffer("Editor Scene Frame");
 	sceneFrame.Bind();
 
-	int i = sizeof(entt::hashed_string);
-	auto [fbWidth, fbHeight] = sceneFrame.GetSize();
+	auto [fbWidth, fbHeight] = sceneFrame.GetSize2();
 	auto prevViewport = renderer.GetViewPort();
 	renderer.SetViewPort(0, 0, fbWidth, fbHeight);
 

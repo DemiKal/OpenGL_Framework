@@ -42,6 +42,14 @@ namespace meme
 			ShaderManager::Init("../OpenGL Framework/shaders");
 			MeshManager::Init();
 			ImGuiManager::Init(m_Renderer);
+
+			std::unordered_map< int, float> hs;
+
+			//entt::hashed_string s1 = "a";
+			  
+		//	hs[s1] = 12.f;
+			//auto xx = hs["a"];
+			int assad  = 1;
 		}
 
 		virtual void Run() {}

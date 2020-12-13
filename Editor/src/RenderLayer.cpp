@@ -43,7 +43,7 @@ void RenderLayer::RenderCamera() const
 
 	m_FramebufferCamera->Bind();
 
-	auto [fbWidth, fbHeight] = m_FramebufferCamera->GetSize();
+	auto [fbWidth, fbHeight] = m_FramebufferCamera->GetSize2();
 	const auto prevViewport = renderer.GetViewPort();
 	renderer.SetViewPort(0, 0, fbWidth, fbHeight);
 
@@ -83,21 +83,84 @@ void RenderLayer::OnUpdate(float dt)
 	const uint32_t texH = computeTexture.GetHeight();
 	computeTexture.Bind();
 
-
-	glDispatchCompute(static_cast<GLuint>(texW), static_cast<GLuint>(texH), 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	compute.Unbind();
-	compute.GetComputeTexture().Unbind();
+	static bool ya = false;
+	if (!ya)
+	{
+		ya = true;
+		glDispatchCompute(static_cast<GLuint>(texW), static_cast<GLuint>(texH), 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		compute.Unbind();
+		compute.GetComputeTexture().Unbind();
+	}
 }
 
 void RenderLayer::OnImGuiRender(float dt)
 {
-	ComputeShader& compute = ShaderManager::GetComputeShader("raytrace");
+	//ComputeShader& compute = ShaderManager::GetComputeShader("raytrace");
+	Renderer& renderer = m_Editor->GetRenderer();
+	CommandBuffer& cb = m_Editor->GetCommandBuffer();
 
-	ImGui::Begin("ray trace test");
-	const auto size = ImGui::GetContentRegionAvail();
-	auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(compute.GetComputeTexture().GetID()));
-	ImGui::ImageButton(texPtr, size, ImVec2(0, 1), ImVec2(1, 0), 0);
+	ImGui::Begin("Renderer Debug", 0, ImGuiWindowFlags_HorizontalScrollbar);
+	//const auto size = ImGui::GetContentRegionAvail();
+	//auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(compute.GetComputeTexture().GetID()));
+	//ImGui::ImageButton(texPtr, size, ImVec2(0, 1), ImVec2(1, 0), 0);
+	ImGui::Text("Framerate: %3f", 1000.0f * dt);
+	ImGui::Text("Framebuffers");
+	bool vsync = renderer.GetVSync();
+	ImGui::Checkbox("Vsync", &vsync);
+	renderer.SetVSync(vsync);
 
+	ImGui::BeginChild("Frame buffers", { 0,0 }, true, ImGuiWindowFlags_HorizontalScrollbar); // 0.0f:left, 0.5f:center, 1.0f:right
+
+	auto& fbrs = cb.GetFrameBuffers();
+	uint32_t count = static_cast<uint32_t>(fbrs.size());
+	ImVec2 avail = ImGui::GetContentRegionAvail();
+
+	//ImGui::Scrollbar(ImGuiAxis::ImGuiAxis_X);
+//	ImGui::SetScrollHereX(i * 0.25f)
+//	ImGui::BeginGroup();
+	for (const FrameBuffer& fb : fbrs)
+	{
+		ImGui::BeginGroup();
+		auto fbSz = fb.GetSize(); float aspect = fbSz.x / static_cast<float>(fbSz.y);
+		ImGui::Text("Framebuffer \"%s\", id: %i, size: (%i, %i)", fb.GetName().data(), fb.GetID(), fbSz.x, fbSz.y);
+		const ImVec2 size = { 250 * aspect, 250 };
+		void* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(fb.GetTexture().GetID()));
+		void* texPtrDepth = reinterpret_cast<void*>(static_cast<intptr_t>(fb.GetDepthTexture().GetID()));
+		ImGui::Image(texPtr, size, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image(texPtrDepth, size, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::EndGroup();
+		ImGui::SameLine();
+	}
+	//	ImGui::EndGroup();
+		//ImGui::EndChild();
+	ImGui::Separator();
+
+	ImGui::Spacing();
+	auto& meshes = MeshManager::GetMeshes();
+	ImGui::BeginGroup();
+	ImGui::Text("Meshes");
+	//ImGui::BeginChild(ImGuiID("Meshes"), {0,0}, true, ImGuiWindowFlags_HorizontalScrollbar);
+	int i = 0;
+	for (const Mesh& mesh : meshes)
+	{
+		//	ImGui::BeginChild("MeshesChild" + i++, { 0,0 }, true, 0);
+		ImGui::BeginGroup();
+		//const std::string ebo = mesh.HasFaceIndices() ? fmt::format("EBO: {}", mesh.GetEBO()) : "";
+		ImGui::Text("Mesh: \"%s\", VAO: %i, VBO: %i, EBO: %i", mesh.GetFilename().data(), mesh.GetVAO(), mesh.GetVBO(), mesh.GetEBO());
+		ImGui::Text("Directory: %s", mesh.GetDirectory().data());
+		ImGui::Text("Triangle count: %i, Indices count: %i, Draw Mode: %i", mesh.GetTriangleCount(), mesh.GetIndicesCount(), mesh.GetElemDrawType());
+		ImGui::EndGroup();
+		//	ImGui::EndChild();
+
+		const ImVec2 rectMin = ImGui::GetItemRectMin() - ImVec2{ 3, 3 };// IM_COL32(145, 199, 180, 200)
+		const ImVec2 rectMax = ImGui::GetItemRectMax() + ImVec2{ 3, 3 };
+		ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, IM_COL32(145, 199, 180, 200));
+		ImGui::GetBackgroundDrawList()->AddRectFilledMultiColor(rectMin, rectMax, IM_COL32_BLACK, IM_COL32_BLACK,IM_COL32_WHITE, IM_COL32_WHITE);
+		ImGui::SameLine();
+	}
+
+	ImGui::EndGroup();
+	ImGui::EndChild();
 	ImGui::End();
 }

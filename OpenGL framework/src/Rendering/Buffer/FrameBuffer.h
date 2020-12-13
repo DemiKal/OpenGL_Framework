@@ -45,17 +45,19 @@ public: //TODO ADD COPY CONSTRUCTOR!
 
 
 
-	Texture2D& GetTexture();
-	Texture2D& GetDepthTexture();
+	const Texture2D& GetTexture() const;
+	const Texture2D& GetDepthTexture() const;
 	unsigned int GetID() const;
 	static void Unbind();
 	void Bind() const;
 	uint32_t GetWidth() const;
 	uint32_t GetHeight() const;
 
+	//operator glm::vec2() const { return glm::vec2(x, y); }                               \
 
 
-	[[nodiscard]] std::tuple<uint32_t, uint32_t> GetSize() const;
+	[[nodiscard]] glm::ivec2 GetSize() const;
+	[[nodiscard]] std::tuple<uint32_t, uint32_t> GetSize2() const;
 	[[nodiscard]] float GetAspect() const;
 
 };

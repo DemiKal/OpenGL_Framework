@@ -1,7 +1,10 @@
 #include "precomp.h"
 #include "CommandBuffer.h"
-#include <vector>
 
+
+CommandBuffer::CommandBuffer()
+{
+}
 
 FrameBuffer& CommandBuffer::GenerateFrameBuffer(const FrameBufferSpecs& framebufferSpecs)
 {
@@ -27,4 +30,9 @@ FrameBuffer& CommandBuffer::GetFrameBuffer(entt::hashed_string name)
 			return fb;
 		
 	}
+}
+
+const std::vector<FrameBuffer>& CommandBuffer::GetFrameBuffers() const
+{
+	return m_FrameBuffers;
 }
