@@ -67,7 +67,7 @@ void EditorLayer::RenderViewportPanel(float dt)
 			RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();
 			if (rl)
 			{
-				FrameBuffer& fb = rl->m_FramebufferCamera;
+				FrameBuffer& fb = *rl->m_FramebufferCamera;
 				const float aspect = fb.GetAspect();
 				const ImVec2 sizeOG(250, 250);
 				const ImVec2 size(sizeOG.x, sizeOG.y / aspect);
@@ -114,7 +114,7 @@ void EditorLayer::RenderViewportPanel(float dt)
 		RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();	//TODO: use a render manager to get framebuffer!
 		if (rl)
 		{
-			auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>(rl->m_FramebufferCamera.GetTexture().GetID()));
+			auto* texid = reinterpret_cast<void*>(static_cast<intptr_t>((*rl->m_FramebufferCamera).GetTexture().GetID()));
 			ImGui::Image(texid, m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
 
 		}

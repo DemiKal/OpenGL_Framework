@@ -33,7 +33,7 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 			m_ShaderHelperFiles[name] = std::tie(type, sourceCode);
 		}
 
-		if(extension == "comp")
+		if (extension == "comp")
 		{
 			const std::string sourceCode = ParseShader(filePath);
 			auto type = Shader::ShaderType::COMPUTE;
@@ -79,25 +79,21 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 			type = Shader::ShaderType::GEOMETRY;
 			m_GeometryShaderSources[name] = std::tie(type, sourceCode);
 		}
-		//if (extension = "vert") type = ShaderType::VERTEX;
-		//ShaderSources.emplace_back(  );
-		//shaders.emplace_back(Shader(p, type));
 	}
 
 	for (auto& [a, val1] : m_ComputeShaderSources)
 	{
 		auto& [type, csSrc] = val1;
-		 
-		m_ComputeShaders.emplace_back(csSrc,512,512);
 
+		m_ComputeShaders.emplace_back(csSrc, 512, 512);
 	}
-	
+
 	for (auto& [vertKey, vertVal] : m_VertexShaderSources)
 	{
 		auto& [type, vertSrc] = vertVal;
 
-		
-		
+
+
 		//find fragment shader
 		if (m_FragmentShaderSources.find(vertKey) != m_FragmentShaderSources.end())
 		{

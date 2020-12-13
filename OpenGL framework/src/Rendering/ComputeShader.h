@@ -5,8 +5,7 @@
 
 class ComputeShader : public Shader
 {
-	uint32_t m_Width{ 0 };
-	uint32_t m_Height{ 0 };
+private:
 	uint32_t m_workGroupSize[3] = { 0, 0, 0 };
 	uint32_t m_Dimensions{ 0 };
 

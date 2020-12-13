@@ -38,7 +38,9 @@ void FrameBuffer::Init(const uint32_t width, const uint32_t height)
 	m_Width = width;
 	m_Height = height;
 }
-FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
+
+
+FrameBuffer::FrameBuffer(const uint32_t width, const uint32_t height)
 	:
 	m_RendererID(0),
 	m_RBO(0),
@@ -75,6 +77,17 @@ FrameBuffer::FrameBuffer(const unsigned width, const unsigned height)
 	//m_RBO = rbo;
 }
 
+FrameBuffer::FrameBuffer(const FrameBufferSpecs& framebufferSpecs)
+	:
+	m_RendererID(0),
+	m_RBO(0),
+	m_RenderTarget(Texture2D(GL_RGBA, framebufferSpecs.Width, framebufferSpecs.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE)),
+	m_DepthTexture(Texture2D(GL_DEPTH_COMPONENT24, framebufferSpecs.Width, framebufferSpecs.Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER))
+
+{
+	Init(framebufferSpecs.Width, framebufferSpecs.Height);
+}
+
 bool FrameBuffer::Resize(uint32_t width, uint32_t height)
 {
 	if ((width <= 0 || height <= 0) && m_RendererID) return false;
@@ -92,10 +105,7 @@ bool FrameBuffer::Resize(uint32_t width, uint32_t height)
 	return true;
 }
 
-FrameBuffer::~FrameBuffer()
-{
-
-}
+FrameBuffer::~FrameBuffer() = default;
 
 Texture2D& FrameBuffer::GetTexture()
 {

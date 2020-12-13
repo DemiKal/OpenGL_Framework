@@ -3,6 +3,7 @@
 #include "Core/Layer.h"
 #include "GameObject/EntityManager.h"
 #include "GameObject/Components/MeshManager.h"
+#include "Rendering/CommandBuffer.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h"
 #include "Rendering/ImGuiManager.h"
@@ -37,6 +38,7 @@ namespace meme
 		{
 			EntityManager::Init();
 			m_Renderer.Init(windowHints);
+			m_CommandBuffer = {};
 			ShaderManager::Init("../OpenGL Framework/shaders");
 			MeshManager::Init();
 			ImGuiManager::Init(m_Renderer);
@@ -44,7 +46,7 @@ namespace meme
 
 		virtual void Run() {}
 		Renderer& GetRenderer() { return m_Renderer; }
-
+		CommandBuffer& GetCommandBuffer() { return m_CommandBuffer; }
 	private:
 		friend int ::main(int argc, char** argv);
 
@@ -52,6 +54,7 @@ namespace meme
 		std::vector<std::shared_ptr<Layer>> m_Layers;
 		std::string m_Name;
 		Renderer m_Renderer;
+		CommandBuffer m_CommandBuffer;
 	};
 
 	Application* CreateApplication();

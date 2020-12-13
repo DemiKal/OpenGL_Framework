@@ -3,9 +3,10 @@
 class ShaderManager;
 
 //TODO: set parsing/compilation state as bool or something
+//TODO: add spicy hot reloading
 class Shader
 {
-
+	//TODO: delegate this to a material struct?
 	struct uniform_info_t
 	{
 		GLint location;

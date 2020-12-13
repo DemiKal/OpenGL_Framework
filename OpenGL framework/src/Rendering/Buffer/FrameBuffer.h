@@ -1,5 +1,13 @@
 #pragma once
 #include "GameObject/Components/Texture2D.h"
+struct FrameBufferSpecs
+{
+	entt::hashed_string Name;
+	uint32_t Width{1024};
+	uint32_t Height{768};
+	GLenum Type = GL_RGBA;
+	GLenum Depth = GL_DEPTH_COMPONENT24;
+};
 
 class FrameBuffer
 {
@@ -12,8 +20,11 @@ private:
 	Texture2D m_DepthTexture;
 
 public: //TODO ADD COPY CONSTRUCTOR!
+	FrameBuffer(uint32_t width = SCREENWIDTH, uint32_t height = SCREENHEIGHT);
+	FrameBuffer(const FrameBufferSpecs& framebufferSpecs);
+
 	void Init(uint32_t width, uint32_t height);
-	FrameBuffer(unsigned int width = SCREENWIDTH, unsigned int height = SCREENHEIGHT);
+
 	bool Resize(uint32_t width, uint32_t height);
 	~FrameBuffer();
 	Texture2D& GetTexture();
@@ -25,6 +36,7 @@ public: //TODO ADD COPY CONSTRUCTOR!
 	uint32_t GetHeight() const;
 	
 
+	
 	[[nodiscard]] std::tuple<uint32_t, uint32_t> GetSize() const;
 	[[nodiscard]] float GetAspect() const;
 

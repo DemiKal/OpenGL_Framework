@@ -6,10 +6,11 @@ class Texture2D
 private:
 	std::string m_type = "";
 	std::string m_path = "";
-	unsigned int m_RendererID = 0;
-	unsigned int m_Width = 0;
-	unsigned int m_Height = 0;
+	uint32_t m_RendererID = 0;
+	uint32_t m_Width = 0;
+	uint32_t m_Height = 0;
 	GLenum m_GLType = GL_TEXTURE_2D;
+
 	void GetEmbeddedTexture(const aiTexture* texture);
 	void GenerateTexture(unsigned char* data, int nrComponents, int width, int height);
 

@@ -23,18 +23,15 @@ namespace meme
 	{
 		auto edl = std::make_shared<EditorLayer>(this);
 		m_Layers.emplace_back(edl);
-		m_Layers.back()->OnAttach();
-
 		m_Layers.emplace_back(std::make_unique<RenderLayer>(edl));
-		m_Layers.back()->OnAttach();
-
 		m_Layers.emplace_back(std::make_shared<DebugRenderLayer>(edl));
-		m_Layers.back()->OnAttach();
+
 
 		for (const auto& layer : m_Layers)
-		{
 			layer->m_Editor = this;
-		}
+
+		for (const auto& layer : m_Layers) 
+			layer->OnAttach();
 	}
 
 
