@@ -66,33 +66,13 @@ void RenderLayer::OnUpdate(float dt)
 {
 	RenderCamera();
 
-	Shader& compute = ShaderManager::GetShader("raytrace");
+	ComputeShader& compute = ShaderManager::GetComputeShader("raytrace");
 	compute.Bind();
-	const uint32_t texW = compute.m_ComputeWidth;
-	const uint32_t texH = compute.m_ComputeHeight;
-	compute.GetComputeTexture().Bind();
+	const Texture2D& computeTexture = compute.GetComputeTexture();
+	const uint32_t texW = computeTexture.GetWidth();
+	const uint32_t texH = computeTexture.GetHeight();
+	computeTexture .Bind();
 
-	static bool a = false;
-	static GLuint m;
-	//if(!a)
-	//{
-	//	glGenTextures(1, &m);
-	//	glActiveTexture(GL_TEXTURE0);
-	//	glBindTexture(GL_TEXTURE_2D, m);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texW, texH, 0, GL_RGBA, GL_FLOAT, nullptr);
-	//	glBindImageTexture(0, m, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	//	glBindTexture(GL_TEXTURE_2D, 0);
-	//	a = true;
-	//}
-	//
-	//
-	//glBindTexture(GL_TEXTURE_2D, m);
-	//
-	//texID = m;
 
 	glDispatchCompute(static_cast<GLuint>(texW), static_cast<GLuint>(texH), 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -102,12 +82,12 @@ void RenderLayer::OnUpdate(float dt)
  
 void RenderLayer::OnImGuiRender(float dt)
 {
-	Shader& compute = ShaderManager::GetShader("raytrace");
+	ComputeShader& compute = ShaderManager::GetComputeShader("raytrace");
 
 	ImGui::Begin("ray trace test");
 	const auto size = ImGui::GetContentRegionAvail();
 	auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(compute.GetComputeTexture().GetID()));
 	ImGui::ImageButton(texPtr, size, ImVec2(0, 1), ImVec2(1, 0), 0);
 
-	ImGui::End();
+	ImGui::End();	
 }

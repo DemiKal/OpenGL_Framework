@@ -1,6 +1,8 @@
 #pragma once
 #include "Shader.h"
+#include "ComputeShader.h"
 
+class ComputeShader;
 class ShaderManager
 {
 	enum shaderTypeFlags
@@ -18,7 +20,7 @@ private:
 	shaderMap m_VertexShaderSources;	//.vert
 	shaderMap m_FragmentShaderSources;	//.frag
 	shaderMap m_GeometryShaderSources;	//.geom
-	shaderMap m_ComputeShaders;			//.cs
+	shaderMap m_ComputeShaderSources;	//.cs TODO: possiby not relevant?
 	shaderMap m_ShaderHelperFiles;		//.glsl
 
 	void LoadShaders(const std::string& shaderDirectory);
@@ -35,8 +37,12 @@ public:
 	[[nodiscard]] static std::string ParseShader(const std::string& path);
 	[[nodiscard]] static Shader& GetShader(const std::string& name);
 
+	uint32_t GetComputeShaderIdx(const std::string& name);
+	static ComputeShader& GetComputeShader(const std::string& name);
+
 	std::string directory;
 	std::vector<Shader> shaders;
+	std::vector<ComputeShader> m_ComputeShaders;
 	bool initialized = false;
 
 	ShaderManager() = default;

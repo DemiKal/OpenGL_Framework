@@ -37,7 +37,7 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 		{
 			const std::string sourceCode = ParseShader(filePath);
 			auto type = Shader::ShaderType::COMPUTE;
-			m_ComputeShaders[name] = std::tie(type, sourceCode);
+			m_ComputeShaderSources[name] = std::tie(type, sourceCode);
 		}
 	}
 
@@ -84,12 +84,11 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 		//shaders.emplace_back(Shader(p, type));
 	}
 
-	for (auto& [a, val1] : m_ComputeShaders)
+	for (auto& [a, val1] : m_ComputeShaderSources)
 	{
-		auto& [type, val2] = val1;
-		Shader compShader ;
-		compShader.LoadComputeShader(val2);
-		shaders.emplace_back(compShader);
+		auto& [type, csSrc] = val1;
+		 
+		m_ComputeShaders.emplace_back(csSrc,512,512);
 
 	}
 	
@@ -117,12 +116,34 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 	}
 }
 
+//TODO: refactor singleton
+ComputeShader& ShaderManager::GetComputeShader(const std::string& name)
+{
+	auto& inst = GetInstance();
+	const uint32_t idx = inst.GetComputeShaderIdx(name);
+	return inst.m_ComputeShaders[idx];
+}
+
+uint32_t ShaderManager::GetComputeShaderIdx(const std::string& name)
+{
+	//const auto& inst = GetInstance();
+	for (unsigned int i = 0; i < m_ComputeShaders.size(); i++)
+	{
+		if (m_ComputeShaders[i].GetName() == name)
+		{
+			return  i;
+		}
+	}
+
+	return 0;
+}
 Shader& ShaderManager::GetShader(const std::string& name)
 {
 	const unsigned int idx = GetShaderIdx(name);
 	auto& inst = GetInstance();
 	return inst.shaders[idx];
 }
+
 
 //Need better datastructure for this
 unsigned int ShaderManager::GetShaderIdx(const std::string& name)
