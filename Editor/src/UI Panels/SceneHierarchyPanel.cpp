@@ -1,7 +1,21 @@
 #include "Rendering/ImGuiManager.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "EditorLayer.h"
+#include "Geometry/BVH/BVH.h"
 
+void AddBVHComponent(entt::registry& registry, entt::entity selected)
+{
+	bool hasBVH = registry.has<BVH>(selected);
+	if (hasBVH) return;
+
+	MeshComponent& mc = registry.get<MeshComponent>(selected);
+	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
+	
+	BVH& bvh = registry.emplace<BVH>(selected);
+	bvh.BuildBVH(mesh.m_PositionVertices);
+}
+
+//careful, selected can be invalid entity handle!
 void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selected)
 {
 	auto& tag = registry.get<TagComponent>(entity).Name;
@@ -16,11 +30,25 @@ void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selec
 		selected = entity;
 	}
 
-	bool entityDeleted = false;
+	bool deleteEntity = false;
 	if (ImGui::BeginPopupContextItem())
 	{
 		if (ImGui::MenuItem("Delete Entity"))
-			entityDeleted = true;
+			deleteEntity = true;
+		if (ImGui::BeginMenu("Add Component"))
+		{
+			if (registry.has<MeshComponent>(entity))
+				ImGui::TextDisabled("Add Mesh");
+			else if (ImGui::MenuItem("Add Mesh")) fmt::print("Added mesh!");
+
+			if (registry.has<MeshComponent>(entity) && !registry.has<BVH>(entity))
+			{
+				if (ImGui::MenuItem("Add BVH"))	AddBVHComponent(registry, entity);
+			}
+			else ImGui::TextDisabled("Add BVH");
+			
+			ImGui::EndMenu();
+		}
 
 		ImGui::EndPopup();
 	}
@@ -34,7 +62,7 @@ void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selec
 		ImGui::TreePop();
 	}
 
-	if (entityDeleted)
+	if (deleteEntity)
 	{
 		registry.destroy(entity);
 		if (selected == entity)
@@ -87,7 +115,7 @@ void EditorLayer::RenderSceneHierarchyPanel(float dt)
 	//		if (ImGui::BeginPopupContextItem())
 	//		{
 	//			if (ImGui::MenuItem("Delete Entity"))
-	//				//entityDeleted = true;{}
+	//				//deleteEntity = true;{}
 	//			{
 	//			}
 	//			ImGui::EndPopup();

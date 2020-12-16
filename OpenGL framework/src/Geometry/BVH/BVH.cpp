@@ -8,6 +8,7 @@
 #include "Geometry/TriangleBuffer.h"
 //#include "GameObject/Components/Texture1D.h"
 #include "Geometry/Ray.h"
+#include "GameObject/Components/MeshManager.h"
 
 BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
 	m_BVH_SSBO(0),
@@ -18,13 +19,15 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 {
 }
 
-void BVH::BuildBVH(const Renderer& renderer)
+void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 {
 	fmt::print("Building BVH... \n");
 
-	InitTriangleRenderer(); //TODO:: relocate it to renderer
+	//InitTriangleRenderer(); //TODO:: relocate it to renderer
 
-	const std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
+	  //std::vector<Triangle>& triangles = *(std::vector<Triangle>*)(&tris);
+	const std::vector<Triangle>& triangles = *(reinterpret_cast<const std::vector<Triangle>*>(&tris));
+
 	if (triangles.empty())
 	{
 		fmt::print("Error, Triangle list is empty! Cancelling build");
@@ -73,7 +76,7 @@ void BVH::BuildBVH(const Renderer& renderer)
 	fmt::print("triangles per second: {0}\n", N / (build_ms.count() * 1000.0f));
 	fmt::print("triangles per ms: {0}\n", (N / build_ms.count()));
 
-	CreateBuffers();
+	CreateBuffers(triangles);
 	m_IsBuilt = true;
 }
 
@@ -127,20 +130,25 @@ void BVH::BuildBVH(const Renderer& renderer)
 //	glBindVertexArray(0);
 //}
 
-void BVH::Draw(const Camera& camera, Renderer& renderer) const
+void BVH::Draw(const Camera& camera, const glm::mat4& transform ) const
 {
 	if (!IsBuilt()) return; //has been initialized?
-	static   glm::vec4 bvhColor = { 1, 0.3 , 0.6, 0.4 };
+	static glm::vec4 bvhColor = { 1, 0.3 , 0.6, 1.0 };
 	//ImGui::ColorEdit4("bvh color", &bvhColor[0]);
 	auto& aabbShader = ShaderManager::GetShader("AABB_instanced_SSBO");
 
 	aabbShader.Bind();
-	aabbShader.SetUniformMat4f("u_view", camera.GetViewMatrix());
-	aabbShader.SetUniformMat4f("u_projection", camera.GetProjectionMatrix());
-	aabbShader.SetVec4f("u_color", bvhColor);
+	//aabbShader.SetUniformMat4f("u_Model", camera.GetViewMatrix());
+	aabbShader.SetUniformMat4f("u_Model", transform);
+	aabbShader.SetUniformMat4f("u_View", camera.GetViewMatrix());
+	aabbShader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
+	aabbShader.SetVec4f("u_Color", bvhColor);
 
 	//const uint32_t instanceCount = m_localBounds.size();
-	renderer.DrawInstancedCubes(GetBVHSize());
+	//renderer.DrawInstancedCubes(GetBVHSize());
+
+	Mesh& cube = MeshManager::GetMesh(1);
+	cube.DrawInstanced(m_PoolPtr);
 }
 
 void BVH::CastRay(const Ray& ray)
@@ -328,31 +336,32 @@ void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 	}
 
 	AABB& mat = m_Pool[index].m_bounds; //m_aabbMatrices???
-	mat.Draw(cam, { 1.0f, 0.2f,0.3f,1.0f });
+	mat.Draw(cam, { 1.0f, 0.2f, 0.3f, 1.0f });
 }
-void BVH::CreateBuffers()
+
+void BVH::CreateBuffers(const std::vector<Triangle>& tris)
 {
-	GLuint m_bvh_ssbo = 0;
+	//GLuint m_bvh_ssbo = 0;
 	const unsigned int poolSize = sizeof(BVHNode) * m_PoolPtr;
-	glGenBuffers(1, &m_bvh_ssbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_bvh_ssbo);
+	glGenBuffers(1, &m_BVH_SSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_SSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSize, &m_Pool[0], GL_STATIC_COPY);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_bvh_ssbo);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_BVH_SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
-	GLuint m_triangles_ssbo = 0;
-	glGenBuffers(1, &m_triangles_ssbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_triangles_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_COPY);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_triangles_ssbo);
+	//std::vector<Triangle>& triangles = TriangleBuffer::GetTriangleBuffer();
+	//GLuint m_triangles_ssbo = 0;
+	glGenBuffers(1, &m_Tri_SSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_Tri_SSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, tris.size() * sizeof(Triangle), &tris[0], GL_STATIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_Tri_SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	GLuint m_tri_index_ssbo = 0;
-	glGenBuffers(1, &m_tri_index_ssbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tri_index_ssbo);
+	//GLuint m_tri_index_ssbo = 0;
+	glGenBuffers(1, &m_TriIdx_SSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_TriIdx_SSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_COPY);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_tri_index_ssbo);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_TriIdx_SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 

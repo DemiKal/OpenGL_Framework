@@ -6,6 +6,7 @@
 #include "Gizmos/FrustumGizmo.h"
 #include "Gizmos/Gizmo.h"
 #include "UI Panels/InspectorPanel.cpp"
+#include "Geometry/BVH/BVH.h"
 
 void DrawVec3Component(const std::string& label, glm::vec3& vec, float resetVal);
 void DrawUIComponent(const glm::mat4& m, const std::string& label, const float dt);
@@ -240,7 +241,6 @@ void EditorLayer::DrawGizmoMenu()
 		static ImVec2 maxGrp{ 0, 0 };
 
 		{
-
 			ImGui::GetWindowDrawList()->AddRectFilled(minGrp, maxGrp, IM_COL32(0, 12, 23, 190));
 
 			ImGui::BeginGroup();
@@ -369,6 +369,11 @@ void EditorLayer::RenderScene(const float dt)
 		}
 	}
 
+	for (auto entity : m_Registry.view<BVH, TransformComponent>())
+	{
+		auto  [bvh, transform] = m_Registry.get<BVH, TransformComponent>(entity);
+		bvh.Draw(m_EditorCamera, transform.CalcMatrix() );
+	}
 	//m_SceneFrame.Bind();
 
 	auto viewAnim = m_Registry.view<MeshComponent>();
@@ -461,12 +466,12 @@ void EditorLayer::DrawGizmos(const float dt)
 				//glm::mat4 transf = (joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
 				//glm::mat4 transf = glm::translate(glm::mat4(1.0f), {0,3,0}) * inverse(joint.m_Offset);// * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
 				//glm::mat4 transf = glm::mat4_cast(glm::quat(jr)) * glm::translate(glm::mat4(1.0f), jt)  ;
-//				glm::mat4 off = glm::transpose(offsets[i++]);
+				//glm::mat4 off = glm::transpose(offsets[i++]);
 				//glm::mat4 transf = (joint.m_PoseTransform)* (joint.m_PurePose) * joint.m_Offset   ;
 				//m::mat4 transf = (off)* (joint.m_Offset) * inverse(off);
 				//glm::mat4 transf = inverse(joint.m_Offset ); //only good in t-pose
 
-		//		glm::mat4 transf = (off)*joint.m_PoseTransform;
+				//glm::mat4 transf = (off)*joint.m_PoseTransform;
 
 
 
@@ -485,11 +490,6 @@ void EditorLayer::DrawGizmos(const float dt)
 
 		}
 	}
-
-
-
-
-
 
 	if (ImGuizmo::IsUsing())
 	{

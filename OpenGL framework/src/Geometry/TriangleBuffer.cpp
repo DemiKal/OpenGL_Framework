@@ -23,23 +23,23 @@ inline TriangleBuffer& TriangleBuffer::GetInstance()
 
 void TriangleBuffer::AddTriangles_I(Model& model)
 {
-	std::vector<glm::vec3>& posVerts = model.GetMesh(0).m_PositionVertices;
-	const size_t currentIdx = m_TriangleBuffer.size();			//global StartIdx
-	const size_t endIdx = currentIdx + posVerts.size() / 3;	//global EndIdx
-	m_TriangleBuffer.reserve(currentIdx + posVerts.size());
+	//std::vector<glm::vec3>& posVerts = model.GetMesh(0).m_PositionVertices;
+	//const size_t currentIdx = m_TriangleBuffer.size();			//global StartIdx
+	//const size_t endIdx = currentIdx + posVerts.size() / 3;	//global EndIdx
+	//m_TriangleBuffer.reserve(currentIdx + posVerts.size());
 
-	m_IndexRangeBuffer.emplace_back(IndexPair(currentIdx, endIdx, model));
+	//m_IndexRangeBuffer.emplace_back(IndexPair(currentIdx, endIdx, model));
 
-	for (uint32_t i = 0; i < posVerts.size() / 3u; i ++)
-	{
-		const glm::vec3 a = posVerts[3 * i];
-		const glm::vec3 b = posVerts[3 * i + 1];
-		const glm::vec3 c = posVerts[3 * i + 2];
-		m_TriangleBuffer.emplace_back(Triangle(a, b, c));
-	}
-	fmt::print("size of Triangle {} bytes\n", sizeof(Triangle));
-	fmt::print("Added triangles of {} with {} vertices at idx range [{},{}]\n",
-		model.m_directory, posVerts.size(), currentIdx, endIdx);
+	//for (uint32_t i = 0; i < posVerts.size() / 3u; i ++)
+	//{
+	//	const glm::vec3 a = posVerts[3 * i];
+	//	const glm::vec3 b = posVerts[3 * i + 1];
+	//	const glm::vec3 c = posVerts[3 * i + 2];
+	//	m_TriangleBuffer.emplace_back(Triangle(a, b, c));
+	//}
+	//fmt::print("size of Triangle {} bytes\n", sizeof(Triangle));
+	//fmt::print("Added triangles of {} with {} vertices at idx range [{},{}]\n",
+	//	model.m_directory, posVerts.size(), currentIdx, endIdx);
 }
 
 [[nodiscard]]

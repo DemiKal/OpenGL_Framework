@@ -62,7 +62,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 			const int rightChild = leftChild + 1;
 			const bool l = bvh.m_Pool[leftChild].Traverse(bvh, ray, hitData, leftChild);
 			const bool r = bvh.m_Pool[rightChild].Traverse(bvh, ray, hitData, rightChild);
-			return l | r;
+			return l || r;
 		}
 	}
 	return false;

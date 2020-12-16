@@ -187,6 +187,8 @@
   <ItemGroup>
     <None Include="shaders\AABB_instanced.frag" />
     <None Include="shaders\AABB_instanced.vert" />
+    <None Include="shaders\AABB_instanced_SSBO.frag" />
+    <None Include="shaders\AABB_instanced_SSBO.vert" />
     <None Include="shaders\AABB_single.frag" />
     <None Include="shaders\AABB_single.vert" />
     <None Include="shaders\anim.frag" />

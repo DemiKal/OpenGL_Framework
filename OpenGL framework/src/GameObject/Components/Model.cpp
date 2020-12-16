@@ -470,7 +470,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Arma
 	for (const int v_idx : indices)
 	{
 		auto& ai_v = mesh->mVertices[v_idx];
-		glm::vec3   v = { ai_v.x, ai_v.y, ai_v.z };
+		glm::vec4   v = { ai_v.x, ai_v.y, ai_v.z,0 };
 		meshnew.m_PositionVertices.emplace_back(v);
 	}
 
