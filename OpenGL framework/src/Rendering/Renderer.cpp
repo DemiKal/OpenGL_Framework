@@ -109,20 +109,20 @@ void Renderer::DrawInstancedCubes(const GLsizei instanceCount) const
 void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm::vec4 color) const
 {
 	//TODO: use meshmanager?
-	//auto& shader = ShaderManager::GetShader("AABB_single");
-	//shader.Bind();
-	//
-	////shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
-	//shader.SetUniformMat4f("u_Model", transform);
-	//shader.SetUniformMat4f("u_View", cam.GetViewMatrix());
-	//shader.SetUniformMat4f("u_Projection", cam.GetProjectionMatrix());
-	//shader.SetVec4f("u_Color", color.x, color.y, color.z, color.w);
-	//
+	Shader& shader = ShaderManager::GetShader("AABB_single");
+	shader.Bind();
+	
+	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
+	shader.SetUniformMat4f("u_Model", transform);
+	shader.SetUniformMat4f("u_View", cam.GetViewMatrix());
+	shader.SetUniformMat4f("u_Projection", cam.GetProjectionMatrix());
+	shader.SetVec4f("u_Color", color.x, color.y, color.z, color.w);
+	
+	Mesh& cube = MeshManager::GetMesh(1);//wireframe cube!
+	cube.Draw(shader);
 	//glBindVertexArray(cubeVAO);
 	//
-	//GLCall(glDrawElements(GL_LINES,
-	//	static_cast<GLsizei>(cubeIndices.size()),
-	//	GL_UNSIGNED_INT, nullptr))
+	//GLCall(glDrawElements(GL_LINES, static_cast<GLsizei>(cubeIndices.size()), GL_UNSIGNED_INT, nullptr))
 	//
 	//	GLCall(glBindVertexArray(0));
 	//GLCall(glActiveTexture(GL_TEXTURE0))

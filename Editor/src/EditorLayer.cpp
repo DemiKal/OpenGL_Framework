@@ -25,7 +25,7 @@ void EditorLayer::OnAttach()
 {
 	fmt::print("{} on attach!\n", m_Name);
 
-	FrameBufferSpecs specs = {"Editor Scene Frame"};
+	FrameBufferSpecs specs = { "Editor Scene Frame" };
 	m_Editor->GetCommandBuffer().GenerateFrameBuffer(specs);
 
 	const auto cube = m_Registry.create();
@@ -51,9 +51,6 @@ void EditorLayer::OnAttach()
 
 	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
 	m_Selected = anim;
-
-
-	
 }
 
 void EditorLayer::OnDetach()
@@ -65,7 +62,6 @@ void EditorLayer::OnUpdate(const float dt)
 {
 	OnInput(dt);
 	RenderScene(dt);
-
 }
 
 void EditorLayer::DrawCameraInspector(const float dt)
@@ -301,16 +297,15 @@ void EditorLayer::RenderSkybox()
 	Mesh* skybox = MeshManager::GetMesh(Meshtype::Skybox);
 	Shader& shader = ShaderManager::GetShader("skybox");
 	shader.Bind();
-	auto view = glm::mat4(glm::mat3(cam.GetViewMatrix()));
-	auto proj = cam.GetProjectionMatrix();
-	auto camPos = cam.GetPosition();
-	auto translMat = (glm::translate(glm::mat4(1.0f), camPos));
+	const auto view = glm::mat4(glm::mat3(cam.GetViewMatrix()));
+	const auto proj = cam.GetProjectionMatrix();
+	const auto camPos = cam.GetPosition();
+	const auto translMat = (glm::translate(glm::mat4(1.0f), camPos));
 
 	skybox->Draw(proj, view, shader);
 
 	shader.Unbind();
 	m_Editor->GetRenderer().SetDepthFunc(GL_LESS);
-
 }
 
 void EditorLayer::RenderScene(const float dt)
@@ -318,6 +313,12 @@ void EditorLayer::RenderScene(const float dt)
 	Renderer& renderer = m_Editor->GetRenderer();
 	FrameBuffer& sceneFrame = m_Editor->GetCommandBuffer().GetFrameBuffer("Editor Scene Frame");
 	sceneFrame.Bind();
+	renderer.SetClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	renderer.EnableDepth();
+	renderer.SetAlphaBlending(true);
+	
+	RenderSkybox();
 
 	auto [fbWidth, fbHeight] = sceneFrame.GetSize2();
 	auto prevViewport = renderer.GetViewPort();
@@ -328,17 +329,7 @@ void EditorLayer::RenderScene(const float dt)
 		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
 		m_EditorCamera.SetAspectRatio(aspect);
 	}
-	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-	renderer.SetClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	renderer.EnableDepth();
-	renderer.SetAlphaBlending(true);
-
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendEquation(GL_FUNC_ADD); //allows us to set this operationand has 5 possible options :
-
+ 
 	auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
 	for (auto entity : view)
@@ -366,7 +357,15 @@ void EditorLayer::RenderScene(const float dt)
 			renderer.SetAlphaBlending(true);
 			mesh.DrawNormals(m_EditorCamera, mat, mc.NormalsColor, mc.NormalsMagnitude);
 			renderer.SetAlphaBlending(a);
+		}
 
+		if (mc.DrawAABB)
+		{
+			bool a = renderer.GetAlphaBlending();
+			renderer.SetAlphaBlending(true);
+			const glm::mat4 aabbMat = mat * mc.BoundingBox.GetTransform();
+			renderer.DrawCube(m_EditorCamera, aabbMat, mc.AABBcolor);
+			renderer.SetAlphaBlending(a);
 		}
 	}
 
@@ -379,11 +378,10 @@ void EditorLayer::RenderScene(const float dt)
 	for (auto entity : viewAnim)
 	{
 
-		auto mc = m_Registry.get<MeshComponent>(entity);
+		MeshComponent& mc = m_Registry.get<MeshComponent>(entity);
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		if (mesh.HasAnimation())
 		{
-
 			std::vector<glm::mat4> mats;
 			glm::mat4 a(1.0f);
 			mesh.m_animator.CalcOffsetChain(mats, a);
@@ -399,23 +397,13 @@ void EditorLayer::RenderScene(const float dt)
 	}
 
 
-
-
-	RenderSkybox();
-
 	sceneFrame.Unbind();
 	//renderer.SetViewPort(prevViewport);
-
-
-
-
-
 }
 
 
 void EditorLayer::DrawGizmos(const float dt)
 {
-
 	if (m_Selected == entt::null) return;
 
 	ImVec2 viewportSize = ImGui::GetContentRegionAvail();
@@ -468,9 +456,9 @@ void EditorLayer::DrawGizmos(const float dt)
 				glm::vec3 js = {};
 
 				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(joint.m_PoseTransform), &jt[0], &jr[0], &js[0]);
-				//glm::mat4 transf =  glm::inverse(joint.m_Offset) * glm::inverse(joint.m_PoseTransform);
-				//glm::mat4 transf =   glm::inverse(joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
-				//glm::mat4 transf =    (joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
+				//glm::mat4 transf = glm::inverse(joint.m_Offset) * glm::inverse(joint.m_PoseTransform);
+				//glm::mat4 transf = glm::inverse(joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
+				//glm::mat4 transf = (joint.m_Offset) * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
 				//glm::mat4 transf = glm::translate(glm::mat4(1.0f), {0,3,0}) * inverse(joint.m_Offset);// * glm::translate(glm::mat4(1.0f), jt)  /*glm::inverse*/ ;
 				//glm::mat4 transf = glm::mat4_cast(glm::quat(jr)) * glm::translate(glm::mat4(1.0f), jt)  ;
 //				glm::mat4 off = glm::transpose(offsets[i++]);
@@ -518,7 +506,6 @@ void EditorLayer::DrawGizmos(const float dt)
 		tc.Rotation += deltaRot;
 		tc.Scale = scale;
 	}
-
 }
 
 void  EditorLayer::RenderInspectorPanel(const float dt)

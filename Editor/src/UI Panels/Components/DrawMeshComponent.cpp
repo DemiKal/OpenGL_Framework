@@ -11,8 +11,14 @@ void DrawUIComponent(MeshComponent& mc, const float dt)
 	ImGui::Text(meshStr.c_str());
 	//ImGui::SameLine();
 
-	ImGui::Checkbox("Visualize wireframe", &mc.DrawWireFrame);
+	ImGui::Checkbox("Draw AABB", &mc.DrawAABB);
+	if (mc.DrawAABB)
+	{
+		ImGui::SameLine();
+		ImGui::ColorEdit4("##aabbcolor", glm::value_ptr(mc.AABBcolor), ImGuiColorEditFlags_NoInputs);
+	}
 
+	ImGui::Checkbox("Visualize wireframe", &mc.DrawWireFrame);
 	if (mc.DrawWireFrame)
 	{
 		ImGui::SameLine();

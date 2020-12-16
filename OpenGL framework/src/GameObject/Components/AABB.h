@@ -4,7 +4,6 @@ class Ray;
 class Camera;
 class Model;
 #define SIMD
-
 class AABB
 {
 	friend class BVHNode;

@@ -99,25 +99,34 @@ struct MeshComponent
 
 	MeshComponent(const std::string& path, const aiPostProcessSteps postProcessing)
 	{
+		const float h = 0.5f;
+		BoundingBox = AABB(glm::vec3(-h, -h, -h), glm::vec3(h, h, h));
+
 		auto ret = MeshManager::LoadFromFile(path, postProcessing);
 		if (ret)
 		{
 			Initialized = true;
 			MeshIdx = ret.value();
 			ShaderIdx = ShaderManager::GetShaderIdx("basic"); //TODO: determine shader automatically
+			Mesh& m = MeshManager::GetMesh(*ret);
+			BoundingBox = m.m_aabb;
 		}
 	}
 	uint32_t MeshIdx = 0;
 	uint32_t ShaderIdx = 0;
-	uint32_t Layer = 0; //layer for culling (future memes)
-
+	uint32_t Layer = 0; //layer for culling (TODO: future memes)
+	AABB BoundingBox;
 	bool Initialized = false;
+
+	//DEBUG... TODO: Delegate this to somewhere else so it doesn't pollute this struct
 	bool DrawWireFrame = false;
+	bool DrawAABB = false;
 	bool DrawNormals = false;
 	bool Enabled = true;
-	glm::vec4 WireFrameColor{ 1,1,1,1 };
+	glm::vec4 WireFrameColor{ 1, 1, 1, 1 };
+	glm::vec4 AABBcolor{ 1, 1, 0, 0.75f };
 	glm::vec4 NormalsColor{ 0,1,1,1 };
-	float NormalsMagnitude{0.2f};
+	float NormalsMagnitude{ 0.2f };
 };
 
 struct Texture2DComponent
