@@ -93,11 +93,15 @@
     <ClInclude Include="src\RenderLayer.h" />
     <ClInclude Include="src\EditorLayer.h" />
     <ClInclude Include="src\Editor.h" />
+    <ClInclude Include="src\UI Panels\UI includes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI Panels\Components\DrawCameraComponent.cpp" />
     <ClCompile Include="src\UI Panels\Components\DrawComponents.cpp" />
+    <ClCompile Include="src\UI Panels\Components\DrawMatrixComponent.cpp" />
     <ClCompile Include="src\UI Panels\Components\DrawMeshComponent.cpp" />
+    <ClCompile Include="src\UI Panels\Components\DrawTransformComponent.cpp" />
+    <ClCompile Include="src\UI Panels\Components\DrawVec3Component.cpp" />
     <ClCompile Include="src\UI Panels\InspectorPanel.cpp" />
     <ClCompile Include="src\UI Panels\SceneHierarchyPanel.cpp" />
     <ClCompile Include="src\UI Panels\ViewportPanel.cpp" />

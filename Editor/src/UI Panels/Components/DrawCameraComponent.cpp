@@ -1,8 +1,12 @@
-#include "EditorLayer.h"
+#include "UI Panels/UI includes.h"
 
-void EditorLayer::DrawUIComponent(CameraComponent& cc, entt::entity entity, const float dt)
+void DrawUIComponent(const glm::mat4& m, const  std::string& label, const float dt);
+
+
+
+void DrawUIComponent(CameraComponent& cc, entt::registry& registry, entt::entity entity, const float dt)
 {
-	auto& transf = m_Registry.get<TransformComponent>(entity);
+	auto& transf = registry.get<TransformComponent>(entity);
 	//ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Once);
 	//if (ImGui::CollapsingHeader(label.c_str(), ImGuiTreeNodeFlags_None))
 

@@ -101,14 +101,16 @@ void RenderLayer::OnImGuiRender(float dt)
 	CommandBuffer& cb = m_Editor->GetCommandBuffer();
 
 	ImGui::Begin("Renderer Debug", 0, ImGuiWindowFlags_HorizontalScrollbar);
-	//const auto size = ImGui::GetContentRegionAvail();
-	//auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(compute.GetComputeTexture().GetID()));
-	//ImGui::ImageButton(texPtr, size, ImVec2(0, 1), ImVec2(1, 0), 0);
-	ImGui::Text("Framerate: %3f", 1000.0f * dt);
-	ImGui::Text("Framebuffers");
 	bool vsync = renderer.GetVSync();
 	ImGui::Checkbox("Vsync", &vsync);
 	renderer.SetVSync(vsync);
+
+	//const auto size = ImGui::GetContentRegionAvail();
+	//auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(compute.GetComputeTexture().GetID()));
+	//ImGui::ImageButton(texPtr, size, ImVec2(0, 1), ImVec2(1, 0), 0);
+	
+	ImGui::Text("Framerate: %.3f ms / %.3f fps", 1000.0f * dt, 1.0f / dt);
+	ImGui::Text("Framebuffers");
 
 	ImGui::BeginChild("Frame buffers", { 0,0 }, true, ImGuiWindowFlags_HorizontalScrollbar); // 0.0f:left, 0.5f:center, 1.0f:right
 

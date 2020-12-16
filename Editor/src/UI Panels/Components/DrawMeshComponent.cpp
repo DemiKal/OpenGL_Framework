@@ -1,9 +1,9 @@
-#include "EditorLayer.h"
+#include "UI Panels/UI includes.h"
 
-void EditorLayer::DrawUIComponent(MeshComponent& mc, const float dt)
+void DrawUIComponent(MeshComponent& mc, const float dt)
 {
 	ImGui::SameLine(0, 30);
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { -1.0f,-1.0f });
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { -1.0f, -1.0f });
 	ImGui::Checkbox("##Enabled", &mc.Enabled);
 	ImGui::PopStyleVar();
 	ImGui::RadioButton("Initialized", mc.Initialized);

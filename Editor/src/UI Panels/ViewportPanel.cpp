@@ -4,6 +4,7 @@
 #include "RenderLayer.h"
 //#include "RenderLayer.h"
 #include "Editor.h"
+#include "Gizmos/Gizmo.h"
 
 void EditorLayer::RenderViewportPanel(float dt)
 {

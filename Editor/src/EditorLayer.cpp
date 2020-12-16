@@ -4,6 +4,14 @@
 #include "Rendering/Renderer.h"
 #include "RenderLayer.h"
 #include "Gizmos/FrustumGizmo.h"
+#include "Gizmos/Gizmo.h"
+#include "UI Panels/InspectorPanel.cpp"
+
+void DrawVec3Component(const std::string& label, glm::vec3& vec, float resetVal);
+void DrawUIComponent(const glm::mat4& m, const std::string& label, const float dt);
+void DrawUIComponent(MeshComponent& mc, const float dt);
+void DrawUIComponent(TransformComponent& t);
+void DrawUIComponent(CameraComponent& cc, entt::registry& registry, entt::entity entity, const float dt);
 
 EditorLayer::EditorLayer(meme::Editor* editor) :
 	Layer("EditorLayer"),
@@ -11,7 +19,6 @@ EditorLayer::EditorLayer(meme::Editor* editor) :
 	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)
 {
 	m_Gizmos.emplace_back(new FrustumGizmo(this));
-
 }
 
 void EditorLayer::OnAttach()
@@ -20,8 +27,7 @@ void EditorLayer::OnAttach()
 
 	FrameBufferSpecs specs = {"Editor Scene Frame"};
 	m_Editor->GetCommandBuffer().GenerateFrameBuffer(specs);
-	 
-	
+
 	const auto cube = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(cube);
 	m_Registry.emplace<TagComponent>(cube, "Cube");
@@ -512,5 +518,24 @@ void EditorLayer::DrawGizmos(const float dt)
 		tc.Rotation += deltaRot;
 		tc.Scale = scale;
 	}
+
+}
+
+void  EditorLayer::RenderInspectorPanel(const float dt)
+{
+	ImGui::Begin("Inspector");
+	if (m_Selected != entt::null)
+	{
+		DrawUIComponent<TransformComponent>("Transform", m_Registry, m_Selected,
+			[=](auto& t) {	DrawUIComponent(t);	 });
+
+		DrawUIComponent<MeshComponent>("Mesh Component", m_Registry, m_Selected,
+			[=](auto& t) {	DrawUIComponent(t, dt);	 });
+
+		DrawUIComponent<CameraComponent>("Camera Component", m_Registry, m_Selected,
+			[=](auto& t) {	DrawUIComponent(t, m_Registry, m_Selected, dt);	 });
+	}
+
+	ImGui::End();
 
 }
