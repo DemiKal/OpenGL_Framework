@@ -148,7 +148,11 @@ void BVH::Draw(const Camera& camera, const glm::mat4& transform ) const
 	//renderer.DrawInstancedCubes(GetBVHSize());
 
 	Mesh& cube = MeshManager::GetMesh(1);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_SSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_BVH_SSBO);
+
 	cube.DrawInstanced(m_PoolPtr);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void BVH::CastRay(const Ray& ray)
