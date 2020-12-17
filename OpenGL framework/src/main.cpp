@@ -8,10 +8,10 @@
 //#include <src\Editor.h>
 
 //#include "Application.h"
-//#include "Rendering/Buffer/FrameBuffer.h"
+//#include "Rendering/UpdateBuffer/FrameBuffer.h"
 //#include "Rendering/ShaderManager.h"
 //#include "Rendering/Renderer.h"
-//#include "Rendering/Buffer/Gbuffer.h"
+//#include "Rendering/UpdateBuffer/Gbuffer.h"
 //#include "GameObject/Camera.h"
 //#include "Light/LightManager.h"
 //#include "GameObject/EntityManager.h"

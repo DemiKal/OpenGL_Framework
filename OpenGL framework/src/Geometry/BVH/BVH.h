@@ -1,7 +1,7 @@
 #pragma once
 #include "Geometry/BVH/BVHNode.h"
 #include "GameObject/Components/AABB.h"
-//#include "Rendering/Buffer/SSBO.h"
+//#include "Rendering/UpdateBuffer/SSBO.h"
 
 class Renderer;
 class BVHNode;

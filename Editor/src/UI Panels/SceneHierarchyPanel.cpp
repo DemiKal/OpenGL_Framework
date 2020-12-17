@@ -5,7 +5,7 @@
 
 void AddBVHComponent(entt::registry& registry, entt::entity selected, EditorLayer* edl)
 {
-	bool hasBVH = registry.has<BVH>(selected);
+	bool hasBVH = registry.has<BVHComponent>(selected);
 	if (hasBVH) return;
 
 	MeshComponent& mc = registry.get<MeshComponent>(selected);
