@@ -52,6 +52,14 @@ void EditorLayer::OnAttach()
 
 	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
 	m_Selected = anim;
+
+	const auto helm = m_Registry.create();
+	m_Registry.emplace<TransformComponent>(helm);
+	m_Registry.emplace<TagComponent>(helm, "helm");
+	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
+	auto& mc3 = m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/PBR/damagedhelmet blender 283.glb", aiProcess_Triangulate);
+	mc3.ShaderIdx = ShaderManager::GetShaderIdx("basic");
+
 }
 
 void EditorLayer::OnDetach()

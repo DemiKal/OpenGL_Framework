@@ -11,7 +11,6 @@ void UpperLvlBVH::AddBVH(MeshComponent& mc) //TODO: meshidx or entity id?
 	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 	bvh.BuildBVH(mesh.m_PositionVertices);
 
-
 	auto size = bvh.GetBVHSize();
 	size_t prevOffset = m_Offset;
 	m_Offset += size;
@@ -34,9 +33,7 @@ void UpperLvlBVH::AddBVH(MeshComponent& mc) //TODO: meshidx or entity id?
 
 inline BVH& UpperLvlBVH::GetBVH(int i) { return m_BVHs[i]; }
 
-uint32_t UpperLvlBVH::GetBVHCount() {
-	return m_BVHs.size();
-}
+uint32_t UpperLvlBVH::GetBVHCount() { return m_BVHs.size(); }
 
 void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 {
