@@ -133,10 +133,10 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 //	glBindVertexArray(0);
 //}
 
-void BVH::Draw(const Camera& camera, const glm::mat4& transform, int offset) const
+void BVH::Draw(const Camera& camera, const glm::mat4& transform, const glm::vec4& color, int offset) const
 {
 	if (!IsBuilt()) return; //has been initialized?
-	static glm::vec4 bvhColor = { 1, 0.3 , 0.6, 1.0 };
+	//static glm::vec4 bvhColor = { 1, 0.3 , 0.6, 1.0 };
 	//ImGui::ColorEdit4("bvh color", &bvhColor[0]);
 	auto& aabbShader = ShaderManager::GetShader("AABB_instanced_SSBO");
 
@@ -145,7 +145,7 @@ void BVH::Draw(const Camera& camera, const glm::mat4& transform, int offset) con
 	aabbShader.SetUniformMat4f("u_Model", transform);
 	aabbShader.SetUniformMat4f("u_View", camera.GetViewMatrix());
 	aabbShader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
-	aabbShader.SetVec4f("u_Color", bvhColor);
+	aabbShader.SetVec4f("u_Color", color);
 	aabbShader.SetInt("u_Offset", offset);
 
 	//const uint32_t instanceCount = m_localBounds.size();

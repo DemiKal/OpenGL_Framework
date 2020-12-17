@@ -39,8 +39,11 @@ struct  Armature
 };
 struct BVHComponent
 {
-	bool Draw = true;
 	uint32_t BVHidx = 0;
+
+	//debug
+	bool Draw = true;
+	glm::vec4 DebugColor{ 0.7f, 0, 0.7f, 0.9f };
 };
 struct TransformComponent
 {
