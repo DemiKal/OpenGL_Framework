@@ -369,11 +369,18 @@ void EditorLayer::RenderScene(const float dt)
 		}
 	}
 
-	for (auto entity : m_Registry.view<BVH, TransformComponent>())
+	for (auto entity : m_Registry.view<BVHComponent, TransformComponent>())
 	{
-		auto  [bvh, transform] = m_Registry.get<BVH, TransformComponent>(entity);
-		bvh.Draw(m_EditorCamera, transform.CalcMatrix() );
+		auto  [bvhc, transform] = m_Registry.get<BVHComponent, TransformComponent>(entity);
+		
+		if (bvhc.Draw)
+		{//bvh.Draw(m_EditorCamera, transform.CalcMatrix() );
+		//	BVH& bvh = m_UpperLvlBVH->GetBVH(0);
+		//	bvh.Draw(m_EditorCamera, transform.CalcMatrix());
+			m_UpperLvlBVH->Draw(m_EditorCamera, transform.CalcMatrix(), bvhc);
+		}
 	}
+
 	//m_SceneFrame.Bind();
 
 	auto viewAnim = m_Registry.view<MeshComponent>();
@@ -518,6 +525,12 @@ void  EditorLayer::RenderInspectorPanel(const float dt)
 
 		DrawUIComponent<MeshComponent>("Mesh Component", m_Registry, m_Selected,
 			[=](auto& t) {	DrawUIComponent(t, dt);	 });
+		
+		DrawUIComponent<BVHComponent>("BVH Component", m_Registry, m_Selected,
+			[=](auto& t) 
+			{	
+				DrawUIComponent(t, this, dt);	 
+			});
 
 		DrawUIComponent<CameraComponent>("Camera Component", m_Registry, m_Selected,
 			[=](auto& t) {	DrawUIComponent(t, m_Registry, m_Selected, dt);	 });

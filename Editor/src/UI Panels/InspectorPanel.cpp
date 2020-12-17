@@ -1,10 +1,10 @@
 #include "UI Panels/UI includes.h"
-
+class EditorLayer;
  
 void DrawUIComponent(CameraComponent& cc, entt::registry& registry, entt::entity entity, const float dt);
 void DrawUIComponent(TransformComponent& t);
 void DrawUIComponent(MeshComponent& mc, const float dt);
-
+void DrawUIComponent(BVHComponent& mc, EditorLayer* edl, const float dt);
 
 template <typename T, typename uiFunc>
 void DrawUIComponent(const std::string& label, entt::registry& registry, entt::entity entity, uiFunc func)

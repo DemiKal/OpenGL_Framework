@@ -12,7 +12,7 @@ void DrawUIComponent(MeshComponent& mc, const float dt)
 	//ImGui::SameLine();
 
 	ImGui::Checkbox("Draw AABB", &mc.DrawAABB);
-	if (mc.DrawAABB)
+	if (mc.DrawAABB)	
 	{
 		ImGui::SameLine();
 		ImGui::ColorEdit4("##aabbcolor", glm::value_ptr(mc.AABBcolor), ImGuiColorEditFlags_NoInputs);

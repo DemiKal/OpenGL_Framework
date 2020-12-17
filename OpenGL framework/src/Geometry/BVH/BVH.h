@@ -47,6 +47,8 @@ public:
 	void BuildBVH(const std::vector<glm::vec4>& tris);
 	void Draw(const Camera& camera, const glm::mat4& transform) const;
 
+	void Draw(const Camera& camera, const glm::mat4& transform, int offset) const;
+
 	void CastRay(const Ray& ray);
 	void DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) const;
 	void InitTriangleRenderer();

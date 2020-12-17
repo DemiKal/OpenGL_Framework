@@ -37,7 +37,11 @@ struct  Armature
 	glm::mat4 mat;
 
 };
-
+struct BVHComponent
+{
+	bool Draw = true;
+	uint32_t BVHidx = 0;
+};
 struct TransformComponent
 {
 	//TransformComponent(const glm::mat4& transform) : Transform(transform) {};

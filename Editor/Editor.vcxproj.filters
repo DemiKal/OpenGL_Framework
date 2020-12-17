@@ -80,6 +80,9 @@
     <ClCompile Include="src\UI Panels\Components\DrawVec3Component.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\UI Panels\Components\DrawBVHComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\AABB_instanced.vert" />

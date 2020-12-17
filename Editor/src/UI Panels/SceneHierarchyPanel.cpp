@@ -3,20 +3,22 @@
 #include "EditorLayer.h"
 #include "Geometry/BVH/BVH.h"
 
-void AddBVHComponent(entt::registry& registry, entt::entity selected)
+void AddBVHComponent(entt::registry& registry, entt::entity selected, EditorLayer* edl)
 {
 	bool hasBVH = registry.has<BVH>(selected);
 	if (hasBVH) return;
 
 	MeshComponent& mc = registry.get<MeshComponent>(selected);
 	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
-	
-	BVH& bvh = registry.emplace<BVH>(selected);
-	bvh.BuildBVH(mesh.m_PositionVertices);
+
+	edl->m_UpperLvlBVH->AddBVH(mc);
+	BVHComponent& bvhc = registry.emplace<BVHComponent>(selected);
+	bvhc.BVHidx = edl->m_UpperLvlBVH->GetBVHCount() - 1;
+	//bvh.BuildBVH(mesh.m_PositionVertices);
 }
 
 //careful, selected can be invalid entity handle!
-void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selected)
+void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selected, EditorLayer* edl)
 {
 	auto& tag = registry.get<TagComponent>(entity).Name;
 
@@ -43,10 +45,10 @@ void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selec
 
 			if (registry.has<MeshComponent>(entity) && !registry.has<BVH>(entity))
 			{
-				if (ImGui::MenuItem("Add BVH"))	AddBVHComponent(registry, entity);
+				if (ImGui::MenuItem("Add BVH"))	AddBVHComponent(registry, entity, edl);
 			}
 			else ImGui::TextDisabled("Add BVH");
-			
+
 			ImGui::EndMenu();
 		}
 
@@ -76,7 +78,7 @@ void EditorLayer::RenderSceneHierarchyPanel(float dt)
 
 	m_Registry.each([&](auto ent)
 		{
-			DrawNode(m_Registry, ent, m_Selected);
+			DrawNode(m_Registry, ent, m_Selected, this);
 		});
 
 	if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered() && !ImGui::IsItemHovered())

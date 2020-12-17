@@ -4,6 +4,7 @@
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/Buffer/FrameBuffer.h"
+#include "Geometry/BVH/UpperLvlBVH.h"
 //#include "Gizmos/Gizmo.h"
 namespace meme {
 	class Editor;
@@ -23,7 +24,7 @@ public:
 	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 	std::vector<Gizmo*> m_Gizmos;
 	Texture2D m_Skybox;
-
+	std::unique_ptr<UpperLvlBVH> m_UpperLvlBVH = std::make_unique< UpperLvlBVH>();
 	EditorLayer(meme::Editor* editor);
 
 	void OnAttach() override;

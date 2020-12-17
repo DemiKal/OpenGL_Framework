@@ -96,6 +96,7 @@
     <ClInclude Include="src\UI Panels\UI includes.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\UI Panels\Components\DrawBVHComponent.cpp" />
     <ClCompile Include="src\UI Panels\Components\DrawCameraComponent.cpp" />
     <ClCompile Include="src\UI Panels\Components\DrawComponents.cpp" />
     <ClCompile Include="src\UI Panels\Components\DrawMatrixComponent.cpp" />
