@@ -20,10 +20,10 @@ void HardwareQuery::Query()
 	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
 
 
-	std::cout << "max tex size: " << max_tex_size << "\n";
-	std::cout << "max uniform locations: " << max_uniform_locations / 1024 << "kb \n";
-	std::cout << "max work group invocations: " << maxInvoc / 1024 << "kb \n";
-	printf("max work group count: %i, %i, %i ", work_grp_size[0], work_grp_size[1], work_grp_size[2]);
+	std::cout << "GL_MAX_TEXTURE_SIZE: " << max_tex_size << "\n";
+	std::cout << "GL_MAX_UNIFORM_LOCATIONS: " << max_uniform_locations / 1024 << "kb \n";
+	std::cout << "GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS: " << maxInvoc / 1024 << "kb \n";
+	printf("GL_MAX_COMPUTE_WORK_GROUP_SIZE: %i, %i, %i ", work_grp_size[0], work_grp_size[1], work_grp_size[2]);
 
 	std::cout << "--- END GPU QUERY-------------\n";
 }

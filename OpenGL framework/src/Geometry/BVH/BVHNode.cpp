@@ -14,6 +14,7 @@ void BVHNode::Subdivide(
 	BVH& bvh,
 	const std::vector<AABB>& boundingBoxes,
 	const std::vector<Triangle>& triangles,
+	const std::vector<glm::vec3>& triangleCenters,
 	const uint32_t start,
 	const uint32_t end)
 {
@@ -35,10 +36,10 @@ void BVHNode::Subdivide(
 	BVHNode& l = bvh.m_Pool[m_bounds.GetLeftFirst()];
 	BVHNode& r = bvh.m_Pool[bvh.m_PoolPtr++];
 
-	const uint32_t split = Partition(*this, bvh, boundingBoxes, start, end);
+	const uint32_t split = Partition(*this, bvh, boundingBoxes, triangleCenters, start, end);
 
-	r.Subdivide(bvh, boundingBoxes, triangles, split, end);
-	l.Subdivide(bvh, boundingBoxes, triangles, start, split);
+	r.Subdivide(bvh, boundingBoxes, triangles, triangleCenters, split, end);
+	l.Subdivide(bvh, boundingBoxes, triangles, triangleCenters, start, split);
 }
 
 bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, const unsigned nodeIdx = 0) const
@@ -84,7 +85,8 @@ AABB BVHNode::CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, cons
 
 uint32_t BVHNode::Partition(
 	const BVHNode& parent, BVH& bvh,
-	const std::vector<AABB>& boundingBoxes,
+	const std::vector<AABB>& boundingBoxes, 
+	const std::vector<glm::vec3>& triangleCenters,
 	const uint32_t start,
 	const uint32_t end) const
 {
@@ -99,7 +101,7 @@ uint32_t BVHNode::Partition(
 	else if (ylen > xlen && ylen > zlen) longestAxis = 1;
 	else if (zlen > xlen && zlen > ylen) longestAxis = 2;
 
-	auto& triangleCenters = bvh.m_TriangleCenters;
+	//auto& triangleCenters = bvh.m_TriangleCenters;
 	//sort m_Indices based on longest axis;
 
 	//tbb::parallel_sort(bvh.m_Indices.begin() + start, bvh.m_Indices.begin() + end,

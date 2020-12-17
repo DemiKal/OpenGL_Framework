@@ -12,7 +12,7 @@
 
 BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
 	m_BVH_SSBO(0),
-	m_Root(root),
+	//m_Root(root),
 	m_PoolPtr(poolPtr),
 	m_Indices(std::move(indices)),
 	m_Pool(std::move(pool))
@@ -47,9 +47,10 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
 		);
 
-	m_TriangleCenters.reserve(N);
+	std::vector < glm::vec3 > triangleCenters;
+	triangleCenters.reserve(N);
 	for (AABB& aabb : triAABBs)
-		m_TriangleCenters.push_back(aabb.GetCenter());
+		triangleCenters.emplace_back(aabb.GetCenter());
 
 
 	m_Indices.resize(N);
@@ -57,11 +58,13 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 
 	m_Pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
 	m_PoolPtr = 1;
-	m_Root = &m_Pool[0];
+	//m_Root = &m_Pool[0];
 
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
-	m_Root->Subdivide(*this, triAABBs, triangles, 0, N);
+	
+	m_Pool[0].Subdivide(*this, triAABBs, triangles, triangleCenters, 0, N);
+	
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;
 	m_Pool.resize(m_PoolPtr);
@@ -130,7 +133,7 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 //	glBindVertexArray(0);
 //}
 
-void BVH::Draw(const Camera& camera, const glm::mat4& transform ) const
+void BVH::Draw(const Camera& camera, const glm::mat4& transform) const
 {
 	if (!IsBuilt()) return; //has been initialized?
 	static glm::vec4 bvhColor = { 1, 0.3 , 0.6, 1.0 };
@@ -162,7 +165,7 @@ void BVH::CastRay(const Ray& ray)
 	if (!m_IsBuilt) return;
 
 	std::vector<HitData> hitData;
-	m_Root->Traverse(*this, ray, hitData, 0);
+	m_Pool[0].Traverse(*this, ray, hitData, 0);
 	//const glm::vec3 norm = glm::normalize(ray.Direction());
 
 	float minDistance = std::numeric_limits<float>::infinity();
