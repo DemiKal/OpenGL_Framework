@@ -215,6 +215,7 @@
     <None Include="shaders\plane.frag" />
     <None Include="shaders\plane.glsl" />
     <None Include="shaders\raytrace.comp" />
+    <None Include="shaders\raytrace2.comp" />
     <None Include="shaders\singlecolor.frag" />
     <None Include="shaders\singlecolor.vert" />
     <None Include="shaders\singledotshader.frag" />

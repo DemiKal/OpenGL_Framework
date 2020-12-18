@@ -85,7 +85,7 @@ void ShaderManager::LoadShaders(const std::string& shaderDirectory)
 	{
 		auto& [type, csSrc] = val1;
 
-		m_ComputeShaders.emplace_back(csSrc, 512, 512);
+		m_ComputeShaders.emplace_back(csSrc, 1920, 1080);
 	}
 
 	for (auto& [vertKey, vertVal] : m_VertexShaderSources)
@@ -251,7 +251,6 @@ std::string ShaderManager::ParseShader(const std::string& path)
 	std::ifstream stream(path);
 	std::string shaderString((std::istreambuf_iterator<char>(stream)), (std::istreambuf_iterator<char>()));
 	auto& inst = GetInstance();
-
 
 	inst.RemoveComments(shaderString);
 	inst.SearchAndReplace(shaderString, "#include");

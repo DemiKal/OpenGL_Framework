@@ -8,6 +8,42 @@
 
 void EditorLayer::RenderViewportPanel(float dt)
 {
+
+	ComputeShader& comp = ShaderManager::GetComputeShader("raytrace");
+	m_UpperLvlBVH->Bind();
+	static bool dispatch = false;
+
+	ImGui::Begin("Ray trace test");
+	ImGui::Checkbox("render", &dispatch);
+	Camera cam(m_EditorCamera.GetPosition(), m_EditorCamera.GetFieldOfView(), 1.0f, 
+		m_EditorCamera.GetNearPlaneDist(), m_EditorCamera.GetFarPlaneDist());
+	
+	if (dispatch) comp.Dispatch([&]()
+		{
+			comp.SetFloat("u_aspectRatio", m_EditorCamera.GetAspectRatio());
+			comp.SetFloat("u_screenWidth", 1920);
+			comp.SetFloat("u_screenHeight", 1080);
+			//comp.SetFloat("u_ambientLight", 
+			comp.SetFloat("u_epsilon", 0.001f);
+			
+			comp.SetVec3f("u_cameraPos", m_EditorCamera.GetPosition());
+			comp.SetVec3f("u_viewDir", m_EditorCamera.GetForwardVector());
+			comp.SetVec3f("u_cameraUp", m_EditorCamera.GetUpVector());
+			//comp.SetVec3f("u_lightDir", { -100,-100,0 });
+			
+			
+			comp.SetUniformMat4f("u_inv_projMatrix", glm::inverse(cam.GetProjectionMatrix()));
+			comp.SetUniformMat4f("u_inv_viewMatrix", (cam.GetViewMatrix()));
+		});
+
+	auto sz = ImGui::GetContentRegionAvail();
+	auto id1 = comp.GetComputeTexture().GetID();
+	auto* id = reinterpret_cast<void*>(static_cast<intptr_t>(id1));
+	ImGui::Image(id, sz, ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::End();
+
+
+
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
 	ImGui::Begin("##SceneView", nullptr, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);

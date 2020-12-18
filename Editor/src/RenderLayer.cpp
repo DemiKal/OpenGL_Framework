@@ -76,21 +76,20 @@ void RenderLayer::OnUpdate(float dt)
 {
 	RenderCamera();
 
-	ComputeShader& compute = ShaderManager::GetComputeShader("raytrace");
-	compute.Bind();
-	const Texture2D& computeTexture = compute.GetComputeTexture();
-	const uint32_t texW = computeTexture.GetWidth();
-	const uint32_t texH = computeTexture.GetHeight();
-	computeTexture.Bind();
-
+	//ComputeShader& compute = ShaderManager::GetComputeShader("raytrace2");
+	//compute.Bind();
+	//const Texture2D& computeTexture = compute.GetComputeTexture();
+	//const uint32_t texW = computeTexture.GetWidth();
+	//const uint32_t texH = computeTexture.GetHeight();
+	//computeTexture.Bind();
 	static bool ya = false;
-	if (!ya)
+	//	if (!ya)
 	{
-		ya = true;
-		glDispatchCompute(static_cast<GLuint>(texW), static_cast<GLuint>(texH), 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-		compute.Unbind();
-		compute.GetComputeTexture().Unbind();
+		//	ya = true;
+		//	glDispatchCompute(static_cast<GLuint>(texW), static_cast<GLuint>(texH), 1);
+		//	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		//	compute.Unbind();
+		//	compute.GetComputeTexture().Unbind();
 	}
 }
 
@@ -108,7 +107,7 @@ void RenderLayer::OnImGuiRender(float dt)
 	//const auto size = ImGui::GetContentRegionAvail();
 	//auto* texPtr = reinterpret_cast<void*>(static_cast<intptr_t>(compute.GetComputeTexture().GetID()));
 	//ImGui::ImageButton(texPtr, size, ImVec2(0, 1), ImVec2(1, 0), 0);
-	
+
 	ImGui::Text("Framerate: %.3f ms / %.3f fps", 1000.0f * dt, 1.0f / dt);
 	ImGui::Text("Framebuffers");
 
@@ -158,7 +157,7 @@ void RenderLayer::OnImGuiRender(float dt)
 		const ImVec2 rectMin = ImGui::GetItemRectMin() - ImVec2{ 3, 3 };// IM_COL32(145, 199, 180, 200)
 		const ImVec2 rectMax = ImGui::GetItemRectMax() + ImVec2{ 3, 3 };
 		ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, IM_COL32(145, 199, 180, 200));
-		ImGui::GetBackgroundDrawList()->AddRectFilledMultiColor(rectMin, rectMax, IM_COL32_BLACK, IM_COL32_BLACK,IM_COL32_WHITE, IM_COL32_WHITE);
+		ImGui::GetBackgroundDrawList()->AddRectFilledMultiColor(rectMin, rectMax, IM_COL32_BLACK, IM_COL32_BLACK, IM_COL32_WHITE, IM_COL32_WHITE);
 		ImGui::SameLine();
 	}
 

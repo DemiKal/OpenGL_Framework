@@ -53,13 +53,12 @@ void EditorLayer::OnAttach()
 	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
 	m_Selected = anim;
 
-	const auto helm = m_Registry.create();
-	m_Registry.emplace<TransformComponent>(helm);
-	m_Registry.emplace<TagComponent>(helm, "helm");
-	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
-	auto& mc3 = m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/PBR/damagedhelmet blender 283.glb", aiProcess_Triangulate);
-	mc3.ShaderIdx = ShaderManager::GetShaderIdx("basic");
-
+	//const auto helm = m_Registry.create();
+	//m_Registry.emplace<TransformComponent>(helm);
+	//m_Registry.emplace<TagComponent>(helm, "helm");
+	////m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
+	//auto& mc3 = m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/PBR/damagedhelmet blender 283.glb", aiProcess_Triangulate);
+	//mc3.ShaderIdx = ShaderManager::GetShaderIdx("basic");
 }
 
 void EditorLayer::OnDetach()
@@ -325,7 +324,7 @@ void EditorLayer::RenderScene(const float dt)
 	renderer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderer.EnableDepth();
 	renderer.SetAlphaBlending(true);
-	
+
 	RenderSkybox();
 
 	auto [fbWidth, fbHeight] = sceneFrame.GetSize2();
@@ -337,7 +336,7 @@ void EditorLayer::RenderScene(const float dt)
 		const float aspect = m_ImGuiRegionSize.x / m_ImGuiRegionSize.y;
 		m_EditorCamera.SetAspectRatio(aspect);
 	}
- 
+
 	auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
 	for (auto entity : view)
@@ -356,7 +355,6 @@ void EditorLayer::RenderScene(const float dt)
 			renderer.SetAlphaBlending(true);
 			mesh.DrawWireFrame(m_EditorCamera, mat, mc.WireFrameColor);
 			renderer.SetAlphaBlending(a);
-
 		}
 
 		if (mc.DrawNormals)
@@ -379,15 +377,17 @@ void EditorLayer::RenderScene(const float dt)
 
 	for (auto entity : m_Registry.view<BVHComponent, TransformComponent>())
 	{
-		auto  [bvhc, transform] = m_Registry.get<BVHComponent, TransformComponent>(entity);
-		
+		auto [bvhc, transform] = m_Registry.get<BVHComponent, TransformComponent>(entity);
+
 		if (bvhc.Draw)
-		{//bvh.Draw(m_EditorCamera, transform.CalcMatrix() );
-		//	BVH& bvh = m_UpperLvlBVH->GetBVH(0);
-		//	bvh.Draw(m_EditorCamera, transform.CalcMatrix());
+		{
 			m_UpperLvlBVH->Draw(m_EditorCamera, transform.CalcMatrix(), bvhc);
 		}
 	}
+
+	//ComputeShader& comp = ShaderManager::GetComputeShader("raytrace");
+
+	//m_UpperLvlBVH->Unbind();
 
 	//m_SceneFrame.Bind();
 
@@ -395,26 +395,26 @@ void EditorLayer::RenderScene(const float dt)
 	Mesh& cube = MeshManager::GetMesh(1);
 	Shader& shader = ShaderManager::GetShader("basic");
 
-	for (auto entity : viewAnim)
-	{
-
-		MeshComponent& mc = m_Registry.get<MeshComponent>(entity);
-		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
-		if (mesh.HasAnimation())
-		{
-			std::vector<glm::mat4> mats;
-			glm::mat4 a(1.0f);
-			mesh.m_animator.CalcOffsetChain(mats, a);
-
-			for (Joint& joint : mesh.m_animator.m_Bones)
-			{
-				//cube.Draw(m_EditorCamera,   (mats[joint.m_Index]) * joint.m_Offset, shader);
-			//	cube.Draw(m_EditorCamera,  (joint.m_PurePose)      * inverse(joint.m_Offset)  , shader);
-				cube.Draw(m_EditorCamera, joint.m_Reverse, shader);
-			}
-		}
-
-	}
+	//for (auto entity : viewAnim)
+	//{
+	//
+	//	MeshComponent& mc = m_Registry.get<MeshComponent>(entity);
+	//	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
+	//	if (mesh.HasAnimation())
+	//	{
+	//		std::vector<glm::mat4> mats;
+	//		glm::mat4 a(1.0f);
+	//		mesh.m_animator.CalcOffsetChain(mats, a);
+	//
+	//		for (Joint& joint : mesh.m_animator.m_Bones)
+	//		{
+	//			//cube.Draw(m_EditorCamera,   (mats[joint.m_Index]) * joint.m_Offset, shader);
+	//		//	cube.Draw(m_EditorCamera,  (joint.m_PurePose)      * inverse(joint.m_Offset)  , shader);
+	//			cube.Draw(m_EditorCamera, joint.m_Reverse, shader);
+	//		}
+	//	}
+	//
+	//}
 
 
 	sceneFrame.Unbind();
@@ -529,19 +529,19 @@ void  EditorLayer::RenderInspectorPanel(const float dt)
 	if (m_Selected != entt::null)
 	{
 		DrawUIComponent<TransformComponent>("Transform", m_Registry, m_Selected,
-			[=](auto& t) {	DrawUIComponent(t);	 });
+			[&](auto& t) {	DrawUIComponent(t);	 });
 
 		DrawUIComponent<MeshComponent>("Mesh Component", m_Registry, m_Selected,
-			[=](auto& t) {	DrawUIComponent(t, dt);	 });
-		
+			[&](auto& t) {	DrawUIComponent(t, dt);	 });
+
 		DrawUIComponent<BVHComponent>("BVH Component", m_Registry, m_Selected,
-			[=](auto& t) 
-			{	
-				DrawUIComponent(t, this, dt);	 
+			[&](auto& t)
+			{
+				DrawUIComponent(t, this, dt);
 			});
 
 		DrawUIComponent<CameraComponent>("Camera Component", m_Registry, m_Selected,
-			[=](auto& t) {	DrawUIComponent(t, m_Registry, m_Selected, dt);	 });
+			[&](auto& t) {	DrawUIComponent(t, m_Registry, m_Selected, dt);	 });
 	}
 
 	ImGui::End();

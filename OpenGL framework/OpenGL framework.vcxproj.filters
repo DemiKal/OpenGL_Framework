@@ -242,6 +242,7 @@
     <None Include="shaders\raytrace.comp" />
     <None Include="shaders\AABB_instanced_SSBO.frag" />
     <None Include="shaders\AABB_instanced_SSBO.vert" />
+    <None Include="shaders\raytrace2.comp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\glm\detail\type_gentype.hpp">

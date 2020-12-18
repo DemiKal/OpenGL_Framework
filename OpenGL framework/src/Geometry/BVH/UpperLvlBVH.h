@@ -16,13 +16,19 @@ class UpperLvlBVH
 	size_t m_Offset = 0;
 	size_t m_Reserved = 3000;
 	uint32_t m_BVH_SSBO = 0;
+	uint32_t m_BVH_Index_SSBO = 0;
+	uint32_t m_BVH_Triangle_SSBO = 0;
 	std::vector<BVH> m_BVHs;
 	std::vector<BVHNode> m_BVHBuffer;
 	std::vector<uint32_t> m_BVHIndexBuffer;
+	std::vector<glm::vec4> m_BVHTriangleBuffer;
+	
 	void UpdateBuffer(size_t start, size_t end);
 
 public:
-	void InitBuffers(void* data);
+	void InitBuffers(void* dataBVH, void* dataIndex, void* dataTriangle);
+	void Unbind();
+	void Bind(uint32_t BVHIdx = 0, uint32_t indexBufferIdx = 1, uint32_t triangleBufferIndex = 2);
 	UpperLvlBVH();
 	void Draw(Camera& camera, const glm::mat4& transform, BVHComponent& bvhc);
 	void AddBVH(MeshComponent& mc);

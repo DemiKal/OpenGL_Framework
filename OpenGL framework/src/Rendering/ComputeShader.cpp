@@ -2,6 +2,23 @@
 #include "ComputeShader.h"
 #include "GameObject/Components/Texture2D.h"
 
+//template <typename func>
+//void ComputeShader::Dispatch(func f)
+//{
+//	Bind();
+//	f();
+//	uint32_t w = m_AttachedImages[0].GetWidth();
+//	uint32_t h = m_AttachedImages[0].GetHeight();
+//	glDispatchCompute(w, h, 1);
+//
+//
+//	//glUseProgram(0);
+//	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+//
+//}
+
+
+
 ComputeShader::ComputeShader(const std::string& filepath, uint32_t width, uint32_t height)
 {
 	m_ShaderType = ShaderType::COMPUTE;
