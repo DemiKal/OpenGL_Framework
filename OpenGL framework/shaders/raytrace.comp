@@ -2,6 +2,7 @@
 #version 430 core
 layout(local_size_x = 8, local_size_y = 8) in;
 layout(rgba32f, binding = 0) uniform image2D img_output;
+layout(binding = 1) uniform sampler2D  texture_diffuse1;
 
 
 const int StackSize = 32;
@@ -28,15 +29,17 @@ uniform vec3 u_lightDir;
 uniform mat4 u_inv_projMatrix;
 uniform mat4 u_inv_viewMatrix; 
 
-layout(binding = 0) uniform sampler2D gPosition;
-layout(binding = 1) uniform sampler2D gNormal;
-layout(binding = 2) uniform sampler2D gAlbedoSpec;
-layout(binding = 3) uniform sampler2D zBuffer;
+//layout(binding = 0) uniform sampler2D gPosition;
+//layout(binding = 1) uniform sampler2D gNormal;
+//layout(binding = 2) uniform sampler2D gAlbedoSpec;
+//layout(binding = 3) uniform sampler2D zBuffer;
 
 
 struct Triangle { vec4 A, B, C;};
 
 struct BVHNode { vec4 m_min; vec4 m_max; };
+
+struct UV { vec2 a, b, c; };
 
 layout (std430,  binding = 0) readonly buffer BVH_buffer 
 {
@@ -53,6 +56,10 @@ layout (std430, binding = 2) readonly buffer Triangle_buffer
 	Triangle triangles[] ;	
 };
 
+layout (std430, binding = 3) readonly buffer Texcoord_buffer
+{
+	UV texcoords [] ;	
+};
 
 
 struct AABB
@@ -166,7 +173,7 @@ struct BVHhit
 	float u;
 	float v;
 	float t;
-	int triIdx;
+	uint triIdx;
 	int bbIdx;
 };
  
@@ -190,10 +197,10 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	float t = 999999.f;
 	float _u = 0;
 	float _v = 0; 
-	
+	uint tri_idx = 0;
 	//loop---------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------
-	while (currentIdx > 0 && currentIdx < StackSize && !hasHit )
+	while (currentIdx > 0 && currentIdx < StackSize )
 	{
 		uint bboxIdx = stackPtr[currentIdx - 1];
 		currentIdx--;
@@ -226,13 +233,13 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 				for (int i = 0; i < childCount; i++)
 				{
 					uint j = nodeStart + i; 
-					
+
 					uint tIdx = tri_indices[j];
 					
 					vec3 v0 = triangles[tIdx].A.xyz;
 					vec3 v1 = triangles[tIdx].B.xyz;
 					vec3 v2 = triangles[tIdx].C.xyz;
-					 
+
 					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
 
 					float newT = Thit.dist;
@@ -244,6 +251,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 							t = newT;
 							_u = Thit.u;
 							_v = Thit.v;
+							tri_idx = tIdx;
 						}
 					} 
 				}
@@ -255,7 +263,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 	result.v = _v;
 	result.t = t;
 	result.hasHit = hasHit; 
-
+	result.triIdx = tri_idx;
 	return result;
 }
 
@@ -307,7 +315,12 @@ void main()
 	BVHhit bvhR = TraverseBVH(rayPos, rayDir);
 	if(bvhR.hasHit)
 	{
-		finalColor = vec4(bvhR.u,bvhR.v, 1, 1);	
+		//finalColor = vec4(bvhR.u,bvhR.v, 1, 1);	
+		UV tc = texcoords[bvhR.triIdx];
+		float u = bvhR.u;
+		float v = bvhR.v;
+		vec2 uv = tc.a * (1.0 - (u + v)) + tc.b * (u) + (v ) * tc.c;
+		finalColor = texture(texture_diffuse1, vec2( uv.x, uv.y)).rgba;
 	}
 	
 	imageStore(img_output, ivec2(gl_GlobalInvocationID), finalColor);

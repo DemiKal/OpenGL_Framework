@@ -23,7 +23,7 @@ class UpperLvlBVH
 	std::vector<BVHNode> m_BVHBuffer;
 	std::vector<uint32_t> m_BVHIndexBuffer;
 	std::vector<glm::vec4> m_BVHTriangleBuffer;
-	std::vector<std::array<glm::vec4, 3>> m_BVHTexcoordBuffer;
+	std::vector<std::array<glm::vec2, 3>> m_BVHTexcoordBuffer;
 	
 	void UpdateBuffer(size_t start, size_t end);
 

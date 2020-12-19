@@ -39,7 +39,7 @@ void EditorLayer::OnAttach()
 
 	const auto spyro = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(spyro);
-	m_Registry.emplace<TagComponent>(spyro, "Spyro the Dragon");
+	m_Registry.emplace<TagComponent>(spyro, "Spyro");
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
 	m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/spyro/spyro.obj", aiProcess_Triangulate);

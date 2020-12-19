@@ -15,9 +15,22 @@ void EditorLayer::RenderViewportPanel(float dt)
 
 	ImGui::Begin("Ray trace test");
 	ImGui::Checkbox("render", &dispatch);
-	
+	Texture2D* spyrotex = nullptr;
+	for(auto entity : m_Registry.view<TagComponent, MeshComponent>())
+	{
+		const auto& [tc, mc] = m_Registry.get<TagComponent, MeshComponent>(entity);
+		if (tc.Name.data() == "Spyro")
+		{
+			Mesh& m = MeshManager::GetMesh(mc.MeshIdx);
+			//.Bind
+			spyrotex = &m.m_Textures[0];
+		}
+	}
+
 	if (dispatch) comp.Dispatch([&]()
 		{
+			spyrotex->Bind(1);
+
 			comp.SetFloat("u_aspectRatio", m_EditorCamera.GetAspectRatio());
 			comp.SetFloat("u_screenWidth", 1920);
 			comp.SetFloat("u_screenHeight", 1080);
@@ -35,6 +48,7 @@ void EditorLayer::RenderViewportPanel(float dt)
 			comp.SetUniformMat4f("u_inv_projMatrix", glm::inverse(p));
 			comp.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(v));
 		});
+	spyrotex->Unbind();
 
 	auto sz = ImGui::GetContentRegionAvail();
 	auto id1 = comp.GetComputeTexture().GetID();

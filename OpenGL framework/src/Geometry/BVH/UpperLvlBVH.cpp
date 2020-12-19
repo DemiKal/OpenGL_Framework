@@ -33,6 +33,8 @@ void UpperLvlBVH::AddBVH(MeshComponent& mc) //TODO: meshidx or entity id?
 	//bvh.EndIndicesOffset = m_BVHIndexBuffer.size();
 
 
+	std::copy(mesh.m_UVs.begin(), mesh.m_UVs.end(), std::back_inserter(m_BVHTexcoordBuffer));
+	
 	m_BVHs.emplace_back(bvh);
 	UpdateBuffer(prevOffset, m_Offset);
 }
@@ -68,9 +70,8 @@ void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Texcoord_SSBO);
-	glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * 3 * (start), sizeof(glm::vec4) * 3 * (end), &m_BVHTexcoordBuffer[start]);
+	glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec2) * 3 * (start), sizeof(glm::vec2) * 3 * (end), &m_BVHTexcoordBuffer[start]);
 
-	m_UVs
 
 }
 
@@ -85,12 +86,12 @@ void UpperLvlBVH::InitBuffers(void* dataBVH, void* dataIndex, void* dataTriangle
 		glDeleteBuffers(1, &m_BVH_Index_SSBO);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 		glDeleteBuffers(1, &m_BVH_Triangle_SSBO);
-
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-
-
+		glDeleteBuffers(1, &m_BVH_Texcoord_SSBO);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
+
 	const unsigned int poolSizeBVH = sizeof(BVHNode) * m_Reserved;
 	glGenBuffers(1, &m_BVH_SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_SSBO);
@@ -103,7 +104,7 @@ void UpperLvlBVH::InitBuffers(void* dataBVH, void* dataIndex, void* dataTriangle
 	glGenBuffers(1, &m_BVH_Index_SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Index_SSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSizeBVHIndexBuffer, dataIndex, GL_DYNAMIC_COPY);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_BVH_Index_SSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_BVH_Index_SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 
@@ -111,8 +112,16 @@ void UpperLvlBVH::InitBuffers(void* dataBVH, void* dataIndex, void* dataTriangle
 	glGenBuffers(1, &m_BVH_Triangle_SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Triangle_SSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSizeBVHTriangleBuffer, dataTriangle, GL_DYNAMIC_COPY);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_BVH_Triangle_SSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_BVH_Triangle_SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	const unsigned int poolSizeBVHTexcoordBuffer = sizeof(glm::vec2) * 3 * m_Reserved;
+	glGenBuffers(1, &m_BVH_Texcoord_SSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Texcoord_SSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, poolSizeBVHTexcoordBuffer, dataTriangle, GL_DYNAMIC_COPY);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_BVH_Texcoord_SSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
 
 }
 
@@ -131,6 +140,8 @@ void UpperLvlBVH::Bind(uint32_t BVHIdx, uint32_t indexBufferIdx, uint32_t triang
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Triangle_SSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, triangleBufferIndex, m_BVH_Triangle_SSBO);
 
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Texcoord_SSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_BVH_Texcoord_SSBO);
 
 }
 
