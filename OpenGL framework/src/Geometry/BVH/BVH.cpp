@@ -83,11 +83,11 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 	std::map<uint32_t, BVHNode> m;
 	for (auto& node : m_Pool)
 	{
-		uint32_t count = node.m_bounds.GetCount();
+		uint32_t count = node.GetCount();
 		if (count <= 2)
 		{
-			fmt::print("idx {}, leftfirst: {}, count: {}\n", i, node.m_bounds.GetLeftFirst(), count);
-		m[node.m_bounds.GetLeftFirst()] = node;
+			fmt::print("idx {}, leftfirst: {}, count: {}\n", i, node.GetLeftFirst(), count);
+		m[node.GetLeftFirst()] = node;
 
 		}i++;
 	}
@@ -95,7 +95,7 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 	i = 0;
 	for (auto &[k, v] : m)
 	{
-		fmt::print("[lf: {}]. Node: idx {}, leftfirst: {}, count: {}\n",  k, i++, v.m_bounds.GetLeftFirst(), v.m_bounds.GetCount());
+		fmt::print("[lf: {}]. Node: idx {}, leftfirst: {}, count: {}\n",  k, i++, v.GetLeftFirst(), v.GetCount());
 	}
 
 	CreateBuffers(triangles);
@@ -198,13 +198,13 @@ void BVH::CastRay(const Ray& ray)
 		for (HitData& hd : hitData)
 		{
 			BVHNode& node = m_Pool[hd.nodeIdx];
-			const int nrTris = node.m_bounds.GetCount();
+			const uint32_t nrTris = node.GetCount();
 			//node.m_bounds.Draw(*Camera::GetMain(), { 1.0f, 1.0f, 1.0f, 1.0f });
 
-			for (int i = 0; i < nrTris; i++)
+			for (uint32_t i = 0; i < nrTris; i++)
 			{
-				const int j = node.m_bounds.GetLeftFirst() + i;
-				const int triIdx = m_Indices[j];
+				const uint32_t j = node.GetLeftFirst() + i;
+				const uint32_t triIdx = m_Indices[j];
 				const Triangle& triangle = triangles[triIdx];
 				glm::vec2 baryCentric;
 				float distance;;

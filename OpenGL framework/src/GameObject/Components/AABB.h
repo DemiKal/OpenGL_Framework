@@ -76,14 +76,7 @@ public:
 
 	[[nodiscard]] glm::vec3 GetCenter() const;
 
-	[[nodiscard]] glm::vec3 Min() const;;
-	[[nodiscard]] glm::vec3 Max() const;;
-	[[nodiscard]] uint32_t GetCount() const;;
-	[[nodiscard]] uint32_t GetLeftFirst() const;;
-
-	void SetCount(const uint32_t cnt);;
-	void SetLeftFirst(const uint32_t lf);;
-
-
+	[[nodiscard]] glm::vec3 Min() const;
+	[[nodiscard]] glm::vec3 Max() const;
 };
 

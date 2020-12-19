@@ -102,26 +102,6 @@ glm::vec3 AABB::Max() const
 	return max;
 }
 
-uint32_t AABB::GetCount() const
-{
-	return m_count;
-}
-
-uint32_t AABB::GetLeftFirst() const
-{
-	return m_leftFirst;
-}
-
-void AABB::SetCount(const uint32_t cnt)
-{
-	m_count = cnt;
-}
-
-void AABB::SetLeftFirst(const uint32_t lf)
-{
-	m_leftFirst = lf;
-}
-
 
 inline std::vector<glm::vec4> AABB::GetVerticesLocal() const
 {

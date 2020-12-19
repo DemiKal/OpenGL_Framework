@@ -23,19 +23,19 @@ void BVHNode::Subdivide(
 	const uint32_t objCount = end - start;
 	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
 	//m_bounds.m_count = objCount;
-	m_bounds.SetCount(objCount);
+	SetCount(objCount);
 	if (objCount <= 2)
 	{
 		//m_bounds.m_leftFirst = start;
-		m_bounds.SetLeftFirst(recursionCount);
+		SetLeftFirst(recursionCount);
 		recursionCount += objCount;
 		return; //TODO: SET LEAF COUNT DYNAMICALLY!
 	}
 
-	m_bounds.SetLeftFirst(bvh.m_PoolPtr++);
+	SetLeftFirst(bvh.m_PoolPtr++);
 
 
-	BVHNode& l = bvh.m_Pool[m_bounds.GetLeftFirst()];
+	BVHNode& l = bvh.m_Pool[GetLeftFirst()];
 	BVHNode& r = bvh.m_Pool[bvh.m_PoolPtr++];
 
 	const uint32_t split = Partition(*this, bvh, boundingBoxes, triangleCenters, start, end);
@@ -53,7 +53,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 	if (i)
 	{
 		//leaf
-		if (m_bounds.GetCount() <= 2)
+		if ( GetCount() <= 2)
 		{
 			hitData.emplace_back(HitData(tCurrent, nodeIdx)); //TODO COMPOSE HIT DATA
 			return true;
@@ -61,7 +61,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 
 		else //traverse children
 		{
-			const int leftChild = m_bounds.GetLeftFirst();
+			const int leftChild = GetLeftFirst();
 			const int rightChild = leftChild + 1;
 			const bool l = bvh.m_Pool[leftChild].Traverse(bvh, ray, hitData, leftChild);
 			const bool r = bvh.m_Pool[rightChild].Traverse(bvh, ray, hitData, rightChild);
@@ -92,7 +92,7 @@ uint32_t BVHNode::Partition(
 	const uint32_t start,
 	const uint32_t end) const
 {
-	const float sahParent = parent.m_bounds.CalcSurfaceArea() * parent.m_bounds.GetCount();
+	const float sahParent = parent.m_bounds.CalcSurfaceArea() * parent .GetCount();
 	uint32_t longestAxis = 0;
 
 	const float xlen = std::abs(parent.m_bounds.max.x - parent.m_bounds.min.x);

@@ -71,10 +71,7 @@ void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 	//
 	//GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Texcoord_SSBO));
 	//GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec2) * 3 * (start), sizeof(glm::vec2) * 3 * (end), &m_BVHTexcoordBuffer[start]));
-
-
 }
-
 
 void UpperLvlBVH::InitBuffers()
 {
