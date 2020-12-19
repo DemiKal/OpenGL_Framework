@@ -62,9 +62,9 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
-	
-	m_Pool[0].Subdivide(*this, triAABBs, triangles, triangleCenters, 0, N);
-	
+	uint32_t idx = 0;
+	m_Pool[0].Subdivide(*this, triAABBs, triangles, triangleCenters, 0, N, idx);
+
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;
 	m_Pool.resize(m_PoolPtr);
@@ -78,6 +78,25 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 	fmt::print("Time: {0} ms\n", build_ms.count());
 	fmt::print("triangles per second: {0}\n", N / (build_ms.count() * 1000.0f));
 	fmt::print("triangles per ms: {0}\n", (N / build_ms.count()));
+
+	int i = 0;
+	std::map<uint32_t, BVHNode> m;
+	for (auto& node : m_Pool)
+	{
+		uint32_t count = node.m_bounds.GetCount();
+		if (count <= 2)
+		{
+			fmt::print("idx {}, leftfirst: {}, count: {}\n", i, node.m_bounds.GetLeftFirst(), count);
+		m[node.m_bounds.GetLeftFirst()] = node;
+
+		}i++;
+	}
+	fmt::print("yabadabadoooooooooo\n");
+	i = 0;
+	for (auto &[k, v] : m)
+	{
+		fmt::print("[lf: {}]. Node: idx {}, leftfirst: {}, count: {}\n",  k, i++, v.m_bounds.GetLeftFirst(), v.m_bounds.GetCount());
+	}
 
 	CreateBuffers(triangles);
 	m_IsBuilt = true;

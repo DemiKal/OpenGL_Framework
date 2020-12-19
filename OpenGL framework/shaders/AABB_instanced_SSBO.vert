@@ -1,5 +1,5 @@
 #version 430 core
-
+const uint LEAFCOUNT = 2;
 //shades a wired aabb with just the edges + instanced  with SSBO
 layout(location = 0) in vec3 a_Pos;
 
@@ -15,7 +15,12 @@ uniform int u_Offset;
 void main() 
 {
 	AABB bounds = AABB_buffer[u_Offset + gl_InstanceID];
-	vec3 scale = bounds.bbmax.xyz  - bounds.bbmin.xyz;
+	uint childCount = floatBitsToUint(bounds.bbmax.w);
+	vec3 scale = vec3(0, 0,0);
+	
+	if(childCount <= LEAFCOUNT) //only draw leaf nodes
+		scale = bounds.bbmax.xyz - bounds.bbmin.xyz;
 	vec3 center = 0.5f * (bounds.bbmax.xyz + bounds.bbmin.xyz);
+
 	gl_Position = u_Projection * u_View * u_Model * vec4( a_Pos * scale + center, 1.0f);
 };

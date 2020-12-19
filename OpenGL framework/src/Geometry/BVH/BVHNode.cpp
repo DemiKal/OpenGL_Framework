@@ -16,7 +16,8 @@ void BVHNode::Subdivide(
 	const std::vector<Triangle>& triangles,
 	const std::vector<glm::vec3>& triangleCenters,
 	const uint32_t start,
-	const uint32_t end)
+	const uint32_t end,
+	uint32_t& recursionCount)
 {
 	bvh.m_Count++;
 	const uint32_t objCount = end - start;
@@ -26,7 +27,8 @@ void BVHNode::Subdivide(
 	if (objCount <= 2)
 	{
 		//m_bounds.m_leftFirst = start;
-		m_bounds.SetLeftFirst(start);
+		m_bounds.SetLeftFirst(recursionCount);
+		recursionCount += objCount;
 		return; //TODO: SET LEAF COUNT DYNAMICALLY!
 	}
 
@@ -38,8 +40,8 @@ void BVHNode::Subdivide(
 
 	const uint32_t split = Partition(*this, bvh, boundingBoxes, triangleCenters, start, end);
 
-	r.Subdivide(bvh, boundingBoxes, triangles, triangleCenters, split, end);
-	l.Subdivide(bvh, boundingBoxes, triangles, triangleCenters, start, split);
+	l.Subdivide(bvh, boundingBoxes, triangles, triangleCenters, start, split, recursionCount);
+	r.Subdivide(bvh, boundingBoxes, triangles, triangleCenters, split, end,  recursionCount);
 }
 
 bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, const unsigned nodeIdx = 0) const

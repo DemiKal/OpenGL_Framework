@@ -1,5 +1,6 @@
 #pragma once
 #include "Geometry/BVH/BVH.h"
+#include "Rendering/Buffer/SSBO.h"
 
 // Upper level BVH, this holds references to all BVHs it owns 
 // Bvh data is put here in a contiguous array for all BVHs it owns
@@ -15,20 +16,20 @@ class UpperLvlBVH
 	size_t m_Size = 0;	
 	size_t m_Offset = 0;
 	size_t m_Reserved = 3000;
-	uint32_t m_BVH_SSBO = 0;
-	uint32_t m_BVH_Index_SSBO = 0;
-	uint32_t m_BVH_Triangle_SSBO = 0;
-	uint32_t m_BVH_Texcoord_SSBO = 0;
 	std::vector<BVH> m_BVHs;
 	std::vector<BVHNode> m_BVHBuffer;
 	std::vector<uint32_t> m_BVHIndexBuffer;
 	std::vector<glm::vec4> m_BVHTriangleBuffer;
 	std::vector<std::array<glm::vec2, 3>> m_BVHTexcoordBuffer;
-	
+	SSBO m_BVHBufferSSBO;
+	SSBO m_IndexBuffer;
+	SSBO m_TriangleBuffer;
+	SSBO m_TexcoordBuffer;
+
 	void UpdateBuffer(size_t start, size_t end);
 
 public:
-	void InitBuffers(void* dataBVH, void* dataIndex, void* dataTriangle);
+	void InitBuffers();
 	void Unbind();
 	void Bind(uint32_t BVHIdx = 0, uint32_t indexBufferIdx = 1, uint32_t triangleBufferIndex = 2);
 	UpperLvlBVH();
