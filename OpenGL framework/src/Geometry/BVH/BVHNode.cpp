@@ -10,18 +10,11 @@ BVHNode::BVHNode()
 {
 }
 
-void BVHNode::Subdivide(
-	BVH& bvh,
-	const std::vector<AABB>& boundingBoxes,
-	const std::vector<Triangle>& triangles,
-	const std::vector<glm::vec3>& triangleCenters,
-	const uint32_t start,
-	const uint32_t end,
-	uint32_t& recursionCount)
+void BVHNode::Subdivide(BVH& bvh, uint32_t start, uint32_t end, uint32_t& recursionCount)
 {
 	bvh.m_Count++;
 	const uint32_t objCount = end - start;
-	m_bounds = CalculateAABB(bvh, boundingBoxes, start, end);
+	m_bounds = CalculateAABB(bvh, start, end);
 	//m_bounds.m_count = objCount;
 	SetCount(objCount);
 	if (objCount <= 2)
@@ -38,10 +31,10 @@ void BVHNode::Subdivide(
 	BVHNode& l = bvh.m_Pool[GetLeftFirst()];
 	BVHNode& r = bvh.m_Pool[bvh.m_PoolPtr++];
 
-	const uint32_t split = Partition(*this, bvh, boundingBoxes, triangleCenters, start, end);
+	const uint32_t split = Partition(*this, bvh, start, end);
 
-	l.Subdivide(bvh, boundingBoxes, triangles, triangleCenters, start, split, recursionCount);
-	r.Subdivide(bvh, boundingBoxes, triangles, triangleCenters, split, end,  recursionCount);
+	l.Subdivide(bvh, start, split, recursionCount);
+	r.Subdivide(bvh, split, end, recursionCount);
 }
 
 bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, const unsigned nodeIdx = 0) const
@@ -53,7 +46,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 	if (i)
 	{
 		//leaf
-		if ( GetCount() <= 2)
+		if (GetCount() <= 2)
 		{
 			hitData.emplace_back(HitData(tCurrent, nodeIdx)); //TODO COMPOSE HIT DATA
 			return true;
@@ -72,27 +65,22 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 }
 
 
-AABB BVHNode::CalculateAABB(const BVH& bvh, const std::vector<AABB>& AABBs, const unsigned int first, const unsigned int last)
+AABB BVHNode::CalculateAABB(const BVH& bvh, const uint32_t first, const uint32_t last)
 {
-	AABB sAABB = AABBs[bvh.m_Indices[first]];
+	AABB sAABB = bvh.m_AABBS[bvh.m_Indices[first]];
 	for (unsigned int i = first + 1; i < last; i++)
 	{
 		const int idx = bvh.m_Indices[i];
-		sAABB = sAABB.Union(AABBs[idx]);
+		sAABB = sAABB.Union(bvh.m_AABBS[idx]);
 	}
 
 	return sAABB;
 }
 
 
-uint32_t BVHNode::Partition(
-	const BVHNode& parent, BVH& bvh,
-	const std::vector<AABB>& boundingBoxes, 
-	const std::vector<glm::vec3>& triangleCenters,
-	const uint32_t start,
-	const uint32_t end) const
+uint32_t BVHNode::Partition(const BVHNode& parent, BVH& bvh, const uint32_t start, const uint32_t end) const
 {
-	const float sahParent = parent.m_bounds.CalcSurfaceArea() * parent .GetCount();
+	const float sahParent = parent.m_bounds.CalcSurfaceArea() * parent.GetCount();
 	uint32_t longestAxis = 0;
 
 	const float xlen = std::abs(parent.m_bounds.max.x - parent.m_bounds.min.x);
@@ -113,27 +101,27 @@ uint32_t BVHNode::Partition(
 	//	});
 
 
-	 std::sort(bvh.m_Indices.begin() + start, bvh.m_Indices.begin() + end,
-	 	[&triangleCenters, longestAxis](const uint32_t a, const uint32_t b) -> bool 
-	 	{
-	 		return triangleCenters[a][longestAxis] < triangleCenters[b][longestAxis];
-	 	});
+	std::sort(bvh.m_Indices.begin() + start, bvh.m_Indices.begin() + end,
+		[&](const uint32_t a, const uint32_t b) -> bool
+		{
+			return bvh.m_TriangleCenters[a][longestAxis] < bvh.m_TriangleCenters[b][longestAxis];
+		});
 
 	//get lowest SAH
 	float bestSAH = sahParent;
 	uint32_t splitIdx = start + 1;	//index is first triangle of right box
-	AABB leftBox = boundingBoxes[bvh.m_Indices[start]];
+	AABB leftBox = bvh.m_AABBS[bvh.m_Indices[start]];
 	const uint32_t range = end - start;
 
 	std::vector<AABB> rightBoxes;
 	rightBoxes.reserve(range - 1);
 
-	AABB rightBox = boundingBoxes[bvh.m_Indices[end - 1]];
+	AABB rightBox = bvh.m_AABBS[bvh.m_Indices[end - 1]];
 	rightBoxes.emplace_back(rightBox);
 
 	for (uint32_t k = end - 2; k >= splitIdx; k--)
 	{
-		rightBox = rightBox.Union(boundingBoxes[bvh.m_Indices[k]]);
+		rightBox = rightBox.Union(bvh.m_AABBS[bvh.m_Indices[k]]);
 		rightBoxes.push_back(rightBox);
 	}
 
@@ -143,7 +131,7 @@ uint32_t BVHNode::Partition(
 	{
 		const uint32_t countRight = range - countLeft;
 
-		leftBox = leftBox.Union(boundingBoxes[bvh.m_Indices[rightFirstIdx - 1]]);
+		leftBox = leftBox.Union(bvh.m_AABBS[bvh.m_Indices[rightFirstIdx - 1]]);
 		const float SAH_left = leftBox.CalcSurfaceArea() * countLeft;
 
 		const AABB rBox = rightBoxes[countRight - 1];
@@ -165,7 +153,7 @@ uint32_t BVHNode::Partition(
 
 inline float BVHNode::CombineSAH(BVH& bvh, const std::vector<AABB>& boundingBoxes, const uint32_t start, const uint32_t end)
 {
-	const AABB box = CalculateAABB(bvh, boundingBoxes, start, end);
+	const AABB box = CalculateAABB(bvh, start, end);
 	const uint32_t count = end - start;
 	const float surfaceArea = box.CalcSurfaceArea();
 	return surfaceArea * count;

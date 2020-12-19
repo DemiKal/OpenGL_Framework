@@ -3,7 +3,7 @@
 #include "GameObject/Components/Mesh.h"
 #include "GameObject/Components/EntityComponents.h"
 
-void UpperLvlBVH::AddBVH(MeshComponent& mc) //TODO: meshidx or entity id?
+void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComponent& mc) //TODO: meshidx or entity id?
 {
 	//const std::vector<glm::vec4> vertexData, uint32_t meshIdx
 	BVH bvh;
@@ -32,11 +32,13 @@ void UpperLvlBVH::AddBVH(MeshComponent& mc) //TODO: meshidx or entity id?
 	std::copy(mesh.m_PositionVertices.begin(), mesh.m_PositionVertices.end(), std::back_inserter(m_BVHTriangleBuffer));
 	//bvh.EndIndicesOffset = m_BVHIndexBuffer.size();
 
-
 	std::copy(mesh.m_UVs.begin(), mesh.m_UVs.end(), std::back_inserter(m_BVHTexcoordBuffer));
 
 	m_BVHs.emplace_back(bvh);
 	UpdateBuffer(prevOffset, m_Offset);
+
+	m_TopBVHBuffer.push_back({ mc.BoundingBox, glm::mat4(1.0f) });
+	UpdateTopBVH(registry);
 }
 
 inline BVH& UpperLvlBVH::GetBVH(int i) { return m_BVHs[i]; }
@@ -73,12 +75,35 @@ void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 	//GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec2) * 3 * (start), sizeof(glm::vec2) * 3 * (end), &m_BVHTexcoordBuffer[start]));
 }
 
+inline void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
+{
+	//for (MeshComponent& mc : m_Meshrefs)
+	//{
+	//	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
+	//
+	//}
+	BVH bvh;
+	
+	auto view = registry.view<TransformComponent, MeshComponent, BVHComponent>();
+
+	for (auto entity : view)
+	{
+		const auto& [tc, mc, bvhc] = registry.get<TransformComponent, MeshComponent, BVHComponent>(entity);
+		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
+		auto idx = bvhc.BVHidx;
+		m_TopBVHBuffer[idx].InverseMat = glm::inverse(tc.CalcMatrix());
+	}
+
+	//bvh.BuildBVH()
+
+}
+
 void UpperLvlBVH::InitBuffers()
 {
 	uint32_t elemCount = m_BVHBuffer.size();
 	
 	m_BVHBufferSSBO.Init(	m_BVHBuffer.data(),			sizeof(BVHNode),		elemCount, 0);
-	m_IndexBuffer.Init(		m_BVHIndexBuffer.data(),	sizeof(uint32_t) * 3,	elemCount, 1);
+	m_IndexBuffer.Init(		m_BVHIndexBuffer.data(),	sizeof(uint32_t)  * 3,	elemCount, 1);
 	m_TriangleBuffer.Init(	m_BVHTriangleBuffer.data(),	sizeof(glm::vec4) * 3,	elemCount, 2);
 	m_TexcoordBuffer.Init(	m_BVHTexcoordBuffer.data(),	sizeof(glm::vec2) * 3,	elemCount, 3);
 

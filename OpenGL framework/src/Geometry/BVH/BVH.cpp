@@ -19,13 +19,39 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 {
 }
 
+
+void BVH::BuildTopLevelBVH(const std::vector<TopNode>& nodes)
+{
+	//if (nodes.empty())
+	//{
+	//	fmt::print("Error, Triangle list is empty! Cancelling build");
+	//	return;
+	//}
+	//
+	//const uint32_t N = static_cast<uint32_t>(nodes.size());	//WARNING: max is 4G tris!
+	//
+	//
+	//m_Indices.resize(N);
+	//std::iota(m_Indices.begin(), m_Indices.end(), 0);
+	//
+	//m_Pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
+	//m_PoolPtr = 1;
+	////m_Root = &m_Pool[0];
+	//
+	//const double startTime = glfwGetTime();
+	//auto start = std::chrono::steady_clock::now();
+	//uint32_t idx = 0;
+	//m_Pool[0].Subdivide(*this, triAABBs, triangles, triangleCenters, 0, N, idx);
+	//
+	//auto end = std::chrono::steady_clock::now();
+	//std::chrono::duration<double, std::milli> build_ms = end - start;
+	//m_Pool.resize(m_PoolPtr);
+}
+
 void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 {
 	fmt::print("Building BVH... \n");
 
-	//InitTriangleRenderer(); //TODO:: relocate it to renderer
-
-	  //std::vector<Triangle>& triangles = *(std::vector<Triangle>*)(&tris);
 	const std::vector<Triangle>& triangles = *(reinterpret_cast<const std::vector<Triangle>*>(&tris));
 
 	if (triangles.empty())
@@ -35,10 +61,10 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 	}
 
 	const uint32_t N = static_cast<uint32_t>(triangles.size());	//WARNING: max is 4G tris!
-	std::vector<AABB> triAABBs;
-	triAABBs.reserve(N);
+	
+	m_AABBS.reserve(N);
 	for (const auto& tri : triangles)
-		triAABBs.emplace_back(
+		m_AABBS.emplace_back(
 			std::min(std::min(tri.A.x, tri.B.x), tri.C.x),
 			std::min(std::min(tri.A.y, tri.B.y), tri.C.y),
 			std::min(std::min(tri.A.z, tri.B.z), tri.C.z),
@@ -47,23 +73,23 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 			std::max(std::max(tri.A.z, tri.B.z), tri.C.z)
 		);
 
-	std::vector < glm::vec3 > triangleCenters;
-	triangleCenters.reserve(N);
-	for (AABB& aabb : triAABBs)
-		triangleCenters.emplace_back(aabb.GetCenter());
+	//std::vector < glm::vec3 > triangleCenters;
+	m_TriangleCenters.reserve(N);
+	for (AABB& aabb : m_AABBS)
+		m_TriangleCenters.emplace_back(aabb.GetCenter());
 
 
 	m_Indices.resize(N);
 	std::iota(m_Indices.begin(), m_Indices.end(), 0);
 
-	m_Pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
+	m_Pool.resize(static_cast<size_t>(N) * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
 	m_PoolPtr = 1;
 	//m_Root = &m_Pool[0];
 
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
 	uint32_t idx = 0;
-	m_Pool[0].Subdivide(*this, triAABBs, triangles, triangleCenters, 0, N, idx);
+	m_Pool[0].Subdivide(*this,   0, N, idx);
 
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;

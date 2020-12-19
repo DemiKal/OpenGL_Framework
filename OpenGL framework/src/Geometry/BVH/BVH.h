@@ -8,6 +8,11 @@ class BVHNode;
 class Ray;
 struct Triangle;
 
+struct TopNode
+{
+	AABB Bounds;
+	glm::mat4 InverseMat;
+};
 
 //Bounding Volume Hierarchy
 class BVH
@@ -37,6 +42,8 @@ public:
 	uint32_t EndOffset = 0;
 	uint32_t EndIndicesOffset = 0;
 	std::vector<uint32_t> m_Indices;
+	std::vector<AABB> m_AABBS;
+	std::vector<glm::vec3> m_TriangleCenters;
 	uint32_t MeshIdx;
 
 	BVH() = default;
@@ -44,6 +51,8 @@ public:
 	BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, int poolPtr);
 	
 	
+	void BuildTopLevelBVH(const std::vector<TopNode>& nodes);
+
 	void BuildBVH(const std::vector<glm::vec4>& tris);
 	void Draw(const Camera& camera, const glm::mat4& transform) const;
 
