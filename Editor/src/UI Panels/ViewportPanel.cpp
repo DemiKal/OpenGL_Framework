@@ -16,14 +16,16 @@ void EditorLayer::RenderViewportPanel(float dt)
 	ImGui::Begin("Ray trace test");
 	ImGui::Checkbox("render", &dispatch);
 	Texture2D* spyrotex = nullptr;
+	glm::mat4 spyromat;
 	for(auto entity : m_Registry.view<TagComponent, MeshComponent>())
 	{
-		const auto& [tc, mc] = m_Registry.get<TagComponent, MeshComponent>(entity);
-		if (tc.Name.data() == "Spyro")
+		const auto& [tagc, mc, tc] = m_Registry.get<TagComponent, MeshComponent, TransformComponent>(entity);
+		if (tagc.Name.data() == "Spyro")
 		{
 			Mesh& m = MeshManager::GetMesh(mc.MeshIdx);
 			//.Bind
 			spyrotex = &m.m_Textures[0];
+			spyromat = tc.CalcMatrix();
 		}
 	}
 
@@ -41,13 +43,12 @@ void EditorLayer::RenderViewportPanel(float dt)
 			comp.SetVec3f("u_cameraPos", m_EditorCamera.GetPosition());
 			comp.SetVec3f("u_viewDir", m_EditorCamera.GetForwardVector());
 			comp.SetVec3f("u_cameraUp", m_EditorCamera.GetUpVector());
-			//comp.SetVec3f("u_lightDir", { -100,-100,0 });
-			glm::mat4 p = m_EditorCamera.GetProjectionMatrix() ;
-			glm::mat4 v = m_EditorCamera.GetViewMatrix();
 			
-			comp.SetUniformMat4f("u_inv_projMatrix", glm::inverse(p));
-			comp.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(v));
+			comp.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(m_EditorCamera.GetViewMatrix()));
+			comp.SetUniformMat4f("u_inv_projMatrix", glm::inverse(m_EditorCamera.GetProjectionMatrix()));
+			comp.SetUniformMat4f("u_InvTransform", glm::inverse(spyromat));
 		});
+
 	spyrotex->Unbind();
 
 	auto sz = ImGui::GetContentRegionAvail();

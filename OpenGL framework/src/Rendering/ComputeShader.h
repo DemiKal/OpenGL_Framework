@@ -23,7 +23,7 @@ public:
 		m_AttachedImages[0].Bind();
 		uint32_t w = m_AttachedImages[0].GetWidth();
 		uint32_t h = m_AttachedImages[0].GetHeight();
-		glDispatchCompute(w, h, 1);
+		glDispatchCompute(w / 8 , h / 8, 1);
 
 
 		//glUseProgram(0);

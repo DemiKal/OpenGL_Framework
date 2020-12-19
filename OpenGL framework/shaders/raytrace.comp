@@ -28,6 +28,7 @@ uniform vec3 u_lightDir;
  
 uniform mat4 u_inv_projMatrix;
 uniform mat4 u_inv_viewMatrix; 
+uniform mat4 u_InvTransform; 
 
 //layout(binding = 0) uniform sampler2D gPosition;
 //layout(binding = 1) uniform sampler2D gNormal;
@@ -301,7 +302,8 @@ void main()
 	vec3 rayPos = u_cameraPos;
 	//vec3 rayDir = normalize(scrnPos - rayPos);
 	vec3 rayDir = RayFromCam(pixelCoord.x, pixelCoord.y);
-
+	rayDir = vec3(  (u_InvTransform) * vec4(rayDir, 0));
+	rayPos = vec3(  (u_InvTransform) * vec4(rayPos, 1));
 	//AABB aabb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz);
 	
 	//aabb.m_min = m_min[0];
