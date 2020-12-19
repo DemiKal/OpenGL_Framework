@@ -19,11 +19,11 @@
 
 
 
-ComputeShader::ComputeShader(const std::string& filepath, uint32_t width, uint32_t height)
+ComputeShader::ComputeShader(const std::string& shaderSrc, uint32_t width, uint32_t height)
 {
 	m_ShaderType = ShaderType::COMPUTE;
 	const unsigned int program = glCreateProgram();
-	const unsigned int cs = CompileShader(GL_COMPUTE_SHADER, filepath);
+	const unsigned int cs = CompileShader(GL_COMPUTE_SHADER, shaderSrc);
 
 	GLCall(glAttachShader(program, cs))
 		GLCall(glLinkProgram(program))
@@ -37,8 +37,8 @@ ComputeShader::ComputeShader(const std::string& filepath, uint32_t width, uint32
 	attached.GenImageTexture(width, height);
 
 	m_AttachedImages.emplace_back(attached);
-	m_Name = std::filesystem::path(filepath).stem().string();
-	m_FilePath = filepath;
+	m_Name = std::filesystem::path(shaderSrc).stem().string();
+	m_FilePath = shaderSrc;
 
 
 	int work_grp_size[3];

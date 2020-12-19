@@ -447,6 +447,8 @@ Mesh::Mesh(
 		}
 	}
 
+	
+
 	if (hasTexCoords)
 		//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		for (uint32_t i = 0; i < m_Indices.size() - 3u; i += 3u)
@@ -467,11 +469,11 @@ Mesh::Mesh(
 			float v3 = mesh->mTextureCoords[0][idx3].y;
 			glm::vec2 uv3(u3, v3);
 			//std::array< glm::vec2, 3>> face = {uv1, uv2, uv3};
-			std::array< glm::vec2, 3> face = { uv1,uv2,uv3 };
+			std::array< glm::vec2, 3> face = { uv1, uv2, uv3 };
 			m_UVs.emplace_back(face);
 
 		}
-
+	
 	//TODO: fix! animator.m_inverse_root = m_inverseRoot;
 	if (hasBones)
 	{

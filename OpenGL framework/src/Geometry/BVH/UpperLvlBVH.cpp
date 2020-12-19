@@ -67,7 +67,10 @@ void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 	glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * 3 * (start), sizeof(glm::vec4) * 3 * (end), &m_BVHTriangleBuffer[start]);
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Texcoord_SSBO);
+	glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * 3 * (start), sizeof(glm::vec4) * 3 * (end), &m_BVHTexcoordBuffer[start]);
 
+	m_UVs
 
 }
 

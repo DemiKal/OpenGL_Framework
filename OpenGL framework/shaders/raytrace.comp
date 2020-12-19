@@ -12,7 +12,7 @@ uniform bool u_useZbuffer;
 uniform bool u_linearizeZ;
 uniform bool u_showNormal;
 
-uniform float u_near_plane;
+uniform float u_nearPlane;
 uniform float u_far_plane;
 uniform float u_aspectRatio;
 uniform float u_screenWidth;
@@ -150,8 +150,9 @@ vec3 RayFromCam(float mouseX, float mouseY)
 	ray_eye = vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
 
 	// world space [-x:x, -y:y, -z:z, -w:w]
-	vec3 ray_world = vec3(u_inv_viewMatrix * ray_eye);
-	ray_world = normalize(ray_world);
+	vec4 ray4_world = u_inv_viewMatrix * ray_eye;
+	
+	vec3 ray_world = normalize(ray4_world.xyz);
 
 	//Ray ray(this->PositionRead(), ray_world);
 
@@ -261,109 +262,54 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 float LinearizeDepth(float depth)
 {
     float z = depth * 2.0 - 1.0; // Back to NDC 
-    return (2.0 * u_near_plane * u_far_plane) / 
-	(u_far_plane + u_near_plane - z * (u_far_plane - u_near_plane));	
+    return (2.0 * u_nearPlane * u_nearPlane) / 
+	(u_far_plane + u_nearPlane - z * (u_far_plane - u_nearPlane));	
 }
 
 float LinearizeDepth2(float z)
 {
-	float n = u_near_plane ; // camera z near
+	float n = u_nearPlane ; // camera z near
 	float f = u_far_plane ; // camera z far
 	//float z = texture2D(depthSampler, uv).x;
 	return (2.0 * n) / (f + n - z * (f - n));	
 }
 
-//vec3 WorldPosFromDepth(float depth) {
-//    float z = depth * 2.0 - 1.0;
-//
-//    vec4 clipSpacePosition = vec4(TexCoords * 2.0 - 1.0, z, 1.0);
-//    vec4 viewSpacePosition = u_inv_projMatrix * clipSpacePosition;
-//
-//    viewSpacePosition /= viewSpacePosition.w;
-//
-//    vec4 worldSpacePosition = u_inv_viewMatrix * viewSpacePosition;
-//
-//    return worldSpacePosition.xyz;
-//}
+
 
 void main()
 {
 	vec2 aspectRatio = vec2(u_aspectRatio, 1.0f);
 	vec2 TexCoords = vec2(gl_GlobalInvocationID.xy) / vec2(u_screenWidth, u_screenHeight);
 	vec2 scrnCoords = vec2((0.5f - TexCoords.xy)) * aspectRatio;
-	//
-	vec3 cameraUp = normalize(u_cameraUp);
-	vec3 viewDir = u_viewDir;
-	//
-	////vec3 albedo3 = texture(gAlbedoSpec, TexCoords).rgb;
-	//
-	//vec3 rayOrigin = u_cameraPos;
-	vec3 scrnPlane = cross(cameraUp, viewDir);
-	//
+
+	vec3 scrnPlane = cross(u_cameraUp, u_viewDir);
+
 	vec3 screenHoriz = scrnCoords.x * scrnPlane;
-	vec3 screenVert = scrnCoords.y * -cameraUp;
+	vec3 screenVert = scrnCoords.y * -	u_cameraUp;
 
 	vec2 pixelCoord = vec2(TexCoords.x, 1.0f - TexCoords.y) * vec2(u_screenWidth, u_screenHeight);
-	vec3 rayDir = RayFromCam(pixelCoord.x, pixelCoord.y);
-	//vec3 rayDir = vec3(0,0,-1);
 	vec2 perc = (2 * TexCoords) - vec2(1, 1);
-	vec3 rayPos = u_cameraPos + screenHoriz + screenVert;
-	//HitData hit = triIntersect(u_cameraPos, rayDir, vec3(-3,0,-5), vec3(0, 5, -5), vec3(4,0,-5));
+	vec3 scrnPos = u_cameraPos + u_viewDir * u_nearPlane + screenHoriz + screenVert;
+	vec3 rayPos = u_cameraPos;
+	//vec3 rayDir = normalize(scrnPos - rayPos);
+	vec3 rayDir = RayFromCam(pixelCoord.x, pixelCoord.y);
 
-	vec4 finalColor = vec4(1, 0, 0, 1);
-	//if (hit.hasHit)
-	{
-		finalColor = vec4(1, 1, 1, 1);
-	}
-
-
-	//vec4 albedo4 = vec4(albedo3, 1);
- 
-	//vec4 finalColor = albedo4;
-
- 
-	//vec3 normal = texture(gNormal, TexCoords.xy).xyz;
-	//vec3 worldPos_fromBuffer = texture(gPosition, TexCoords.xy).rgb;
-	
-	//float NdotL = dot(normal, u_lightDir);
-	//float diffuse = clamp(max(NdotL, 0) + u_ambientLight, 0, 1);
-
-
-	//float zValue = texture(zBuffer, TexCoords.xy).x;
-	//float zLinear =   LinearizeDepth2(zValue) ;
-	
-	//vec3 wposFromG = worldPos_fromBuffer;
-	//vec3 wposFromZ = WorldPosFromDepth(u_linearizeZ ? zLinear : zValue );
-
-	//vec3 wpos = u_useZbuffer ? wposFromZ : wposFromG;
-
-	//finalColor = vec4(diffuse * albedo4.rgb, 1.0f);
-	//finalColor = vec4(wpos, 1.0);
-	
-	//if(u_shadowCast)
-	//{
-	//	if(NdotL > 0 && zValue < 1) 
-	//	{
-	//			float bias = 0.005*tan(acos(clamp(NdotL,0,1))); 
-	//			bias = clamp(bias, 0., 0.01);
-	//float slope = 2 - NdotL ; //1 + 1 - ndotl
-				 
-	AABB aabb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz);
+	//AABB aabb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz);
 	
 	//aabb.m_min = m_min[0];
 	//aabb.m_max = m_max[0];
 //	, m_max[0]);
 //	bool t = IntersectAABB(rayPos, rayDir, aabb);
 //	if(t)
-	
-	BVHhit bvhR = TraverseBVH(u_cameraPos, rayDir);
+
+	vec4 finalColor = vec4(1, 1, 1, 1);
+
+	BVHhit bvhR = TraverseBVH(rayPos, rayDir);
 	if(bvhR.hasHit)
 	{
 		finalColor = vec4(bvhR.u,bvhR.v, 1, 1);	
 	}
 	
-
-
 	imageStore(img_output, ivec2(gl_GlobalInvocationID), finalColor);
 	 
 	// finalColor = vec4(vec3(zLinear), 1.0);

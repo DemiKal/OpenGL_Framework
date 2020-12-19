@@ -15,14 +15,13 @@ void EditorLayer::RenderViewportPanel(float dt)
 
 	ImGui::Begin("Ray trace test");
 	ImGui::Checkbox("render", &dispatch);
-	Camera cam(m_EditorCamera.GetPosition(), m_EditorCamera.GetFieldOfView(), 1.0f, 
-		m_EditorCamera.GetNearPlaneDist(), m_EditorCamera.GetFarPlaneDist());
 	
 	if (dispatch) comp.Dispatch([&]()
 		{
 			comp.SetFloat("u_aspectRatio", m_EditorCamera.GetAspectRatio());
 			comp.SetFloat("u_screenWidth", 1920);
 			comp.SetFloat("u_screenHeight", 1080);
+			comp.SetFloat("u_nearPlane", m_EditorCamera.GetNearPlaneDist());
 			//comp.SetFloat("u_ambientLight", 
 			comp.SetFloat("u_epsilon", 0.001f);
 			
@@ -30,10 +29,11 @@ void EditorLayer::RenderViewportPanel(float dt)
 			comp.SetVec3f("u_viewDir", m_EditorCamera.GetForwardVector());
 			comp.SetVec3f("u_cameraUp", m_EditorCamera.GetUpVector());
 			//comp.SetVec3f("u_lightDir", { -100,-100,0 });
+			glm::mat4 p = m_EditorCamera.GetProjectionMatrix() ;
+			glm::mat4 v = m_EditorCamera.GetViewMatrix();
 			
-			
-			comp.SetUniformMat4f("u_inv_projMatrix", glm::inverse(cam.GetProjectionMatrix()));
-			comp.SetUniformMat4f("u_inv_viewMatrix", (cam.GetViewMatrix()));
+			comp.SetUniformMat4f("u_inv_projMatrix", glm::inverse(p));
+			comp.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(v));
 		});
 
 	auto sz = ImGui::GetContentRegionAvail();

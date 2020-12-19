@@ -18,10 +18,12 @@ class UpperLvlBVH
 	uint32_t m_BVH_SSBO = 0;
 	uint32_t m_BVH_Index_SSBO = 0;
 	uint32_t m_BVH_Triangle_SSBO = 0;
+	uint32_t m_BVH_Texcoord_SSBO = 0;
 	std::vector<BVH> m_BVHs;
 	std::vector<BVHNode> m_BVHBuffer;
 	std::vector<uint32_t> m_BVHIndexBuffer;
 	std::vector<glm::vec4> m_BVHTriangleBuffer;
+	std::vector<std::array<glm::vec4, 3>> m_BVHTexcoordBuffer;
 	
 	void UpdateBuffer(size_t start, size_t end);
 
