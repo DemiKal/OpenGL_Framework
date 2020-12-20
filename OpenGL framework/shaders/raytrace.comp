@@ -42,17 +42,17 @@ layout (std430,  binding = 0) readonly buffer BVH_buffer
 	BVHNode BVH[] ;	
 };
 
-layout (std430, binding = 1) readonly buffer Index_buffer
-{
-	uint tri_indices[] ;	
-};
+//layout (std430, binding = 1) readonly buffer Index_buffer
+//{
+//	uint tri_indices[] ;	
+//};
 
-layout (std430, binding = 2) readonly buffer Triangle_buffer
+layout (std430, binding = 1) readonly buffer Triangle_buffer
 {
 	Triangle triangles[] ;	
 };
 
-layout (std430, binding = 3) readonly buffer Texcoord_buffer
+layout (std430, binding = 2) readonly buffer Texcoord_buffer
 {
 	UV texcoords [] ;	
 };
@@ -203,7 +203,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 		currentIdx--;
  		BVHNode currentBVH = BVH[bboxIdx];
 
-		uint childCount =  floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
+		uint childCount = floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
 		uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
 		
 		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
@@ -227,15 +227,18 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
 			else //leaf node
 			{
 				//uint nodeStart = floatBitsToUint(currentBVH.m_min.w);	//TODO: check if this can be omitted
-				uint nodeStart = leftFirst;	//TODO: check if this can be omitted
-				//uint nodeStart = currentIdx;	//TODO: check if this can be omitted
-				//uint nodeStart = leafidx;
+				uint nodeStart = leftFirst;			//TODO: check if this can be omitted
+				//uint nodeStart = bboxIdx;			//TODO: check if this can be omitted
+				//uint nodeStart = currentIdx;		//TODO: check if this can be omitted
+				//uint nodeStart = currentIdx;		//TODO: check if this can be omitted
+				//uint nodeStart = leafidx;			
 				
 				for (uint i = 0; i < childCount; i++)
 				{	
 					uint j = nodeStart + i; 
 
-					uint tIdx = tri_indices[j];
+					//uint tIdx = tri_indices[j];
+					uint tIdx = j ;
 					
 					vec3 v0 = triangles[tIdx].A.xyz;
 					vec3 v1 = triangles[tIdx].B.xyz;

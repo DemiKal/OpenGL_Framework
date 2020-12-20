@@ -20,12 +20,12 @@ void BVHNode::Subdivide(BVH& bvh, uint32_t start, uint32_t end, uint32_t& recurs
 	if (objCount <= 2)
 	{
 		//m_bounds.m_leftFirst = start;
-		SetLeftFirst(recursionCount);
+		SetLeftFirst(start);
 		recursionCount += objCount;
 		return; //TODO: SET LEAF COUNT DYNAMICALLY!
 	}
-
 	SetLeftFirst(bvh.m_PoolPtr++);
+
 
 
 	BVHNode& l = bvh.m_Pool[GetLeftFirst()];

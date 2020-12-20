@@ -22,30 +22,37 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 
 void BVH::BuildTopLevelBVH(const std::vector<TopNode>& nodes)
 {
-	//if (nodes.empty())
-	//{
-	//	fmt::print("Error, Triangle list is empty! Cancelling build");
-	//	return;
-	//}
-	//
-	//const uint32_t N = static_cast<uint32_t>(nodes.size());	//WARNING: max is 4G tris!
-	//
-	//
-	//m_Indices.resize(N);
-	//std::iota(m_Indices.begin(), m_Indices.end(), 0);
-	//
-	//m_Pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
-	//m_PoolPtr = 1;
-	////m_Root = &m_Pool[0];
-	//
-	//const double startTime = glfwGetTime();
-	//auto start = std::chrono::steady_clock::now();
-	//uint32_t idx = 0;
-	//m_Pool[0].Subdivide(*this, triAABBs, triangles, triangleCenters, 0, N, idx);
-	//
-	//auto end = std::chrono::steady_clock::now();
-	//std::chrono::duration<double, std::milli> build_ms = end - start;
-	//m_Pool.resize(m_PoolPtr);
+	if (nodes.empty())
+	{
+		fmt::print("Error, Triangle list is empty! Cancelling build");
+		return;
+	}
+	
+	const uint32_t N = static_cast<uint32_t>(nodes.size());	//WARNING: max is 4G tris!
+	
+	
+	m_Indices.resize(N);
+	std::iota(m_Indices.begin(), m_Indices.end(), 0);
+	
+	m_Pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
+	m_PoolPtr = 1;
+	//m_Root = &m_Pool[0];
+	m_AABBS.reserve(N);
+	for (const auto& node : nodes)
+	{
+		auto copy = node.Bounds;
+		copy.Update(node.InverseMat, node.Bounds);
+		m_AABBS.emplace_back(copy);
+		m_TriangleCenters.emplace_back(copy.GetCenter());
+	}
+	const double startTime = glfwGetTime();
+	auto start = std::chrono::steady_clock::now();
+	uint32_t idx = 0;
+	m_Pool[0].Subdivide(*this, 0, N, idx);
+	
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double, std::milli> build_ms = end - start;
+	m_Pool.resize(m_PoolPtr);
 }
 
 void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
@@ -107,15 +114,18 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 
 	int i = 0;
 	std::map<uint32_t, BVHNode> m;
+	fmt::print("all\n");
 	for (auto& node : m_Pool)
 	{
 		uint32_t count = node.GetCount();
 		if (count <= 2)
 		{
-			fmt::print("idx {}, leftfirst: {}, count: {}\n", i, node.GetLeftFirst(), count);
-		m[node.GetLeftFirst()] = node;
+			m[node.GetLeftFirst()] = node;
+		}
 
-		}i++;
+		fmt::print("idx {}, leftfirst: {}, count: {}\n", i, node.GetLeftFirst(), count);
+		
+		i++;
 	}
 	fmt::print("yabadabadoooooooooo\n");
 	i = 0;
@@ -178,6 +188,7 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 //	glBindVertexArray(0);
 //}
 
+//the offset is determined by the start position of this bvh in the buffer
 void BVH::Draw(const Camera& camera, const glm::mat4& transform, const glm::vec4& color, int offset) const
 {
 	if (!IsBuilt()) return; //has been initialized?

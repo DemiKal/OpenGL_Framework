@@ -447,15 +447,21 @@ Mesh::Mesh(
 		}
 	}
 
-	
+
 
 	if (hasTexCoords)
+	{
+		const uint32_t indxSize = m_Indices.size() / 3;
 		//for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-		for (uint32_t i = 0; i < m_Indices.size() - 3u; i += 3u)
+		for (uint32_t i = 0; i < indxSize; i++)
 		{
-			uint32_t idx1 = m_Indices[i];
-			uint32_t idx2 = m_Indices[i + 1u];
-			uint32_t idx3 = m_Indices[i + 2u];
+			auto a = i * 3;
+			auto b = i * 3 + 1u;
+			auto c = i * 3 + 2u;
+
+			uint32_t idx1 = m_Indices[a];
+			uint32_t idx2 = m_Indices[b];
+			uint32_t idx3 = m_Indices[c];
 
 			float u1 = mesh->mTextureCoords[0][idx1].x;
 			float v1 = mesh->mTextureCoords[0][idx1].y;
@@ -473,7 +479,8 @@ Mesh::Mesh(
 			m_UVs.emplace_back(face);
 
 		}
-	
+}
+
 	//TODO: fix! animator.m_inverse_root = m_inverseRoot;
 	if (hasBones)
 	{
@@ -549,9 +556,9 @@ Mesh::Mesh(
 	for (const int v_idx : m_Indices)
 	{
 		auto& ai_v = mesh->mVertices[v_idx];
-		 glm::vec4 v{ ai_v.x, ai_v.y, ai_v.z, 0}; //added 0 for padding with gpu
+		glm::vec4 v{ ai_v.x, ai_v.y, ai_v.z, 0 }; //added 0 for padding with gpu
 		m_PositionVertices.emplace_back(v);
-		
+
 	}
 
 	CreateBuffers();
@@ -819,82 +826,82 @@ Mesh Mesh::CreateCube()
 	Mesh mesh;
 	return mesh;
 }
-	//float cubeVertices[] = {
-	//	// positions          // texture Coords
-	//	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	//	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	//	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	//
-	//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	//	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	//	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	//	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	//
-	//	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	//	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	//	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	//
-	//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	//	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	//	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	//	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	//
-	//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	//	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	//
-	//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	//	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	//};
-	//
-	//const unsigned int size = sizeof(cubeVertices) / sizeof(float);
-	//std::copy(cubeVertices, cubeVertices + 6 * 5 * 6, std::back_inserter(mesh.m_Vertices));
-	//
-	////for (int i = 0; i < mesh.m_Vertices.size(); i += 5)
-	////	mesh.m_PositionVertices.emplace_back(glm::vec3(
-	////		mesh.m_Vertices[i], mesh.m_Vertices[i + 1], mesh.m_Vertices[i + 2]));
-	//
-	////mesh.m_aabb.CalcBounds(mesh.m_PositionVertices);
-	//mesh.m_aabb_OG = mesh.m_aabb;
-	//
-	//VertexBufferLayout vbl;
-	//vbl.Push<float>(3, VertexType::POSITION);
-	//vbl.Push<float>(2, VertexType::TEXCOORD);
-	//
-	//mesh.m_VertexBufferLayout = vbl;
-	//// cube m_VAO
-	//unsigned int cubeVAO, cubeVBO;
-	//glGenVertexArrays(1, &cubeVAO);
-	//glGenBuffers(1, &cubeVBO);
-	//glBindVertexArray(cubeVAO);
-	//glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.m_Vertices.size(), &mesh.m_Vertices[0], GL_STATIC_DRAW);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	//glEnableVertexAttribArray(1);
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	//
-	//mesh.m_VAO = cubeVAO;
-	//mesh.m_VAO = cubeVAO;
-	//
-	//return mesh;
+//float cubeVertices[] = {
+//	// positions          // texture Coords
+//	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+//	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+//	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+//
+//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+//	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+//	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+//	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//
+//	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//
+//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//
+//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+//	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+//	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//
+//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+//	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+//	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+//};
+//
+//const unsigned int size = sizeof(cubeVertices) / sizeof(float);
+//std::copy(cubeVertices, cubeVertices + 6 * 5 * 6, std::back_inserter(mesh.m_Vertices));
+//
+////for (int i = 0; i < mesh.m_Vertices.size(); i += 5)
+////	mesh.m_PositionVertices.emplace_back(glm::vec3(
+////		mesh.m_Vertices[i], mesh.m_Vertices[i + 1], mesh.m_Vertices[i + 2]));
+//
+////mesh.m_aabb.CalcBounds(mesh.m_PositionVertices);
+//mesh.m_aabb_OG = mesh.m_aabb;
+//
+//VertexBufferLayout vbl;
+//vbl.Push<float>(3, VertexType::POSITION);
+//vbl.Push<float>(2, VertexType::TEXCOORD);
+//
+//mesh.m_VertexBufferLayout = vbl;
+//// cube m_VAO
+//unsigned int cubeVAO, cubeVBO;
+//glGenVertexArrays(1, &cubeVAO);
+//glGenBuffers(1, &cubeVBO);
+//glBindVertexArray(cubeVAO);
+//glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.m_Vertices.size(), &mesh.m_Vertices[0], GL_STATIC_DRAW);
+//glEnableVertexAttribArray(0);
+//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+//glEnableVertexAttribArray(1);
+//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+//
+//mesh.m_VAO = cubeVAO;
+//mesh.m_VAO = cubeVAO;
+//
+//return mesh;
 //}
 
 bool Mesh::HasFaceIndices() const

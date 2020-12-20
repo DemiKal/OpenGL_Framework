@@ -23,12 +23,12 @@ class UpperLvlBVH
 	std::vector<BVH> m_BVHs;
 	std::vector<BVHNode> m_BVHBuffer;
 	std::vector<TopNode> m_TopBVHBuffer;
-	std::vector<uint32_t> m_BVHIndexBuffer;
-	std::vector<glm::vec4> m_BVHTriangleBuffer;
+	//std::vector<uint32_t> m_BVHIndexBuffer;
+	std::vector<std::array<glm::vec4, 3>> m_BVHTriangleBuffer;
 	std::vector<std::array<glm::vec2, 3>> m_BVHTexcoordBuffer;
-	
+
 	SSBO m_BVHBufferSSBO;
-	SSBO m_IndexBuffer;
+	//SSBO m_IndexBuffer;
 	SSBO m_TriangleBuffer;
 	SSBO m_TexcoordBuffer;
 
@@ -39,6 +39,7 @@ public:
 	void Unbind();
 	void Bind(uint32_t BVHIdx = 0, uint32_t indexBufferIdx = 1, uint32_t triangleBufferIndex = 2);
 	UpperLvlBVH();
+	void DrawTopLevelBVH(Camera& camera);
 	void Draw(Camera& camera, const glm::mat4& transform, BVHComponent& bvhc);
 	void AddBVH(entt::registry& registry, entt::entity entity, MeshComponent& mc);
 	BVH& GetBVH(int i);
