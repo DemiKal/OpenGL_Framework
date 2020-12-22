@@ -14,6 +14,9 @@ class BVHComponent;
 
 class UpperLvlBVH
 {
+	typedef std::array<glm::vec2, 3> UV;
+	typedef std::array<glm::vec4, 3> Tri;
+	
 	friend BVH;
 	friend BVHNode;
 
@@ -22,17 +25,11 @@ class UpperLvlBVH
 	size_t m_Reserved = 3000;
 
 	std::vector<BVH> m_BVHs;
-	std::vector<> m_BVHBuffer;
-	std::vector< > m_TopBVHBuffer;
-	std::vector<TopNodeRef> m_TransformBuffer;
-	//std::vector<uint32_t> m_BVHIndexBuffer;
-	std::vector<std::array<glm::vec4, 3>> m_BVHTriangleBuffer;
-	std::vector<std::array<glm::vec2, 3>> m_BVHTexcoordBuffer;
-
-	SSBO<BVHNode> m_BVHBufferSSBO;
-	//SSBO m_IndexBuffer;
-	SSBO<BVHNode> m_TriangleBuffer;
-	SSBO m_TexcoordBuffer;
+	SSBO<BVHNode> m_TopBVHBuffer;		//Top level BVH
+	SSBO<TopNodeRef> m_TransformBuffer;	//references to transform and node index for meshes
+	SSBO<BVHNode> m_BVHBuffer;		//complete BVH buffer of all meshes
+	SSBO<Tri> m_TriangleBuffer;	//buffer of all tris of uploaded meshes
+	SSBO<UV> m_TexcoordBuffer;	//texcoords
 
 	void UpdateBuffer(size_t start, size_t end);
 	void UpdateTopBVH(entt::registry& registry);
