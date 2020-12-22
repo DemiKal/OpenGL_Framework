@@ -11,7 +11,7 @@ struct Triangle;
 struct TopNodeRef
 {
 	glm::mat4 InverseMat;		//inverse of the matrix
-	uint32_t Offset;			//offset to the root node of the owning entity 
+	glm::mat4 Offset;			//offset to the root node of the owning entity 
 	//uint32_t TriangleOffset;	//offset to the root first triangle 
 };
 

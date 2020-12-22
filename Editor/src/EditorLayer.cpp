@@ -46,12 +46,19 @@ void EditorLayer::OnAttach()
 
 	const auto anim = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(anim);
-	m_Registry.emplace<TagComponent>(anim, "anim");
+	m_Registry.emplace<TagComponent>(anim, "Anim");
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);
 	auto& mc2 = m_Registry.emplace<MeshComponent>(anim, "Assets/meshes/Animation test/run embedded.gltf", aiProcess_Triangulate);
 
 	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
 	m_Selected = anim;
+
+	const auto helm = m_Registry.create();
+	m_Registry.emplace<TransformComponent>(helm);
+	m_Registry.emplace<TagComponent>(helm, "Anim");
+	m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/PBR/DamagedHelmet.glb", aiProcess_Triangulate);
+ 
+	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
 
 	//const auto helm = m_Registry.create();
 	//m_Registry.emplace<TransformComponent>(helm);

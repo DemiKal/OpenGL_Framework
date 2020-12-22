@@ -90,7 +90,6 @@ void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 
 void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 {
-
 	const uint32_t leafCount = 1;
 	BVH bvh;
 	bvh.m_LeafCount = leafCount;
@@ -105,23 +104,12 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		auto idx = bvhc.BVHidx;
 		m_TransformBuffer[idx].InverseMat = glm::inverse(tc.CalcMatrix());
-		m_TransformBuffer[idx].Offset = m_BVHs[idx].StartOffset;
+		m_TransformBuffer[idx].Offset[0][0] = m_BVHs[idx].StartOffset;
 		//m_TransformBuffer[idx].TriangleOffset = m_BVHs[idx].StartIndicesOffset;
 		originalAABBs[idx] = mesh.m_aabb;
 	}
 
 	bvh.BuildTopLevelBVH(originalAABBs, m_TransformBuffer.m_Buffer);
-
-	uint32_t i = 0;
-	for (auto& node : bvh.m_Pool)
-	{
-		if (node.GetCount() <= leafCount)
-		{
-			auto offset = m_BVHs[i].StartOffset;
-			auto lf = node.GetLeftFirst();	//
-			i++;
-		}		
-	}
 
 	std::vector<BVHNode>& buffer = m_TopBVHBuffer.GetBuffer();
 	buffer.clear();
@@ -129,13 +117,6 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 
 	m_TopBVHBuffer.Init();
 	m_TransformBuffer.Init();
-	//for (int i = 0; i < bvh.m_Indices.size(); i++)
-	//{
-	//	auto ind = bvh.m_Indices[i];
-	//	std::swap(m_TopBVHBuffer[i], m_TopBVHBuffer[ind]);	//sort according to indices
-	//}
-
-
 }
 
 void UpperLvlBVH::InitBuffers()
@@ -209,7 +190,6 @@ void UpperLvlBVH::Bind(uint32_t BVHIdx, uint32_t indexBufferIdx, uint32_t triang
 
 UpperLvlBVH::UpperLvlBVH()
 {
-	//InitBuffers();	//nullptr for init
 }
 
 void UpperLvlBVH::DrawTopLevelBVH(Camera& camera)

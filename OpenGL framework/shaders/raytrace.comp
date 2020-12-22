@@ -4,6 +4,7 @@ layout(local_size_x = 8, local_size_y = 8) in;
 
 layout(rgba32f, binding = 0) uniform image2D img_output;
 layout(binding = 1) uniform sampler2D  texture_diffuse1;
+layout(binding = 2) uniform sampler2D  texture_diffuse2;
 
 
 const int StackSize = 32;
@@ -37,8 +38,9 @@ struct BVHNode { vec4 m_min; vec4 m_max; };
 
 struct TopBVHRef 
 {	
-	mat4 InverseTransfom; 
-	uint Offset; 
+	mat4 InverseTransform; 
+	mat4 Offset; 
+	//uint Offset; 
 	//uint TriangleOffset;
 };
 
@@ -188,16 +190,17 @@ struct BVHhit
 	float t;
 	uint triIdx;
 	int bbIdx;
+	uint meshIdx;
 };
- 
-BVHhit TraverseTopBVH(vec3 rayOrigin, vec3 rayDir)
+
+BVHhit TraverseLowerBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
 {
 	BVHhit result;
 
 	uint currentIdx = 0;
 
 	uint stackPtr[StackSize];
-	stackPtr[0] = 0;
+	stackPtr[0] = offset; //sentinel null guard value
 	currentIdx++;
 
 	bool hasHit = false;
@@ -278,42 +281,36 @@ BVHhit TraverseTopBVH(vec3 rayOrigin, vec3 rayDir)
 	return result;
 }
 
-BVHhit TraverseLowerBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
+BVHhit TraverseTopBVH(vec3 rayOrigin, vec3 rayDir)
 {
 	BVHhit result;
-
-	 //int size = textureSize(u_indexTexture, 0);
-	//int size = BVH.length();
+	bool hitTriangle = false;
 	uint currentIdx = 0;
-
 	uint stackPtr[StackSize];
-	stackPtr[0] = offset; //sentinel null guard value
+	stackPtr[0] = 0;
 	currentIdx++;
 
-	//if( IntersectAABB(rayOrigin, rayDir, GetAABB(0) )) 
-	//	return true;
-	//else return false;
 	bool hasHit = false;
 
-	float t = 999999.f;
+	float t = 999999.9;
 	float _u = 0;
 	float _v = 0; 
-	uint tri_idx = 0;
+	uint meshIdx = 0;
 	uint leafidx = 0;
+	uint tri_idx = 0;
 	//bool earlyExit = false;
 	//loop---------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------
 	while (currentIdx > 0 && currentIdx < StackSize)
 	{
 		uint bboxIdx = stackPtr[currentIdx - 1];
- 		BVHNode currentBVH = BVH[bboxIdx];
+ 		BVHNode currentBVH = TopBVH[bboxIdx];
 		currentIdx--;
 
 		uint childCount = floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
 		uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
 		
-		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
-		leafidx += childCount;
+		bool isInterior = childCount > 1; //TODO: leaf check
 
 		AABB currentAABB = AABB(currentBVH.m_min.xyz, currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
 
@@ -322,42 +319,45 @@ BVHhit TraverseLowerBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
 			if (isInterior)
 			{
 				uint rightFirst = leftFirst + 1;
-				//BVHNode lBVH = BVH[leftChild];
 
-				//atomicCompSwap(leftFir)
-				stackPtr[currentIdx++] = leftFirst;  //leftFirst ? leftChild  : rightChild;
-				stackPtr[currentIdx++] = rightFirst;  //leftFirst ? rightChild : leftChild ;
+				stackPtr[currentIdx++] = leftFirst;
+				stackPtr[currentIdx++] = rightFirst;
 			}
 			else //leaf node
 			{
-				//uint nodeStart = floatBitsToUint(currentBVH.m_min.w);	//TODO: check if this can be omitted
-				uint nodeStart = leftFirst;			//TODO: check if this can be omitted
-				//uint nodeStart = bboxIdx;			//TODO: check if this can be omitted
-				//uint nodeStart = currentIdx;		//TODO: check if this can be omitted
-				//uint nodeStart = currentIdx;		//TODO: check if this can be omitted
-				//uint nodeStart = leafidx;			
+				uint nodeStart = leftFirst;
 				
 				for (uint i = 0; i < childCount; i++)
 				{	
-					uint tIdx = nodeStart + i ;
+					uint currentMeshIdx = nodeStart + i ;
 					
-					vec3 v0 = triangles[tIdx].A.xyz;
-					vec3 v1 = triangles[tIdx].B.xyz;
-					vec3 v2 = triangles[tIdx].C.xyz;
-
-					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
-					float newT = Thit.dist;
-					if (newT > 0 && newT >= u_epsilon)
+					//HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
+					vec3 newOrigin = (TopRef[currentMeshIdx].InverseTransform * vec4(rayOrigin, 1.0)).xyz;
+					vec3 newDir = (TopRef[currentMeshIdx].InverseTransform * vec4(rayDir, 0.0)).xyz;
+ 					uint offset = uint(TopRef[currentMeshIdx].Offset[0][0]);
+					
+					BVHhit childHit = TraverseLowerBVH(newOrigin, newDir, offset);
+					//return TraverseLowerBVH(rayOrigin, rayDir, offset);
+					
+					//BVHhit childHit = TraverseLowerBVH(rayOrigin, rayDir, offset);
+					
+					if(childHit.hasHit)
 					{
-						hasHit = true;
-						if (newT < t )
+						float newT = childHit.t;
+						if (newT > 0 && newT >= u_epsilon)
 						{
-							t = newT;
-							_u = Thit.u;
-							_v = Thit.v;
-							tri_idx = tIdx;
-						}
-					} 
+							hitTriangle = hitTriangle || childHit.hasHit;
+							//hasHit = true;
+							if (newT < t )
+							{
+								t = newT;
+								_u = childHit.u;
+								_v = childHit.v;
+								tri_idx = childHit.triIdx;
+								meshIdx = currentMeshIdx;
+							}
+						} 
+					}
 				}
 			}
 		}
@@ -366,7 +366,9 @@ BVHhit TraverseLowerBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
 	result.u = _u;
 	result.v = _v;
 	result.t = t;
-	result.hasHit = hasHit; 
+	result.hasHit = hitTriangle; 
+	//result.hasHit = hasHit; 
+	result.meshIdx = meshIdx;
 	result.triIdx = tri_idx;
 	return result;
 }
@@ -403,8 +405,8 @@ void main()
 	vec3 rayPos = u_cameraPos;
 	//vec3 rayDir = normalize(scrnPos - rayPos);
 	vec3 rayDir = RayFromCam(pixelCoord.x, pixelCoord.y);
-	rayDir = vec3(  (u_InvTransform) * vec4(rayDir, 0));
-	rayPos = vec3(  (u_InvTransform) * vec4(rayPos, 1));
+	//rayDir = vec3(  (u_InvTransform) * vec4(rayDir, 0));
+	//rayPos = vec3(  (u_InvTransform) * vec4(rayPos, 1));
 	
 	//BVHNode root = BVH[0];
 	//vec3 scale = root.m_max.xyz - root.m_min.xyz;
@@ -417,20 +419,30 @@ void main()
 	//AABB aabb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz);
 
 	vec4 finalColor = vec4(1, 1, 1, 1);
-
-	BVHhit bvhR = TraverseBVH(rayPos, rayDir);
-	//BVHhit bvhL = TraverseBVH(rayPos, rayDir);
+	////TopRef[0].InverseTransform
+	//vec3 rayPos1 = ( (mat4(1.0)) * vec4(rayPos, 1.0)).xyz;
+	//vec3 rayDir1 = ( (mat4(1.0)) * vec4(rayDir, 0.0)).xyz;
+	//				 
+	//vec3 rayPos2 = ( (mat4(1.0)) * vec4(rayPos, 1.0)).xyz;
+	//vec3 rayDir2 = ( (mat4(1.0)) * vec4(rayDir, 0.0)).xyz;
 	
+	
+	//BVHhit bvhR = TraverseLowerBVH(rayPos1 , rayDir1 ,	0);
+	//BVHhit bvhL = TraverseLowerBVH(rayPos2 , rayDir2 ,	499);
 	//BVHhit bvhT = bvhR.t < bvhL.t ? bvhR : bvhL; 
+	
+	BVHhit bvhT = TraverseTopBVH(rayPos, rayDir);
+	
 
-	if(bvhR.hasHit)
+	if(bvhT.hasHit)
 	{
 		//finalColor = vec4(bvhR.u,bvhR.v, 1, 1);	
-		UV tc = texcoords[bvhR.triIdx];
-		float u = bvhR.u;
-		float v = bvhR.v;
+		UV tc = texcoords[bvhT.triIdx];
+		float u = bvhT.u;
+		float v = bvhT.v;
 		vec2 uv = tc.a * (1.0 - (u + v)) + tc.b * (u) + (v) * tc.c;
-		finalColor = texture(texture_diffuse1, vec2( uv.x, uv.y)).rgba;
+		
+		finalColor = texture(bvhT.meshIdx == 0 ? texture_diffuse1 : texture_diffuse2, vec2( uv.x, uv.y)).rgba;
 	}
 
 	imageStore(img_output, ivec2(gl_GlobalInvocationID), finalColor);
