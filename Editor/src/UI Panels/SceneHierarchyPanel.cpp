@@ -14,6 +14,9 @@ void AddBVHComponent(entt::registry& registry, entt::entity selected, EditorLaye
 	BVHComponent& bvhc = registry.emplace<BVHComponent>(selected);
 	edl->m_UpperLvlBVH->AddBVH(registry, selected, mc);
 	bvhc.BVHidx = edl->m_UpperLvlBVH->GetBVHCount() - 1;
+	
+	edl->m_UpperLvlBVH->UpdateTopBVH(registry);
+	
 	//bvh.BuildBVH(mesh.m_PositionVertices);
 }
 

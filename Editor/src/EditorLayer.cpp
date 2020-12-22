@@ -384,7 +384,8 @@ void EditorLayer::RenderScene(const float dt)
 			m_UpperLvlBVH->Draw(m_EditorCamera, transform.CalcMatrix(), bvhc);
 		}
 	}
-
+	
+	m_UpperLvlBVH->DrawTopLevelBVH(m_EditorCamera);
 	//ComputeShader& comp = ShaderManager::GetComputeShader("raytrace");
 
 	//m_UpperLvlBVH->Unbind();

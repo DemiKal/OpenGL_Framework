@@ -26,6 +26,10 @@ public:
 	AABB m_bounds;
 
 	BVHNode();
+	//operator AABB& ()
+	//{
+	//	return m_bounds;
+	//}
 
 	void Subdivide(BVH& bvh, uint32_t start, uint32_t end, uint32_t& recursionCount);
 	bool Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, unsigned nodeIdx) const;

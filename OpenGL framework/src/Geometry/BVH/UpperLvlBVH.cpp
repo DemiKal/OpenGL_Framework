@@ -37,11 +37,12 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 	}
 
 	m_BVHs.emplace_back(bvh);
+
 	UpdateBuffer(prevOffset, m_Offset);
-	auto& transf = registry.get<TransformComponent>(entity);
+	//auto& transf = registry.get<TransformComponent>(entity);
 
 	//m_TopBVHBuffer.push_back({ mc.BoundingBox });
-	UpdateTopBVH(registry);
+	
 }
 
 inline BVH& UpperLvlBVH::GetBVH(int i) { return m_BVHs[i]; }
@@ -78,27 +79,28 @@ void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 	//GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec2) * 3 * (start), sizeof(glm::vec2) * 3 * (end), &m_BVHTexcoordBuffer[start]));
 }
 
-inline void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
+void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 {
 
 	const uint32_t leafCount = 1;
 	BVH bvh;
 	bvh.m_LeafCount = leafCount;
 	auto view = registry.view<TransformComponent, MeshComponent, BVHComponent>();
-	std::vector<BVHNode> nodes;
-
-	nodes.reserve(view.size());
-
+	
+	m_TransformBuffer.GetBuffer().emplace_back();
+	std::vector<AABB> originalAABBs(view.size());
+	//update all transforms
 	for (auto entity : view)
 	{
 		const auto& [tc, mc, bvhc] = registry.get<TransformComponent, MeshComponent, BVHComponent>(entity);
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		auto idx = bvhc.BVHidx;
 		m_TransformBuffer[idx].InverseMat = glm::inverse(tc.CalcMatrix());
-		nodes.emplace_back();
+		m_TransformBuffer[idx].Offset = m_BVHs[idx].StartOffset;
+		originalAABBs[idx] = mesh.m_aabb;
 	}
 
-	bvh.BuildTopLevelBVH(m_TopBVHBuffer.m_Buffer, m_TransformBuffer.m_Buffer);
+	bvh.BuildTopLevelBVH(originalAABBs, m_TransformBuffer.m_Buffer);
 
 	uint32_t i = 0;
 	for (auto& node : bvh.m_Pool)
@@ -107,11 +109,15 @@ inline void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 		{
 			auto offset = m_BVHs[i].StartOffset;
 			node.SetLeftFirst(offset);	//
-		}
-
-		i++;
+			i++;
+		}		
 	}
 
+	std::vector<BVHNode>& buffer = m_TopBVHBuffer.GetBuffer();
+	buffer.clear();
+	std::copy(bvh.m_Pool.begin(), bvh.m_Pool.end(), std::back_inserter(buffer));
+
+	m_TopBVHBuffer.Init();
 	//for (int i = 0; i < bvh.m_Indices.size(); i++)
 	//{
 	//	auto ind = bvh.m_Indices[i];
@@ -126,10 +132,10 @@ void UpperLvlBVH::InitBuffers()
 	uint32_t elemCount = m_BVHBuffer.m_Buffer.size();
 
 	m_BVHBuffer.Init(0);
-	//m_IndexBuffer.Init(m_BVHIndexBuffer.data(), sizeof(uint32_t) * 3, elemCount, 1);
 	m_TriangleBuffer.Init(1);
 	m_TexcoordBuffer.Init(2);
-
+	m_TopBVHBuffer.Init(3);
+	m_TransformBuffer.Init(4);
 
 	//if (m_BVH_SSBO)
 	//{
@@ -174,8 +180,6 @@ void UpperLvlBVH::InitBuffers()
 	//glBufferData(GL_SHADER_STORAGE_BUFFER, poolSizeBVHTexcoordBuffer,  nullptr, GL_DYNAMIC_COPY);
 	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_BVH_Texcoord_SSBO);
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-
 }
 
 void UpperLvlBVH::Unbind()
@@ -188,8 +192,9 @@ void UpperLvlBVH::Bind(uint32_t BVHIdx, uint32_t indexBufferIdx, uint32_t triang
 	m_BVHBuffer.Bind();
 	m_TriangleBuffer.Bind();
 	m_TexcoordBuffer.Bind();
+	m_TopBVHBuffer.Bind();
+	m_TransformBuffer.Bind();
 }
-
 
 UpperLvlBVH::UpperLvlBVH()
 {
@@ -198,11 +203,13 @@ UpperLvlBVH::UpperLvlBVH()
 
 void UpperLvlBVH::DrawTopLevelBVH(Camera& camera)
 {
-
 	glm::vec4 color(1, 1, 0, 1);
-
-
-
+	BVH bvh;	//create dummy
+	//bvh.m_IsBuilt = true;
+	m_TopBVHBuffer.Bind(0);	//bind to 0 idx
+	bvh.Draw(camera, glm::mat4(1.0f), color, 0, m_TopBVHBuffer.GetBuffer().size());
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	m_TopBVHBuffer.Bind();	//reset binding
 }
 
 void UpperLvlBVH::Draw(Camera& camera, const glm::mat4& transform, BVHComponent& bvhc)
@@ -212,6 +219,6 @@ void UpperLvlBVH::Draw(Camera& camera, const glm::mat4& transform, BVHComponent&
 	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_BVH_SSBO);
 	m_BVHBuffer.Bind();
 
-	bvh.Draw(camera, transform, bvhc.DebugColor, bvh.StartOffset);
+	bvh.Draw(camera, transform, bvhc.DebugColor, bvh.StartOffset, 0);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }

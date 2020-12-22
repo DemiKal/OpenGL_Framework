@@ -21,34 +21,34 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 
 
 void BVH::BuildTopLevelBVH(
-	const std::vector<BVHNode>& nodes, 
+	const std::vector<AABB>& originalAABBs, 
 	const std::vector<TopNodeRef>& nodeRefs)
 {
-	if (nodes.empty())
+	if (nodeRefs.empty())
 	{
-		fmt::print("Error, Triangle list is empty! Cancelling build");
+		fmt::print("Error, Triangle list is empty! Cancelling build\n");
 		return;
 	}
-	
-	const uint32_t N = static_cast<uint32_t>(nodes.size());	//WARNING: max is 4G tris!
-	
-	
+
+	const uint32_t N = static_cast<uint32_t>(nodeRefs.size());	//WARNING: max is 4G tris!
+
+
 	m_Indices.resize(N);
 	std::iota(m_Indices.begin(), m_Indices.end(), 0);
-	
+
 	m_Pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
 	m_PoolPtr = 1;
 	//m_Root = &m_Pool[0];
 	m_AABBS.reserve(N);
 	//for (const auto& node : nodes)
-	
+	const float h = 0.5f;
 	for (int i = 0; i < N; i++)
 	{
-		const BVHNode& node = nodes[i];
+		//const BVHNode& node = nodes[i];
 		const TopNodeRef& nodeRef = nodeRefs[i];
-		auto copy = node.m_bounds;
-		copy.Update(nodeRef.InverseMat, node.m_bounds);
-		
+		AABB copy;
+		copy.Update(glm::inverse(nodeRef.InverseMat), originalAABBs[i]  );
+
 		m_AABBS.emplace_back(copy);
 		m_TriangleCenters.emplace_back(copy.GetCenter());
 	}
@@ -76,7 +76,7 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 	}
 
 	const uint32_t N = static_cast<uint32_t>(triangles.size());	//WARNING: max is 4G tris!
-	
+
 	m_AABBS.reserve(N);
 	for (const auto& tri : triangles)
 		m_AABBS.emplace_back(
@@ -104,7 +104,7 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
 	uint32_t idx = 0;
-	m_Pool[0].Subdivide(*this,   0, N, idx);
+	m_Pool[0].Subdivide(*this, 0, N, idx);
 
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;
@@ -132,14 +132,14 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 		}
 
 		fmt::print("idx {}, leftfirst: {}, count: {}\n", i, node.GetLeftFirst(), count);
-		
+
 		i++;
 	}
 	fmt::print("yabadabadoooooooooo\n");
 	i = 0;
-	for (auto &[k, v] : m)
+	for (auto& [k, v] : m)
 	{
-		fmt::print("[lf: {}]. Node: idx {}, leftfirst: {}, count: {}\n",  k, i++, v.GetLeftFirst(), v.GetCount());
+		fmt::print("[lf: {}]. Node: idx {}, leftfirst: {}, count: {}\n", k, i++, v.GetLeftFirst(), v.GetCount());
 	}
 
 	CreateBuffers(triangles);
@@ -197,30 +197,23 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 //}
 
 //the offset is determined by the start position of this bvh in the buffer
-void BVH::Draw(const Camera& camera, const glm::mat4& transform, const glm::vec4& color, int offset) const
+void BVH::Draw(const Camera& camera, const glm::mat4& transform, const glm::vec4& color, int offset, uint32_t size = 0) const
 {
-	if (!IsBuilt()) return; //has been initialized?
+	//if (!IsBuilt()) return; //has been initialized?
 	//static glm::vec4 bvhColor = { 1, 0.3 , 0.6, 1.0 };
 	//ImGui::ColorEdit4("bvh color", &bvhColor[0]);
 	auto& aabbShader = ShaderManager::GetShader("AABB_instanced_SSBO");
 
 	aabbShader.Bind();
-	//aabbShader.SetUniformMat4f("u_Model", camera.GetViewMatrix());
 	aabbShader.SetUniformMat4f("u_Model", transform);
 	aabbShader.SetUniformMat4f("u_View", camera.GetViewMatrix());
 	aabbShader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
 	aabbShader.SetVec4f("u_Color", color);
 	aabbShader.SetInt("u_Offset", offset);
 
-	//const uint32_t instanceCount = m_localBounds.size();
-	//renderer.DrawInstancedCubes(GetBVHSize());
-
 	Mesh& cube = MeshManager::GetMesh(1);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_SSBO);
-	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_BVH_SSBO);
 
-	cube.DrawInstanced(m_PoolPtr);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	cube.DrawInstanced(size == 0 ? m_PoolPtr : size);
 }
 
 void BVH::CastRay(const Ray& ray)

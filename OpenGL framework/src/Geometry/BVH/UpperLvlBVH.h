@@ -25,6 +25,7 @@ class UpperLvlBVH
 	size_t m_Reserved = 3000;
 
 	std::vector<BVH> m_BVHs;
+	//BVH m_TopLayer;
 	SSBO<BVHNode> m_TopBVHBuffer;		//Top level BVH
 	SSBO<TopNodeRef> m_TransformBuffer;	//references to transform and node index for meshes
 	SSBO<BVHNode> m_BVHBuffer;		//complete BVH buffer of all meshes
@@ -32,8 +33,8 @@ class UpperLvlBVH
 	SSBO<UV> m_TexcoordBuffer;	//texcoords
 
 	void UpdateBuffer(size_t start, size_t end);
-	void UpdateTopBVH(entt::registry& registry);
 public:
+	void UpdateTopBVH(entt::registry& registry);
 	void InitBuffers();
 	void Unbind();
 	void Bind(uint32_t BVHIdx = 0, uint32_t indexBufferIdx = 1, uint32_t triangleBufferIndex = 2);

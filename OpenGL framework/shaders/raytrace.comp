@@ -55,7 +55,12 @@ layout (std430, binding = 2) readonly buffer Texcoord_buffer
 
 layout (std430, binding = 3) readonly buffer TopLevelBVH
 {
-	TopBVHRef TopLayer [] ;	
+	BVHNode TopBVH [];	
+};
+
+layout (std430, binding = 4) readonly buffer TransformBuffer
+{
+	TopBVHRef TopRef [] ;	
 };
 
 struct AABB
@@ -175,13 +180,13 @@ struct BVHhit
 	int bbIdx;
 };
  
-BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir, uint startIndex)
+BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
 {
 	BVHhit result;
 
 	 //int size = textureSize(u_indexTexture, 0);
 	//int size = BVH.length();
-	uint currentIdx = startIndex;
+	uint currentIdx = offset;
 
 	uint stackPtr[StackSize];
 	stackPtr[0] = 0; //sentinel null guard value
@@ -206,7 +211,7 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir, uint startIndex)
 		currentIdx--;
  		BVHNode currentBVH = BVH[bboxIdx];
 
-		uint childCount = floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
+		uint childCount = offset + floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
 		uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
 		
 		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
@@ -238,10 +243,10 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir, uint startIndex)
 				
 				for (uint i = 0; i < childCount; i++)
 				{	
-					uint j = nodeStart + i; 
+					 
 
 					//uint tIdx = tri_indices[j];
-					uint tIdx = j ;
+					uint tIdx = offset +    nodeStart + i ;
 					
 					vec3 v0 = triangles[tIdx].A.xyz;
 					vec3 v1 = triangles[tIdx].B.xyz;
@@ -308,6 +313,15 @@ void main()
 	vec3 rayDir = RayFromCam(pixelCoord.x, pixelCoord.y);
 	rayDir = vec3(  (u_InvTransform) * vec4(rayDir, 0));
 	rayPos = vec3(  (u_InvTransform) * vec4(rayPos, 1));
+	
+	//BVHNode root = BVH[0];
+	//vec3 scale = root.m_max.xyz - root.m_min.xyz;
+	//vec3 center = 0.5 * (root.m_max.xyz + root.m_min.xyz);
+	//const glm::vec3 scale = max - min;
+	//const glm::vec3 center = 0.5f * (max + min);
+
+	//return glm::scale(glm::translate(glm::mat4(1.0f), center), scale);
+	
 	//AABB aabb = AABB(BVH[0].m_min.xyz, BVH[0].m_max.xyz);
 
 	vec4 finalColor = vec4(1, 1, 1, 1);

@@ -14,10 +14,12 @@ public:
 	{
 
 	}
-	void Bind()
+
+	//if no index is set,just use standard
+	void Bind(int index = -1)
 	{
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_BindIdx, m_RendererID);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index == -1 ? m_BindIdx : index, m_RendererID);
 	};
 
 	//uint32_t Size() { return 0; }
@@ -31,6 +33,12 @@ public:
 	{
 		return m_Buffer[idx];
 	}
+
+	void Init()
+	{
+		Init(m_BindIdx);
+	}
+
 	void Init(const uint32_t bindIdx)
 	{
 		auto totalSize = m_ElemSize * m_Buffer.size();

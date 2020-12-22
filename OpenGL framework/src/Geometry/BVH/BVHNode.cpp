@@ -26,8 +26,6 @@ void BVHNode::Subdivide(BVH& bvh, uint32_t start, uint32_t end, uint32_t& recurs
 	}
 	SetLeftFirst(bvh.m_PoolPtr++);
 
-
-
 	BVHNode& l = bvh.m_Pool[GetLeftFirst()];
 	BVHNode& r = bvh.m_Pool[bvh.m_PoolPtr++];
 
@@ -46,7 +44,7 @@ bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, 
 	if (i)
 	{
 		//leaf
-		if (GetCount() <= 2)
+		if (GetCount() <= bvh.m_LeafCount)
 		{
 			hitData.emplace_back(HitData(tCurrent, nodeIdx)); //TODO COMPOSE HIT DATA
 			return true;

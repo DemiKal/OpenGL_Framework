@@ -52,12 +52,12 @@ public:
 	BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, int poolPtr);
 	
 	
-	void BuildTopLevelBVH(const std::vector<BVHNode>& nodes, const std::vector<TopNodeRef>& nodeRefs);
+	void BuildTopLevelBVH(const std::vector<AABB>& originalAABBs, const std::vector<TopNodeRef>& nodeRefs);
 
 	void BuildBVH(const std::vector<glm::vec4>& tris);
 	void Draw(const Camera& camera, const glm::mat4& transform) const;
 
-	void Draw(const Camera& camera, const glm::mat4& transform, const glm::vec4& color, int offset) const;
+	void Draw(const Camera& camera, const glm::mat4& transform, const glm::vec4& color, int offset, uint32_t size) const;
 
 	void CastRay(const Ray& ray);
 	void DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) const;
