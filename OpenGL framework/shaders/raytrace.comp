@@ -34,6 +34,7 @@ uniform mat4 u_InvTransform;
 struct Triangle { vec4 A, B, C;};
 
 struct BVHNode { vec4 m_min; vec4 m_max; };
+struct TopBVHRef {	mat4 InverseTransfom; uint Offset; };
 
 struct UV { vec2 a, b, c; };
 
@@ -41,11 +42,6 @@ layout (std430,  binding = 0) readonly buffer BVH_buffer
 {
 	BVHNode BVH[] ;	
 };
-
-//layout (std430, binding = 1) readonly buffer Index_buffer
-//{
-//	uint tri_indices[] ;	
-//};
 
 layout (std430, binding = 1) readonly buffer Triangle_buffer
 {
@@ -57,11 +53,18 @@ layout (std430, binding = 2) readonly buffer Texcoord_buffer
 	UV texcoords [] ;	
 };
 
+layout (std430, binding = 3) readonly buffer TopLevelBVH
+{
+	TopBVHRef TopLayer [] ;	
+};
+
 struct AABB
 {
 	vec3 m_min;
 	vec3 m_max;
 };
+
+
 
 struct HitData
 {
@@ -172,13 +175,13 @@ struct BVHhit
 	int bbIdx;
 };
  
-BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir)
+BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir, uint startIndex)
 {
 	BVHhit result;
 
 	 //int size = textureSize(u_indexTexture, 0);
 	//int size = BVH.length();
-	int currentIdx = 0;
+	uint currentIdx = startIndex;
 
 	uint stackPtr[StackSize];
 	stackPtr[0] = 0; //sentinel null guard value
@@ -309,7 +312,8 @@ void main()
 
 	vec4 finalColor = vec4(1, 1, 1, 1);
 
-	BVHhit bvhR = TraverseBVH(rayPos, rayDir);
+	BVHhit bvhR = TraverseBVH(rayPos, rayDir, 0);
+	
 	if(bvhR.hasHit)
 	{
 		//finalColor = vec4(bvhR.u,bvhR.v, 1, 1);	

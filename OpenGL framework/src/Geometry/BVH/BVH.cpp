@@ -20,7 +20,9 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 }
 
 
-void BVH::BuildTopLevelBVH(const std::vector<TopNode>& nodes)
+void BVH::BuildTopLevelBVH(
+	const std::vector<BVHNode>& nodes, 
+	const std::vector<TopNodeRef>& nodeRefs)
 {
 	if (nodes.empty())
 	{
@@ -38,21 +40,27 @@ void BVH::BuildTopLevelBVH(const std::vector<TopNode>& nodes)
 	m_PoolPtr = 1;
 	//m_Root = &m_Pool[0];
 	m_AABBS.reserve(N);
-	for (const auto& node : nodes)
+	//for (const auto& node : nodes)
+	
+	for (int i = 0; i < N; i++)
 	{
-		auto copy = node.Bounds;
-		copy.Update(node.InverseMat, node.Bounds);
+		const BVHNode& node = nodes[i];
+		const TopNodeRef& nodeRef = nodeRefs[i];
+		auto copy = node.m_bounds;
+		copy.Update(nodeRef.InverseMat, node.m_bounds);
+		
 		m_AABBS.emplace_back(copy);
 		m_TriangleCenters.emplace_back(copy.GetCenter());
 	}
+
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
 	uint32_t idx = 0;
 	m_Pool[0].Subdivide(*this, 0, N, idx);
-	
+
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;
-	m_Pool.resize(m_PoolPtr);
+	m_Pool.resize(m_PoolPtr);	//TODO: check careful with this!
 }
 
 void BVH::BuildBVH(const std::vector<glm::vec4>& tris)

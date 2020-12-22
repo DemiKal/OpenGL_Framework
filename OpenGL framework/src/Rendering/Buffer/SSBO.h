@@ -1,10 +1,15 @@
 #pragma once
+
+template<class T>
 class SSBO
 {
 public:
 	uint32_t m_RendererID = 0;
 	uint32_t m_Size = 0;
 	uint32_t m_BindIdx = 0;
+	std::vector<T> m_Buffer;
+	uint32_t byteSizeElem = sizeof(T);
+	
 	SSBO()
 	{
 

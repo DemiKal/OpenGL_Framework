@@ -8,10 +8,10 @@ class BVHNode;
 class Ray;
 struct Triangle;
 
-struct TopNode
+struct TopNodeRef
 {
-	AABB Bounds;
-	glm::mat4 InverseMat;
+	glm::mat4 InverseMat;	//inverse of the matrix
+	uint32_t Offset;		//offset to the root node of the owning entity 
 };
 
 //Bounding Volume Hierarchy
@@ -35,6 +35,7 @@ private:
 
 //	void* dataptr;
 public:
+	uint32_t m_LeafCount = 2;
 	uint32_t m_Count = 0;
 	std::vector<BVHNode> m_Pool;
 	uint32_t StartOffset = 0;
@@ -51,7 +52,7 @@ public:
 	BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, int poolPtr);
 	
 	
-	void BuildTopLevelBVH(const std::vector<TopNode>& nodes);
+	void BuildTopLevelBVH(const std::vector<BVHNode>& nodes, const std::vector<TopNodeRef>& nodeRefs);
 
 	void BuildBVH(const std::vector<glm::vec4>& tris);
 	void Draw(const Camera& camera, const glm::mat4& transform) const;

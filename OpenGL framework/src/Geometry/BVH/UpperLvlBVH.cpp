@@ -48,7 +48,7 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 	UpdateBuffer(prevOffset, m_Offset);
 	auto& transf = registry.get<TransformComponent>(entity);
 
-	m_TopBVHBuffer.push_back({ mc.BoundingBox, transf.CalcMatrix() });
+	//m_TopBVHBuffer.push_back({ mc.BoundingBox });
 	UpdateTopBVH(registry);
 }
 
@@ -93,10 +93,12 @@ inline void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 	//	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 	//
 	//}
+	const uint32_t leafCount = 1;
 	BVH bvh;
-
+	bvh.m_LeafCount = leafCount;
 	auto view = registry.view<TransformComponent, MeshComponent, BVHComponent>();
-	std::vector<TopNode> nodes;
+	std::vector<BVHNode> nodes;
+
 	nodes.reserve(view.size());
 
 	for (auto entity : view)
@@ -104,12 +106,24 @@ inline void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 		const auto& [tc, mc, bvhc] = registry.get<TransformComponent, MeshComponent, BVHComponent>(entity);
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		auto idx = bvhc.BVHidx;
-		m_TopBVHBuffer[idx].InverseMat = glm::inverse(tc.CalcMatrix());
+		//m_TopBVHBuffer[idx].InverseMat = glm::inverse(tc.CalcMatrix());
 		nodes.emplace_back();
 	}
 
-	//bvh.BuildTopLevelBVH(m_TopBVHBuffer);
-	//
+	bvh.BuildTopLevelBVH(m_TopBVHBuffer, m_TransformBuffer);
+
+	uint32_t i = 0;
+	for (auto& node : bvh.m_Pool)
+	{
+		if (node.GetCount() <= leafCount)
+		{
+			auto offset = m_BVHs[i].StartOffset;
+			node.SetLeftFirst(offset);	//
+		}
+
+		i++;
+	}
+
 	//for (int i = 0; i < bvh.m_Indices.size(); i++)
 	//{
 	//	auto ind = bvh.m_Indices[i];
@@ -184,7 +198,6 @@ void UpperLvlBVH::Unbind()
 void UpperLvlBVH::Bind(uint32_t BVHIdx, uint32_t indexBufferIdx, uint32_t triangleBufferIndex)
 {
 	m_BVHBufferSSBO.Bind();
-	//m_IndexBuffer.Bind();
 	m_TriangleBuffer.Bind();
 	m_TexcoordBuffer.Bind();
 }
@@ -206,9 +219,6 @@ void UpperLvlBVH::DrawTopLevelBVH(Camera& camera)
 
 void UpperLvlBVH::Draw(Camera& camera, const glm::mat4& transform, BVHComponent& bvhc)
 {
-
-
-
 	BVH& bvh = GetBVH(bvhc.BVHidx);
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_SSBO);
 	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_BVH_SSBO);

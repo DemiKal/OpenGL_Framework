@@ -17,7 +17,7 @@ void BVHNode::Subdivide(BVH& bvh, uint32_t start, uint32_t end, uint32_t& recurs
 	m_bounds = CalculateAABB(bvh, start, end);
 	//m_bounds.m_count = objCount;
 	SetCount(objCount);
-	if (objCount <= 2)
+	if (objCount <= bvh.m_LeafCount)
 	{
 		//m_bounds.m_leftFirst = start;
 		SetLeftFirst(start);

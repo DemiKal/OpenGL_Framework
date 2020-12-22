@@ -20,16 +20,18 @@ class UpperLvlBVH
 	size_t m_Size = 0;
 	size_t m_Offset = 0;
 	size_t m_Reserved = 3000;
+
 	std::vector<BVH> m_BVHs;
-	std::vector<BVHNode> m_BVHBuffer;
-	std::vector<TopNode> m_TopBVHBuffer;
+	std::vector<> m_BVHBuffer;
+	std::vector< > m_TopBVHBuffer;
+	std::vector<TopNodeRef> m_TransformBuffer;
 	//std::vector<uint32_t> m_BVHIndexBuffer;
 	std::vector<std::array<glm::vec4, 3>> m_BVHTriangleBuffer;
 	std::vector<std::array<glm::vec2, 3>> m_BVHTexcoordBuffer;
 
-	SSBO m_BVHBufferSSBO;
+	SSBO<BVHNode> m_BVHBufferSSBO;
 	//SSBO m_IndexBuffer;
-	SSBO m_TriangleBuffer;
+	SSBO<BVHNode> m_TriangleBuffer;
 	SSBO m_TexcoordBuffer;
 
 	void UpdateBuffer(size_t start, size_t end);
