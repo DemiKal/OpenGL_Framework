@@ -22,15 +22,15 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 
 void BVH::BuildTopLevelBVH(
 	const std::vector<AABB>& originalAABBs, 
-	const std::vector<TopNodeRef>& nodeRefs)
+	const std::vector<glm::mat4>& transforms)
 {
-	if (nodeRefs.empty())
+	if (transforms.empty())
 	{
 		fmt::print("Error, Triangle list is empty! Cancelling build\n");
 		return;
 	}
 
-	const uint32_t N = static_cast<uint32_t>(nodeRefs.size());	//WARNING: max is 4G tris!
+	const uint32_t N = static_cast<uint32_t>(transforms.size());	//WARNING: max is 4G tris!
 
 
 	m_Indices.resize(N);
@@ -45,9 +45,9 @@ void BVH::BuildTopLevelBVH(
 	for (int i = 0; i < N; i++)
 	{
 		//const BVHNode& node = nodes[i];
-		const TopNodeRef& nodeRef = nodeRefs[i];
+		//const TopNodeRef& nodeRef = nodeRefs[i];
 		AABB copy;
-		copy.Update(glm::inverse(nodeRef.InverseMat), originalAABBs[i]  );
+		copy.Update(glm::inverse(transforms[i]), originalAABBs[i]  );
 
 		m_AABBS.emplace_back(copy);
 		m_TriangleCenters.emplace_back(copy.GetCenter());

@@ -9,10 +9,10 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 	BVH bvh;
 	bvh.MeshIdx = mc.MeshIdx;
 	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
-	
-	
-	
-	
+
+
+
+
 	if (!m_BVHs.empty())
 	{
 		BVH& last = m_BVHs.back();
@@ -30,7 +30,7 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 	auto size = bvh.GetBVHSize();
 	size_t prevOffset = m_Offset;
 	m_Offset += size;
-	
+
 	auto& bvhBuffer = m_BVHBuffer.GetBuffer();
 	bvhBuffer.reserve(size);
 
@@ -94,8 +94,9 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 	BVH bvh;
 	bvh.m_LeafCount = leafCount;
 	auto view = registry.view<TransformComponent, MeshComponent, BVHComponent>();
-	
+
 	m_TransformBuffer.GetBuffer().emplace_back();
+	m_OffsetBuffer.GetBuffer().emplace_back();
 	std::vector<AABB> originalAABBs(view.size());
 	//update all transforms
 	for (auto entity : view)
@@ -103,8 +104,8 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 		const auto& [tc, mc, bvhc] = registry.get<TransformComponent, MeshComponent, BVHComponent>(entity);
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 		auto idx = bvhc.BVHidx;
-		m_TransformBuffer[idx].InverseMat = glm::inverse(tc.CalcMatrix());
-		m_TransformBuffer[idx].Offset[0][0] = m_BVHs[idx].StartOffset;
+		m_TransformBuffer[idx] = glm::inverse(tc.CalcMatrix());
+		m_OffsetBuffer[idx] = m_BVHs[idx].StartOffset;
 		//m_TransformBuffer[idx].TriangleOffset = m_BVHs[idx].StartIndicesOffset;
 		originalAABBs[idx] = mesh.m_aabb;
 	}
@@ -117,6 +118,7 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 
 	m_TopBVHBuffer.Init();
 	m_TransformBuffer.Init();
+	m_OffsetBuffer.Init();
 }
 
 void UpperLvlBVH::InitBuffers()
@@ -128,6 +130,7 @@ void UpperLvlBVH::InitBuffers()
 	m_TexcoordBuffer.Init(2);
 	m_TopBVHBuffer.Init(3);
 	m_TransformBuffer.Init(4);
+	m_OffsetBuffer.Init(5);
 
 	//if (m_BVH_SSBO)
 	//{

@@ -36,13 +36,6 @@ struct Triangle { vec4 A, B, C;};
 
 struct BVHNode { vec4 m_min; vec4 m_max; };
 
-struct TopBVHRef 
-{	
-	mat4 InverseTransform; 
-	mat4 Offset; 
-	//uint Offset; 
-	//uint TriangleOffset;
-};
 
 struct UV { vec2 a, b, c; };
 
@@ -66,9 +59,14 @@ layout (std430, binding = 3) readonly buffer TopLevelBVH
 	BVHNode TopBVH [];	
 };
 
-layout (std430, binding = 4) readonly buffer TransformBuffer
+layout (std430, binding = 4) readonly buffer TransformBuffer 
 {
-	TopBVHRef TopRef [] ;	
+	mat4 Transforms[] ;	
+};
+
+layout (std430, binding = 5) readonly buffer OffsetBffer
+{
+	uint OffsetBuffer[] ;	
 };
 
 struct AABB
@@ -332,9 +330,9 @@ BVHhit TraverseTopBVH(vec3 rayOrigin, vec3 rayDir)
 					uint currentMeshIdx = nodeStart + i ;
 					
 					//HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
-					vec3 newOrigin = (TopRef[currentMeshIdx].InverseTransform * vec4(rayOrigin, 1.0)).xyz;
-					vec3 newDir = (TopRef[currentMeshIdx].InverseTransform * vec4(rayDir, 0.0)).xyz;
- 					uint offset = uint(TopRef[currentMeshIdx].Offset[0][0]);
+					vec3 newOrigin = (Transforms[currentMeshIdx] * vec4(rayOrigin, 1.0)).xyz;
+					vec3 newDir = (Transforms[currentMeshIdx] * vec4(rayDir, 0.0)).xyz;
+ 					uint offset = OffsetBuffer[currentMeshIdx];
 					
 					BVHhit childHit = TraverseLowerBVH(newOrigin, newDir, offset);
 					//return TraverseLowerBVH(rayOrigin, rayDir, offset);
@@ -420,16 +418,16 @@ void main()
 
 	vec4 finalColor = vec4(1, 1, 1, 1);
 	////TopRef[0].InverseTransform
-	//vec3 rayPos1 = ( (mat4(1.0)) * vec4(rayPos, 1.0)).xyz;
-	//vec3 rayDir1 = ( (mat4(1.0)) * vec4(rayDir, 0.0)).xyz;
-	//				 
-	//vec3 rayPos2 = ( (mat4(1.0)) * vec4(rayPos, 1.0)).xyz;
-	//vec3 rayDir2 = ( (mat4(1.0)) * vec4(rayDir, 0.0)).xyz;
+	// vec3 rayPos1 = ( Transforms[0] * vec4(rayPos, 1.0)).xyz;
+	// vec3 rayDir1 = ( (mat4(1.0)) * vec4(rayDir, 0.0)).xyz;
+	// 				 
+	// vec3 rayPos2 = ( (mat4(1.0)) * vec4(rayPos, 1.0)).xyz;
+	// vec3 rayDir2 = ( (mat4(1.0)) * vec4(rayDir, 0.0)).xyz;
 	
 	
-	//BVHhit bvhR = TraverseLowerBVH(rayPos1 , rayDir1 ,	0);
-	//BVHhit bvhL = TraverseLowerBVH(rayPos2 , rayDir2 ,	499);
-	//BVHhit bvhT = bvhR.t < bvhL.t ? bvhR : bvhL; 
+	// BVHhit bvhR = TraverseLowerBVH(rayPos1 , rayDir1 ,	0);
+	// BVHhit bvhL = TraverseLowerBVH(rayPos2 , rayDir2 ,	499);
+	// BVHhit bvhT = bvhR.t < bvhL.t ? bvhR : bvhL; 
 	
 	BVHhit bvhT = TraverseTopBVH(rayPos, rayDir);
 	

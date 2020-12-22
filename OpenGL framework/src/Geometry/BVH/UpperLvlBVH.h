@@ -27,7 +27,8 @@ class UpperLvlBVH
 	std::vector<BVH> m_BVHs;
 	//BVH m_TopLayer;
 	SSBO<BVHNode> m_TopBVHBuffer;		//Top level BVH
-	SSBO<TopNodeRef> m_TransformBuffer;	//references to transform and node index for meshes
+	SSBO<glm::mat4> m_TransformBuffer;	//references to transform and node index for meshes
+	SSBO<uint32_t> m_OffsetBuffer;	//references to transform and node index for meshes
 	SSBO<BVHNode> m_BVHBuffer;		//complete BVH buffer of all meshes
 	SSBO<Tri> m_TriangleBuffer;	//buffer of all tris of uploaded meshes
 	SSBO<UV> m_TexcoordBuffer;	//texcoords
