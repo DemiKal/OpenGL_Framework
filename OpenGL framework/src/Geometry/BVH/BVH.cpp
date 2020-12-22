@@ -63,8 +63,9 @@ void BVH::BuildTopLevelBVH(
 	m_Pool.resize(m_PoolPtr);	//TODO: check careful with this!
 }
 
-void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
+void BVH::BuildBVH(const std::vector<glm::vec4>& tris, const uint32_t bufferOffset, const uint32_t triangleOffset)
 {
+
 	fmt::print("Building BVH... \n");
 
 	const std::vector<Triangle>& triangles = *(reinterpret_cast<const std::vector<Triangle>*>(&tris));
@@ -75,6 +76,8 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 		return;
 	}
 
+	m_GlobalOffset = bufferOffset;
+	m_TriangleOffset = triangleOffset;
 	const uint32_t N = static_cast<uint32_t>(triangles.size());	//WARNING: max is 4G tris!
 
 	m_AABBS.reserve(N);
@@ -104,13 +107,14 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
 	uint32_t idx = 0;
+	
 	m_Pool[0].Subdivide(*this, 0, N, idx);
 
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;
 	m_Pool.resize(m_PoolPtr);
 
-
+	
 	const double endTime = glfwGetTime();
 	double time = endTime - startTime;
 	auto sizeInKB = sizeof(m_Pool[0]) * m_PoolPtr / 1024;
@@ -119,6 +123,15 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris)
 	fmt::print("Time: {0} ms\n", build_ms.count());
 	fmt::print("triangles per second: {0}\n", N / (build_ms.count() * 1000.0f));
 	fmt::print("triangles per ms: {0}\n", (N / build_ms.count()));
+
+	for (auto& node : m_Pool)
+	{
+		auto lf = node.GetLeftFirst();
+		node.SetLeftFirst(lf + bufferOffset);
+
+		if(node.GetCount() <= m_LeafCount)
+			node.SetLeftFirst(triangleOffset + lf);
+	}
 
 	int i = 0;
 	std::map<uint32_t, BVHNode> m;

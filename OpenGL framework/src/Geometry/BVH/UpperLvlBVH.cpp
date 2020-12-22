@@ -10,7 +10,22 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 	bvh.MeshIdx = mc.MeshIdx;
 	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 	
-	bvh.BuildBVH(mesh.m_PositionVertices);
+	
+	
+	
+	if (!m_BVHs.empty())
+	{
+		BVH& last = m_BVHs.back();
+		uint32_t endOffset = last.EndOffset;
+
+		uint32_t triOffset = m_TriangleBuffer.GetBuffer().size();
+
+		bvh.BuildBVH(mesh.m_PositionVertices, endOffset, triOffset);
+	}
+	else
+	{
+		bvh.BuildBVH(mesh.m_PositionVertices, 0, 0);
+	}
 
 	auto size = bvh.GetBVHSize();
 	size_t prevOffset = m_Offset;
@@ -29,8 +44,6 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 
 	for (uint32_t i = 0; i < bvh.m_Indices.size(); i++)
 	{
-		//std::swap(m_BVHTexcoordBuffer[i], m_BVHTexcoordBuffer[bvh.m_Indices[i]]);
-		//std::swap(m_BVHTriangleBuffer[i], m_BVHTriangleBuffer[bvh.m_Indices[i]]);
 		const uint32_t idx = bvh.m_Indices[i];
 		m_TriangleBuffer.m_Buffer.emplace_back(triangles[idx]);
 		m_TexcoordBuffer.m_Buffer.emplace_back(mesh.m_UVs[idx]);
@@ -39,10 +52,6 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 	m_BVHs.emplace_back(bvh);
 
 	UpdateBuffer(prevOffset, m_Offset);
-	//auto& transf = registry.get<TransformComponent>(entity);
-
-	//m_TopBVHBuffer.push_back({ mc.BoundingBox });
-	
 }
 
 inline BVH& UpperLvlBVH::GetBVH(int i) { return m_BVHs[i]; }
@@ -97,6 +106,7 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 		auto idx = bvhc.BVHidx;
 		m_TransformBuffer[idx].InverseMat = glm::inverse(tc.CalcMatrix());
 		m_TransformBuffer[idx].Offset = m_BVHs[idx].StartOffset;
+		//m_TransformBuffer[idx].TriangleOffset = m_BVHs[idx].StartIndicesOffset;
 		originalAABBs[idx] = mesh.m_aabb;
 	}
 
@@ -108,7 +118,7 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 		if (node.GetCount() <= leafCount)
 		{
 			auto offset = m_BVHs[i].StartOffset;
-			node.SetLeftFirst(offset);	//
+			auto lf = node.GetLeftFirst();	//
 			i++;
 		}		
 	}
@@ -118,6 +128,7 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 	std::copy(bvh.m_Pool.begin(), bvh.m_Pool.end(), std::back_inserter(buffer));
 
 	m_TopBVHBuffer.Init();
+	m_TransformBuffer.Init();
 	//for (int i = 0; i < bvh.m_Indices.size(); i++)
 	//{
 	//	auto ind = bvh.m_Indices[i];

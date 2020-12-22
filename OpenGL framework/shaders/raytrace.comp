@@ -34,7 +34,13 @@ uniform mat4 u_InvTransform;
 struct Triangle { vec4 A, B, C;};
 
 struct BVHNode { vec4 m_min; vec4 m_max; };
-struct TopBVHRef {	mat4 InverseTransfom; uint Offset; };
+
+struct TopBVHRef 
+{	
+	mat4 InverseTransfom; 
+	uint Offset; 
+	//uint TriangleOffset;
+};
 
 struct UV { vec2 a, b, c; };
 
@@ -69,6 +75,10 @@ struct AABB
 	vec3 m_max;
 };
 
+AABB GetAABB(uint i)
+{
+	return AABB(BVH[i].m_min.xyz, BVH[i].m_max.xyz);
+}
 
 
 struct HitData
@@ -180,16 +190,104 @@ struct BVHhit
 	int bbIdx;
 };
  
-BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
+BVHhit TraverseTopBVH(vec3 rayOrigin, vec3 rayDir)
+{
+	BVHhit result;
+
+	uint currentIdx = 0;
+
+	uint stackPtr[StackSize];
+	stackPtr[0] = 0;
+	currentIdx++;
+
+	bool hasHit = false;
+
+	float t = 999999.f;
+	float _u = 0;
+	float _v = 0; 
+	uint tri_idx = 0;
+	uint leafidx = 0;
+	//bool earlyExit = false;
+	//loop---------------------------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------------------------------------------------
+	while (currentIdx > 0 && currentIdx < StackSize)
+	{
+		uint bboxIdx = stackPtr[currentIdx - 1];
+ 		BVHNode currentBVH = BVH[bboxIdx];
+		currentIdx--;
+
+		uint childCount = floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
+		uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
+		
+		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
+		leafidx += childCount;
+
+		AABB currentAABB = AABB(currentBVH.m_min.xyz, currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
+
+		if (IntersectAABB(rayOrigin, rayDir, currentAABB))
+		{
+			if (isInterior)
+			{
+				uint rightFirst = leftFirst + 1;
+				//BVHNode lBVH = BVH[leftChild];
+
+				//atomicCompSwap(leftFir)
+				stackPtr[currentIdx++] = leftFirst;  //leftFirst ? leftChild  : rightChild;
+				stackPtr[currentIdx++] = rightFirst;  //leftFirst ? rightChild : leftChild ;
+			}
+			else //leaf node
+			{
+				//uint nodeStart = floatBitsToUint(currentBVH.m_min.w);	//TODO: check if this can be omitted
+				uint nodeStart = leftFirst;			//TODO: check if this can be omitted
+				//uint nodeStart = bboxIdx;			//TODO: check if this can be omitted
+				//uint nodeStart = currentIdx;		//TODO: check if this can be omitted
+				//uint nodeStart = currentIdx;		//TODO: check if this can be omitted
+				//uint nodeStart = leafidx;			
+				
+				for (uint i = 0; i < childCount; i++)
+				{	
+					uint tIdx = nodeStart + i ;
+					
+					vec3 v0 = triangles[tIdx].A.xyz;
+					vec3 v1 = triangles[tIdx].B.xyz;
+					vec3 v2 = triangles[tIdx].C.xyz;
+
+					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
+					float newT = Thit.dist;
+					if (newT > 0 && newT >= u_epsilon)
+					{
+						hasHit = true;
+						if (newT < t )
+						{
+							t = newT;
+							_u = Thit.u;
+							_v = Thit.v;
+							tri_idx = tIdx;
+						}
+					} 
+				}
+			}
+		}
+	}
+	 
+	result.u = _u;
+	result.v = _v;
+	result.t = t;
+	result.hasHit = hasHit; 
+	result.triIdx = tri_idx;
+	return result;
+}
+
+BVHhit TraverseLowerBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
 {
 	BVHhit result;
 
 	 //int size = textureSize(u_indexTexture, 0);
 	//int size = BVH.length();
-	uint currentIdx = offset;
+	uint currentIdx = 0;
 
 	uint stackPtr[StackSize];
-	stackPtr[0] = 0; //sentinel null guard value
+	stackPtr[0] = offset; //sentinel null guard value
 	currentIdx++;
 
 	//if( IntersectAABB(rayOrigin, rayDir, GetAABB(0) )) 
@@ -208,26 +306,24 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
 	while (currentIdx > 0 && currentIdx < StackSize)
 	{
 		uint bboxIdx = stackPtr[currentIdx - 1];
-		currentIdx--;
  		BVHNode currentBVH = BVH[bboxIdx];
+		currentIdx--;
 
-		uint childCount = offset + floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
+		uint childCount = floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
 		uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
 		
 		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
-		leafidx += childCount;//vec3 BBmin = vec3(currentBVH.minX,currentBVH.minY,currentBVH.minZ);
-		//vec3 BBmax = vec3(currentBVH.maxX,currentBVH.maxY,currentBVH.maxZ);
-		// childCount;
+		leafidx += childCount;
+
 		AABB currentAABB = AABB(currentBVH.m_min.xyz, currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
 
 		if (IntersectAABB(rayOrigin, rayDir, currentAABB))
 		{
 			if (isInterior)
 			{
-				
 				uint rightFirst = leftFirst + 1;
 				//BVHNode lBVH = BVH[leftChild];
-				 
+
 				//atomicCompSwap(leftFir)
 				stackPtr[currentIdx++] = leftFirst;  //leftFirst ? leftChild  : rightChild;
 				stackPtr[currentIdx++] = rightFirst;  //leftFirst ? rightChild : leftChild ;
@@ -243,17 +339,13 @@ BVHhit TraverseBVH(vec3 rayOrigin, vec3 rayDir, uint offset)
 				
 				for (uint i = 0; i < childCount; i++)
 				{	
-					 
-
-					//uint tIdx = tri_indices[j];
-					uint tIdx = offset +    nodeStart + i ;
+					uint tIdx = nodeStart + i ;
 					
 					vec3 v0 = triangles[tIdx].A.xyz;
 					vec3 v1 = triangles[tIdx].B.xyz;
 					vec3 v2 = triangles[tIdx].C.xyz;
 
 					HitData Thit = triIntersect(rayOrigin, rayDir, v0, v1, v2);
-
 					float newT = Thit.dist;
 					if (newT > 0 && newT >= u_epsilon)
 					{
@@ -326,18 +418,20 @@ void main()
 
 	vec4 finalColor = vec4(1, 1, 1, 1);
 
-	BVHhit bvhR = TraverseBVH(rayPos, rayDir, 0);
+	BVHhit bvhR = TraverseBVH(rayPos, rayDir);
+	//BVHhit bvhL = TraverseBVH(rayPos, rayDir);
 	
+	//BVHhit bvhT = bvhR.t < bvhL.t ? bvhR : bvhL; 
+
 	if(bvhR.hasHit)
 	{
 		//finalColor = vec4(bvhR.u,bvhR.v, 1, 1);	
 		UV tc = texcoords[bvhR.triIdx];
 		float u = bvhR.u;
 		float v = bvhR.v;
-		vec2 uv = tc.a * (1.0 - (u + v)) + tc.b * (u) + (v ) * tc.c;
+		vec2 uv = tc.a * (1.0 - (u + v)) + tc.b * (u) + (v) * tc.c;
 		finalColor = texture(texture_diffuse1, vec2( uv.x, uv.y)).rgba;
 	}
-	
+
 	imageStore(img_output, ivec2(gl_GlobalInvocationID), finalColor);
 }
-
