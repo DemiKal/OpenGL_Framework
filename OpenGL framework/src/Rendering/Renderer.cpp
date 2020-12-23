@@ -10,7 +10,7 @@
 #include "GameObject/Components/Model.h"
 void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
 {
-	auto const src_str = [source]() {
+	const auto* const src_str = [source]() {
 		switch (source)
 		{
 		case GL_DEBUG_SOURCE_API: return "API";
@@ -22,7 +22,7 @@ void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GL
 		}
 	}();
 
-	auto const type_str = [type]() {
+	const auto* const type_str = [type]() {
 		switch (type)
 		{
 		case GL_DEBUG_TYPE_ERROR: return "ERROR";
@@ -35,7 +35,7 @@ void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GL
 		}
 	}();
 
-	auto const severity_str = [severity]() 
+	const auto* const severity_str = [severity]() 
 	{
 		switch (severity) 
 		{
@@ -45,8 +45,9 @@ void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GL
 		case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
 		}
 	}();
+	
 	fmt::print("\n=================\n");
-	fmt::print("{}, {}, {}, {}: {}\n", src_str , type_str, severity_str, id, message);
+	fmt::print("{}, {}, {}, {}: {}", src_str , type_str, severity_str, id, message);
 	fmt::print("\n=================");
 }
 ScreenQuad Renderer::screenQuad;

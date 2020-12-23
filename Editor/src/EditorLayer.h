@@ -2,7 +2,6 @@
 #include "Core/Layer.h"
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
-#include "Rendering/Buffer/FrameBuffer.h"
 #include "Geometry/BVH/TopLevelBVH.h"
 
 namespace meme {
