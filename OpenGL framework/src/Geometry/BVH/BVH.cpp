@@ -166,9 +166,9 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris, const uint32_t bufferOffs
 //		m_aabbMatrices.emplace_back(b.GetTransform());
 //
 //	unsigned int AABB_matBuffer;
-//	GLCall(glGenBuffers(1, &AABB_matBuffer));
-//	GLCall(glBindBuffer(GL_ARRAY_BUFFER, AABB_matBuffer));
-//	GLCall(glBufferData(GL_ARRAY_BUFFER, m_aabbMatrices.size() * sizeof(glm::mat4), &m_aabbMatrices[0], GL_STATIC_DRAW));
+//	glGenBuffers(1, &AABB_matBuffer));
+//	glBindBuffer(GL_ARRAY_BUFFER, AABB_matBuffer));
+//	glBufferData(GL_ARRAY_BUFFER, m_aabbMatrices.size() * sizeof(glm::mat4), &m_aabbMatrices[0], GL_STATIC_DRAW));
 //	Model* m_wireCube = &EntityManager::GetEntity("WireCube");
 //
 //	const unsigned int cubeVAO = m_wireCube->GetMesh(0).GetVAO();
@@ -313,12 +313,12 @@ void BVH::DrawTriangle(const glm::vec3& A, const glm::vec3& B, const glm::vec3& 
 	shader.SetUniformMat4f("view", cam->GetViewMatrix());
 	shader.SetUniformMat4f("projection", cam->GetProjectionMatrix());
 	shader.SetVec4f("u_color", 1, 1, 0.0f, 1.0f);
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_TriangleVBO));
+	glBindBuffer(GL_ARRAY_BUFFER, m_TriangleVBO);
 
-	GLCall(glBindVertexArray(m_TriangleVAO));
+	glBindVertexArray(m_TriangleVAO);
 	std::vector<glm::vec3 > newBuffer = { A + normal, B + normal,C + normal };
-	GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(glm::vec3), &newBuffer[0]));
-	GLCall(glDrawArrays(GL_TRIANGLES, 0, 3)); //plane!
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(glm::vec3), &newBuffer[0]);
+	glDrawArrays(GL_TRIANGLES, 0, 3); //plane!
 
 	//newBuffer = { A - normal,B - normal,C - normal };
 	//glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(glm::vec3), &newBuffer[0]);
@@ -331,13 +331,13 @@ void BVH::InitTriangleRenderer()
 	std::vector<glm::vec3> triangleBuffer = { {-0.5,-1.5, 0.5},{1, -1.5f,	0.5},{1, -2, -1} }; //world pos
 
 	unsigned int  triangleVAO, triangleVBO;
-	GLCall(glGenVertexArrays(1, &triangleVAO));
-	GLCall(glGenBuffers(1, &triangleVBO));
-	GLCall(glBindVertexArray(triangleVAO));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, triangleVBO));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 3, &triangleBuffer[0], GL_DYNAMIC_DRAW));
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+	glGenVertexArrays(1, &triangleVAO);
+	glGenBuffers(1, &triangleVBO);
+	glBindVertexArray(triangleVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 3, &triangleBuffer[0], GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 	m_TriangleVAO = triangleVAO;
 	m_TriangleVBO = triangleVBO;

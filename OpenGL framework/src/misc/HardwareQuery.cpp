@@ -10,9 +10,9 @@ void HardwareQuery::Query()
 	GLint max_uniform_locations = 0;
 	GLint maxInvoc = 0;
 	
-	GLCall(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size));
-	GLCall(glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &max_uniform_locations));
-	GLCall(glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxInvoc));
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
+	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &max_uniform_locations);
+	glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxInvoc);
 	int work_grp_size[3];
 	// maximum global work group (total work in a dispatch)
 	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);

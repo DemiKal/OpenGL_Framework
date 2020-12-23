@@ -1,5 +1,5 @@
 #define STB_IMAGE_IMPLEMENTATION
-#define AI_CONFIG_PP_LBW_MAX_WEIGHTS 3
+//#define AI_CONFIG_PP_LBW_MAX_WEIGHTS 3
 //#define USEGLEW
 
 #include "precomp.h"

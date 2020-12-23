@@ -8,7 +8,47 @@
 #include "GameObject/Camera.h"
 #include "GameObject/Components/MeshManager.h"
 #include "GameObject/Components/Model.h"
+void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
+{
+	auto const src_str = [source]() {
+		switch (source)
+		{
+		case GL_DEBUG_SOURCE_API: return "API";
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW SYSTEM";
+		case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER COMPILER";
+		case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD PARTY";
+		case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
+		case GL_DEBUG_SOURCE_OTHER: return "OTHER";
+		}
+	}();
 
+	auto const type_str = [type]() {
+		switch (type)
+		{
+		case GL_DEBUG_TYPE_ERROR: return "ERROR";
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
+		case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
+		case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
+		case GL_DEBUG_TYPE_MARKER: return "MARKER";
+		case GL_DEBUG_TYPE_OTHER: return "OTHER";
+		}
+	}();
+
+	auto const severity_str = [severity]() 
+	{
+		switch (severity) 
+		{
+		case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
+		case GL_DEBUG_SEVERITY_LOW: return "LOW";
+		case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+		case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
+		}
+	}();
+	fmt::print("\n=================\n");
+	fmt::print("{}, {}, {}, {}: {}\n", src_str , type_str, severity_str, id, message);
+	fmt::print("\n=================");
+}
 ScreenQuad Renderer::screenQuad;
 
 void Renderer::ShutDown()
@@ -69,7 +109,7 @@ void Renderer::DrawFrustum(const Camera& renderCam, Camera& debugCam, const glm:
 void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::vec3& a, const glm::vec3& b,
 	const glm::vec4& color)
 {
-	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_LineVBO));
+	//glBindBuffer(GL_ARRAY_BUFFER, m_LineVBO));
 	std::vector<glm::vec3> data = { a, b };
 	Shader& shader = ShaderManager::GetShader("lineshader");
 
@@ -82,27 +122,27 @@ void Renderer::DrawLine(const glm::mat4& model, const Camera& cam, const glm::ve
 	//GLfloat lineWidthRange[2] = { 0.0f, 0.0f };
 	//glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
 	auto [lineVAO, lineVBO] = MeshManager::GetLineBuffer();
-	GLCall(glLineWidth(5.0f))
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, lineVBO))
-		GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * 2, &data[0]))
+	glLineWidth(5.0f);
+	glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * 2, &data[0]);
 
-		GLCall(glBindVertexArray(lineVAO))
-		GLCall(glDrawArrays(GL_LINES, 0, 2))
-		GLCall(glBindVertexArray(0))
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0))
-		GLCall(glActiveTexture(GL_TEXTURE0))
+	glBindVertexArray(lineVAO);
+	glDrawArrays(GL_LINES, 0, 2);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glActiveTexture(GL_TEXTURE0);
 
-		GLCall(glLineWidth(1.0f))
-		Shader::Unbind();
+	glLineWidth(1.0f);
+	Shader::Unbind();
 }
 
 void Renderer::DrawInstancedCubes(const GLsizei instanceCount) const
 {
-	//	GLCall(glBindVertexArray(cubeVAO))
+	//	glBindVertexArray(cubeVAO))
 	//		const GLsizei indxSize = static_cast<GLsizei>(cubeIndices.size());
-	//	GLCall(glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount))
-	//		GLCall(glBindVertexArray(0))
-	//		GLCall(glActiveTexture(GL_TEXTURE0))
+	//	glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount))
+	//		glBindVertexArray(0))
+	//		glActiveTexture(GL_TEXTURE0))
 }
 
 
@@ -111,26 +151,26 @@ void Renderer::DrawCube(const Camera& cam, const glm::mat4& transform, const glm
 	//TODO: use meshmanager?
 	Shader& shader = ShaderManager::GetShader("AABB_single");
 	shader.Bind();
-	
+
 	//shader.SetVec4f("u_color", glm::vec4(1.0f, 0.75f, 0.5f, 1.0f));
 	shader.SetUniformMat4f("u_Model", transform);
 	shader.SetUniformMat4f("u_View", cam.GetViewMatrix());
 	shader.SetUniformMat4f("u_Projection", cam.GetProjectionMatrix());
 	shader.SetVec4f("u_Color", color.x, color.y, color.z, color.w);
-	
+
 	Mesh& cube = MeshManager::GetMesh(1);//wireframe cube!
 	cube.Draw(shader);
 	//glBindVertexArray(cubeVAO);
 	//
-	//GLCall(glDrawElements(GL_LINES, static_cast<GLsizei>(cubeIndices.size()), GL_UNSIGNED_INT, nullptr))
+	//glDrawElements(GL_LINES, static_cast<GLsizei>(cubeIndices.size()), GL_UNSIGNED_INT, nullptr))
 	//
-	//	GLCall(glBindVertexArray(0));
-	//GLCall(glActiveTexture(GL_TEXTURE0))
+	//	glBindVertexArray(0));
+	//glActiveTexture(GL_TEXTURE0))
 }
 
 void Renderer::Enable(GLenum type)
 {
-	GLCall(glEnable(type))
+	glEnable(type);
 }
 
 //void Renderer::EnableDepth()//TODO: add some cached binding stuff
@@ -161,7 +201,7 @@ void Renderer::SetDepthFunc(const GLenum depthFunc)
 	}
 
 	m_DepthFunction = depthFunc;
-	GLCall(glDepthFunc(depthFunc))
+	glDepthFunc(depthFunc);
 }
 
 void Renderer::DrawScreenQuad()
@@ -193,21 +233,21 @@ void Renderer::SetCullingMode(const GLenum cullingMode)
 	}
 
 	m_CullingMode = cullingMode;
-	GLCall(glCullFace(m_CullingMode))
+	glCullFace(m_CullingMode);
 }
 
 void Renderer::DisableDepth()
 {
 	if (!m_DepthTest) return;
 	m_DepthTest = false;
-	GLCall(glDisable(GL_DEPTH_TEST))
+	glDisable(GL_DEPTH_TEST);
 }
 
 void Renderer::EnableDepth()
 {
 	if (m_DepthTest) return;
 	m_DepthTest = true;
-	GLCall(glEnable(GL_DEPTH_TEST))
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Renderer::Init(std::vector<std::tuple<int, int>> windowHints)
@@ -223,10 +263,10 @@ void Renderer::Init(std::vector<std::tuple<int, int>> windowHints)
 	//glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 	//glfwWindowHint(GLFW_DECORATED, GL_TRUE); //GL_FALSE GL_TRUE
 
-	for (auto [key, val] : windowHints) glfwWindowHint(key, val);
+	for (auto &[key, val] : windowHints) glfwWindowHint(key, val);
 
 
-
+	
 
 
 	//glfwWindowHint(GLFW_FULLSCREEN, GL_TRUE);
@@ -236,7 +276,7 @@ void Renderer::Init(std::vector<std::tuple<int, int>> windowHints)
 	/* Create a windowed mode window and its OpenGL context */
 	//auto xx = glfwGetPrimaryMonitor();
 	m_Window = glfwCreateWindow(SCREENWIDTH, SCREENHEIGHT, "Hello World", nullptr, nullptr);
- 	if (!m_Window)
+	if (!m_Window)
 	{
 		glfwTerminate();
 		throw std::exception("ERROR: Could not create GLFW window!");
@@ -253,6 +293,14 @@ void Renderer::Init(std::vector<std::tuple<int, int>> windowHints)
 	if (!gladStatus)
 		fmt::print("Glad not loaded!");
 #endif	
+
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+
+	glDebugMessageCallback(message_callback, nullptr);
+
 	HardwareQuery::Query();
 	//m_DepthTest = false;
 	//SetAlphaBlending(m_AlphaBlending);
@@ -327,8 +375,8 @@ Renderer::Renderer()
 
 void Renderer::Clear()
 {
-	GLCall(glClearColor(0.2f, 0.3f, 0.6f, 1.0f));
-	GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	glClearColor(0.2f, 0.3f, 0.6f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader)
@@ -336,7 +384,7 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
 	shader.Bind();
 	va.Bind();
 	ib.Bind();
-	GLCall(glDrawElements(GL_POINTS, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+	glDrawElements(GL_POINTS, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
 }
 
 
@@ -347,13 +395,13 @@ void Renderer::SetAlphaBlending(const bool alphaValue)
 	if (alphaValue)
 	{
 		m_AlphaBlending = true;
-		GLCall(glEnable(GL_BLEND))
-			GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	else
 	{
-		GLCall(glDisable(GL_BLEND))
-			m_AlphaBlending = false;
+		glDisable(GL_BLEND);
+		m_AlphaBlending = false;
 	}
 
 }
@@ -361,7 +409,7 @@ void Renderer::SetVSync(const bool cond)
 {
 	if (cond != m_VSync) m_VSync = cond;
 
-	GLCall(glfwSwapInterval(m_VSync))
+	glfwSwapInterval(m_VSync);
 }
 
 bool Renderer::GetVSync() const
@@ -388,8 +436,8 @@ void Renderer::SwapBuffers() const
 
 void Renderer::SwapBuffers(GLFWwindow* window)
 {
-	GLCall(glfwPollEvents())
-		GLCall(glfwSwapBuffers(window))
+	glfwPollEvents();
+	glfwSwapBuffers(window);
 }
 
 void GLClearError()

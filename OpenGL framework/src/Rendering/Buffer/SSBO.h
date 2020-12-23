@@ -55,6 +55,7 @@ public:
 			
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(m_ElemSize) * m_Buffer.size(), m_Buffer.data(), GL_STATIC_COPY);
+		//glBufferSubData(GL_SHADER_STORAGE_BUFFER, static_cast <GLsizeiptr>(0), static_cast<GLsizeiptr>(m_ElemSize) * m_Buffer.size(), m_Buffer.data());
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_BindIdx, m_RendererID);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}

@@ -25,11 +25,11 @@ ComputeShader::ComputeShader(const std::string& shaderSrc, uint32_t width, uint3
 	const unsigned int program = glCreateProgram();
 	const unsigned int cs = CompileShader(GL_COMPUTE_SHADER, shaderSrc);
 
-	GLCall(glAttachShader(program, cs))
-		GLCall(glLinkProgram(program))
-		GLCall(glValidateProgram(program))
-		GLCall(glDeleteShader(cs))
-		m_RendererID = program;
+	glAttachShader(program, cs);
+	glLinkProgram(program);
+	glValidateProgram(program);
+	glDeleteShader(cs);
+	m_RendererID = program;
 
 	SetupUniforms();
 	GetAttributes();

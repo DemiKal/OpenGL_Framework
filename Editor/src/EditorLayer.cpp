@@ -55,11 +55,9 @@ void EditorLayer::OnAttach()
 
 	const auto helm = m_Registry.create();
 	m_Registry.emplace<TransformComponent>(helm);
-	m_Registry.emplace<TagComponent>(helm, "Anim");
+	m_Registry.emplace<TagComponent>(helm, "helm");
 	m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/PBR/DamagedHelmet.glb", aiProcess_Triangulate);
  
-	mc2.ShaderIdx = ShaderManager::GetShaderIdx("anim");
-
 	//const auto helm = m_Registry.create();
 	//m_Registry.emplace<TransformComponent>(helm);
 	//m_Registry.emplace<TagComponent>(helm, "helm");

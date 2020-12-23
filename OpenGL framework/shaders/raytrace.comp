@@ -7,7 +7,7 @@ layout(binding = 1) uniform sampler2D  texture_diffuse1;
 layout(binding = 2) uniform sampler2D  texture_diffuse2;
 
 
-const int StackSize = 32;
+const int StackSize = 19;
 const int LEAFSIZE = 2;
 
 uniform bool u_shadowCast;
@@ -308,7 +308,7 @@ BVHhit TraverseTopBVH(vec3 rayOrigin, vec3 rayDir)
 		uint childCount = floatBitsToUint(currentBVH.m_max.w); //currentBVH.m_count;
 		uint leftFirst = floatBitsToUint(currentBVH.m_min.w);
 		
-		bool isInterior = childCount > 1; //TODO: leaf check
+		bool isInterior = childCount > LEAFSIZE; //TODO: leaf check
 
 		AABB currentAABB = AABB(currentBVH.m_min.xyz, currentBVH.m_max.xyz);  //GetAABB(bboxIdx);
 

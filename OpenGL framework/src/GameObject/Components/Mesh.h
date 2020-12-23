@@ -98,17 +98,7 @@ public:
 	void Draw(const Camera& camera, const glm::mat4& transform, Shader& shader);
 	void Draw(const glm::mat4& proj, const glm::mat4& view, Shader& shader);
 	void Draw(Shader& shader);
-	void DrawInstanced(int instanceCount)
-	{
-		//TODO: add binding for correct ssbo interface
-		GLCall(glBindVertexArray(m_VAO));
-		const GLsizei indxSize = static_cast<GLsizei>(m_Indices.size());
-		GLCall(glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount));
-		
-		GLCall(glBindVertexArray(0))
-		GLCall(glActiveTexture(GL_TEXTURE0))
-
-	}
+	void DrawInstanced(int instanceCount);
 
 };
 

@@ -33,14 +33,14 @@ void ScreenQuad::Init()
 }
 void ScreenQuad::Bind() const
 {
-	GLCall(glBindVertexArray(m_VAO));
+	glBindVertexArray(m_VAO);
 }
 void ScreenQuad::UnBind()
 {
-	GLCall(glBindVertexArray(0));
+	glBindVertexArray(0);
 }
 
 void ScreenQuad::Draw()
 {
-	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }

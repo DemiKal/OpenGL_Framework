@@ -9,31 +9,31 @@ float FrameBuffer::GetAspect() const
 
 void FrameBuffer::Init(const uint32_t width, const uint32_t height)
 {
-	GLCall(glGenFramebuffers(1, &m_RendererID))
-		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID))
-		GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_RenderTarget.GetID(), 0))
+	glGenFramebuffers(1, &m_RendererID);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_RenderTarget.GetID(), 0);
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	GLCall(glGenRenderbuffers(1, &m_RBO))
-		GLCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RBO))
-		GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height))
-		GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RBO))
+	glGenRenderbuffers(1, &m_RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RBO);
 
 		//// finally check if framebuffer is complete
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "Render buffer object (RBO) not complete!" << std::endl;
 
 	////bind color and depth to framebuffer
-	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture.GetID(), 0))
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture.GetID(), 0);
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	m_Width = width;
 	m_Height = height;
@@ -129,7 +129,7 @@ unsigned FrameBuffer::GetID() const
 
 void FrameBuffer::Bind() const
 {
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID))
+	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 }
 
 uint32_t FrameBuffer::GetWidth() const
@@ -153,5 +153,5 @@ std::tuple<uint32_t, uint32_t>  FrameBuffer::GetSize2() const
 
 void FrameBuffer::Unbind()
 {
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0))
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

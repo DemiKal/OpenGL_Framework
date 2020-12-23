@@ -10,9 +10,6 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 	bvh.MeshIdx = mc.MeshIdx;
 	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 
-
-
-
 	if (!m_BVHs.empty())
 	{
 		BVH& last = m_BVHs.back();
@@ -60,9 +57,6 @@ uint32_t UpperLvlBVH::GetBVHCount() { return m_BVHs.size(); }
 
 void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 {
-	//if (m_BVH_SSBO) glDeleteBuffers(1, &m_BVH_SSBO);
-	size_t currentSize = sizeof(BVHNode) * m_BVHBuffer.m_Buffer.size();
-	size_t res = sizeof(BVHNode) * m_Reserved;
 	InitBuffers();
 	//if (currentSize > res)
 	//{
@@ -71,28 +65,28 @@ void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 	//	return;
 	//}
 	//
-	//GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_SSBO));
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_SSBO));
 	////TODO: check if this is the right way
-	//GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(BVHNode) * (start), sizeof(BVHNode) * (end), &m_BVHBuffer[start]));
+	//glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(BVHNode) * (start), sizeof(BVHNode) * (end), &m_BVHBuffer[start]));
 	////glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	//
-	//GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Index_SSBO));
-	//GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(uint32_t) * 3 * (start), sizeof(uint32_t) * 3 * (end), &m_BVHIndexBuffer[start]));
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Index_SSBO));
+	//glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(uint32_t) * 3 * (start), sizeof(uint32_t) * 3 * (end), &m_BVHIndexBuffer[start]));
 	////glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	//
-	//GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Triangle_SSBO));
-	//GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * 3 * (start), sizeof(glm::vec4) * 3 * (end), &m_BVHTriangleBuffer[start]));
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Triangle_SSBO));
+	//glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * 3 * (start), sizeof(glm::vec4) * 3 * (end), &m_BVHTriangleBuffer[start]));
 	////glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	//
-	//GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Texcoord_SSBO));
-	//GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec2) * 3 * (start), sizeof(glm::vec2) * 3 * (end), &m_BVHTexcoordBuffer[start]));
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_Texcoord_SSBO));
+	//glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec2) * 3 * (start), sizeof(glm::vec2) * 3 * (end), &m_BVHTexcoordBuffer[start]));
 }
 
 void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 {
-	const uint32_t leafCount = 1;
+	//const uint32_t leafCount = 1;
 	BVH bvh;
-	bvh.m_LeafCount = leafCount;
+	//bvh.m_LeafCount = leafCount;
 	auto view = registry.view<TransformComponent, MeshComponent, BVHComponent>();
 
 	m_TransformBuffer.GetBuffer().emplace_back();

@@ -479,7 +479,7 @@ Mesh::Mesh(
 			m_UVs.emplace_back(face);
 
 		}
-}
+	}
 
 	//TODO: fix! animator.m_inverse_root = m_inverseRoot;
 	if (hasBones)
@@ -610,12 +610,12 @@ void Mesh::Draw(Shader& shader)
 			number = std::to_string(heightNr++);	// transfer unsigned int to stream
 				// now set the sampler to the correct texture unit
 		shader.SetInt(name + number, i);
-		//GLCall(glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
+		//glUniform1i(glGetUniformLocation(shader.m_RendererID, (name + number).c_str()), i));
 		// and finally bind the texture
 		GLenum type = tex.GetGLType();
-		GLCall(glBindTexture(type, tex.GetID()));
+		glBindTexture(type, tex.GetID());
 	}
-	GLCall(glBindVertexArray(m_VAO));
+	glBindVertexArray(m_VAO);
 
 	if (!m_animator.m_Bones.empty())
 	{
@@ -625,23 +625,35 @@ void Mesh::Draw(Shader& shader)
 		//boneMatrices.emplace_back(glm::mat4(1.0f));
 
 		const auto idx = shader.GetUniformLocation("mBones[0]");
-		GLCall(glUniformMatrix4fv(static_cast<GLint>(idx), static_cast<GLsizei>(20), GL_FALSE, reinterpret_cast<const GLfloat*>(&boneMatrices[0]))); // Passing 20 matrices
+		glUniformMatrix4fv(static_cast<GLint>(idx), static_cast<GLsizei>(20), GL_FALSE, reinterpret_cast<const GLfloat*>(&boneMatrices[0])); // Passing 20 matrices
 	}
 	auto elemtype = GetElemDrawType();
 
 	// draw mesh
 	if (!m_Indices.empty())
 	{
-		GLCall(glDrawElements(elemtype, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr))
+		glDrawElements(elemtype, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
 	}
 	else
 	{
 		auto tricount = static_cast<GLsizei>(GetTriangleCount());
-		GLCall(glDrawArrays(elemtype, 0, tricount))   //plane!
+		glDrawArrays(elemtype, 0, tricount);   //plane!
 	}
 
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
+}
+
+void Mesh::DrawInstanced(int instanceCount)
+{
+	//TODO: add binding for correct ssbo interface
+	glBindVertexArray(m_VAO);
+	const GLsizei indxSize = static_cast<GLsizei>(m_Indices.size());
+	glDrawElementsInstanced(GL_LINES, indxSize, GL_UNSIGNED_INT, nullptr, instanceCount);
+
+	glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);
+
 }
 
 bool Mesh::HasAnimation() const
@@ -717,14 +729,13 @@ void Mesh::CreateBuffers()
 	glBindVertexArray(m_VAO);
 
 	const GLsizeiptr bufferSize = sizeof(m_Vertices[0]) * m_Vertices.size();
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, bufferSize, &m_Vertices[0], GL_STATIC_DRAW));
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBufferData(GL_ARRAY_BUFFER, bufferSize, &m_Vertices[0], GL_STATIC_DRAW);
 
 	if (!m_Indices.empty())
 	{
-		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO));
-		GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int),
-			&m_Indices[0], GL_STATIC_DRAW))
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_DRAW);
 	}
 
 	unsigned int i = 0;

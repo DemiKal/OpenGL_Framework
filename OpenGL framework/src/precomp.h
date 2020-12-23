@@ -70,12 +70,12 @@ const glm::vec3 RIGHT_WORLD(1, 0, 0);
 const glm::vec3 FORWARD_WORLD(0, 0, -1);
 
 #define ASSERT(x) if(!(x)) __debugbreak(); 
-#define GLCall(x) GLClearError();\
-	x;\
-	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+//#define x) GLClearError();\
+//	x;\
+//	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
-void GLClearError();
-bool GLLogCall(const char* function, const char* file, int line);
+//void GLClearError();
+//bool GLLogCall(const char* function, const char* file, int line);
 
 glm::mat4 AI2GLMMAT(aiMatrix4x4& ai_mat);
 

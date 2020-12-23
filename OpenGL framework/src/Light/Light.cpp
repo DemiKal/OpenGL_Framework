@@ -42,8 +42,8 @@ void Light::Draw(const Camera& cam )
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(15);
 
-	GLCall(glBindVertexArray(m_VAO));
-	GLCall(glDrawArrays(GL_POINTS, 0, 3));
+	glBindVertexArray(m_VAO);
+	glDrawArrays(GL_POINTS, 0, 3);
 	shader.Unbind();
 }
 

@@ -9,7 +9,7 @@ CommandBuffer::CommandBuffer()
 FrameBuffer& CommandBuffer::GenerateFrameBuffer(const FrameBufferSpecs& framebufferSpecs)
 {
 	
-	 m_FrameBuffers.emplace_back(framebufferSpecs);
+	m_FrameBuffers.emplace_back(framebufferSpecs);
 	return m_FrameBuffers.back();
 }
 

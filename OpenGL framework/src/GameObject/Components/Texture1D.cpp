@@ -26,8 +26,8 @@ std::string Texture1D::GetName() const
 
 void Texture1D::Bind(const unsigned slot) const
 {
-	GLCall(glActiveTexture(GL_TEXTURE0 + slot));
-	GLCall(glBindTexture(GL_TEXTURE_1D, m_rendererID));
+	glActiveTexture(GL_TEXTURE0 + slot);
+	glBindTexture(GL_TEXTURE_1D, m_rendererID);
 }
 
 std::tuple<GLenum, GLenum, GLenum> GetType(dataType datatype, const unsigned int channels)
@@ -75,15 +75,15 @@ Texture1D::Texture1D(const uint32_t width, const uint32_t channels,
 	const uint32_t actualWidth = std::min(width, maxsize);
 
 	unsigned int renderer_id = 0;
-	GLCall(glGenTextures(1, &renderer_id));
-	GLCall(glBindTexture(GL_TEXTURE_1D, renderer_id));
-	GLCall(glTexImage1D(GL_TEXTURE_1D, 0, type1, actualWidth, 0,
-		type2, type3, data)); //TODO: fix non-normalized ints!
+	glGenTextures(1, &renderer_id);
+	glBindTexture(GL_TEXTURE_1D, renderer_id);
+	glTexImage1D(GL_TEXTURE_1D, 0, type1, actualWidth, 0,
+		type2, type3, data); //TODO: fix non-normalized ints!
 
-	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP));
-	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP));
-	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-	GLCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 
 	m_rendererID = renderer_id;

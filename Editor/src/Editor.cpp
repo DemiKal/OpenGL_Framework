@@ -66,10 +66,10 @@ namespace meme
 				layer->OnUpdate(dt);	//todo: calc frametime
 
 			ImGuiManager::Prepare();
-
+			//glDisable(GL_DEBUG_OUTPUT);
 			for (const auto& layer : m_Layers)
 				layer->OnImGuiRender(dt);
-
+	//		glEnable(GL_DEBUG_OUTPUT);
 			ImGuiManager::End();
 
 			m_Renderer.SwapBuffers();
