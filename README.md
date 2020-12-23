@@ -20,11 +20,8 @@ Possible Vulkan extensions in the future
 Run git clone --recursive https://github.com/DemiKal/OpenGL_Framework
 If you forgot `--recursive`, run `git submodule update --init`
 
-We use [vcpkg](https://github.com/microsoft/vcpkg) for C++ libraries. Tested with VS 2017 and VS 2019.
-Simply clone this repository, then install libraries with vcpkg, then unzip the resources files as explained below.
-
 ## vcpkg 
-If you already have vcpkg installed, just run install the libraries listed below.
+If you already have vcpkg installed, just run install the libraries listed below (step 6).
 
 1. You can clone it in any folder, but C:\vcpkg is recommended. Run `git clone https://github.com/Microsoft/vcpkg` in C:/
 2. Run `bootstrap-vcpkg.bat` 
