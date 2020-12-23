@@ -31,6 +31,8 @@ If you already have vcpkg installed, just run install the libraries listed below
 6. Install the packages. From CMD, run: `vcpkg install glm glfw3 fmt spdlog stb assimp`
 6. Run `vcpkg integrate install` for good measure, to make sure it's integrated into Visual Studio. 
 
+You can enable use of precompiled headers in the `OpenGL Framework` project for faster compilation. Make sure to set `Editor` as the start up project in Visual Studio.
+
 ## Assets
 Simply unzip Assets.zip file directly where it is.
 
