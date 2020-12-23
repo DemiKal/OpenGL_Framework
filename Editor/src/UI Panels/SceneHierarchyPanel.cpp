@@ -17,7 +17,6 @@ void AddBVHComponent(entt::registry& registry, entt::entity selected, EditorLaye
 	
 	edl->m_UpperLvlBVH->UpdateTopBVH(registry);
 	
-	//bvh.BuildBVH(mesh.m_PositionVertices);
 }
 
 //careful, selected can be invalid entity handle!

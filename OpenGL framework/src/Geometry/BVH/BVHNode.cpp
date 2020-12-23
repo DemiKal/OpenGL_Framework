@@ -1,8 +1,9 @@
 #include "precomp.h"
 #include "BVHNode.h"
 #include "BVH.h"
+//#include "Geometry/Triangle.h"
 
-
+struct Triangle;
 
 glm::vec3 GetCenterTriangle(const Triangle& triangle);
 
@@ -160,37 +161,4 @@ inline float BVHNode::CombineSAH(BVH& bvh, const std::vector<AABB>& boundingBoxe
 
 
 
-float getSmallestVertex(const int axis, const Triangle& tri)
-{
-	float min = INFINITY;
-	int idx = -1;
-	const float f = 1.0f / 3.0f;
-	glm::vec3 center = tri.A * f + tri.B * f + tri.C * f;
-
-	if (tri.A[axis] < min) min = tri.A[axis], idx = 0;
-	if (tri.B[axis] < min) min = tri.B[axis], idx = 1;
-	if (tri.C[axis] < min) min = tri.C[axis], idx = 2;
-
-	return center[axis];
-
-	//if ( idx == 0 )
-	//	return tri.A[axis];
-	//else if ( idx == 1 )
-	//	return tri.B[axis];
-	//else if ( idx == 2 )
-	//	return tri.C[axis];
-}
-
-
-glm::vec3 GetCenterTriangle(const Triangle& tri)
-{
-	const float t = 1.0f / 3.0f;
-	const glm::vec3 aa = glm::vec3(tri.A.x / 3.0f, tri.A.x / 3.0f, tri.A.z / 3.0f);
-	const glm::vec3 ab = glm::vec3(tri.B.x / 3.0f, tri.B.x / 3.0f, tri.B.z / 3.0f);
-	const glm::vec3 ac = glm::vec3(tri.C.x / 3.0f, tri.C.x / 3.0f, tri.C.z / 3.0f);
-
-	//vec3 c = ( a1.A * t ) + ( a1.B * t ) + a1.C * t;
-	glm::vec3 c = aa + ab + ac;
-	return c;
-}
 

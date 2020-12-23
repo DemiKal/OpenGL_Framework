@@ -1,19 +1,10 @@
 #pragma once
 #include "Geometry/BVH/BVHNode.h"
 #include "GameObject/Components/AABB.h"
-//#include "Rendering/UpdateBuffer/SSBO.h"
 
 class Renderer;
 class BVHNode;
 class Ray;
-struct Triangle;
-
-struct TopNodeRef
-{
-	glm::mat4 InverseMat;		//inverse of the matrix
-	glm::mat4 Offset;			//offset to the root node of the owning entity 
-	//uint32_t TriangleOffset;	//offset to the root first triangle 
-};
 
 //Bounding Volume Hierarchy
 class BVH
@@ -23,17 +14,13 @@ protected:
 
 private:
 	bool m_IsBuilt = false;
-	//BVHNode* m_Root = nullptr;
 	uint32_t m_BVH_SSBO = 0;
 	uint32_t m_Tri_SSBO = 0;
 	uint32_t m_TriIdx_SSBO = 0;
-	//uint32_t m_Offset_SSBO = 0;
 	uint32_t m_PoolPtr = 0; //points to current idx while building, becomes size pointer at end
 	unsigned int m_TriangleVAO = 0;
 	unsigned int m_TriangleVBO = 0;
 	uint32_t m_GlobalOffset = 0;
-	//std::vector<AABB> m_TriAABBs;
-	//std::vector<glm::vec3> m_TriangleCenters;
 
 //	void* dataptr;
 public:
@@ -42,8 +29,6 @@ public:
 	std::vector<BVHNode> m_Pool;
 	uint32_t StartOffset = 0;
 	uint32_t EndOffset = 0;
-	//uint32_t StartIndicesOffset = 0;
-	//uint32_t EndIndicesOffset = 0;
 	uint32_t m_TriangleOffset = 0;
 	std::vector<uint32_t> m_Indices;
 	std::vector<AABB> m_AABBS;

@@ -3,10 +3,7 @@
 #include "GameObject/Components/Model.h"
 
 
-Triangle::Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C):
-	A(_A), meshIdx(0), B(_B), triIdx(0), C(_C), dummy0i(0)
-{
-}
+
 
 IndexPair::IndexPair(const size_t p_startIdx, const size_t p_endIdx, Model& model): startIdx(p_startIdx),
                                                                                     endIdx(p_endIdx), modelPtr(&model)

@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "Camera.h"
 #include "Components/AABB.h"
-#include "GameObject/EntityManager.h"
+//#/include "GameObject/EntityManager.h"
 #include "GameObject/Components/Model.h"
 #include "Geometry/Ray.h"
 
@@ -120,34 +120,34 @@ glm::mat4 Camera::GetViewProjectionMatrix() const
 	return GetProjectionMatrix() * GetViewMatrix();
 }
 
-std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
-{
-	const Ray ray = RayFromMouse(MouseX, MouseY);
-	//glm::vec3 origin = GetPosition();
-	std::vector < std::pair<Model*, float>> hits;
-	float t_min = std::numeric_limits<float>::infinity();
-	Model* m_current = nullptr;
-	bool totalHit = false;
-
-	for (std::shared_ptr<Model> mdl : EntityManager::GetEntities())
-	{
-		float tCurrent = -1111;
-		bool hit = mdl->m_meshes[0].m_aabb.IntersectAABB(ray, tCurrent);
-		///bool hit = intersectAABB(origin, dir, tCurrent, mdl->meshes[0].m_aabb);
-		totalHit |= hit;
-		if (hit && tCurrent < t_min)
-		{
-			m_current = mdl.get();
-			t_min = tCurrent;
-		}
-	}
-
-	return { totalHit , m_current };
-	//model = m_current;
-	//
-	//return totalHit;
-	//std::min_element(hits.begin(), hits.end())
-}
+//std::pair<bool, Model*> Camera::MousePick(double MouseX, double MouseY) const
+//{
+//	const Ray ray = RayFromMouse(MouseX, MouseY);
+//	//glm::vec3 origin = GetPosition();
+//	std::vector < std::pair<Model*, float>> hits;
+//	float t_min = std::numeric_limits<float>::infinity();
+//	Model* m_current = nullptr;
+//	bool totalHit = false;
+//
+//	for (std::shared_ptr<Model> mdl : EntityManager::GetEntities())
+//	{
+//		float tCurrent = -1111;
+//		bool hit = mdl->m_meshes[0].m_aabb.IntersectAABB(ray, tCurrent);
+//		///bool hit = intersectAABB(origin, dir, tCurrent, mdl->meshes[0].m_aabb);
+//		totalHit |= hit;
+//		if (hit && tCurrent < t_min)
+//		{
+//			m_current = mdl.get();
+//			t_min = tCurrent;
+//		}
+//	}
+//
+//	return { totalHit , m_current };
+//	//model = m_current;
+//	//
+//	//return totalHit;
+//	//std::min_element(hits.begin(), hits.end())
+//}
 
 inline glm::mat4 Camera::GetViewMatrix() const
 {

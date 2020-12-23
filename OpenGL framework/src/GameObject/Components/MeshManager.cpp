@@ -1,5 +1,6 @@
 #include "precomp.h"
 #include "MeshManager.h"
+#include "Texture2D.h"
 
 void MeshManager::ProcessNode(
 	const aiNode* node,

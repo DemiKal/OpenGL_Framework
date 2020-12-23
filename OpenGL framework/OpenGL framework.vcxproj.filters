@@ -443,5 +443,8 @@
     <ClInclude Include="src\Geometry\BVH\UpperLvlBVH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Geometry\Triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

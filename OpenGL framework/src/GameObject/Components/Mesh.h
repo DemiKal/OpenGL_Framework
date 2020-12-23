@@ -1,31 +1,29 @@
 #pragma once
 
-#include "Texture2D.h"
-#include "Animation/Animator.h"
-//#include "GameObject/Components/AABB.h"
-#include "Rendering/Buffer/VertexBufferLayout.h"
-//#include "Rendering/Shader.h"
 #include "GameObject/Components/AABB.h"
+#include "Rendering/Buffer/VertexBufferLayout.h"
+#include "Animation/Animator.h"
 
 class AABB;
 class Shader;
-//class VertexBufferLayout;
+class Texture2D;
+class Animator;
 
 enum class Meshtype
 {
 	Regular, Skybox
 };
+
 class Mesh
 {
 
 protected:
-	unsigned int m_VAO{ 0 }, m_VBO{ 0 }, m_EBO{ 0 };
-	//vertex bools
+	uint32_t m_VAO{ 0 }, m_VBO{ 0 }, m_EBO{ 0 };
 	bool m_AnimationLoaded = false;
 	GLenum m_ElemDrawType = GL_TRIANGLES;
-	std::string m_Directory = "Not from Directory";
+	std::string m_Directory = "Not from directory";
 	std::string m_Filename = "Name not initialized";
-	unsigned int m_WireVAO{ 0 }, m_WireVBO{ 0 };
+	
 	entt::hashed_string m_Tag = "";
 	float m_LineThickness = 0.1f;
 

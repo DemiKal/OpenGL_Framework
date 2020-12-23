@@ -155,8 +155,12 @@
     <ClCompile Include="src\Geometry\Ray.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVHNode.cpp" />
     <ClCompile Include="src\Geometry\BVH\BVH.cpp" />
-    <ClCompile Include="src\Geometry\TriangleBuffer.cpp" />
-    <ClCompile Include="src\GameObject\EntityManager.cpp" />
+    <ClCompile Include="src\Geometry\TriangleBuffer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\GameObject\EntityManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\GameObject\Components\AABB.cpp" />
     <ClCompile Include="src\misc\InputManager.cpp" />
     <ClCompile Include="src\Light\LightManager.cpp" />
@@ -170,7 +174,9 @@
     <ClCompile Include="src\Rendering\Buffer\FrameBuffer.cpp" />
     <ClCompile Include="src\Rendering\Buffer\RenderBufferObject.cpp" />
     <ClCompile Include="src\Rendering\ShaderManager.cpp" />
-    <ClCompile Include="src\GameObject\Components\Model.cpp" />
+    <ClCompile Include="src\GameObject\Components\Model.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\GameObject\Components\Mesh.cpp" />
     <ClCompile Include="src\GameObject\Camera.cpp" />
     <ClCompile Include="src\Rendering\Shader.cpp" />
@@ -238,6 +244,7 @@
     <None Include="src\vendor\glm\gtc\vec1.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Geometry\Triangle.h" />
     <ClInclude Include="src\Rendering\CommandBuffer.h" />
     <ClInclude Include="src\GameObject\Components\MeshManager.h" />
     <ClInclude Include="src\Core\Layer.h" />
@@ -254,7 +261,9 @@
     <ClInclude Include="src\Geometry\Ray.h" />
     <ClInclude Include="src\Geometry\BVH\BVHNode.h" />
     <ClInclude Include="src\Geometry\BVH\BVH.h" />
-    <ClInclude Include="src\GameObject\EntityManager.h" />
+    <ClInclude Include="src\GameObject\EntityManager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\GameObject\Components\AABB.h" />
     <ClInclude Include="src\misc\InputManager.h" />
     <ClInclude Include="src\Light\LightManager.h" />
@@ -269,7 +278,9 @@
     <ClInclude Include="src\Rendering\Buffer\FrameBuffer.h" />
     <ClInclude Include="src\Rendering\Buffer\RenderBufferObject.h" />
     <ClInclude Include="src\Rendering\ShaderManager.h" />
-    <ClInclude Include="src\GameObject\Components\Model.h" />
+    <ClInclude Include="src\GameObject\Components\Model.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\GameObject\Components\Mesh.h" />
     <ClInclude Include="src\GameObject\Camera.h" />
     <ClInclude Include="src\precomp.h" />
@@ -292,7 +303,9 @@
     <ClInclude Include="src\Rendering\Buffer\VertexBufferLayout.h" />
     <ClInclude Include="src\Rendering\Buffer\VertexArraySub.h" />
     <ClInclude Include="src\GameObject\Components\Texture2D.h" />
-    <ClInclude Include="src\Geometry\TriangleBuffer.h" />
+    <ClInclude Include="src\Geometry\TriangleBuffer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\misc\UserInterface.h" />
     <ClInclude Include="src\Rendering\Buffer\SSBO.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h">

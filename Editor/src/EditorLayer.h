@@ -9,8 +9,10 @@
 namespace meme {
 	class Editor;
 }
+
 class Gizmo;
 class Camera;
+
 class EditorLayer : public Layer
 {
 
@@ -23,7 +25,6 @@ public:
 	ImGuizmo::OPERATION m_TransformWidgetOperation = ImGuizmo::OPERATION::TRANSLATE;
 	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 	std::vector<Gizmo*> m_Gizmos;
-	Texture2D m_Skybox;
 	std::unique_ptr<UpperLvlBVH> m_UpperLvlBVH = std::make_unique< UpperLvlBVH>();
 	EditorLayer(meme::Editor* editor);
 

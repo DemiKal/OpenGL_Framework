@@ -1,7 +1,7 @@
 #pragma once
 //#include "precomp.h"
 #include "Core/Layer.h"
-#include "GameObject/EntityManager.h"
+//#include "GameObject/EntityManager.h"
 #include "GameObject/Components/MeshManager.h"
 #include "Rendering/CommandBuffer.h"
 #include "Rendering/Renderer.h"
@@ -36,7 +36,6 @@ namespace meme
 
 		explicit Application(std::string name) : m_Name(std::move(name))
 		{
-			EntityManager::Init();
 			m_Renderer.Init(windowHints);
 			m_CommandBuffer = {};
 			ShaderManager::Init("../OpenGL Framework/shaders");

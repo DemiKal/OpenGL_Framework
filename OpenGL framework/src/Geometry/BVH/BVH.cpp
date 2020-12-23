@@ -1,15 +1,55 @@
 #include "precomp.h"
 #include "BVH.h"
 #include "GameObject/Camera.h"
-#include "GameObject/EntityManager.h" 
 #include "misc/InputManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/ShaderManager.h" 
-#include "Geometry/TriangleBuffer.h"
-//#include "GameObject/Components/Texture1D.h"
 #include "Geometry/Ray.h"
 #include "GameObject/Components/MeshManager.h"
 
+struct Triangle
+{
+	glm::vec3 A;
+	union { float dummy0f = 0; uint32_t meshIdx; };
+	glm::vec3 B;
+	union { float dummy1f = 0; uint32_t triIdx; };
+	glm::vec3 C;
+	union { float dummy2f = 0; uint32_t dummy0i; };
+
+
+	Triangle() = default;
+	//Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C);
+
+	Triangle(const glm::vec3& _A, const glm::vec3& _B, const glm::vec3& _C) :
+		A(_A), meshIdx(0), B(_B), triIdx(0), C(_C), dummy0i(0)
+	{
+	}
+	glm::vec3 GetCenterTriangle(const Triangle& tri)
+	{
+		const float t = 1.0f / 3.0f;
+		const glm::vec3 aa = glm::vec3(tri.A.x / 3.0f, tri.A.x / 3.0f, tri.A.z / 3.0f);
+		const glm::vec3 ab = glm::vec3(tri.B.x / 3.0f, tri.B.x / 3.0f, tri.B.z / 3.0f);
+		const glm::vec3 ac = glm::vec3(tri.C.x / 3.0f, tri.C.x / 3.0f, tri.C.z / 3.0f);
+
+		//vec3 c = ( a1.A * t ) + ( a1.B * t ) + a1.C * t;
+		glm::vec3 c = aa + ab + ac;
+		return c;
+	}
+	float getSmallestVertex(const int axis, const Triangle& tri)
+	{
+		float min = INFINITY;
+		int idx = -1;
+		const float f = 1.0f / 3.0f;
+		glm::vec3 center = tri.A * f + tri.B * f + tri.C * f;
+
+		if (tri.A[axis] < min) min = tri.A[axis], idx = 0;
+		if (tri.B[axis] < min) min = tri.B[axis], idx = 1;
+		if (tri.C[axis] < min) min = tri.C[axis], idx = 2;
+
+		return center[axis];
+	}
+
+};
 BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root, const int poolPtr) :
 	m_BVH_SSBO(0),
 	//m_Root(root),
@@ -155,7 +195,6 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris, const uint32_t bufferOffs
 		fmt::print("[lf: {}]. Node: idx {}, leftfirst: {}, count: {}\n", k, i++, v.GetLeftFirst(), v.GetCount());
 	}
 
-	CreateBuffers(triangles);
 	m_IsBuilt = true;
 }
 
@@ -245,7 +284,7 @@ void BVH::CastRay(const Ray& ray)
 	if (!hitData.empty())
 	{
 		//std::cout << "Hit leaf of BVH!\n";
-		auto& triangles = TriangleBuffer::GetTriangleBuffer();
+		//auto& triangles = TriangleBuffer::GetTriangleBuffer();
 		for (HitData& hd : hitData)
 		{
 			BVHNode& node = m_Pool[hd.nodeIdx];
@@ -256,7 +295,7 @@ void BVH::CastRay(const Ray& ray)
 			{
 				const uint32_t j = node.GetLeftFirst() + i;
 				const uint32_t triIdx = m_Indices[j];
-				const Triangle& triangle = triangles[triIdx];
+				const  Triangle  triangle(glm::vec3(0), glm::vec3(0), glm::vec3(0));// {  0, 0, 0, 0, 0, 0, 0, 0  };// = triangles[triIdx];	//TODO OLD CODE!
 				glm::vec2 baryCentric;
 				float distance;;
 				//DrawTriangle(triangle.A, triangle.B, triangle.C);
@@ -276,18 +315,19 @@ void BVH::CastRay(const Ray& ray)
 
 		if (nearestTriIdx > -1)
 		{
-			Triangle& tri = triangles[nearestTriIdx];
+			//Triangle& tri = triangles[nearestTriIdx];
+			const  Triangle  tri(glm::vec3(0), glm::vec3(0), glm::vec3(0));// {  0, 0, 0, 0, 0, 0, 0, 0  };// = triangles[triIdx];	//TODO OLD CODE!
 			DrawTriangle(tri.A, tri.B, tri.C);
 			m_Pool[triangleAABBidx].m_bounds.Draw(*Camera::GetMain(), { 1.0f,0.2f,0.8f, 1.0f });
-			auto& triangleMap = TriangleBuffer::GetIndexRangeBuffer();
-			for (auto& rangeIdx : triangleMap)
-			{
-				if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx < rangeIdx.endIdx)
-				{
-					//ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->m_Name.c_str());
-					//ImGui::LabelText("Tri Idx: ", std::to_string(nearestTriIdx).c_str());
-				}
-			}
+			//auto& triangleMap = TriangleBuffer::GetIndexRangeBuffer();
+			//for (auto& rangeIdx : triangleMap)
+			//{
+			//	if (nearestTriIdx >= rangeIdx.startIdx && nearestTriIdx < rangeIdx.endIdx)
+			//	{
+			//		//ImGui::LabelText("selected object is: ", rangeIdx.modelPtr->m_Name.c_str());
+			//		//ImGui::LabelText("Tri Idx: ", std::to_string(nearestTriIdx).c_str());
+			//	}
+			//}
 
 		}
 	}
@@ -417,8 +457,8 @@ void BVH::DrawSingleAABB(Camera& cam, const uint32_t index)
 	mat.Draw(cam, { 1.0f, 0.2f, 0.3f, 1.0f });
 }
 
-void BVH::CreateBuffers(const std::vector<Triangle>& tris)
-{
+//void BVH::CreateBuffers(const std::vector<Triangle>& tris)
+//{
 	//GLuint m_bvh_ssbo = 0;
 	//const unsigned int poolSize = sizeof(BVHNode) * m_PoolPtr;
 	//glGenBuffers(1, &m_BVH_SSBO);
@@ -441,7 +481,7 @@ void BVH::CreateBuffers(const std::vector<Triangle>& tris)
 	//glBufferData(GL_SHADER_STORAGE_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_COPY);
 	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_TriIdx_SSBO);
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
+//}
 
 bool BVH::IsBuilt() const
 {

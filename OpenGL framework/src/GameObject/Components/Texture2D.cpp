@@ -166,6 +166,11 @@ Texture2D::Texture2D(
 
 }
 
+ Texture2D::~Texture2D()
+{
+	fmt::print("Texture2D destructed with ID={}, path={}   \n", m_RendererID, m_path);
+}
+
 unsigned Texture2D::GetID() const
 {
 	return m_RendererID;

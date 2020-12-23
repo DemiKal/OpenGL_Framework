@@ -1,5 +1,4 @@
 #pragma once
-//#include <stb_image.h>
 
 class Texture2D
 {
@@ -31,10 +30,7 @@ public:
 		const GLenum wrap_S = GL_CLAMP_TO_BORDER,
 		const GLenum wrap_T = GL_CLAMP_TO_BORDER,
 		const void* data = nullptr);
-	~Texture2D()
-	{
-		fmt::print("Texture2D destructed with ID={}, path={}   \n", m_RendererID, m_path);
- 	};
+	~Texture2D();;
 
 	[[nodiscard]] std::string GetType() const;
 	[[nodiscard]] std::string GetPath() const;

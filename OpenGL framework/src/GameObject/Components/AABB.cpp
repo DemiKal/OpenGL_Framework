@@ -3,7 +3,7 @@
 #include "Model.h"
 #include "Rendering/Shader.h"
 #include "GameObject/Camera.h"
-#include "GameObject/EntityManager.h"
+//#include "GameObject/EntityManager.h"
 #include "GameObject/Components/AABB.h"
 #include "Geometry/Ray.h"
 #include "Rendering/ShaderManager.h"

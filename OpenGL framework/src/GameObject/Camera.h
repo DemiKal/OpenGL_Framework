@@ -41,7 +41,7 @@ public:
 	[[nodiscard]] glm::mat4 GetViewProjectionMatrix() const;
 	[[nodiscard]] inline glm::mat4 GetViewMatrix() const;
 	[[nodiscard]] inline glm::mat4 GetProjectionMatrix() const;
-	[[nodiscard]] std::pair<bool, Model*> MousePick(double MouseX, double MouseY) const; //TODO fix without pointer and use optional
+	//[[nodiscard]] std::pair<bool, Model*> MousePick(double MouseX, double MouseY) const; //TODO fix without pointer and use optional
 	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
 
 private:
