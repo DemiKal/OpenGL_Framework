@@ -12,7 +12,7 @@ void DrawUIComponent(MeshComponent& mc, const float dt)
 	//ImGui::SameLine();
 
 	ImGui::Checkbox("Draw AABB", &mc.DrawAABB);
-	if (mc.DrawAABB)	
+	if (mc.DrawAABB)
 	{
 		ImGui::SameLine();
 		ImGui::ColorEdit4("##aabbcolor", glm::value_ptr(mc.AABBcolor), ImGuiColorEditFlags_NoInputs);
@@ -23,7 +23,8 @@ void DrawUIComponent(MeshComponent& mc, const float dt)
 	{
 		ImGui::SameLine();
 		ImGui::ColorEdit4("##wireFrameCol", glm::value_ptr(mc.WireFrameColor), ImGuiColorEditFlags_NoInputs);
-		//ImGui::ColorButton("Color", mc.WireFrameColor);
+		ImGui::SameLine();
+		ImGui::DragFloat("Thickness", &mc.WireframeThickness, 0.0001  , 0, 1, NULL);
 	}
 
 	ImGui::Checkbox("Visualize normals", &mc.DrawNormals);

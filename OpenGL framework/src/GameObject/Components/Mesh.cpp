@@ -1,3 +1,4 @@
+#pragma once
 #include "precomp.h"
 #include "Mesh.h"
 #include "GameObject/Components/Texture2D.h"
@@ -5,13 +6,12 @@
 #include "GameObject/Camera.h"
 #include "Animation/Joint.h"
 #include "Texture2D.h"
+#include "GameObject/Components/EntityComponents.h"
 
 glm::mat4 AI2GLMMAT(aiMatrix4x4& ai_mat)
 {
 	return glm::transpose(glm::make_mat4(ai_mat[0]));
 }
-#pragma once
-#include <glm/glm.hpp>
 //class glm::vec3;
 
 
@@ -899,16 +899,17 @@ void Mesh::AddTexture(const Texture2D& tex)
 //
 //}
 
-void Mesh::DrawWireFrame(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color) const
+void Mesh::DrawWireFrame(const Camera& camera, const MeshComponent& mc, const glm::mat4& modelMatrix) const
 {
 	Shader& shader = ShaderManager::GetShader("wireframeGS");
 	shader.Bind();
 	const uint32_t tris = GetTriangleCount();
 
+	shader.SetFloat("u_Thickness", mc.WireframeThickness);
+	shader.SetVec4f("u_Color", mc.WireFrameColor);
 	shader.SetUniformMat4f("u_Model", modelMatrix);
 	shader.SetUniformMat4f("u_View", camera.GetViewMatrix());
 	shader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
-	shader.SetVec4f("u_Color", color);
 
 	glBindVertexArray(m_VAO);
 	//for (auto& vblElem : m_VertexBufferLayout.GetElements())

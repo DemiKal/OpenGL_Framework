@@ -58,6 +58,11 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<TagComponent>(helm, "helm");
 	m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/PBR/DamagedHelmet.glb", aiProcess_Triangulate);
 
+	const auto artisans = m_Registry.create();
+	m_Registry.emplace<TransformComponent>(artisans);
+	m_Registry.emplace<TagComponent>(artisans, "artisans");
+	m_Registry.emplace<MeshComponent>(artisans, "Assets/meshes/Spyro/Artisans Hub/Artisans Hub.obj", aiProcess_Triangulate);
+
 	//const auto helm = m_Registry.create();
 	//m_Registry.emplace<TransformComponent>(helm);
 	//m_Registry.emplace<TagComponent>(helm, "helm");
@@ -358,8 +363,12 @@ void EditorLayer::RenderScene(const float dt)
 		{
 			bool a = renderer.GetAlphaBlending();
 			renderer.SetAlphaBlending(true);
-			mesh.DrawWireFrame(m_EditorCamera, mat, mc.WireFrameColor);
+			auto df = renderer.GetDepthFunc();
+
+			renderer.SetDepthFunc(GL_LEQUAL);
+			mesh.DrawWireFrame(m_EditorCamera, mc, mat);
 			renderer.SetAlphaBlending(a);
+			renderer.SetDepthFunc(df);
 		}
 
 		if (mc.DrawNormals)
@@ -391,16 +400,16 @@ void EditorLayer::RenderScene(const float dt)
 	}
 
 	m_TopLevelBVH->DrawTopLevelBVH(m_EditorCamera);
-	
+
 	//draw camera frustum if entity has cam component
 	renderer.SetAlphaBlending(true);
-	if(m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
+	if (m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
 	{
 		CameraComponent debugCam = m_Registry.get<CameraComponent>(m_Selected);
 		if (debugCam.EnableDebug)
 			renderer.DrawFrustum(GetEditorCamera(), debugCam.camera, debugCam.DebugColor);
 	}
-	
+
 	//ComputeShader& comp = ShaderManager::GetComputeShader("raytrace");
 
 	//m_TopLevelBVH->Unbind();
@@ -537,8 +546,8 @@ void EditorLayer::DrawGizmos(const float dt)
 		tc.Rotation += deltaRot;
 		tc.Scale = scale;
 	}
-	
-	
+
+
 }
 
 void  EditorLayer::RenderInspectorPanel(const float dt)

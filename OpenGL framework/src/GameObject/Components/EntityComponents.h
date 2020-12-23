@@ -136,6 +136,7 @@ struct MeshComponent
 	glm::vec4 AABBcolor{ 1, 1, 0, 0.75f };
 	glm::vec4 NormalsColor{ 0,1,1,1 };
 	float NormalsMagnitude{ 0.2f };
+	float WireframeThickness{ 0.0002f  };
 };
 
 struct Texture2DComponent

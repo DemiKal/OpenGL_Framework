@@ -8,7 +8,7 @@ class AABB;
 class Shader;
 class Texture2D;
 class Animator;
-
+struct MeshComponent;
 enum class Meshtype
 {
 	Regular, Skybox
@@ -88,7 +88,7 @@ public:
 	[[nodiscard]] bool HasFaceIndices() const;
 
 	void MakeWireFrame();
-	void DrawWireFrame(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color) const;
+	void DrawWireFrame(const Camera& camera, const MeshComponent& mc, const glm::mat4& modelMatrix) const;
 	void DrawNormals(const Camera& camera, const glm::mat4& modelMatrix, const glm::vec4& color, float magnitude); //TODO:: just pass mesh component?
 	void AddTexture(const Texture2D& tex);
 	void LoadBoneData(const aiScene* scene, const aiMesh* mesh, std::unordered_map<std::string, unsigned>& boneNames, std::vector<Joint>& bones);
