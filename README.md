@@ -17,7 +17,7 @@ This engine is designed to utilize modern OpenGL code [(AZDO)](https://www.gdcva
 Possible Vulkan extensions in the future 
 
 # Build Instructions
-Run git clone --recursive https://github.com/DemiKal/OpenGL_Framework
+Run `git clone --recursive https://github.com/DemiKal/OpenGL_Framework`
 If you forgot `--recursive`, run `git submodule update --init`
 
 ## vcpkg 
