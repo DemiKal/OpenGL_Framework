@@ -177,7 +177,7 @@
     <ClCompile Include="src\Rendering\CommandBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Geometry\BVH\UpperLvlBVH.cpp">
+    <ClCompile Include="src\Geometry\BVH\TopLevelBVH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -440,10 +440,10 @@
     <ClInclude Include="src\Rendering\CommandBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Geometry\BVH\UpperLvlBVH.h">
+    <ClInclude Include="src\Geometry\Triangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Geometry\Triangle.h">
+    <ClInclude Include="src\Geometry\BVH\TopLevelBVH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

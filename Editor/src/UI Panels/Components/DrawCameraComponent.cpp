@@ -35,5 +35,9 @@ void DrawUIComponent(CameraComponent& cc, entt::registry& registry, entt::entity
 	//	ImGui::TreePop();
 
 	cc.camera.RecalcProjection();
+	ImGui::Text("Debug");
+	ImGui::Checkbox("Draw Frustum", &cc.EnableDebug);
+	if(cc.EnableDebug) 
+		ImGui::ColorEdit4("Frustum Color", glm::value_ptr(cc.DebugColor), ImGuiColorEditFlags_::ImGuiColorEditFlags_NoInputs);  
 	ImGui::Separator();
 }

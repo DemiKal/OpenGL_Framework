@@ -4,13 +4,13 @@
 #include "RenderLayer.h"
 //#include "RenderLayer.h"
 #include "Editor.h"
-#include "Gizmos/Gizmo.h"
+//#include "Gizmos/Gizmo.h"
 
 void EditorLayer::RenderViewportPanel(float dt)
 {
 
 	ComputeShader& comp = ShaderManager::GetComputeShader("raytrace");
-	m_UpperLvlBVH->Bind();
+	m_TopLevelBVH->Bind();
 	static bool dispatch = false;
 
 	ImGui::Begin("Ray trace test");
@@ -81,28 +81,28 @@ void EditorLayer::RenderViewportPanel(float dt)
 	if (ImGui::Button(name))
 		ImGui::OpenPopup("MyGizmoPopup");
 
-	if (ImGui::BeginPopup("MyGizmoPopup"))
+	if (ImGui::BeginPopup("MyGizmoPopup"))	//TODO: this can be used to toggle all gizmos or smething
 	{
-		ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
-		for (auto& gizmo : m_Gizmos)
-		{
-			if (&gizmo->m_Enabled)
-			{
-				if (ImGui::BeginMenu(gizmo->m_Name.c_str()))
-				{
-					ImGui::MenuItem("Enable", "", &gizmo->m_Enabled);
-					ImGui::ColorEdit4("##MyColor", &gizmo->m_Color[0], ImGuiColorEditFlags_NoInputs);
-
-					ImGui::EndMenu();
-				}
-			}
-
-
-			ImGui::PopItemFlag();
-			ImGui::EndPopup();
-
-
-		}
+		//ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+		//for (auto& gizmo : m_Gizmos)
+		//{
+		//	if (&gizmo->m_Enabled)
+		//	{
+		//		if (ImGui::BeginMenu(gizmo->m_Name.c_str()))
+		//		{
+		//			ImGui::MenuItem("Enable", "", &gizmo->m_Enabled);
+		//			ImGui::ColorEdit4("##MyColor", &gizmo->m_Color[0], ImGuiColorEditFlags_NoInputs);
+		//
+		//			ImGui::EndMenu();
+		//		}
+		//	}
+		//
+		//
+		//	ImGui::PopItemFlag();
+		//	ImGui::EndPopup();
+		//
+		//
+		//}
 	}
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 

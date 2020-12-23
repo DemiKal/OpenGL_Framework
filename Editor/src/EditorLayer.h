@@ -1,16 +1,15 @@
 #pragma once
 #include "Core/Layer.h"
-//#include "GameObject/Camera.h"
 #include "GameObject/Camera.h"
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/Buffer/FrameBuffer.h"
-#include "Geometry/BVH/UpperLvlBVH.h"
-//#include "Gizmos/Gizmo.h"
+#include "Geometry/BVH/TopLevelBVH.h"
+
 namespace meme {
 	class Editor;
 }
 
-class Gizmo;
+//class Gizmo;
 class Camera;
 
 class EditorLayer : public Layer
@@ -24,8 +23,8 @@ public:
 	ImVec2 m_ImGuiRegionSize;
 	ImGuizmo::OPERATION m_TransformWidgetOperation = ImGuizmo::OPERATION::TRANSLATE;
 	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
-	std::vector<Gizmo*> m_Gizmos;
-	std::unique_ptr<UpperLvlBVH> m_UpperLvlBVH = std::make_unique< UpperLvlBVH>();
+	//std::vector<Gizmo*> m_Gizmos;
+	std::unique_ptr<TopLevelBVH> m_TopLevelBVH = std::make_unique< TopLevelBVH>();
 	EditorLayer(meme::Editor* editor);
 
 	void OnAttach() override;

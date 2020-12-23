@@ -2,17 +2,13 @@
 #include "Geometry/BVH/BVH.h"
 #include "Rendering/Buffer/SSBO.h"
 
-// Upper level BVH, this holds references to all BVHs it owns 
+// Top level BVH, this holds references to all BVHs it owns 
 // Bvh data is put here in a contiguous array for all BVHs it owns
 class BVH;
-class MeshComponent;
-class BVHComponent;
+struct MeshComponent;
+struct BVHComponent;
 
-//this goes to GPU
-
-
-
-class UpperLvlBVH
+class TopLevelBVH
 {
 	typedef std::array<glm::vec2, 3> UV;
 	typedef std::array<glm::vec4, 3> Tri;
@@ -39,7 +35,7 @@ public:
 	void InitBuffers();
 	void Unbind();
 	void Bind(uint32_t BVHIdx = 0, uint32_t indexBufferIdx = 1, uint32_t triangleBufferIndex = 2);
-	UpperLvlBVH();
+	TopLevelBVH();
 	void DrawTopLevelBVH(Camera& camera);
 	void Draw(Camera& camera, const glm::mat4& transform, BVHComponent& bvhc);
 	void AddBVH(entt::registry& registry, entt::entity entity, MeshComponent& mc);

@@ -76,6 +76,8 @@ struct TagComponent
 struct CameraComponent
 {
 	Camera camera;
+	bool EnableDebug{true};
+	glm::vec4 DebugColor{ 0.8f,0.8f,0.8f,0.8f };
 };
 
 struct DirectoryComponent

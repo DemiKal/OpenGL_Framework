@@ -1,9 +1,9 @@
 #include "precomp.h"
-#include "UpperLvlBVH.h"
+#include "TopLevelBVH.h"
 #include "GameObject/Components/Mesh.h"
 #include "GameObject/Components/EntityComponents.h"
 
-void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComponent& mc) //TODO: meshidx or entity id?
+void TopLevelBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComponent& mc) //TODO: meshidx or entity id?
 {
 	//const std::vector<glm::vec4> vertexData, uint32_t meshIdx
 	BVH bvh;
@@ -51,11 +51,11 @@ void UpperLvlBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 	UpdateBuffer(prevOffset, m_Offset);
 }
 
-inline BVH& UpperLvlBVH::GetBVH(int i) { return m_BVHs[i]; }
+inline BVH& TopLevelBVH::GetBVH(int i) { return m_BVHs[i]; }
 
-uint32_t UpperLvlBVH::GetBVHCount() { return m_BVHs.size(); }
+uint32_t TopLevelBVH::GetBVHCount() { return m_BVHs.size(); }
 
-void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
+void TopLevelBVH::UpdateBuffer(const size_t start, const size_t end)
 {
 	InitBuffers();
 	//if (currentSize > res)
@@ -82,7 +82,7 @@ void UpperLvlBVH::UpdateBuffer(const size_t start, const size_t end)
 	//glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec2) * 3 * (start), sizeof(glm::vec2) * 3 * (end), &m_BVHTexcoordBuffer[start]));
 }
 
-void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
+void TopLevelBVH::UpdateTopBVH(entt::registry& registry)
 {
 	//const uint32_t leafCount = 1;
 	BVH bvh;
@@ -115,7 +115,7 @@ void UpperLvlBVH::UpdateTopBVH(entt::registry& registry)
 	m_OffsetBuffer.Init();
 }
 
-void UpperLvlBVH::InitBuffers()
+void TopLevelBVH::InitBuffers()
 {
 	uint32_t elemCount = m_BVHBuffer.m_Buffer.size();
 
@@ -171,12 +171,12 @@ void UpperLvlBVH::InitBuffers()
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void UpperLvlBVH::Unbind()
+void TopLevelBVH::Unbind()
 {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void UpperLvlBVH::Bind(uint32_t BVHIdx, uint32_t indexBufferIdx, uint32_t triangleBufferIndex)
+void TopLevelBVH::Bind(uint32_t BVHIdx, uint32_t indexBufferIdx, uint32_t triangleBufferIndex)
 {
 	m_BVHBuffer.Bind();
 	m_TriangleBuffer.Bind();
@@ -185,11 +185,11 @@ void UpperLvlBVH::Bind(uint32_t BVHIdx, uint32_t indexBufferIdx, uint32_t triang
 	m_TransformBuffer.Bind();
 }
 
-UpperLvlBVH::UpperLvlBVH()
+TopLevelBVH::TopLevelBVH()
 {
 }
 
-void UpperLvlBVH::DrawTopLevelBVH(Camera& camera)
+void TopLevelBVH::DrawTopLevelBVH(Camera& camera)
 {
 	glm::vec4 color(1, 1, 0, 1);
 	BVH bvh;	//create dummy
@@ -200,7 +200,7 @@ void UpperLvlBVH::DrawTopLevelBVH(Camera& camera)
 	m_TopBVHBuffer.Bind();	//reset binding
 }
 
-void UpperLvlBVH::Draw(Camera& camera, const glm::mat4& transform, BVHComponent& bvhc)
+void TopLevelBVH::Draw(Camera& camera, const glm::mat4& transform, BVHComponent& bvhc)
 {
 	BVH& bvh = GetBVH(bvhc.BVHidx);
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BVH_SSBO);

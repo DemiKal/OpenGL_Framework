@@ -12,10 +12,10 @@ void AddBVHComponent(entt::registry& registry, entt::entity selected, EditorLaye
 	Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
 
 	BVHComponent& bvhc = registry.emplace<BVHComponent>(selected);
-	edl->m_UpperLvlBVH->AddBVH(registry, selected, mc);
-	bvhc.BVHidx = edl->m_UpperLvlBVH->GetBVHCount() - 1;
+	edl->m_TopLevelBVH->AddBVH(registry, selected, mc);
+	bvhc.BVHidx = edl->m_TopLevelBVH->GetBVHCount() - 1;
 	
-	edl->m_UpperLvlBVH->UpdateTopBVH(registry);
+	edl->m_TopLevelBVH->UpdateTopBVH(registry);
 	
 }
 

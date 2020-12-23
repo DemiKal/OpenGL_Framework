@@ -19,7 +19,7 @@ EditorLayer::EditorLayer(meme::Editor* editor) :
 	m_Editor(editor),
 	m_EditorCamera(glm::vec3(0, 3, 16), 70, static_cast<float>(SCREENWIDTH) / static_cast<float>(SCREENHEIGHT), 0.1f, 700.0f)
 {
-	m_Gizmos.emplace_back(new FrustumGizmo(this));
+	//m_Gizmos.emplace_back(new FrustumGizmo(this));
 }
 
 void EditorLayer::OnAttach()
@@ -57,7 +57,7 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<TransformComponent>(helm);
 	m_Registry.emplace<TagComponent>(helm, "helm");
 	m_Registry.emplace<MeshComponent>(helm, "Assets/meshes/PBR/DamagedHelmet.glb", aiProcess_Triangulate);
- 
+
 	//const auto helm = m_Registry.create();
 	//m_Registry.emplace<TransformComponent>(helm);
 	//m_Registry.emplace<TagComponent>(helm, "helm");
@@ -292,13 +292,13 @@ void EditorLayer::OnImGuiRender(const float dt)
 //TODO: delegate debug visuals to the components?
 void EditorLayer::DrawDebugVisuals(float dt)
 {
-	FrameBuffer& sceneFrame = m_Editor->GetCommandBuffer().GetFrameBuffer("Editor Scene Frame");
-	sceneFrame.Bind();
-
-	for (auto& gizmo : m_Gizmos)
-		if (gizmo->m_Enabled) gizmo->Draw();
-
-	sceneFrame.Unbind();
+	//FrameBuffer& sceneFrame = m_Editor->GetCommandBuffer().GetFrameBuffer("Editor Scene Frame");
+	//sceneFrame.Bind();
+	//
+	////for (auto& gizmo : m_Gizmos)
+	////	if (gizmo->m_Enabled) gizmo->Draw();
+	//
+	//sceneFrame.Unbind();
 }
 
 void EditorLayer::RenderSkybox()
@@ -386,14 +386,24 @@ void EditorLayer::RenderScene(const float dt)
 
 		if (bvhc.Draw)
 		{
-			m_UpperLvlBVH->Draw(m_EditorCamera, transform.CalcMatrix(), bvhc);
+			m_TopLevelBVH->Draw(m_EditorCamera, transform.CalcMatrix(), bvhc);
 		}
 	}
+
+	m_TopLevelBVH->DrawTopLevelBVH(m_EditorCamera);
 	
-	m_UpperLvlBVH->DrawTopLevelBVH(m_EditorCamera);
+	//draw camera frustum if entity has cam component
+	renderer.SetAlphaBlending(true);
+	if(m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
+	{
+		CameraComponent debugCam = m_Registry.get<CameraComponent>(m_Selected);
+		if (debugCam.EnableDebug)
+			renderer.DrawFrustum(GetEditorCamera(), debugCam.camera, debugCam.DebugColor);
+	}
+	
 	//ComputeShader& comp = ShaderManager::GetComputeShader("raytrace");
 
-	//m_UpperLvlBVH->Unbind();
+	//m_TopLevelBVH->Unbind();
 
 	//m_SceneFrame.Bind();
 
@@ -527,6 +537,8 @@ void EditorLayer::DrawGizmos(const float dt)
 		tc.Rotation += deltaRot;
 		tc.Scale = scale;
 	}
+	
+	
 }
 
 void  EditorLayer::RenderInspectorPanel(const float dt)
