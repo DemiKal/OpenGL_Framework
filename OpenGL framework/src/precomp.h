@@ -44,8 +44,8 @@ __pragma(warning(disable : 26495))
 #include <glm/gtx/quaternion.hpp>
 
 #include "vendor/imgui/imgui.h"
-#include "vendor/imgui/imgui_impl_glfw.h"
-#include "vendor/imgui/imgui_impl_opengl3.h" 
+#include "vendor/imgui/backends/imgui_impl_glfw.h"
+#include "vendor/imgui/backends/imgui_impl_opengl3.h" 
 #include "vendor/imgui/imgui_internal.h" 
 
 #include "vendor/ImGuizmo/ImGuizmo.h" 
