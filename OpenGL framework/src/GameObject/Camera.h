@@ -42,7 +42,7 @@ public:
 	[[nodiscard]] inline glm::mat4 GetViewMatrix() const;
 	[[nodiscard]] inline glm::mat4 GetProjectionMatrix() const;
 	//[[nodiscard]] std::pair<bool, Model*> MousePick(double MouseX, double MouseY) const; //TODO fix without pointer and use optional
-	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY) const;
+	[[nodiscard]] Ray RayFromMouse(double mouseX, double mouseY, const double screenWidth, const double screenHeight) const;
 
 private:
 	//FOV in degrees!

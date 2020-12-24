@@ -46,10 +46,11 @@ void Camera::MoveCameraMouse(glm::vec2 mDiff, float camSpeed, glm::vec2 & mouseV
 }
 
 //TODO: use a screen manager to get SCREENWIDTH dynamically!
-Ray Camera::RayFromMouse(const double mouseX, const double mouseY) const
+Ray Camera::RayFromMouse(const double mouseX, const double mouseY, const double screenWidth, const double screenHeight) const
 {
-	const double x = (2.0 * mouseX) / static_cast<double>(SCREENWIDTH) - 1.0;
-	const double y = 1.0 - (2.0 * mouseY) / static_cast<double>(SCREENHEIGHT);
+	
+	const double x = (2.0 * mouseX) / static_cast<double>(screenWidth) - 1.0;
+	const double y = 1.0 - (2.0 * mouseY) / static_cast<double>(screenHeight);
 	const double z = 1.0;
 	const glm::mat4 proj_mat = GetProjectionMatrix();
 	const glm::mat4 view_matrix = GetViewMatrix();

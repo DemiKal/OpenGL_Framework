@@ -20,6 +20,11 @@ public:
 	entt::entity m_Selected{ entt::null };
 	Camera m_EditorCamera;
 	ImVec2 m_ImGuiRegionSize;
+	ImVec2 m_ViewportClickPos;
+	bool m_ClickedOnViewport= false;
+	bool m_ViewportHovered = false;
+	bool m_TransformGizmoActive = false;
+	
 	ImGuizmo::OPERATION m_TransformWidgetOperation = ImGuizmo::OPERATION::TRANSLATE;
 	ImGuizmo::MODE m_TransformWidgetMode = ImGuizmo::MODE::LOCAL;
 	//std::vector<Gizmo*> m_Gizmos;

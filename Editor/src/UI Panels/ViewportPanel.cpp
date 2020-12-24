@@ -13,11 +13,11 @@ void EditorLayer::RenderViewportPanel(float dt)
 	ImGui::Checkbox("render", &dispatch);
 	Texture2D* spyrotex = nullptr;
 	Texture2D* animTex = nullptr;
-	
- 	for(auto entity : m_Registry.view<TagComponent, MeshComponent>())
+
+	for (auto entity : m_Registry.view<TagComponent, MeshComponent>())
 	{
 		const auto& [tagc, mc, tc] = m_Registry.get<TagComponent, MeshComponent, TransformComponent>(entity);
-			Mesh& m = MeshManager::GetMesh(mc.MeshIdx);
+		Mesh& m = MeshManager::GetMesh(mc.MeshIdx);
 		if (tagc.Name.data() == "Spyro")
 		{
 			//.Bind
@@ -40,14 +40,14 @@ void EditorLayer::RenderViewportPanel(float dt)
 			comp.SetFloat("u_nearPlane", m_EditorCamera.GetNearPlaneDist());
 			//comp.SetFloat("u_ambientLight", 
 			comp.SetFloat("u_epsilon", 0.001f);
-			
+
 			comp.SetVec3f("u_cameraPos", m_EditorCamera.GetPosition());
 			comp.SetVec3f("u_viewDir", m_EditorCamera.GetForwardVector());
 			comp.SetVec3f("u_cameraUp", m_EditorCamera.GetUpVector());
-			
+
 			comp.SetUniformMat4f("u_inv_viewMatrix", glm::inverse(m_EditorCamera.GetViewMatrix()));
 			comp.SetUniformMat4f("u_inv_projMatrix", glm::inverse(m_EditorCamera.GetProjectionMatrix()));
- 		});
+		});
 
 	spyrotex->Unbind();
 
@@ -58,6 +58,7 @@ void EditorLayer::RenderViewportPanel(float dt)
 	ImGui::End();
 
 
+	///====================================================================================
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
@@ -101,22 +102,31 @@ void EditorLayer::RenderViewportPanel(float dt)
 		//}
 	}
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
+	ImVec2 pos{ -1,-1 };
 	if (ImGui::BeginTabItem("View"))
 	{
+		//ImGui::SetNextWindowViewport();
 		ImGui::BeginChild("GameChild");
 		m_ImGuiRegionSize = ImGui::GetContentRegionAvail();
 
 		FrameBuffer& sceneFrame = m_Editor->GetCommandBuffer().GetFrameBuffer("Editor Scene Frame");
 		const auto texId = sceneFrame.GetTexture().GetID();	//todo fix 0 indexing!
+		//ImGui::Begin("tsesdfsd");
+		ImVec2 screen_pos = ImGui::GetCursorScreenPos();
+		pos = ImGui::GetMousePos();
+		const ImVec2 windowMousePos = pos - screen_pos;
 
+		m_ViewportClickPos = windowMousePos;
+		m_ViewportHovered = ImGui::IsWindowHovered();
+		m_ClickedOnViewport = ImGui::IsMouseClicked(0);
 
 		ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(texId)),
 			m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
+
+		//ImGui::End();
 		auto xy = ImGui::GetItemRectSize();
 
 		DrawGizmos(dt);
-
 		if (m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
 		{
 			RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();
@@ -173,7 +183,7 @@ void EditorLayer::RenderViewportPanel(float dt)
 			ImGui::Image(texid, m_ImGuiRegionSize, ImVec2(0, 1), ImVec2(1, 0));
 
 		}
-		//ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
+
 		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}

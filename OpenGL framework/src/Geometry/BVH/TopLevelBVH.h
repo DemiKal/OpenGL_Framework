@@ -8,11 +8,12 @@ class BVH;
 struct MeshComponent;
 struct BVHComponent;
 
+
 class TopLevelBVH
 {
 	typedef std::array<glm::vec2, 3> UV;
 	typedef std::array<glm::vec4, 3> Tri;
-	
+
 	friend BVH;
 	friend BVHNode;
 
@@ -41,4 +42,14 @@ public:
 	void AddBVH(entt::registry& registry, entt::entity entity, MeshComponent& mc);
 	BVH& GetBVH(int i);
 	uint32_t GetBVHCount();
+	[[nodiscard]] entt::entity PickEntity(const Ray& ray, entt::registry& registry) const;
+
+private:
+	enum  class TraversalMode
+	{
+		TraverseTop,
+		TraverseBottom
+	};
+	//std::optional<uint32_t> TraverseLower(uint32_t uint32, const Ray& ray, float& nearestT, bool traverseBottom);
+	entt::entity Traverse(const Ray& ray, uint32_t idx, float& nearestT, TraversalMode traversalMode);
 };

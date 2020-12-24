@@ -2,6 +2,7 @@
 #include "TopLevelBVH.h"
 #include "GameObject/Components/Mesh.h"
 #include "GameObject/Components/EntityComponents.h"
+#include "Geometry/Ray.h"
 
 void TopLevelBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComponent& mc) //TODO: meshidx or entity id?
 {
@@ -54,6 +55,129 @@ void TopLevelBVH::AddBVH(entt::registry& registry, entt::entity entity, MeshComp
 inline BVH& TopLevelBVH::GetBVH(int i) { return m_BVHs[i]; }
 
 uint32_t TopLevelBVH::GetBVHCount() { return m_BVHs.size(); }
+
+
+//std::optional<uint32_t>  TopLevelBVH::TraverseLower(const uint32_t idx, const Ray& ray, float& nearestT)
+//{
+//	float t;
+//	BVHNode& node = m_TopBVHBuffer[idx];
+//	if (node.m_bounds.IntersectAABB(ray, t) && t < nearestT)
+//	{
+//		nearestT = t;
+//		const uint32_t count = node.GetCount();
+//		if (count > 2)
+//		{
+//			float t1 = nearestT;
+//			float t2 = nearestT;
+//			const uint32_t leftFirst = node.GetLeftFirst();
+//			auto r1 = Traverse(ray, leftFirst, t1);
+//			auto r2 = Traverse(ray, leftFirst + 1, t2);
+//
+//			if (r1 && r2) return t1 < t2 ? r1 : r2;
+//			if (r1 != std::nullopt && r2 == std::nullopt) return r1;
+//			if (r1 == std::nullopt && r2 != std::nullopt) return r2;
+//			if (r1 == std::nullopt && r2 == std::nullopt) return std::nullopt;
+//		}
+//		else
+//		{
+//			const uint32_t childIdx = node.GetLeftFirst();
+//			std::vector<std::tuple<uint32_t, float>> hits(count);
+//			float nearestOfChildren = nearestT;
+//			std::optional<uint32_t> nearestChild;
+//
+//			for (uint32_t i = 0; i < count; i++)
+//			{
+//				float nearest;// = nearestOfChildren;
+//
+//				BVH& bvh = m_BVHs[childIdx];
+//				Ray transfRay = ray * m_TransformBuffer[childIdx]; //todo check order?
+//
+//				auto hitC = TraverseLower(childIdx, transfRay, nearest);
+//				if (hitC && nearest < nearestOfChildren)
+//					nearestChild = hitC;
+//			}
+//			return nearestChild;
+//		}
+//	}
+//	 
+//	return std::nullopt;
+//}
+
+entt::entity TopLevelBVH::PickEntity(const Ray& ray,   entt::registry& registry) const
+{
+	float nearestT = std::numeric_limits<float>::max();//or infinity?
+	entt::entity nearestEntity = entt::null;
+	auto view = registry.view<TransformComponent, MeshComponent>();
+	for (entt::entity entity : view)
+	{
+		const auto& [tc, mc] = registry.get<TransformComponent, MeshComponent>(entity);
+
+		const Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);
+		AABB aabb = mesh.m_aabb;
+		aabb.Update(tc.CalcMatrix(), mesh.m_aabb);
+
+		float t;
+		const bool hasHit = aabb.IntersectAABB(ray, t);
+
+		if (hasHit && t < nearestT)
+		{
+			nearestT = t;
+			nearestEntity = entity;
+		}
+	}
+	return nearestEntity;
+	//return Traverse(ray, idx, nearestT, TraversalMode::TraverseTop);
+}
+
+entt::entity TopLevelBVH::Traverse(const Ray& ray, const uint32_t idx, float& nearestT, const TraversalMode traversalMode)
+{
+	float t;
+	BVHNode& node = traversalMode == TraversalMode::TraverseTop ? m_TopBVHBuffer[idx] : m_BVHBuffer[idx];//get idx?
+	if (node.m_bounds.IntersectAABB(ray, t) && t < nearestT)
+	{
+		nearestT = t;
+		const uint32_t count = node.GetCount();
+		if (count > 2)
+		{
+			float t1 = nearestT;
+			float t2 = nearestT;
+			const uint32_t leftFirst = node.GetLeftFirst();
+			auto r1 = Traverse(ray, leftFirst, t1, TraversalMode::TraverseTop);
+			auto r2 = Traverse(ray, leftFirst + 1, t2, TraversalMode::TraverseTop);
+			if (r1 != entt::null && r2 != entt::null) return t1 < t2 ? r1 : r2;
+			if (r1 != entt::null && r2 == entt::null) return r1;
+			if (r1 == entt::null && r2 != entt::null) return r2;
+			if (r1 == entt::null && r2 == entt::null) return entt::null;
+
+		}
+		else
+		{
+			const uint32_t childIdx = node.GetLeftFirst();
+			std::vector<std::tuple<uint32_t, float>> hits(count);
+			float nearestDist = nearestT;
+			entt::entity nearestChild = entt::null;
+
+			for (uint32_t i = 0; i < count; i++)
+			{
+				float nearest;
+
+				BVH& bvh = m_BVHs[childIdx];
+				Ray transfRay = ray * m_TransformBuffer[childIdx]; //todo check order?
+
+				const auto current = Traverse(transfRay, childIdx, nearest, TraversalMode::TraverseBottom);
+				if (current != entt::null)
+				{
+					if (nearest < nearestDist) 
+						nearestChild = current;
+				}
+			}
+			return nearestChild;
+		}
+	}
+
+	return entt::null;
+
+}
 
 void TopLevelBVH::UpdateBuffer(const size_t start, const size_t end)
 {

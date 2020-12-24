@@ -104,7 +104,7 @@ void InputManager::Update(Camera& camera, const float dt)
 
 	glfwGetCursorPos(window, &MouseX, &MouseY);
 
-	const Ray ray = camera.RayFromMouse(MouseX, MouseY);
+	const Ray ray = camera.RayFromMouse(MouseX, MouseY,1920,1080);
 	//bvh.TraceRay(ray);
 
 	//ImGui::LabelText("label", selectedStr.c_str());

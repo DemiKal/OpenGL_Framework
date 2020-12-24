@@ -3,14 +3,14 @@
 #include "GameObject/Components/EntityComponents.h"
 #include "Rendering/Renderer.h"
 #include "RenderLayer.h"
-#include "Gizmos/FrustumGizmo.h"
 #include "Gizmos/Gizmo.h"
 #include "UI Panels/InspectorPanel.cpp"
 #include "Geometry/BVH/BVH.h"
+#include "Geometry/Ray.h"
 
 void DrawVec3Component(const std::string& label, glm::vec3& vec, float resetVal);
-void DrawUIComponent(const glm::mat4& m, const std::string& label, const float dt);
-void DrawUIComponent(MeshComponent& mc, const float dt);
+void DrawUIComponent(const glm::mat4& m, const std::string& label, float dt);
+void DrawUIComponent(MeshComponent& mc, float dt);
 void DrawUIComponent(TransformComponent& t);
 void DrawUIComponent(CameraComponent& cc, entt::registry& registry, entt::entity entity, const float dt);
 
@@ -80,6 +80,14 @@ void EditorLayer::OnUpdate(const float dt)
 {
 	OnInput(dt);
 	RenderScene(dt);
+
+	if (m_ViewportHovered && m_ClickedOnViewport && !m_TransformGizmoActive)
+	{
+		const Ray r = m_EditorCamera.RayFromMouse(m_ViewportClickPos.x, m_ViewportClickPos.y, m_ImGuiRegionSize.x, m_ImGuiRegionSize.y);
+		const entt::entity result = m_TopLevelBVH->PickEntity(r,m_Registry);
+		m_Selected = result;
+	}
+	
 }
 
 void EditorLayer::DrawCameraInspector(const float dt)
@@ -530,8 +538,10 @@ void EditorLayer::DrawGizmos(const float dt)
 
 		}
 	}
+	const bool active = ImGuizmo::IsUsing();
+	m_TransformGizmoActive = active;
 
-	if (ImGuizmo::IsUsing())
+	if(active)
 	{
 		glm::vec3 transl, rot, scale, skew;
 		glm::vec4  persp;
