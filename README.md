@@ -28,7 +28,7 @@ If you already have vcpkg installed, just run install the libraries listed below
 3. Add system variable `VCPKG_ROOT` with the installation folder as value, in our case `C:/vcpkg`
 4. Add system variable `VCPKG_DEFAULT_TRIPLET` with value `x64-windows`
 5. Add `C:\vcpkg` as a system path variable. You should now be able to run it directly from the command line (try closing the window and/or restarting Windows to see if it works).
-6. Install the packages. From CMD, run: `vcpkg install glm glfw3 fmt spdlog stb assimp`
+6. Install the packages. From CMD, run: `vcpkg install glm glfw3 glew fmt entt magic-enum spdlog stb assimp`
 6. Run `vcpkg integrate install` for good measure, to make sure it's integrated into Visual Studio. 
 
 You can enable use of precompiled headers in the `OpenGL Framework` project for faster compilation. Make sure to set `Editor` as the start up project in Visual Studio.
