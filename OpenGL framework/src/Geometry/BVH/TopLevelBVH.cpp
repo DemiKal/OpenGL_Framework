@@ -215,7 +215,7 @@ void TopLevelBVH::UpdateTopBVH(entt::registry& registry)
 
 	m_TransformBuffer.GetBuffer().emplace_back();
 	m_OffsetBuffer.GetBuffer().emplace_back();
-	std::vector<AABB> originalAABBs(view.size());
+	std::vector<AABB> originalAABBs(view.size_hint());
 	//update all transforms
 	for (auto entity : view)
 	{

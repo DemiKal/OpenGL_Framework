@@ -127,7 +127,7 @@ void EditorLayer::RenderViewportPanel(float dt)
 		auto xy = ImGui::GetItemRectSize();
 
 		DrawGizmos(dt);
-		if (m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
+		if (m_Selected != entt::null && m_Registry.any_of<CameraComponent>(m_Selected))
 		{
 			RenderLayer* rl = m_Editor->GetLayer<RenderLayer>();
 			if (rl)

@@ -12,7 +12,7 @@ void DrawUIComponent(const std::string& label, entt::registry& registry, entt::e
 	const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
 		ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 
-	if (registry.has<T>(entity))
+	if (registry.any_of<T>(entity))
 	{
 		//ImGui::PushID(label.c_str());
 

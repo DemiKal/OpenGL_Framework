@@ -411,7 +411,7 @@ void EditorLayer::RenderScene(const float dt)
 
 	//draw camera frustum if entity has cam component
 	renderer.SetAlphaBlending(true);
-	if (m_Selected != entt::null && m_Registry.has<CameraComponent>(m_Selected))
+	if (m_Selected != entt::null && m_Registry.any_of<CameraComponent>(m_Selected))
 	{
 		CameraComponent debugCam = m_Registry.get<CameraComponent>(m_Selected);
 		if (debugCam.EnableDebug)
@@ -484,7 +484,7 @@ void EditorLayer::DrawGizmos(const float dt)
 	Manipulate(glm::value_ptr(viewMat), glm::value_ptr(projMat),
 		m_TransformWidgetOperation, m_TransformWidgetMode, glm::value_ptr(transform));
 
-	if (m_Registry.has<MeshComponent>(m_Selected))
+	if (m_Registry.any_of<MeshComponent>(m_Selected))
 	{
 		MeshComponent& mc = m_Registry.get<MeshComponent>(m_Selected);
 		Mesh& mesh = MeshManager::GetMesh(mc.MeshIdx);

@@ -5,7 +5,7 @@
 
 void AddBVHComponent(entt::registry& registry, entt::entity selected, EditorLayer* edl)
 {
-	bool hasBVH = registry.has<BVHComponent>(selected);
+	bool hasBVH = registry.any_of<BVHComponent>(selected);
 	if (hasBVH) return;
 
 	MeshComponent& mc = registry.get<MeshComponent>(selected);
@@ -41,11 +41,11 @@ void DrawNode(entt::registry& registry, entt::entity entity, entt::entity& selec
 			deleteEntity = true;
 		if (ImGui::BeginMenu("Add Component"))
 		{
-			if (registry.has<MeshComponent>(entity))
+			if (registry.any_of<MeshComponent>(entity))
 				ImGui::TextDisabled("Add Mesh");
 			else if (ImGui::MenuItem("Add Mesh")) fmt::print("Added mesh!");
 
-			if (registry.has<MeshComponent>(entity) && !registry.has<BVH>(entity))
+			if (registry.any_of<MeshComponent>(entity) && !registry.any_of<BVH>(entity))
 			{
 				if (ImGui::MenuItem("Add BVH"))	AddBVHComponent(registry, entity, edl);
 			}
