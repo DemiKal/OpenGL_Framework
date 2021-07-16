@@ -1,9 +1,9 @@
-#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
 //#define AI_CONFIG_PP_LBW_MAX_WEIGHTS 3
 //#define USEGLEW
 
-#include "precomp.h"
-#include "Core/Application.h"
+//#include "precomp.h"
+//#include "Core/Application.h"
  
 //#include <src\Editor.h>
 
@@ -438,12 +438,17 @@
 
 //extern meme::Application* app = meme::CreateApplication();
 
-auto main(int argc, char** argv) -> int
+#define STB_IMAGE_IMPLEMENTATION
+#include "precomp.h"
+#include "Core/Application.h"
+
+int main(int argc, char** argv)
 {
 	std::cout << "lol\n";
 
 	auto app = meme::CreateApplication();
 	app->Run();
+		
 	return 0;
 }
 

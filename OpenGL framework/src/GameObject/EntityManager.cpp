@@ -1,3 +1,4 @@
+/*
 #include "precomp.h"
 #include "EntityManager.h"
 #include "Components/Model.h"
@@ -116,3 +117,6 @@ void EntityManager::_Update()
 
 
 }
+
+
+*/

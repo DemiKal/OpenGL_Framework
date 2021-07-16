@@ -1,3 +1,4 @@
+/*
 #include "precomp.h"
 #include "UserInterface.h"
 #include "GameObject/EntityManager.h"
@@ -111,14 +112,14 @@ void UserInterface::EntityBrowser() const
 						InputManager::SetSelectedModel(ent);
 					}
 				}
-				else {*/
+				else {
 			bool isSelected = ent_name == (selected != nullptr ? selected->m_name : "none selected!");
 
 	//		if (ImGui::Selectable(ent_name.c_str(), isSelected))
 			{
 				/*		if (ent_name == "plane") {
 							int i = 0;
-						}*/
+						}
 				selected = ent.get();
 				InputManager::SetSelectedModel(ent.get());
 			}
@@ -144,3 +145,5 @@ void UserInterface::EntityInspector()
 
 	//ImGui::End();
 }
+
+*/

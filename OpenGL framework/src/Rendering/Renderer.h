@@ -7,6 +7,7 @@
 
 #include "ScreenQuad.h"
 #include "GameObject/Components/AABB.h"
+#include <optional>
 
 class FrameBuffer;
 class IndexBuffer;

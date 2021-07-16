@@ -50,8 +50,8 @@ __pragma(warning(disable : 26495))
 
 #include "vendor/ImGuizmo/ImGuizmo.h" 
 
-
-#include <magic_enum.hpp>
+#include <optional>
+//#include <magic_enum.hpp>
 #include <entt/entt.hpp>
 #include <fmt/format.h>
 

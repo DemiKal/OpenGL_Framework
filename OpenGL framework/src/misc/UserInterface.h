@@ -1,3 +1,4 @@
+/*
 #pragma once
 class UserInterface
 {
@@ -11,3 +12,4 @@ private:
 	static void EntityInspector();		//vertical bar to the right
 };
 
+*/
