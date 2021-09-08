@@ -11,6 +11,15 @@ void EditorLayer::RenderViewportPanel(float dt)
 
 	ImGui::Begin("Ray trace test");
 	ImGui::Checkbox("render", &dispatch);
+	auto deltaTime = ImGui::GetIO().DeltaTime;
+
+	auto wndSize = ImGui::GetWindowSize();
+	auto* currentWindow = ImGui::GetCurrentWindow();
+ 
+	auto newY = std::max(wndSize.y - 1.f * dt * dt,  50.0f);
+	ImVec2 newSize = { wndSize.x, newY };
+	ImGui::SetWindowSize(newSize);
+
 	Texture2D* spyrotex = nullptr;
 	Texture2D* animTex = nullptr;
 

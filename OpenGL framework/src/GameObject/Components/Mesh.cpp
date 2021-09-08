@@ -349,6 +349,7 @@ Mesh::Mesh(
 	if (hasPositions) m_VertexBufferLayout.Push<float>(3, VertexType::POSITION);
 
 	const bool hasNormals = mesh->HasNormals();
+	
 	if (hasNormals)
 		m_VertexBufferLayout.Push<float>(3, VertexType::NORMAL);
 
