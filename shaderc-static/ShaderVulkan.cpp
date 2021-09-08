@@ -4,6 +4,10 @@ shaderc::Compiler;
 shaderc::CompileOptions options;
 shaderc::SpvCompilationResult vertShaderResult;
 
+int main(void)
+{
+	return 0;
+}
 void ShaderVulkan::LoadShader(const std::string& path)
 {
 	shaderc::Compiler compiler;

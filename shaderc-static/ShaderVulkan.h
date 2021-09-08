@@ -1,8 +1,6 @@
 #pragma once
 #include <shaderc/shaderc.hpp>
-shaderc::Compiler;
-shaderc::CompileOptions;
-shaderc::SpvCompilationResult;
+
 
 struct ShaderVulkan
 {
