@@ -3,7 +3,7 @@
 
 #include <utility>
 
-struct _CompareKeys
+struct CompareKeys
 {
 	//bool operator() (const std::pair<float, glm::vec3>& left, const std::pair<float, glm::vec3>& right)
 	//{
@@ -40,7 +40,7 @@ struct _CompareKeys
 
 	//TODO: add scalekeys?
 
-}CompareKeys;
+};
 
 AnimationChannel::AnimationChannel(): m_Name(""), m_PositionKeys(), m_RotationKeys(), m_ScaleKeys()
 {
@@ -84,13 +84,13 @@ std::string AnimationChannel::GetName() const
 
 unsigned int AnimationChannel::FindPositionIndex(const float timer)
 {
-	const auto it = std::upper_bound(m_PositionKeys.begin(), m_PositionKeys.end(), timer, CompareKeys);
+	const auto it = std::upper_bound(m_PositionKeys.begin(), m_PositionKeys.end(), timer, CompareKeys());
 	return static_cast<unsigned int>(it - m_PositionKeys.begin() - 1);
 }
 
 unsigned int AnimationChannel::FindRotationIndex(const float timer)
 {
-	const auto it = std::upper_bound(m_RotationKeys.begin(), m_RotationKeys.end(), timer, CompareKeys);
+	const auto it = std::upper_bound(m_RotationKeys.begin(), m_RotationKeys.end(), timer, CompareKeys());
 	return static_cast<unsigned int>(it - m_RotationKeys.begin() - 1);
 }
 

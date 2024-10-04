@@ -78,8 +78,16 @@ void EditorLayer::RenderSceneHierarchyPanel(float dt)
 {
 	ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
 
-	m_Registry.each([&](auto ent)
-		{
+	//m_Registry.storage<Entity>.each([&](auto ent)
+	//	{
+	//		DrawNode(m_Registry, ent, m_Selected, this);
+	//	});
+//	m_Registry.each([&](auto ent)
+//		{
+//			DrawNode(m_Registry, ent, m_Selected, this);
+//		});
+
+	m_Registry.view<entt::entity>().each([&](auto ent) {
 			DrawNode(m_Registry, ent, m_Selected, this);
 		});
 

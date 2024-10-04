@@ -11,9 +11,9 @@ BVHNode::BVHNode()
 {
 }
 
-void BVHNode::Subdivide(BVH& bvh, uint32_t start, uint32_t end, uint32_t& recursionCount)
+void BVHNode::Subdivide(BVH& bvh, size_t & pool_ptr, uint32_t start, uint32_t end, uint32_t& recursionCount)
 {
-	bvh.m_Count++;
+	//bvh.m_Count++;
 	const uint32_t objCount = end - start;
 	m_bounds = CalculateAABB(bvh, start, end);
 	//m_bounds.m_count = objCount;
@@ -25,15 +25,21 @@ void BVHNode::Subdivide(BVH& bvh, uint32_t start, uint32_t end, uint32_t& recurs
 		recursionCount += objCount;
 		return; //TODO: SET LEAF COUNT DYNAMICALLY!
 	}
-	SetLeftFirst(bvh.m_PoolPtr++);
+	auto left_first = pool_ptr;
+	pool_ptr += 1;
+	
+	SetLeftFirst(left_first);
 
-	BVHNode& l = bvh.m_Pool[GetLeftFirst()];
-	BVHNode& r = bvh.m_Pool[bvh.m_PoolPtr++];
+	BVHNode& l = bvh.m_Pool[left_first];
+	auto right_first = pool_ptr;
+	BVHNode& r = bvh.m_Pool[right_first];
+	pool_ptr += 1;
+
 
 	const uint32_t split = Partition(*this, bvh, start, end);
 
-	l.Subdivide(bvh, start, split, recursionCount);
-	r.Subdivide(bvh, split, end, recursionCount);
+	l.Subdivide(bvh, pool_ptr, start, split, recursionCount);
+	r.Subdivide(bvh, pool_ptr, split, end, recursionCount);
 }
 
 bool BVHNode::Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, const unsigned nodeIdx = 0) const

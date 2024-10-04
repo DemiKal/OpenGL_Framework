@@ -61,7 +61,7 @@ BVH::BVH(std::vector<unsigned> indices, std::vector<BVHNode> pool, BVHNode* root
 
 
 void BVH::BuildTopLevelBVH(
-	const std::vector<AABB>& originalAABBs, 
+	const std::vector<AABB>& originalAABBs,
 	const std::vector<glm::mat4>& transforms)
 {
 	if (transforms.empty())
@@ -77,7 +77,7 @@ void BVH::BuildTopLevelBVH(
 	std::iota(m_Indices.begin(), m_Indices.end(), 0);
 
 	m_Pool.resize(N * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
-	m_PoolPtr = 1;
+
 	//m_Root = &m_Pool[0];
 	m_AABBS.reserve(N);
 	//for (const auto& node : nodes)
@@ -87,7 +87,7 @@ void BVH::BuildTopLevelBVH(
 		//const BVHNode& node = nodes[i];
 		//const TopNodeRef& nodeRef = nodeRefs[i];
 		AABB copy;
-		copy.Update(glm::inverse(transforms[i]), originalAABBs[i]  );
+		copy.Update(glm::inverse(transforms[i]), originalAABBs[i]);
 
 		m_AABBS.emplace_back(copy);
 		m_TriangleCenters.emplace_back(copy.GetCenter());
@@ -96,11 +96,13 @@ void BVH::BuildTopLevelBVH(
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
 	uint32_t idx = 0;
-	m_Pool[0].Subdivide(*this, 0, N, idx);
+	size_t  pool_ptr = 1;
+	m_Pool[0].Subdivide(*this, pool_ptr, 0, N, idx);
 
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;
-	m_Pool.resize(m_PoolPtr);	//TODO: check careful with this!
+	m_Pool.resize(pool_ptr);	//TODO: check careful with this!
+	m_PoolPtr = (uint32_t)pool_ptr;
 }
 
 void BVH::BuildBVH(const std::vector<glm::vec4>& tris, const uint32_t bufferOffset, const uint32_t triangleOffset)
@@ -141,23 +143,24 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris, const uint32_t bufferOffs
 	std::iota(m_Indices.begin(), m_Indices.end(), 0);
 
 	m_Pool.resize(static_cast<size_t>(N) * 2 - 1);	//reserve max size, treat like array. Afterwards, resize downwards
-	m_PoolPtr = 1;
+	//m_PoolPtr = 1;
 	//m_Root = &m_Pool[0];
 
 	const double startTime = glfwGetTime();
 	auto start = std::chrono::steady_clock::now();
 	uint32_t idx = 0;
-	
-	m_Pool[0].Subdivide(*this, 0, N, idx);
+
+	size_t pool_ptr = 1;
+	m_Pool[0].Subdivide(*this, pool_ptr, 0, N, idx);
 
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> build_ms = end - start;
-	m_Pool.resize(m_PoolPtr);
+	m_Pool.resize(pool_ptr);
 
-	
+
 	const double endTime = glfwGetTime();
 	double time = endTime - startTime;
-	auto sizeInKB = sizeof(m_Pool[0]) * m_PoolPtr / 1024;
+	auto sizeInKB = sizeof(m_Pool[0]) * pool_ptr / 1024;
 	fmt::print("{0} triangles needed {1} recursions\n", N, m_Count);
 	fmt::print("Bvh size: {0} kb\n", sizeInKB);
 	fmt::print("Time: {0} ms\n", build_ms.count());
@@ -169,7 +172,7 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris, const uint32_t bufferOffs
 		auto lf = node.GetLeftFirst();
 		node.SetLeftFirst(lf + bufferOffset);
 
-		if(node.GetCount() <= m_LeafCount)
+		if (node.GetCount() <= m_LeafCount)
 			node.SetLeftFirst(triangleOffset + lf);
 	}
 
@@ -194,7 +197,7 @@ void BVH::BuildBVH(const std::vector<glm::vec4>& tris, const uint32_t bufferOffs
 	{
 		fmt::print("[lf: {}]. Node: idx {}, leftfirst: {}, count: {}\n", k, i++, v.GetLeftFirst(), v.GetCount());
 	}
-
+	m_PoolPtr = (uint32_t)pool_ptr;
 	m_IsBuilt = true;
 }
 

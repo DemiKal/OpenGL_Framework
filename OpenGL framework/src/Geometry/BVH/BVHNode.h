@@ -31,7 +31,7 @@ public:
 	//	return m_bounds;
 	//}
 
-	void Subdivide(BVH& bvh, uint32_t start, uint32_t end, uint32_t& recursionCount);
+	void Subdivide(BVH& bvh, size_t& pool_ptr, uint32_t start, uint32_t end, uint32_t& recursionCount);
 	bool Traverse(BVH& bvh, const Ray& ray, std::vector<HitData>& hitData, unsigned nodeIdx) const;
 	static AABB CalculateAABB(const BVH& bvh, const uint32_t first, const uint32_t last);
 	uint32_t Partition(const BVHNode& parent, BVH& bvh, const uint32_t start, const uint32_t end) const;

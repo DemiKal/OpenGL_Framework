@@ -47,7 +47,7 @@ void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GL
 	}();
 	
 	fmt::print("\n=================\n");
-	fmt::print("{}, {}, {}, {}: {}", src_str , type_str, severity_str, id, message);
+	//fmt::print("{}, {}, {}, {}: {}", fmt::ptr(src_str), fmt::ptr(type_str), fmt::ptr(severity_str), id, fmt::ptr(message));
 	fmt::print("\n=================");
 }
 ScreenQuad Renderer::screenQuad;
@@ -332,7 +332,8 @@ void Renderer::Init(std::vector<std::tuple<int, int>> windowHints)
 	for (GLuint i = 0; i < sa; i++)
 	{
 		const GLubyte* ext = glGetStringi(GL_EXTENSIONS, i);
-		fmt::print("{0} {1}\n", i, static_cast<const unsigned char*>(ext));
+		//fmt::print("{0} {1}\n", i, static_cast<const unsigned char*>(ext));
+		fmt::print("{0} {1}\n", i, fmt::ptr(ext));
 	}
 
 	m_Initialized = true;

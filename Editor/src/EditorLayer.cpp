@@ -38,6 +38,7 @@ void EditorLayer::OnAttach()
 	m_Registry.emplace<CameraComponent>(cube);
 
 	const auto spyro = m_Registry.create();
+	m_Selected = spyro;
 	m_Registry.emplace<TransformComponent>(spyro);
 	m_Registry.emplace<TagComponent>(spyro, "Spyro");
 	//m_Registry.emplace<MeshComponent>(spyro, "Assets/meshes/DamagedHelmet.glb", aiProcess_Triangulate);

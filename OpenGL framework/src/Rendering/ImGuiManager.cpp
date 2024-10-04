@@ -22,7 +22,7 @@ void ImGuiManager::Init(Renderer& renderer)
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
 	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/fonts/OpenSans/OpenSans-Regular.ttf", 18.0f);
-	io.Fonts->AddFontFromFileTTF("Assets/fonts/Nunito/Nunito-Regular.ttf", 18.0f);
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/fonts/Nunito/Nunito-Regular.ttf", 18.0f);
 	io.Fonts->AddFontFromFileTTF("Assets/fonts/NotoSansJP/NotoSansJP-Regular.otf", 18.0f);
 	io.Fonts->AddFontFromFileTTF("Assets/fonts/Montserrat/Montserrat-Regular.ttf", 18.0f);
 
@@ -58,7 +58,7 @@ void ImGuiManager::Init(Renderer& renderer)
 
 
 
-	
+
 	ImGui_ImplGlfw_InitForOpenGL(renderer.GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 410");
 
